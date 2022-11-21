@@ -1,3 +1,4 @@
+use std::fmt;
 use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
 
 /// The largest 32-bit prime.
@@ -6,7 +7,7 @@ pub const MODULUS: u32 = 4_294_967_291;
 pub const MODULUS_U64: u64 = 4_294_967_291;
 
 /// 32-bit modular integer.
-#[derive(Copy, Clone, Default, Debug)]
+#[derive(Copy, Clone, Default)]
 pub struct ModularInteger {
     value: u32,
 }
@@ -31,6 +32,21 @@ impl ModularInteger {
 
     pub fn is_zero(&self) -> bool {
         self.value == 0
+    }
+}
+
+impl fmt::Display for ModularInteger {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
+impl fmt::Debug for ModularInteger {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.debug_struct("ModularInteger")
+         .field("value", &self.value)
+         .field("modulus", &MODULUS)
+         .finish()
     }
 }
 
@@ -231,5 +247,15 @@ mod test {
         assert_eq!((x * x.inv()).value(), 1);
         assert_eq!((y * y.inv()).value(), 1);
         assert_eq!((z * z.inv()).value(), 1);
+    }
+
+    #[test]
+    fn test_fmt() {
+        let x = ModularInteger::new(12345);
+        let display = format!("{}", x);
+        let debug = format!("{:?}", x);
+        assert_eq!(display, "12345".to_string());
+        assert!(debug.contains("value: 12345"));
+        assert!(debug.contains(&format!("modulus: {}", MODULUS)));
     }
 }
