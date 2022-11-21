@@ -2,7 +2,7 @@ use crate::common::*;
 
 use std::time::{Instant, Duration};
 use rand::Rng;
-use quack::PowerSumAccumulator;
+use quack::Quack;
 
 fn benchmark_construct_32(
     size: usize,
@@ -19,9 +19,9 @@ fn benchmark_construct_32(
         let numbers: Vec<u32> =
             (0..(num_packets + 10)).map(|_| rng.gen()).collect();
 
-        // Construct two empty PowerSumAccumulators.
-        let mut acc1 = PowerSumAccumulator::new(size);
-        let mut acc2 = PowerSumAccumulator::new(size);
+        // Construct two empty Quacks.
+        let mut acc1 = Quack::new(size);
+        let mut acc2 = Quack::new(size);
 
         // Warm up the instruction cache by inserting a few numbers.
         for i in num_packets..(num_packets + 10) {
@@ -43,7 +43,7 @@ fn benchmark_construct_32(
 
         if i > 0 {
             let duration = t2 - t1;
-            println!("Insert {} numbers into 2 PowerSumAccumulators (u32, \
+            println!("Insert {} numbers into 2 Quacks (u32, \
                 threshold = {}): {:?}", num_packets, size, duration);
             durations.push(duration);
         }
