@@ -1,6 +1,8 @@
 use std::ops::{Sub, SubAssign};
 use crate::arithmetic::ModularInteger;
 
+pub type Identifier = u32;
+
 /// The i-th term corresponds to dividing by i+1 in modular arithemtic.
 fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
     (0..(size as u32)).map(|i| ModularInteger::new(i+1).inv()).collect()
@@ -22,7 +24,7 @@ impl Quack {
         }
     }
 
-    pub fn insert(&mut self, value: u32) {
+    pub fn insert(&mut self, value: Identifier) {
         let size = self.power_sums.len();
         let x = ModularInteger::new(value);
         let mut y = x;
@@ -36,7 +38,10 @@ impl Quack {
 
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
-    pub fn to_polynomial_coefficients(self, coeffs: &mut Vec<ModularInteger>) {
+    pub(crate) fn to_polynomial_coefficients(
+        &self,
+        coeffs: &mut Vec<ModularInteger>,
+    ) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
         for i in 1..size {
