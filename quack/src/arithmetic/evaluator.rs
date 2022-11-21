@@ -1,4 +1,4 @@
-use crate::modint::ModularInteger;
+use crate::arithmetic::ModularInteger;
 
 pub struct MonicPolynomialEvaluator {
 }

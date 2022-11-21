@@ -1,18 +1,18 @@
 use std::ops::SubAssign;
-use crate::modint::ModularInteger;
+use crate::arithmetic::ModularInteger;
 
 /// The i-th term corresponds to dividing by i+1 in modular arithemtic.
 fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
     (0..(size as u32)).map(|i| ModularInteger::new(i+1).inv()).collect()
 }
 
-pub struct PowerSumAccumulator {
+pub struct Quack {
     inverse_table: Vec<ModularInteger>,
     pub power_sums: Vec<ModularInteger>,
     pub count: u16,
 }
 
-impl PowerSumAccumulator {
+impl Quack {
     pub fn new(size: usize) -> Self {
         Self {
             inverse_table: modular_inverse_table(size),
@@ -48,7 +48,7 @@ impl PowerSumAccumulator {
     }
 }
 
-impl SubAssign for PowerSumAccumulator {
+impl SubAssign for Quack {
     fn sub_assign(&mut self, rhs: Self) {
         let size = self.power_sums.len();
         for i in 0..size {

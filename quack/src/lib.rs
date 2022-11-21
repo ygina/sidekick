@@ -1,13 +1,14 @@
-mod modint;
-mod accumulator;
-mod evaluator;
+pub mod arithmetic {
+    mod modint;
+    mod evaluator;
 
-pub use modint::ModularInteger;
-pub use accumulator::PowerSumAccumulator;
-pub use evaluator::MonicPolynomialEvaluator;
+    pub use modint::ModularInteger;
+    pub use evaluator::MonicPolynomialEvaluator;
 
-pub struct Quack {
 }
 
-pub struct DecodedQuack {
-}
+mod quack;
+mod decoded_quack;
+
+pub use crate::quack::Quack;
+pub use decoded_quack::DecodedQuack;

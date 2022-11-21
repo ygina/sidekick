@@ -2,7 +2,7 @@ use crate::common::*;
 
 use std::time::{Instant, Duration};
 use rand::Rng;
-use quack::{ModularInteger, PowerSumAccumulator, MonicPolynomialEvaluator};
+use quack::{Quack, arithmetic::{ModularInteger, MonicPolynomialEvaluator}};
 
 fn benchmark_decode_32(
     size: usize,
@@ -23,9 +23,9 @@ fn benchmark_decode_32(
         let numbers: Vec<u32> =
             (0..num_packets).map(|_| rng.gen()).collect();
 
-        // Construct two empty PowerSumAccumulators.
-        let mut acc1 = PowerSumAccumulator::new(size);
-        let mut acc2 = PowerSumAccumulator::new(size);
+        // Construct two empty Quacks.
+        let mut acc1 = Quack::new(size);
+        let mut acc2 = Quack::new(size);
 
         // Insert all random numbers into the first accumulator.
         for j in 0..num_packets {
