@@ -8,7 +8,7 @@ pub const MODULUS: u32 = 4_294_967_291;
 pub const MODULUS_U64: u64 = 4_294_967_291;
 
 /// 32-bit modular integer.
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone, Default, PartialEq, Eq)]
 pub struct ModularInteger {
     value: u32,
 }
