@@ -1,4 +1,5 @@
 use std::fmt;
+use std::cmp::PartialEq;
 use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
 
 /// The largest 32-bit prime.
@@ -30,6 +31,10 @@ impl ModularInteger {
         self.value
     }
 
+    pub fn modulus(&self) -> u32 {
+        MODULUS
+    }
+
     pub fn is_zero(&self) -> bool {
         self.value == 0
     }
@@ -47,6 +52,18 @@ impl fmt::Debug for ModularInteger {
          .field("value", &self.value)
          .field("modulus", &MODULUS)
          .finish()
+    }
+}
+
+impl PartialEq<u32> for ModularInteger {
+    fn eq(&self, other: &u32) -> bool {
+        self.value == *other
+    }
+}
+
+impl PartialEq<ModularInteger> for u32 {
+    fn eq(&self, other: &ModularInteger) -> bool {
+        self == &other.value
     }
 }
 
@@ -150,29 +167,36 @@ mod test {
 
     #[test]
     fn test_constructor() {
-        assert_eq!(0, ModularInteger::new(0).value());
-        assert_eq!(1, ModularInteger::new(1).value());
-        assert_eq!(4_294_967_290, ModularInteger::new(4_294_967_290).value());
+        assert_eq!(0, ModularInteger::new(0));
+        assert_eq!(1, ModularInteger::new(1));
+        assert_eq!(4_294_967_290, ModularInteger::new(4_294_967_290));
+    }
+
+    #[test]
+    fn test_field_getters() {
+        let x = ModularInteger::new(12345);
+        assert_eq!(x.value(), 12345);
+        assert_eq!(x.modulus(), MODULUS);
     }
 
     #[test]
     fn test_zero_constructor() {
         let zero = ModularInteger::zero();
-        assert_eq!(0, zero.value());
+        assert_eq!(0, zero);
         assert!(zero.is_zero());
     }
 
     #[test]
     fn test_constructor_overflow() {
-        assert_eq!(0, ModularInteger::new(4_294_967_291).value());
-        assert_eq!(1, ModularInteger::new(4_294_967_292).value());
+        assert_eq!(0, ModularInteger::new(4_294_967_291));
+        assert_eq!(1, ModularInteger::new(4_294_967_292));
     }
 
     #[test]
     fn test_neg() {
-        assert_eq!(0, (-ModularInteger::zero()).value());
-        assert_eq!(4_294_967_290, (-ModularInteger::new(1)).value());
-        assert_eq!(1, (-ModularInteger::new(4_294_967_290)).value());
+        assert_eq!(0, -ModularInteger::zero());
+        assert_eq!(4_294_967_290, -ModularInteger::new(1));
+        assert_eq!(1, -ModularInteger::new(4_294_967_290));
     }
 
     #[test]
@@ -181,17 +205,17 @@ mod test {
         let y = ModularInteger::new(1);
         let z = ModularInteger::new(4_294_967_290);
         x += y;
-        assert_eq!(x.value(), 1);
-        assert_eq!(y.value(), 1);
+        assert_eq!(x, 1);
+        assert_eq!(y, 1);
         x += z;
-        assert_eq!(x.value(), 0);
-        assert_eq!(z.value(), 4_294_967_290);
+        assert_eq!(x, 0);
+        assert_eq!(z, 4_294_967_290);
         x += y;
         x += y;
         x += z;
-        assert_eq!(x.value(), 1);
-        assert_eq!((z + y).value(), 0);
-        assert_eq!((z + z).value(), 4_294_967_289);
+        assert_eq!(x, 1);
+        assert_eq!(z + y, 0);
+        assert_eq!(z + z, 4_294_967_289);
     }
 
     #[test]
@@ -200,43 +224,43 @@ mod test {
         let y = ModularInteger::new(1);
         let z = ModularInteger::new(4_294_967_290);
         x -= y;
-        assert_eq!(x.value(), 4_294_967_290);
-        assert_eq!(y.value(), 1);
+        assert_eq!(x, 4_294_967_290);
+        assert_eq!(y, 1);
         x -= z;
-        assert_eq!(x.value(), 0);
-        assert_eq!(z.value(), 4_294_967_290);
+        assert_eq!(x, 0);
+        assert_eq!(z, 4_294_967_290);
         x -= y;
         x -= y;
         x -= z;
-        assert_eq!(x.value(), 4_294_967_290);
-        assert_eq!((z - y).value(), 4_294_967_289);
-        assert_eq!((z - z).value(), 0);
+        assert_eq!(x, 4_294_967_290);
+        assert_eq!(z - y, 4_294_967_289);
+        assert_eq!(z - z, 0);
     }
 
     #[test]
     fn test_mul() {
         let mut x = ModularInteger::new(1_000);
         let mut y = ModularInteger::new(4_294_968);
-        assert_eq!((x * x).value(), 1_000_000);
-        assert_eq!((x * y).value(), 709);
-        assert_eq!((y * y).value(), 4_160_573_470);
+        assert_eq!(x * x, 1_000_000);
+        assert_eq!(x * y, 709);
+        assert_eq!(y * y, 4_160_573_470);
         x *= y;
-        assert_eq!(x.value(), 709);
+        assert_eq!(x, 709);
         y *= y;
-        assert_eq!(y.value(), 4_160_573_470);
+        assert_eq!(y, 4_160_573_470);
     }
 
     #[test]
     fn test_pow() {
         let x = ModularInteger::new(1_000);
-        assert_eq!(x.pow(0).value(), 1);
-        assert_eq!(x.pow(1).value(), 1_000);
-        assert_eq!(x.pow(2).value(), 1_000_000);
-        assert_eq!(x.pow(8).value(), 740_208_280);
-        assert_eq!(x.pow(9).value(), 1_473_905_948);
-        assert_eq!(x.pow(10).value(), 732_167_187);
-        assert_eq!(x.pow(4_294_967_289).value(), 811_748_818);
-        assert_eq!(x.pow(4_294_967_290).value(), 1);
+        assert_eq!(x.pow(0), 1);
+        assert_eq!(x.pow(1), 1_000);
+        assert_eq!(x.pow(2), 1_000_000);
+        assert_eq!(x.pow(8), 740_208_280);
+        assert_eq!(x.pow(9), 1_473_905_948);
+        assert_eq!(x.pow(10), 732_167_187);
+        assert_eq!(x.pow(4_294_967_289), 811_748_818);
+        assert_eq!(x.pow(4_294_967_290), 1);
     }
 
     #[test]
@@ -244,9 +268,9 @@ mod test {
         let x = ModularInteger::new(2);
         let y = ModularInteger::new(1_000);
         let z = ModularInteger::new(4_294_967_289);
-        assert_eq!((x * x.inv()).value(), 1);
-        assert_eq!((y * y.inv()).value(), 1);
-        assert_eq!((z * z.inv()).value(), 1);
+        assert_eq!(x * x.inv(), 1);
+        assert_eq!(y * y.inv(), 1);
+        assert_eq!(z * z.inv(), 1);
     }
 
     #[test]
