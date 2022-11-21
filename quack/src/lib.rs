@@ -10,5 +10,5 @@ pub mod arithmetic {
 mod quack;
 mod decoded_quack;
 
-pub use crate::quack::Quack;
-pub use decoded_quack::DecodedQuack;
+pub use crate::quack::{Quack, Identifier};
+pub use decoded_quack::{DecodedQuack, IdentifierLog};

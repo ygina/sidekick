@@ -2,7 +2,7 @@ use crate::common::*;
 
 use std::time::{Instant, Duration};
 use rand::Rng;
-use quack::{Quack, arithmetic::{ModularInteger, MonicPolynomialEvaluator}};
+use quack::*;
 
 fn benchmark_decode_32(
     size: usize,
@@ -16,11 +16,8 @@ fn benchmark_decode_32(
     let mut durations: Vec<Duration> = vec![];
 
     for i in 0..(num_trials + 1) {
-        // Allocate variable for counting false positives.
-        let mut fp = 0;
-
         // Generate 1000 random numbers.
-        let numbers: Vec<u32> =
+        let numbers: IdentifierLog =
             (0..num_packets).map(|_| rng.gen()).collect();
 
         // Construct two empty Quacks.
@@ -37,28 +34,9 @@ fn benchmark_decode_32(
             acc2.insert(numbers[j]);
         }
 
-        // Pre-allocate buffer for polynomial coefficients.
-        let mut coeffs = (0..num_drop).map(|_| ModularInteger::zero()).collect();
-
-        // Allocate buffer for missing packets.
-        let mut dropped: Vec<u32> = vec![];
-
         let t1 = Instant::now();
-        if num_drop > 0 {
-            acc1 -= acc2;
-            acc1.to_polynomial_coefficients(&mut coeffs);
-            for j in 0..(num_packets - num_drop) {
-                let value = MonicPolynomialEvaluator::eval(&coeffs, numbers[j]);
-                if value.is_zero() {
-                    fp += 1;
-                }
-            }
-            for j in (num_packets - num_drop)..num_packets {
-                let value = MonicPolynomialEvaluator::eval(&coeffs, numbers[j]);
-                assert!(value.is_zero());
-                dropped.push(numbers[j]);
-            }
-        }
+        acc1 -= acc2;
+        let dropped = DecodedQuack::decode(&acc1, &numbers);
         // do_not_discard(dropped);
         let t2 = Instant::now();
 
@@ -66,7 +44,7 @@ fn benchmark_decode_32(
             let duration = t2 - t1;
             println!("Decode time (u32, threshold = {}, num_packets={}, \
                 false_positives = {}, dropped = {}): {:?}", size, num_packets,
-                fp, num_drop, duration);
+                dropped.total_num_missing() - num_drop, num_drop, duration);
             durations.push(duration);
         }
     }
