@@ -1,5 +1,6 @@
 use std::ops::{Sub, SubAssign};
 use crate::arithmetic::ModularInteger;
+use serde::{Serialize, Deserialize};
 
 pub type Identifier = u32;
 
@@ -8,8 +9,10 @@ fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
     (0..(size as u32)).map(|i| ModularInteger::new(i+1).inv()).collect()
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Quack {
+    // https://serde.rs/attr-skip-serializing.html
+    #[serde(skip)]
     inverse_table: Vec<ModularInteger>,
     pub power_sums: Vec<ModularInteger>,
     pub count: u16,
@@ -198,5 +201,42 @@ mod test {
         assert_eq!(quack.power_sums, vec![9, 41, 189]);
         quack.to_polynomial_coefficients(&mut coeffs);
         assert_eq!(coeffs, vec![4294967282, 20, 0]);
+    }
+
+    #[test]
+    fn test_quack_serialize() {
+        let mut quack = Quack::new(10);
+        let bytes = bincode::serialize(&quack).unwrap();
+        // expected length is 4*10+2 = 42 bytes (ten u32 sums and a u16 count)
+        // TODO: extra 8 bytes from bincode
+        assert_eq!(bytes.len(), 42);
+        assert_eq!(&bytes[..], &[0; 42], "no data yet");
+        quack.insert(1);
+        quack.insert(2);
+        quack.insert(3);
+        let bytes = bincode::serialize(&quack).unwrap();
+        assert_eq!(bytes.len(), 42);
+        assert_ne!(&bytes[..], &[0; 42]);
+    }
+
+    #[test]
+    fn test_quack_deserialize_empty() {
+        let q1 = Quack::new(10);
+        let bytes = bincode::serialize(&q1).unwrap();
+        let q2: Quack = bincode::deserialize(&bytes).unwrap();
+        assert_eq!(q1.count, q2.count);
+        assert_eq!(q1.power_sums, q2.power_sums);
+    }
+
+    #[test]
+    fn test_quack_deserialize_with_data() {
+        let mut q1 = Quack::new(10);
+        q1.insert(1);
+        q1.insert(2);
+        q1.insert(3);
+        let bytes = bincode::serialize(&q1).unwrap();
+        let q2: Quack = bincode::deserialize(&bytes).unwrap();
+        assert_eq!(q1.count, q2.count);
+        assert_eq!(q1.power_sums, q2.power_sums);
     }
 }

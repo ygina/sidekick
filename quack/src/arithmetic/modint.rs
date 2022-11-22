@@ -1,6 +1,7 @@
 use std::fmt;
 use std::cmp::PartialEq;
 use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
+use serde::{Serialize, Deserialize};
 
 /// The largest 32-bit prime.
 pub const MODULUS: u32 = 4_294_967_291;
@@ -8,7 +9,7 @@ pub const MODULUS: u32 = 4_294_967_291;
 pub const MODULUS_U64: u64 = 4_294_967_291;
 
 /// 32-bit modular integer.
-#[derive(Copy, Clone, Default, PartialEq, Eq)]
+#[derive(Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModularInteger {
     value: u32,
 }
