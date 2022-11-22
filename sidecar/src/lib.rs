@@ -31,7 +31,7 @@ impl Sidecar {
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
     /// to loop received quACKs.
-    pub fn listen(&self, port: u16) -> std::sync::mpsc::Receiver<Quack> {
+    pub fn listen(&self, port: u16) -> tokio::sync::mpsc::Receiver<Quack> {
         unimplemented!()
     }
 
