@@ -1,8 +1,8 @@
-use std::net::{UdpSocket, SocketAddr};
+use std::net::SocketAddr;
 use std::time::Duration;
 use clap::{Parser, Subcommand};
-use quack::Quack;
 use sidecar::{Sidecar, SidecarType};
+use tokio::net::UdpSocket;
 
 #[derive(Subcommand)]
 enum CliSidecarType {
@@ -49,24 +49,46 @@ struct Cli {
     num_bits_id: usize,
 }
 
-/// If a target socket address and source UDP socket are provided, generates a
-/// quACK handler that sends the byte-serialized quACK in a UDP packet to the
-/// target address. Otherwise, prints the number of received packets to stdout.
-fn gen_quack_handler(
-    to_from: Option<(SocketAddr, UdpSocket)>,
-) -> Box<dyn Fn(&Quack)> {
-    if let Some((addr, socket)) = to_from {
-        Box::new(move |quack: &Quack| {
+async fn send_quacks(
+    sc: Sidecar,
+    addr: SocketAddr,
+    frequency_ms: Option<u64>,
+    frequency_packets: Option<usize>,
+) {
+    let socket = UdpSocket::bind("127.0.0.1:53534").await.expect(
+        &format!("error binding to UDP socket: 127.0.0.1:53534"));
+    if let Some(ms) = frequency_ms {
+        loop {
+            tokio::time::sleep(Duration::from_millis(ms)).await;
+            let quack = sc.quack();
             let bytes = bincode::serialize(quack).unwrap();
-            socket.send_to(&bytes, addr).unwrap();
-        })
-    } else {
-        Box::new(move |quack: &Quack| println!("quack {}", quack.count))
+            socket.send_to(&bytes, addr).await.unwrap();
+        }
+    }
+    if let Some(_) = frequency_packets {
+        unimplemented!()
     }
 }
 
+async fn print_quacks(
+    sc: Sidecar,
+    frequency_ms: Option<u64>,
+    frequency_packets: Option<usize>,
+) {
+    if let Some(ms) = frequency_ms {
+        loop {
+            tokio::time::sleep(Duration::from_millis(ms)).await;
+            let quack = sc.quack();
+            println!("quack {}", quack.count);
+        }
+    }
+    if let Some(_) = frequency_packets {
+        unimplemented!()
+    }
+}
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = Cli::parse();
     match args.ty {
         CliSidecarType::QuackSender {
@@ -74,14 +96,6 @@ fn main() {
             frequency_packets,
             target_addr,
         } => {
-            // Create the quACK handler.
-            let to_from = target_addr.map(|addr| {
-                let socket = UdpSocket::bind("127.0.0.1:53534").expect(
-                    &format!("error binding to UDP socket: {:?}", addr));
-                (addr, socket)
-            });
-            let handler = gen_quack_handler(to_from);
-
             // Start the sidecar.
             let sc = Sidecar::new(
                 SidecarType::QuackSender,
@@ -93,15 +107,10 @@ fn main() {
             sc.start();
 
             // Handle a snapshotted quACK at the specified frequency.
-            if let Some(ms) = frequency_ms {
-                loop {
-                    // TODO: tokio
-                    std::thread::sleep(Duration::from_millis(ms));
-                    handler(sc.quack());
-                }
-            }
-            if let Some(_freq) = frequency_packets {
-                unimplemented!();
+            if let Some(addr) = target_addr {
+                send_quacks(sc, addr, frequency_ms, frequency_packets).await;
+            } else {
+                print_quacks(sc, frequency_ms, frequency_packets).await;
             }
         }
         CliSidecarType::QuackReceiver { port } => {
@@ -112,9 +121,9 @@ fn main() {
                 args.num_bits_id,
             );
             // TODO: async code
-            let rx = sc.listen(port);
+            let mut rx = sc.listen(port);
             loop {
-                let quack = rx.recv().expect("channel has hung up");
+                let quack = rx.recv().await.expect("channel has hung up");
                 // TODO: tracing library
                 let result = sc.quack_decode(quack);
                 println!("{}", result);
