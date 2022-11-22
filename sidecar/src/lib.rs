@@ -10,6 +10,7 @@ pub struct Sidecar {
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
+    quack: Quack,
     log: IdentifierLog,
 }
 
@@ -35,12 +36,12 @@ impl Sidecar {
     }
 
     /// Snapshot the quACK.
-    pub fn quack(&self) -> Quack {
+    pub fn quack(&self) -> &Quack {
         unimplemented!()
     }
 
     /// Snapshot the quACK and current log.
-    pub fn quack_with_log(&self) -> (Quack, IdentifierLog) {
+    pub fn quack_with_log(&self) -> (&Quack, &IdentifierLog) {
         unimplemented!()
     }
 
