@@ -54,14 +54,14 @@ struct Cli {
 /// target address. Otherwise, prints the number of received packets to stdout.
 fn gen_quack_handler(
     to_from: Option<(SocketAddr, UdpSocket)>,
-) -> Box<dyn Fn(Quack)> {
+) -> Box<dyn Fn(&Quack)> {
     if let Some((addr, socket)) = to_from {
-        Box::new(move |quack: Quack| {
-            let bytes = bincode::serialize(&quack).unwrap();
+        Box::new(move |quack: &Quack| {
+            let bytes = bincode::serialize(quack).unwrap();
             socket.send_to(&bytes, addr).unwrap();
         })
     } else {
-        Box::new(move |quack: Quack| println!("quack {}", quack.count))
+        Box::new(move |quack: &Quack| println!("quack {}", quack.count))
     }
 }
 
@@ -97,8 +97,7 @@ fn main() {
                 loop {
                     // TODO: tokio
                     std::thread::sleep(Duration::from_millis(ms));
-                    let quack = sc.quack();
-                    handler(quack);
+                    handler(sc.quack());
                 }
             }
             if let Some(_freq) = frequency_packets {
