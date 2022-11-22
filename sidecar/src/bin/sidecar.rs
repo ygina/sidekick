@@ -88,7 +88,7 @@ async fn print_quacks(
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> std::io::Result<()> {
     let args = Cli::parse();
     match args.ty {
         CliSidecarType::QuackSender {
@@ -104,7 +104,7 @@ async fn main() {
                 args.num_bits_id,
             );
             // TODO: async code
-            sc.start();
+            sc.start()?;
 
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
@@ -130,4 +130,5 @@ async fn main() {
             }
         }
     }
+    Ok(())
 }

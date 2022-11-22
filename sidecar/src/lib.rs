@@ -1,7 +1,9 @@
+use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
+use socket2::{Socket, Domain, Type};
 
 pub enum SidecarType {
     QuackSender,
@@ -13,6 +15,7 @@ pub struct Sidecar {
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
+    // TODO: is there a better way to do synchronization?
     quack: Quack,
     log: IdentifierLog,
 }
@@ -36,8 +39,10 @@ impl Sidecar {
     /// only listens for incoming packets. If the sidecar is a quACK receiver,
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
-    pub fn start(&self) {
-        println!("warning: unimplemented");
+    pub fn start(&self) -> std::io::Result<()> {
+        // socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL)
+        let socket = Socket::new(Domain::PACKET, Type::RAW, None)?;
+        Ok(())
     }
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
