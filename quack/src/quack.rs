@@ -36,6 +36,7 @@ impl Quack {
             y *= x;
         }
         self.power_sums[size - 1] += y;
+        // TODO: handle count overflow
         self.count += 1;
     }
 
@@ -61,6 +62,8 @@ impl SubAssign for Quack {
     fn sub_assign(&mut self, rhs: Self) {
         assert_eq!(self.power_sums.len(), rhs.power_sums.len(),
             "expected subtracted quacks to have the same number of sums");
+        // TODO: actually, subtraction with underflow should be allowed in case
+        // the count overflowed in the original quACK.
         assert!(self.count >= rhs.count, "subtract count with overflow");
         let size = self.power_sums.len();
         for i in 0..size {
