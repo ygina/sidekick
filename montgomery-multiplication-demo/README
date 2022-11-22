@@ -1,0 +1,12 @@
+Microbenchmark for Montgomery form
+
+make && ./main
+
+Benches computing power sums/quACKs with both Montgomery form and regular
+add/multiply/divide. We're using a prime just below 2^63, and the auxiliary
+modulus R we're using for Montgomery form is 2^63.
+
+This does *NOT* measure time to recover missing packets, just time to construct
+the quACK.
+
+On my machine, time without Montgomery form is 0.76s and time with is 0.2s.
