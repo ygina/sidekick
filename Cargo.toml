@@ -4,5 +4,6 @@ members = [
     "quack",
     "quack-bm",
     "sidecar",
+    "rs-montgomery-multiplication-demo",
 ]
 
