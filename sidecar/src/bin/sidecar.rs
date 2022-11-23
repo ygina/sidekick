@@ -61,7 +61,7 @@ async fn send_quacks(
         loop {
             tokio::time::sleep(Duration::from_millis(ms)).await;
             let quack = sc.quack();
-            let bytes = bincode::serialize(quack).unwrap();
+            let bytes = bincode::serialize(&quack).unwrap();
             socket.send_to(&bytes, addr).await.unwrap();
         }
     }
@@ -90,6 +90,7 @@ async fn print_quacks(
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     let args = Cli::parse();
+    let rt = tokio::runtime::Runtime::new().unwrap();
     match args.ty {
         CliSidecarType::QuackSender {
             frequency_ms,
@@ -104,7 +105,7 @@ async fn main() -> std::io::Result<()> {
                 args.num_bits_id,
             );
             // TODO: async code
-            sc.start()?;
+            sc.start(&rt)?;
 
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
@@ -121,7 +122,7 @@ async fn main() -> std::io::Result<()> {
                 args.num_bits_id,
             );
             // TODO: async code
-            let mut rx = sc.listen(port);
+            let mut rx = sc.listen(port, &rt);
             loop {
                 let quack = rx.recv().await.expect("channel has hung up");
                 // TODO: tracing library
