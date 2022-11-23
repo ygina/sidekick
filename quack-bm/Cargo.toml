@@ -7,3 +7,5 @@ edition = "2021"
 quack = { path = "../quack" }
 clap = { version = "4.0.26", features = ["derive"] }
 rand = "0.8.5"
+log = "0.4.17"
+env_logger = "0.9.3"

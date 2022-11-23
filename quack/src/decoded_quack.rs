@@ -1,4 +1,5 @@
 use std::fmt;
+use log::{trace, info, debug};
 
 use crate::{Quack, Identifier};
 use crate::arithmetic::*;
@@ -32,6 +33,8 @@ impl DecodedQuack {
     pub fn decode(quack: Quack, log: IdentifierLog) -> Self {
         let num_packets = log.len();
         let num_missing = quack.count;
+        info!("decoding quACK: num_packets={}, num_missing={}",
+            num_packets, num_missing);
         if num_missing == 0 {
             return Self {
                 quack,
@@ -46,11 +49,14 @@ impl DecodedQuack {
             quack.to_polynomial_coefficients(&mut coeffs);
             coeffs
         };
-        let indexes = (0..num_packets)
+        trace!("coeffs = {:?}", coeffs);
+        let indexes: Vec<usize> = (0..num_packets)
             .filter(|&i| {
                 MonicPolynomialEvaluator::eval(&coeffs, log[i]).is_zero()
             })
             .collect();
+        info!("found {}/{} missing packets", indexes.len(), num_missing);
+        debug!("indexes = {:?}", indexes);
         Self {
             quack,
             log,

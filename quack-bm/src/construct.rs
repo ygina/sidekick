@@ -1,6 +1,7 @@
 use crate::common::*;
 
 use std::time::{Instant, Duration};
+use log::info;
 use rand::Rng;
 use quack::Quack;
 
@@ -43,7 +44,7 @@ fn benchmark_construct_32(
 
         if i > 0 {
             let duration = t2 - t1;
-            println!("Insert {} numbers into 2 Quacks (u32, \
+            info!("Insert {} numbers into 2 Quacks (u32, \
                 threshold = {}): {:?}", num_packets, size, duration);
             durations.push(duration);
         }

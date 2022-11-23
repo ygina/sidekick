@@ -4,8 +4,9 @@ mod decode;
 
 use common::*;
 use clap::Parser;
+use log::debug;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 struct Cli {
     // Type of benchmark.
     #[arg(value_enum)]
@@ -32,7 +33,10 @@ struct Cli {
 
 
 fn main() {
+    env_logger::init();
+
     let args = Cli::parse();
+    debug!("args = {:?}", args);
     match args.benchmark {
         BenchmarkType::Construct => {
             construct::run_benchmark(

@@ -1,7 +1,8 @@
 use clap::ValueEnum;
 use std::time::Duration;
+use log::info;
 
-#[derive(Clone, ValueEnum)]
+#[derive(Clone, ValueEnum, Debug)]
 pub enum BenchmarkType {
     Construct,
     Decode,
@@ -14,5 +15,5 @@ pub fn print_summary(d: Vec<Duration>) {
     } else {
         d.into_iter().sum::<Duration>() / size
     };
-    println!("SUMMARY: num_trials = {}, avg = {:?}", size, avg);
+    info!("SUMMARY: num_trials = {}, avg = {:?}", size, avg);
 }

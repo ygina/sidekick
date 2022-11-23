@@ -3,8 +3,9 @@ use std::time::Duration;
 use clap::{Parser, Subcommand};
 use sidecar::{Sidecar, SidecarType};
 use tokio::net::UdpSocket;
+use log::{debug, info};
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 enum CliSidecarType {
     /// Sends quACKs in the sidecar protocol, receives data in the base
     /// protocol.
@@ -89,13 +90,20 @@ async fn print_quacks(
 
 #[tokio::main]
 async fn main() {
+    env_logger::init();
+
     let args = Cli::parse();
+    debug!("sidecar_type={:?}", args.ty);
+    debug!("interface={} threshold={} bits={}",
+        args.interface, args.threshold, args.num_bits_id);
     match args.ty {
         CliSidecarType::QuackSender {
             frequency_ms,
             frequency_packets,
             target_addr,
         } => {
+            debug!("frequency_ms={:?}", frequency_ms);
+            debug!("frequency_packets={:?}", frequency_packets);
             // Start the sidecar.
             let sc = Sidecar::new(
                 SidecarType::QuackSender,
@@ -108,8 +116,10 @@ async fn main() {
 
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
+                info!("quACKing to {:?}", addr);
                 send_quacks(sc, addr, frequency_ms, frequency_packets).await;
             } else {
+                info!("printing quACKs");
                 print_quacks(sc, frequency_ms, frequency_packets).await;
             }
         }
@@ -124,9 +134,8 @@ async fn main() {
             let mut rx = sc.listen(port);
             loop {
                 let quack = rx.recv().await.expect("channel has hung up");
-                // TODO: tracing library
                 let result = sc.quack_decode(quack);
-                println!("{}", result);
+                debug!("{}", result);
             }
         }
     }
