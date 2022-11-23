@@ -5,20 +5,20 @@ use crate::arithmetic::*;
 
 pub type IdentifierLog = Vec<Identifier>;
 
-pub struct DecodedQuack<'a> {
-    quack: &'a Quack,
-    log: &'a IdentifierLog,
+pub struct DecodedQuack {
+    quack: Quack,
+    log: IdentifierLog,
     // Indexes of the missing packets in the identifier log.
     indexes: Vec<usize>,
 }
 
-impl<'a> fmt::Display for DecodedQuack<'a> {
+impl fmt::Display for DecodedQuack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self.indexes)
     }
 }
 
-impl<'a> fmt::Debug for DecodedQuack<'a> {
+impl fmt::Debug for DecodedQuack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("DecodedQuack")
          .field("quack_count", &self.quack.count)
@@ -28,8 +28,8 @@ impl<'a> fmt::Debug for DecodedQuack<'a> {
     }
 }
 
-impl<'a> DecodedQuack<'a> {
-    pub fn decode(quack: &'a Quack, log: &'a IdentifierLog) -> Self {
+impl DecodedQuack {
+    pub fn decode(quack: Quack, log: IdentifierLog) -> Self {
         let num_packets = log.len();
         let num_missing = quack.count;
         let coeffs = {
@@ -111,7 +111,7 @@ mod test {
 
         // Check the result
         let quack = q1 - q2;
-        let result = DecodedQuack::decode(&quack, &log);
+        let result = DecodedQuack::decode(quack, log);
         assert_eq!(result.num_suffix(), 2);
         assert_eq!(result.num_missing(), 1);
         assert_eq!(result.total_num_missing(), 3);
