@@ -32,6 +32,13 @@ impl DecodedQuack {
     pub fn decode(quack: Quack, log: IdentifierLog) -> Self {
         let num_packets = log.len();
         let num_missing = quack.count;
+        if num_missing == 0 {
+            return Self {
+                quack,
+                log,
+                indexes: vec![],
+            };
+        }
         let coeffs = {
             let mut coeffs = (0..num_missing)
                 .map(|_| ModularInteger::zero())
@@ -96,6 +103,17 @@ impl DecodedQuack {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_decode_empty_quack() {
+        let quack = Quack::new(10);
+        let log = vec![1, 2, 3];
+        let result = DecodedQuack::decode(quack, log);
+        assert_eq!(result.num_suffix(), 0);
+        assert_eq!(result.num_missing(), 0);
+        assert_eq!(result.total_num_missing(), 0);
+        assert_eq!(result.missing().len(), 0);
+    }
 
     #[test]
     fn test_quack_decode() {
