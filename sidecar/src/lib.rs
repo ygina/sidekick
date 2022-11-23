@@ -1,10 +1,11 @@
 use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
-use log::{trace, debug, info, error};
+use log::{trace, debug, info};
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
 
+#[derive(Clone, PartialEq, Eq)]
 pub enum SidecarType {
     QuackSender,
     QuackReceiver,
@@ -18,6 +19,8 @@ pub struct Sidecar {
     // TODO: is there a better way to do synchronization?
     quack_log: Arc<Mutex<(Quack, IdentifierLog)>>,
 }
+
+const BUFFER_SIZE: usize = 65536;
 
 impl Sidecar {
     /// Create a new sidecar.
@@ -38,7 +41,50 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     pub fn start(&self) {
-        error!("unimplemented raw socket");
+        use nix::sys::socket::*;
+
+        // Create a socket
+        let sock = socket(
+            AddressFamily::Packet,
+            SockType::Raw,
+            SockFlag::empty(),
+            SockProtocol::EthAll, // Udp
+        ).unwrap();
+        info!("opened socket with fd={}", sock);
+
+        // Bind the sniffer to a specific interface
+        info!("binding the socket to interface={}", self.interface);
+        setsockopt(
+            sock,
+            sockopt::BindToDevice,
+            &self.interface.clone().into(),
+        ).unwrap();
+
+        // Set the network card in promiscuous mode
+        // TODO
+
+        // Loop over received packets
+        let mut buf = [0; BUFFER_SIZE];
+        let quack_log = self.quack_log.clone();
+        let ty = self.ty.clone();
+        tokio::spawn(async move {
+            debug!("tapping raw socket");
+            loop {
+                let (n, _) = recvfrom::<SockaddrStorage>(
+                    sock,
+                    &mut buf,
+                ).unwrap();
+                let identifier = 100;  // TODO: extract identifier from buf
+                {
+                    let mut quack_log = quack_log.lock().unwrap();
+                    quack_log.0.insert(identifier);
+                    if ty == SidecarType::QuackReceiver {
+                        quack_log.1.push(identifier);
+                    }
+                }
+                trace!("received {} bytes", n);
+            }
+        });
     }
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
