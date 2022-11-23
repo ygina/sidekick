@@ -57,12 +57,14 @@ impl Sidecar {
             info!("listening for quACKs on {}", addr);
             let socket = UdpSocket::bind(addr).await.unwrap();
             let mut buf = vec![0; buf_len];
-            let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
-            assert_eq!(nbytes, buf.len());
-            // TODO: check that it's actually a quack
-            let quack: Quack = bincode::deserialize(&buf).unwrap();
-            trace!("received quACK with count {}", quack.count);
-            tx.send(quack).await.unwrap();
+            loop {
+                let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
+                assert_eq!(nbytes, buf.len());
+                // TODO: check that it's actually a quack
+                let quack: Quack = bincode::deserialize(&buf).unwrap();
+                trace!("received quACK with count {}", quack.count);
+                tx.send(quack).await.unwrap();
+            }
         });
         rx
     }
