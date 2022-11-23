@@ -62,7 +62,8 @@ async fn send_quacks(
         loop {
             tokio::time::sleep(Duration::from_millis(ms)).await;
             let quack = sc.quack();
-            let bytes = bincode::serialize(quack).unwrap();
+            let bytes = bincode::serialize(&quack).unwrap();
+            println!("quack {}", quack.count);
             socket.send_to(&bytes, addr).await.unwrap();
         }
     }

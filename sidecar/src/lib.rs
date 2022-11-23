@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
 use log::{trace, debug, info, error};
@@ -14,8 +15,8 @@ pub struct Sidecar {
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
-    quack: Quack,
-    log: IdentifierLog,
+    // TODO: is there a better way to do synchronization?
+    quack_log: Arc<Mutex<(Quack, IdentifierLog)>>,
 }
 
 impl Sidecar {
@@ -27,8 +28,7 @@ impl Sidecar {
             interface: interface.to_string(),
             threshold,
             bits,
-            quack: Quack::new(threshold),
-            log: vec![],
+            quack_log: Arc::new(Mutex::new((Quack::new(threshold), vec![]))),
         }
     }
 
@@ -68,17 +68,20 @@ impl Sidecar {
     }
 
     /// Snapshot the quACK.
-    pub fn quack(&self) -> &Quack {
-        &self.quack
+    pub fn quack(&self) -> Quack {
+        self.quack_log.lock().unwrap().0.clone()
     }
 
     /// Snapshot the quACK and current log.
-    pub fn quack_with_log(&self) -> (&Quack, &IdentifierLog) {
-        (&self.quack, &self.log)
+    pub fn quack_with_log(&self) -> (Quack, IdentifierLog) {
+        // TODO: don't clone the log
+        self.quack_log.lock().unwrap().clone()
     }
 
     /// Decode the quACK given the current snapshot.
     pub fn quack_decode(&self, quack: Quack) -> DecodedQuack {
-        unimplemented!()
+        let (my_quack, my_log) = self.quack_with_log();
+        let difference_quack = my_quack - quack;
+        DecodedQuack::decode(difference_quack, my_log)
     }
 }
