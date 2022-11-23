@@ -1,6 +1,7 @@
 use crate::common::*;
 
 use std::time::{Instant, Duration};
+use log::info;
 use rand::Rng;
 use quack::*;
 
@@ -42,7 +43,7 @@ fn benchmark_decode_32(
 
         if i > 0 {
             let duration = t2 - t1;
-            println!("Decode time (u32, threshold = {}, num_packets={}, \
+            info!("Decode time (u32, threshold = {}, num_packets={}, \
                 false_positives = {}, dropped = {}): {:?}", size, num_packets,
                 dropped.total_num_missing() - num_drop, num_drop, duration);
             durations.push(duration);

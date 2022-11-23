@@ -1,6 +1,7 @@
 use std::ops::{Sub, SubAssign};
 use crate::arithmetic::ModularInteger;
 use serde::{Serialize, Deserialize};
+use log::{debug, trace};
 
 pub type Identifier = u32;
 
@@ -20,6 +21,7 @@ pub struct Quack {
 
 impl Quack {
     pub fn new(size: usize) -> Self {
+        debug!("new quACK of size {}", size);
         Self {
             inverse_table: modular_inverse_table(size),
             power_sums: (0..size).map(|_| ModularInteger::zero()).collect(),
@@ -28,6 +30,7 @@ impl Quack {
     }
 
     pub fn insert(&mut self, value: Identifier) {
+        trace!("insert {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::new(value);
         let mut y = x;

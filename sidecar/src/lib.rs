@@ -1,5 +1,6 @@
 use quack::*;
 use bincode;
+use log::{trace, debug, info, error};
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
 
@@ -37,7 +38,7 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     pub fn start(&self) {
-        println!("warning: unimplemented");
+        error!("unimplemented raw socket");
     }
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
@@ -50,14 +51,17 @@ impl Sidecar {
             let quack = Quack::new(self.threshold);
             bincode::serialize(&quack).unwrap().len()
         };
+        debug!("allocating {} bytes for receiving quACKs", buf_len);
         tokio::spawn(async move {
             let addr = format!("127.0.0.1:{}", port);
+            info!("listening for quACKs on {}", addr);
             let socket = UdpSocket::bind(addr).await.unwrap();
             let mut buf = vec![0; buf_len];
             let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
             assert_eq!(nbytes, buf.len());
             // TODO: check that it's actually a quack
             let quack: Quack = bincode::deserialize(&buf).unwrap();
+            trace!("received quACK with count {}", quack.count);
             tx.send(quack).await.unwrap();
         });
         rx
