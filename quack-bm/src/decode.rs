@@ -36,7 +36,7 @@ fn benchmark_decode_32(
 
         let t1 = Instant::now();
         acc1 -= acc2;
-        let dropped = DecodedQuack::decode(&acc1, &numbers);
+        let dropped = DecodedQuack::decode(acc1, numbers);
         // do_not_discard(dropped);
         let t2 = Instant::now();
 
