@@ -131,6 +131,7 @@ async fn main() {
                 args.num_bits_id,
             );
             // TODO: async code
+            sc.start();
             let mut rx = sc.listen(port);
             loop {
                 let quack = rx.recv().await.expect("channel has hung up");
