@@ -5,33 +5,40 @@ use crate::arithmetic::*;
 
 pub type IdentifierLog = Vec<Identifier>;
 
-pub struct DecodedQuack<'a> {
-    quack: &'a Quack,
-    log: &'a IdentifierLog,
+pub struct DecodedQuack {
+    quack_count: usize,
+    log_length: usize,
     // Indexes of the missing packets in the identifier log.
     indexes: Vec<usize>,
 }
 
-impl<'a> fmt::Display for DecodedQuack<'a> {
+impl fmt::Display for DecodedQuack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self.indexes)
     }
 }
 
-impl<'a> fmt::Debug for DecodedQuack<'a> {
+impl fmt::Debug for DecodedQuack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("DecodedQuack")
-         .field("quack_count", &self.quack.count)
-         .field("log_length", &self.log.len())
+         .field("quack_count", &self.quack_count)
+         .field("log_length", &self.log_length)
          .field("indexes", &self.indexes)
          .finish()
     }
 }
 
-impl<'a> DecodedQuack<'a> {
-    pub fn decode(quack: &'a Quack, log: &'a IdentifierLog) -> Self {
+impl DecodedQuack {
+    pub fn decode(quack: &Quack, log: &IdentifierLog) -> Self {
         let num_packets = log.len();
         let num_missing = quack.count;
+        if num_missing == 0 {
+            return Self {
+                quack_count: num_missing as _,
+                log_length: num_packets,
+                indexes: vec![],
+            };
+        }
         let coeffs = {
             let mut coeffs = (0..num_missing)
                 .map(|_| ModularInteger::zero())
@@ -45,8 +52,8 @@ impl<'a> DecodedQuack<'a> {
             })
             .collect();
         Self {
-            quack,
-            log,
+            quack_count: num_missing as _,
+            log_length: num_packets,
             indexes,
         }
     }
@@ -57,7 +64,7 @@ impl<'a> DecodedQuack<'a> {
         if self.indexes.is_empty() {
             0
         } else {
-            let mut last = self.log.len() - 1;
+            let mut last = self.log_length - 1;
             let mut count = 0;
             let mut i = self.indexes.len();
             while i > 0 {

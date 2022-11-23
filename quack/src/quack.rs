@@ -47,6 +47,7 @@ impl Quack {
         coeffs: &mut Vec<ModularInteger>,
     ) {
         let size = coeffs.len();
+        assert_eq!(coeffs.len(), self.power_sums.len());
         coeffs[0] = -self.power_sums[0];
         for i in 1..size {
             for j in 0..i {

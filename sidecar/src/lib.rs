@@ -1,13 +1,10 @@
 use std::sync::{Arc, Mutex};
-use std::mem::MaybeUninit;
-use std::io::ErrorKind;
-use std::ffi::CString;
 use quack::*;
 use bincode;
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket, runtime::Runtime};
-use socket2::{Socket, Domain, Type, Protocol};
 
+#[derive(Clone, PartialEq, Eq)]
 pub enum SidecarType {
     QuackSender,
     QuackReceiver,
@@ -19,8 +16,7 @@ pub struct Sidecar {
     pub threshold: usize,
     pub bits: usize,
     // TODO: is there a better way to do synchronization?
-    quack: Arc<Mutex<Quack>>,
-    log: IdentifierLog,
+    quack_log: Arc<Mutex<(Quack, IdentifierLog)>>,
 }
 
 const BUFFER_SIZE: usize = 65536;
@@ -34,8 +30,7 @@ impl Sidecar {
             interface: interface.to_string(),
             threshold,
             bits,
-            quack: Arc::new(Mutex::new(Quack::new(threshold))),
-            log: vec![],
+            quack_log: Arc::new(Mutex::new((Quack::new(threshold), vec![]))),
         }
     }
 
@@ -45,38 +40,23 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     pub fn start(&self, rt: &Runtime) -> std::io::Result<()> {
-        use libc::*;
+        use nix::sys::socket::*;
 
         // Create a socket
-        let sock = nix::sys::socket::socket(
-                nix::sys::socket::AddressFamily::Packet,
-                nix::sys::socket::SockType::Raw,
-                nix::sys::socket::SockFlag::empty(),
-                nix::sys::socket::SockProtocol::EthAll, // Udp
-            ).unwrap();
-        //let sock = unsafe { socket(PF_PACKET, SOCK_RAW, ETH_P_IP.to_be()) };
-        //if sock < 0 {
-        //    eprintln!("socket");
-        //    return Err(ErrorKind::Other.into());
-        //}
+        let sock = socket(
+            AddressFamily::Packet,
+            SockType::Raw,
+            SockFlag::empty(),
+            SockProtocol::EthAll, // Udp
+        ).unwrap();
         println!("sock = {}", sock);
 
-        /*
         // Bind the sniffer to a specific interface
-        let interface = CString::new(self.interface.as_bytes()).unwrap();
-        println!("sock = {}", sock);
-        println!("{:?} {} bytes", interface, self.interface.as_bytes().len());
-        if unsafe { setsockopt(
+        setsockopt(
             sock,
-            SOL_SOCKET,
-            SO_BINDTODEVICE,
-            interface.as_ptr() as _,
-            (self.interface.as_bytes().len() + 1) as _,
-        ) } < 0 {
-            eprintln!("setsockopt");
-            return Err(ErrorKind::Other.into());
-        }
-        */
+            sockopt::BindToDevice,
+            &self.interface.clone().into(),
+        ).unwrap();
 
         // Set the network card in promiscuous mode
         /*
@@ -104,33 +84,25 @@ impl Sidecar {
         */
 
         // Loop over received packets
-        let mut buf: [i8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        let quack = self.quack.clone();
+        let mut buf = [0; BUFFER_SIZE];
+        let quack_log = self.quack_log.clone();
+        let ty = self.ty.clone();
         rt.spawn(async move {
-            println!("hello");
+            println!("looping");
             loop {
-                let n = unsafe { recvfrom(
-                    3,
-                    buf.as_mut_ptr() as _,
-                    BUFFER_SIZE,
-                    0,
-                    std::ptr::null_mut(),
-                    std::ptr::null_mut(),
-                ) };
-                // Packet contains at least Ethernet (14), IP (20),
-                // and TCP/UDP (8) headers
-                //if n < 42 {
-                //    eprintln!("received <42 bytes");
-                //    continue;
-                //}
-                if n < 0 {
-                    eprintln!("error");
-                    break;
-                } else {
-                    println!(" received {} bytes", n);
-                }
+                let (n, _) = recvfrom::<SockaddrStorage>(
+                    sock,
+                    &mut buf,
+                ).unwrap();
                 let identifier = 100;
-                quack.lock().unwrap().insert(identifier);
+                {
+                    let mut quack_log = quack_log.lock().unwrap();
+                    quack_log.0.insert(identifier);
+                    if ty == SidecarType::QuackReceiver {
+                        quack_log.1.push(identifier);
+                    }
+                }
+                println!("received {} bytes", n);
             }
         });
         Ok(())
@@ -150,27 +122,32 @@ impl Sidecar {
             let addr = format!("127.0.0.1:{}", port);
             let socket = UdpSocket::bind(addr).await.unwrap();
             let mut buf = vec![0; buf_len];
-            let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
-            assert_eq!(nbytes, buf.len());
-            // TODO: check that it's actually a quack
-            let quack: Quack = bincode::deserialize(&buf).unwrap();
-            tx.send(quack).await.unwrap();
+            loop {
+                let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
+                assert_eq!(nbytes, buf.len());
+                // TODO: check that it's actually a quack
+                let quack: Quack = bincode::deserialize(&buf).unwrap();
+                tx.send(quack).await.unwrap();
+            }
         });
         rx
     }
 
     /// Snapshot the quACK.
     pub fn quack(&self) -> Quack {
-        self.quack.lock().unwrap().clone()
+        self.quack_log.lock().unwrap().0.clone()
     }
 
     /// Snapshot the quACK and current log.
-    pub fn quack_with_log(&self) -> (Quack, &IdentifierLog) {
-        unimplemented!()
+    pub fn quack_with_log(&self) -> (Quack, IdentifierLog) {
+        // TODO: don't clone the log
+        self.quack_log.lock().unwrap().clone()
     }
 
     /// Decode the quACK given the current snapshot.
     pub fn quack_decode(&self, quack: Quack) -> DecodedQuack {
-        unimplemented!()
+        let (my_quack, my_log) = self.quack_with_log();
+        let difference_quack = my_quack - quack;
+        DecodedQuack::decode(&difference_quack, &my_log)
     }
 }

@@ -62,6 +62,7 @@ async fn send_quacks(
             tokio::time::sleep(Duration::from_millis(ms)).await;
             let quack = sc.quack();
             let bytes = bincode::serialize(&quack).unwrap();
+            println!("quack {}", quack.count);
             socket.send_to(&bytes, addr).await.unwrap();
         }
     }
@@ -124,10 +125,10 @@ async fn main() -> std::io::Result<()> {
             // TODO: async code
             let mut rx = sc.listen(port, &rt);
             loop {
-                let quack = rx.recv().await.expect("channel has hung up");
+                let quack = rx.recv().await.unwrap();
                 // TODO: tracing library
                 let result = sc.quack_decode(quack);
-                println!("{}", result);
+                println!("result {}", result);
             }
         }
     }

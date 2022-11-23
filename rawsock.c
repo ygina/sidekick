@@ -16,17 +16,20 @@ void main(int argc, char ** argv)
 		perror("socket");
 		exit(1);
 	}
+	printf("sock = %d\n", sock);
 
 	// Bind the sniffer to a specific interface
+	/*
 	const char *opt = "eno33";
 	if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, opt, strlen(opt) + 1) < 0) {
 		perror("setsockopt");
 		close(sock);
 		exit(1);
 	}
+	*/
 	
 	// Set the network card in promiscuous mode
-	struct ifreq ethreq;
+/*	struct ifreq ethreq;
 	strncpy(ethreq.ifr_name, opt, IF_NAMESIZE);
 	if (ioctl(sock, SIOCGIFFLAGS, &ethreq) == -1) {
 		perror("ioctl 1");
@@ -39,11 +42,11 @@ void main(int argc, char ** argv)
 		close(sock);
 		exit(1);
 	}
-
+*/
 	int n;
 	char buffer[65536];
 	while (1) {
-		n = recvfrom(sock, buffer, 2048, 0, NULL, NULL);
+		n = recvfrom(sock, buffer, 65536, 0, NULL, NULL);
 
 		// Packet contains at least Ethernet (14), IP (20),
 		// and TCP/UDP (8) headers
