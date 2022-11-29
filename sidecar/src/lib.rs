@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
-use log::{trace, debug, info};
+use log::{trace, debug, info, error};
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
 
@@ -41,8 +41,6 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     pub fn start(&self) -> Result<(), String> {
-        use nix::sys::socket::*;
-
         // Create a socket
         let sock = unsafe { libc::socket(
             libc::AF_PACKET,
@@ -55,28 +53,35 @@ impl Sidecar {
         }
         info!("opened socket with fd={}", sock);
 
-        // Bind the sniffer to a specific interface
-        info!("binding the socket to interface={}", self.interface);
-        setsockopt(
-            sock,
-            sockopt::BindToDevice,
-            &self.interface.clone().into(),
-        ).unwrap();
+        // // Bind the sniffer to a specific interface
+        // info!("binding the socket to interface={}", self.interface);
+        // setsockopt(
+        //     sock,
+        //     sockopt::BindToDevice,
+        //     &self.interface.clone().into(),
+        // ).unwrap();
 
         // Set the network card in promiscuous mode
         // TODO
 
         // Loop over received packets
-        let mut buf = [0; BUFFER_SIZE];
+        let buf = [0; BUFFER_SIZE];
         let quack_log = self.quack_log.clone();
         let ty = self.ty.clone();
         tokio::spawn(async move {
             debug!("tapping raw socket");
             loop {
-                let (n, _) = recvfrom::<SockaddrStorage>(
+                let n = unsafe { libc::recv(
                     sock,
-                    &mut buf,
-                ).unwrap();
+                    buf.as_ptr() as *mut libc::c_void,
+                    buf.len(),
+                    0,
+                ) };
+                if n < 0 {
+                    error!("failed to recv: {}", n);
+                    return;
+                }
+
                 let identifier = 100;  // TODO: extract identifier from buf
                 {
                     let mut quack_log = quack_log.lock().unwrap();
