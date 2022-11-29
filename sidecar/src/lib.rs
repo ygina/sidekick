@@ -40,16 +40,19 @@ impl Sidecar {
     /// only listens for incoming packets. If the sidecar is a quACK receiver,
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
-    pub fn start(&self) {
+    pub fn start(&self) -> Result<(), String> {
         use nix::sys::socket::*;
 
         // Create a socket
-        let sock = socket(
-            AddressFamily::Packet,
-            SockType::Raw,
-            SockFlag::empty(),
-            SockProtocol::EthAll, // Udp
-        ).unwrap();
+        let sock = unsafe { libc::socket(
+            libc::AF_PACKET,
+            libc::SOCK_RAW,
+            (libc::ETH_P_IP as i16).to_be() as libc::c_int,
+        ) };
+        if sock < 0 {
+            error!("error opening socket: {}", sock);
+            return Err(String::from("socket"));
+        }
         info!("opened socket with fd={}", sock);
 
         // Bind the sniffer to a specific interface
@@ -85,6 +88,7 @@ impl Sidecar {
                 trace!("received {} bytes", n);
             }
         });
+        Ok(())
     }
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
