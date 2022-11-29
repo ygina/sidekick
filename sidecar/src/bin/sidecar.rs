@@ -90,7 +90,7 @@ async fn print_quacks(
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), String> {
     env_logger::init();
 
     let args = Cli::parse();
@@ -113,7 +113,7 @@ async fn main() {
                 args.num_bits_id,
             );
             // TODO: async code
-            sc.start();
+            sc.start()?;
 
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
@@ -132,7 +132,7 @@ async fn main() {
                 args.num_bits_id,
             );
             // TODO: async code
-            sc.start();
+            sc.start()?;
             let mut rx = sc.listen(port);
             loop {
                 let quack = rx.recv().await.expect("channel has hung up");
@@ -141,4 +141,5 @@ async fn main() {
             }
         }
     }
+    Ok(())
 }
