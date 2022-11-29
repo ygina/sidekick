@@ -8,6 +8,8 @@
 #include <net/if.h>
 #include <string.h>
 
+#define MAX_ITERS 10
+
 void main(int argc, char ** argv)
 {
 	// Create a socket
@@ -45,8 +47,8 @@ void main(int argc, char ** argv)
 
 	int n;
 	char buffer[65536];
-	while (1) {
-		n = recvfrom(sock, buffer, 65536, 0, NULL, NULL);
+	for (int i = 0; i < MAX_ITERS; i++) {
+		n = recv(sock, buffer, 65536, 0);
 
 		// Packet contains at least Ethernet (14), IP (20),
 		// and TCP/UDP (8) headers
@@ -55,18 +57,19 @@ void main(int argc, char ** argv)
 			close(sock);
 			exit(0);
 		}
-		printf(
-			"%d bytes: [%d %d %d %d %d %d %d %d]\n",
-			n - 42,
-			buffer[42],
-			buffer[43],
-			buffer[44],
-			buffer[45],
-			buffer[46],
-			buffer[47],
-			buffer[48],
-			buffer[49]
-		);
+		// printf(
+		// 	"%d bytes: [%d %d %d %d %d %d %d %d]\n",
+		// 	n - 42
+		// 	buffer[42],
+		// 	buffer[43],
+		// 	buffer[44],
+		// 	buffer[45],
+		// 	buffer[46],
+		// 	buffer[47],
+		// 	buffer[48],
+		// 	buffer[49]
+		// );
+		printf(".");
 	}
 	printf("done.\n");
 }
