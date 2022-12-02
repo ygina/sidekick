@@ -53,11 +53,12 @@ impl Sidecar {
 
         // Bind the sniffer to a specific interface
         info!("binding the socket to interface={}", self.interface);
+        let interface = std::ffi::CString::new(self.interface.clone()).unwrap();
         let res = unsafe { setsockopt(
             sock,
             SOL_SOCKET,
             SO_BINDTODEVICE,
-            self.interface.as_ptr() as _,
+            interface.as_ptr() as _,
             (self.interface.len() + 1) as _,
         ) };
         if res < 0 {
