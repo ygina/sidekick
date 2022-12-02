@@ -66,7 +66,24 @@ impl Sidecar {
         }
 
         // Set the network card in promiscuous mode
-        // TODO
+        info!("setting the network card to promiscuous mode");
+        let mut ethreq = ifreq {
+            ifr_name: [0; IF_NAMESIZE],
+            ifr_ifru: __c_anonymous_ifr_ifru {
+                ifru_flags: 0,
+            },
+        };
+        assert!(self.interface.len() <= IF_NAMESIZE); // <?
+        ethreq.ifr_name[..self.interface.len()].clone_from_slice(
+            &interface.as_bytes().iter()
+                .map(|&byte| byte as i8).collect::<Vec<i8>>()[..]);
+        if unsafe { ioctl(sock, SIOCGIFFLAGS, &ethreq) } == -1 {
+            return Err(String::from("ioctl 1"));
+        }
+        unsafe { ethreq.ifr_ifru.ifru_flags |= IFF_PROMISC as i16 };
+        if unsafe { ioctl(sock, SIOCSIFFLAGS, &ethreq) } == -1 {
+            return Err(String::from("ioctl 2"));
+        }
 
         // Loop over received packets
         let buf = [0; BUFFER_SIZE];

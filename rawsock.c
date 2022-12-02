@@ -28,7 +28,6 @@ void main(int argc, char ** argv)
 		exit(1);
 	}
 
-	/*
 	// Set the network card in promiscuous mode
 	struct ifreq ethreq;
 	strncpy(ethreq.ifr_name, opt, IF_NAMESIZE);
@@ -43,7 +42,6 @@ void main(int argc, char ** argv)
 		close(sock);
 		exit(1);
 	}
-	*/
 
 	int n;
 	char buffer[65536];
