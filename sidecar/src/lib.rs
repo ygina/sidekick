@@ -41,30 +41,27 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     pub fn start(&self) -> Result<(), String> {
+        use libc::*;
+
         // Create a socket
-        let sock = unsafe { libc::socket(
-            libc::AF_PACKET,
-            libc::SOCK_RAW,
-            (libc::ETH_P_IP as i16).to_be() as libc::c_int,
-        ) };
+        let protocol = (ETH_P_IP as i16).to_be() as c_int;
+        let sock = unsafe { socket(AF_PACKET, SOCK_RAW, protocol) };
         if sock < 0 {
-            error!("socket: {}", sock);
-            return Err(String::from("socket"));
+            return Err(format!("socket: {}", sock));
         }
         info!("opened socket with fd={}", sock);
 
         // Bind the sniffer to a specific interface
         info!("binding the socket to interface={}", self.interface);
-        let res = unsafe { libc::setsockopt(
+        let res = unsafe { setsockopt(
             sock,
-            libc::SOL_SOCKET,
-            libc::SO_BINDTODEVICE,
+            SOL_SOCKET,
+            SO_BINDTODEVICE,
             self.interface.as_ptr() as _,
             (self.interface.len() + 1) as _,
         ) };
         if res < 0 {
-            error!("setsockopt: {}", res);
-            return Err(String::from("setsockopt"));
+            return Err(format!("setsockopt: {}", res));
         }
 
         // Set the network card in promiscuous mode
@@ -77,9 +74,9 @@ impl Sidecar {
         tokio::spawn(async move {
             debug!("tapping raw socket");
             loop {
-                let n = unsafe { libc::recv(
+                let n = unsafe { recv(
                     sock,
-                    buf.as_ptr() as *mut libc::c_void,
+                    buf.as_ptr() as *mut c_void,
                     buf.len(),
                     0,
                 ) };
