@@ -20,15 +20,15 @@ void main(int argc, char ** argv)
 	}
 	printf("sock = %d\n", sock);
 
-	/*
 	// Bind the sniffer to a specific interface
-	const char *opt = "eno33";
+	const char *opt = "h1-eth0";
 	if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, opt, strlen(opt) + 1) < 0) {
 		perror("setsockopt");
 		close(sock);
 		exit(1);
 	}
 
+	/*
 	// Set the network card in promiscuous mode
 	struct ifreq ethreq;
 	strncpy(ethreq.ifr_name, opt, IF_NAMESIZE);

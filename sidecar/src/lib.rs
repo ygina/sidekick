@@ -48,18 +48,24 @@ impl Sidecar {
             (libc::ETH_P_IP as i16).to_be() as libc::c_int,
         ) };
         if sock < 0 {
-            error!("error opening socket: {}", sock);
+            error!("socket: {}", sock);
             return Err(String::from("socket"));
         }
         info!("opened socket with fd={}", sock);
 
-        // // Bind the sniffer to a specific interface
-        // info!("binding the socket to interface={}", self.interface);
-        // setsockopt(
-        //     sock,
-        //     sockopt::BindToDevice,
-        //     &self.interface.clone().into(),
-        // ).unwrap();
+        // Bind the sniffer to a specific interface
+        info!("binding the socket to interface={}", self.interface);
+        let res = unsafe { libc::setsockopt(
+            sock,
+            libc::SOL_SOCKET,
+            libc::SO_BINDTODEVICE,
+            self.interface.as_ptr() as _,
+            (self.interface.len() + 1) as _,
+        ) };
+        if res < 0 {
+            error!("setsockopt: {}", res);
+            return Err(String::from("setsockopt"));
+        }
 
         // Set the network card in promiscuous mode
         // TODO
