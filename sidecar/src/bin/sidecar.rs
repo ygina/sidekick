@@ -99,7 +99,6 @@ async fn main() -> Result<(), String> {
                 args.threshold,
                 args.num_bits_id,
             );
-            // TODO: async code
             sc.start()?;
 
             // Handle a snapshotted quACK at the specified frequency.
@@ -118,7 +117,6 @@ async fn main() -> Result<(), String> {
                 args.threshold,
                 args.num_bits_id,
             );
-            // TODO: async code
             sc.start()?;
             let mut rx = sc.listen(port);
             loop {
