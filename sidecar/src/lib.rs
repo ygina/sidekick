@@ -45,7 +45,7 @@ impl Sidecar {
         use libc::*;
 
         // Create a socket
-        let protocol = (ETH_P_IP as i16).to_be() as c_int;
+        let protocol = (ETH_P_ALL as i16).to_be() as c_int;
         let sock = unsafe { socket(AF_PACKET, SOCK_RAW, protocol) };
         if sock < 0 {
             return Err(format!("socket: {}", sock));
