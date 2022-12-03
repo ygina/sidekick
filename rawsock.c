@@ -9,14 +9,14 @@
 #include <net/if.h>
 #include <string.h>
 
-#define MAX_ITERS 10
+#define MAX_ITERS 100
 #define BUFFER_SIZE 46
 
 void main(int argc, char ** argv)
 {
 	// Create a socket
 	int sock;
-	if ((sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_IP))) < 0) {
+	if ((sock = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
 		perror("socket");
 		exit(1);
 	}
