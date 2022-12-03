@@ -50,10 +50,10 @@ impl Sidecar {
         if sock < 0 {
             return Err(format!("socket: {}", sock));
         }
-        info!("opened socket with fd={}", sock);
+        debug!("opened socket with fd={}", sock);
 
         // Bind the sniffer to a specific interface
-        info!("binding the socket to interface={}", self.interface);
+        debug!("binding the socket to interface={}", self.interface);
         let interface = std::ffi::CString::new(self.interface.clone()).unwrap();
         let res = unsafe { setsockopt(
             sock,
@@ -83,7 +83,7 @@ impl Sidecar {
         }
 
         // Set the network card in promiscuous mode
-        info!("setting the network card to promiscuous mode");
+        debug!("setting the network card to promiscuous mode");
         let mut ethreq = ifreq {
             ifr_name: [0; IF_NAMESIZE],
             ifr_ifru: __c_anonymous_ifr_ifru {
@@ -104,10 +104,11 @@ impl Sidecar {
 
         // Loop over received packets
         let buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        let interface = self.interface.clone();
         let quack_log = self.quack_log.clone();
         let ty = self.ty.clone();
         tokio::task::spawn_blocking(move || {
-            debug!("tapping raw socket");
+            info!("tapping socket on fd={} interface={}", sock, interface);
             loop {
                 let n = unsafe {
                     recv(sock, buf.as_ptr() as *mut c_void, buf.len(), 0)
@@ -117,7 +118,15 @@ impl Sidecar {
                     return;
                 }
 
-                let identifier = 100;  // TODO: extract identifier from buf
+                trace!("received {} bytes: {:?}", n, buf);
+                debug!("src_mac={} dst_mac={} src_ip={}.{}.{}.{} dst_ip={}.{}.{}.{}",
+                    buf[0..4].iter().map(|b| format!("{:x}", b)).collect::<Vec<_>>().join(":"),
+                    buf[4..8].iter().map(|b| format!("{:x}", b)).collect::<Vec<_>>().join(":"),
+                    buf[26], buf[27], buf[28], buf[29],
+                    buf[30], buf[31], buf[32], buf[33]);
+                let identifier = u32::from_be_bytes(
+                    [buf[42], buf[43], buf[44], buf[45]]);
+                debug!("identifier={}", identifier);
                 {
                     let mut quack_log = quack_log.lock().unwrap();
                     quack_log.0.insert(identifier);
@@ -125,7 +134,6 @@ impl Sidecar {
                         quack_log.1.push(identifier);
                     }
                 }
-                trace!("received {} bytes", n);
             }
         });
         Ok(())
