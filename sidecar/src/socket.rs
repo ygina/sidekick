@@ -9,6 +9,22 @@ pub struct Socket {
     interface_c: CString,
 }
 
+pub struct SockAddr {}
+
+impl SockAddr {
+    pub fn new_sockaddr_ll() -> sockaddr_ll {
+        sockaddr_ll {
+            sll_family: 0,
+            sll_protocol: 0,
+            sll_ifindex: 0,
+            sll_hatype: 0,
+            sll_pkttype: 0,
+            sll_halen: 0,
+            sll_addr: [0; 8],
+        }
+    }
+}
+
 impl Socket {
     /// Create a raw socket and bind it to a specific interface.
     pub fn new(interface: String) -> Result<Self, String> {
@@ -88,6 +104,31 @@ impl Socket {
     pub fn recv(&self, buf: &[u8; BUFFER_SIZE]) -> Result<isize, String> {
         let n = unsafe {
             recv(self.fd, buf.as_ptr() as *mut c_void, buf.len(), 0)
+        };
+        if n < 0 {
+            error!("failed to recv: {}", n);
+            return Err(format!("recv: {}", n));
+        }
+        Ok(n)
+    }
+
+    /// Receive first `BUFFER_SIZE` packets of a buffer, and fill in socket
+    /// address information.
+    pub fn recvfrom(
+        &self,
+        addr: &mut sockaddr_ll,
+        buf: &mut [u8; BUFFER_SIZE],
+    ) -> Result<isize, String> {
+        let mut socklen = std::mem::size_of::<sockaddr_ll>() as u32;
+        let n = unsafe {
+            recvfrom(
+                self.fd,
+                buf.as_ptr() as *mut c_void,
+                buf.len(),
+                0,
+                (addr as *mut sockaddr_ll) as _,
+                &mut socklen,
+            )
         };
         if n < 0 {
             error!("failed to recv: {}", n);
