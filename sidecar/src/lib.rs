@@ -151,7 +151,7 @@ impl Sidecar {
         };
         debug!("allocating {} bytes for receiving quACKs", buf_len);
         tokio::spawn(async move {
-            let addr = format!("127.0.0.1:{}", port);
+            let addr = format!("0.0.0.0:{}", port);
             info!("listening for quACKs on {}", addr);
             let socket = UdpSocket::bind(addr).await.unwrap();
             let mut buf = vec![0; buf_len];
