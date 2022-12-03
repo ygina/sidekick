@@ -10,15 +10,10 @@ enum CliSidecarType {
     /// Sends quACKs in the sidecar protocol, receives data in the base
     /// protocol.
     QuackSender {
-        /// Frequency at which to quack, in ms. If neither frequency argument
-        /// is provided, does not quack.
-        #[arg(long = "frequency-ms")]
-        frequency_ms: Option<u64>,
-        /// Frequency at which to quack, based on the number of received
-        /// packets. If neither frequency argument is provided, does not quack.
-        /// If `frequency-ms' is also provided, ignores this argument.
-        #[arg(long = "frequency-packets")]
-        frequency_packets: Option<usize>,
+        /// Frequency at which to quack, in ms. If frequency is 0, does not
+        /// quack.
+        #[arg(long = "frequency-ms", default_value_t = 1000)]
+        frequency_ms: u64,
         /// Address of the UDP socket to quack to e.g., <IP:PORT>. If missing,
         /// goes to stdout. Sends from 127.0.0.1:53534.
         #[arg(long = "target-addr")]
@@ -53,39 +48,31 @@ struct Cli {
 async fn send_quacks(
     sc: Sidecar,
     addr: SocketAddr,
-    frequency_ms: Option<u64>,
-    frequency_packets: Option<usize>,
+    frequency_ms: u64,
 ) {
     let socket = UdpSocket::bind("127.0.0.1:53534").await.expect(
         &format!("error binding to UDP socket: 127.0.0.1:53534"));
-    if let Some(ms) = frequency_ms {
+    if frequency_ms > 0 {
         loop {
-            tokio::time::sleep(Duration::from_millis(ms)).await;
+            tokio::time::sleep(Duration::from_millis(frequency_ms)).await;
             let quack = sc.quack();
             let bytes = bincode::serialize(&quack).unwrap();
             println!("quack {}", quack.count);
             socket.send_to(&bytes, addr).await.unwrap();
         }
     }
-    if let Some(_) = frequency_packets {
-        unimplemented!()
-    }
 }
 
 async fn print_quacks(
     sc: Sidecar,
-    frequency_ms: Option<u64>,
-    frequency_packets: Option<usize>,
+    frequency_ms: u64,
 ) {
-    if let Some(ms) = frequency_ms {
+    if frequency_ms > 0 {
         loop {
-            tokio::time::sleep(Duration::from_millis(ms)).await;
+            tokio::time::sleep(Duration::from_millis(frequency_ms)).await;
             let quack = sc.quack();
             println!("quack {}", quack.count);
         }
-    }
-    if let Some(_) = frequency_packets {
-        unimplemented!()
     }
 }
 
@@ -100,11 +87,9 @@ async fn main() -> Result<(), String> {
     match args.ty {
         CliSidecarType::QuackSender {
             frequency_ms,
-            frequency_packets,
             target_addr,
         } => {
             debug!("frequency_ms={:?}", frequency_ms);
-            debug!("frequency_packets={:?}", frequency_packets);
             // Start the sidecar.
             let sc = Sidecar::new(
                 SidecarType::QuackSender,
@@ -118,10 +103,10 @@ async fn main() -> Result<(), String> {
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
                 info!("quACKing to {:?}", addr);
-                send_quacks(sc, addr, frequency_ms, frequency_packets).await;
+                send_quacks(sc, addr, frequency_ms).await;
             } else {
                 info!("printing quACKs");
-                print_quacks(sc, frequency_ms, frequency_packets).await;
+                print_quacks(sc, frequency_ms).await;
             }
         }
         CliSidecarType::QuackReceiver { port } => {
