@@ -1,15 +1,16 @@
 use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
-use log::{trace, debug, info, warn};
+use log::{trace, debug, info};
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
 
 mod socket;
 mod buffer;
 
-use socket::Socket;
-use buffer::{BUFFER_SIZE, UdpParser};
+pub use socket::Socket;
+use socket::SockAddr;
+use buffer::{BUFFER_SIZE, Direction, UdpParser};
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum SidecarType {
@@ -49,22 +50,44 @@ impl Sidecar {
         sock.set_promiscuous()?;
 
         // Loop over received packets
-        let buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         let interface = self.interface.clone();
         let quack_log = self.quack_log.clone();
         let ty = self.ty.clone();
         tokio::task::spawn_blocking(move || {
             info!("tapping socket on fd={} interface={}", sock.fd, interface);
+            let mut addr = SockAddr::new_sockaddr_ll();
+            let ip_protocol = (libc::ETH_P_IP as u16).to_be();
+            let dir = match ty {
+                SidecarType::QuackSender => Direction::Incoming,
+                SidecarType::QuackReceiver => Direction::Outgoing,
+            };
             loop {
-                let n = sock.recv(&buf).unwrap();
+                let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
                 trace!("received {} bytes: {:?}", n, buf);
                 if n != (BUFFER_SIZE as _) {
-                    warn!("received {} < {} bytes", n, BUFFER_SIZE);
+                    trace!("underfilled buffer: {} < {}", n, BUFFER_SIZE);
                     continue;
                 }
-                let p = UdpParser::parse(&buf).unwrap();
+                let actual_dir: Direction = addr.sll_pkttype.into();
+                if actual_dir != dir {
+                    trace!("packet in wrong direction: {:?}", actual_dir);
+                    continue;
+                }
+                if addr.sll_protocol != ip_protocol {
+                    trace!("not IP packet: {}", addr.sll_protocol);
+                    continue;
+                }
+                let p = match UdpParser::parse(&buf) {
+                    Some(p) => p,
+                    None => {
+                        trace!("not UDP packet");
+                        continue;
+                    }
+                };
                 debug!("src_mac={} dst_mac={} src_ip={} dst_ip={}, id={}",
                     p.src_mac, p.dst_mac, p.src_ip, p.dst_ip, p.identifier);
+                // TODO: filter by QUIC connection?
                 {
                     let mut quack_log = quack_log.lock().unwrap();
                     quack_log.0.insert(p.identifier);
