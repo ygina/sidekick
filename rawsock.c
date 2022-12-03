@@ -5,6 +5,7 @@
 #include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <sys/ioctl.h>
+#include <netpacket/packet.h>
 #include <net/if.h>
 #include <string.h>
 
@@ -25,6 +26,15 @@ void main(int argc, char ** argv)
 	const char *opt = "h1-eth0";
 	if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, opt, strlen(opt) + 1) < 0) {
 		perror("setsockopt");
+		close(sock);
+		exit(1);
+	}
+	struct sockaddr_ll addr;
+	addr.sll_family = AF_PACKET;
+	addr.sll_protocol = htons(ETH_P_ALL);
+	addr.sll_ifindex = if_nametoindex(opt);
+	if (bind(3, &addr, sizeof(addr)) != 0) {
+		perror("bind");
 		close(sock);
 		exit(1);
 	}
