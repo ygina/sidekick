@@ -1,9 +1,14 @@
 use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
-use log::{trace, debug, info, error};
+use log::{trace, debug, info};
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
+
+mod socket;
+
+use socket::Socket;
+use socket::BUFFER_SIZE;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum SidecarType {
@@ -19,9 +24,6 @@ pub struct Sidecar {
     // TODO: is there a better way to do synchronization?
     quack_log: Arc<Mutex<(Quack, IdentifierLog)>>,
 }
-
-// Ethernet (14), IP (20), TCP/UDP (8) headers + 32 bits from QUIC (4)
-const BUFFER_SIZE: usize = 46;
 
 impl Sidecar {
     /// Create a new sidecar.
@@ -42,65 +44,8 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     pub fn start(&self) -> Result<(), String> {
-        use libc::*;
-
-        // Create a socket
-        let protocol = (ETH_P_ALL as i16).to_be() as c_int;
-        let sock = unsafe { socket(AF_PACKET, SOCK_RAW, protocol) };
-        if sock < 0 {
-            return Err(format!("socket: {}", sock));
-        }
-        debug!("opened socket with fd={}", sock);
-
-        // Bind the sniffer to a specific interface
-        debug!("binding the socket to interface={}", self.interface);
-        let interface = std::ffi::CString::new(self.interface.clone()).unwrap();
-        let res = unsafe { setsockopt(
-            sock,
-            SOL_SOCKET,
-            SO_BINDTODEVICE,
-            interface.as_ptr() as _,
-            (self.interface.len() + 1) as _,
-        ) };
-        if res < 0 {
-            return Err(format!("setsockopt: {}", res));
-        }
-        let addr = sockaddr_ll {
-            sll_family: AF_PACKET as u16,
-            sll_protocol: protocol as u16,
-            sll_ifindex: unsafe { if_nametoindex(interface.as_ptr()) } as i32,
-            sll_hatype: 0,
-            sll_pkttype: 0,
-            sll_halen: 0,
-            sll_addr: [0; 8],
-        };
-        let addr_ptr = (&addr) as *const sockaddr_ll;
-        let addr_len = std::mem::size_of::<sockaddr_ll>();
-        let res = unsafe { bind(sock, addr_ptr as _, addr_len as u32)
-        };
-        if res < 0 {
-            return Err(format!("setsockopt: {}", res));
-        }
-
-        // Set the network card in promiscuous mode
-        debug!("setting the network card to promiscuous mode");
-        let mut ethreq = ifreq {
-            ifr_name: [0; IF_NAMESIZE],
-            ifr_ifru: __c_anonymous_ifr_ifru {
-                ifru_flags: 0,
-            },
-        };
-        assert!(self.interface.len() <= IF_NAMESIZE); // <?
-        ethreq.ifr_name[..self.interface.len()].clone_from_slice(
-            &interface.as_bytes().iter()
-                .map(|&byte| byte as i8).collect::<Vec<i8>>()[..]);
-        if unsafe { ioctl(sock, SIOCGIFFLAGS, &ethreq) } == -1 {
-            return Err(String::from("ioctl 1"));
-        }
-        unsafe { ethreq.ifr_ifru.ifru_flags |= IFF_PROMISC as i16 };
-        if unsafe { ioctl(sock, SIOCSIFFLAGS, &ethreq) } == -1 {
-            return Err(String::from("ioctl 2"));
-        }
+        let sock = Socket::new(self.interface.clone())?;
+        sock.set_promiscuous()?;
 
         // Loop over received packets
         let buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
@@ -108,15 +53,9 @@ impl Sidecar {
         let quack_log = self.quack_log.clone();
         let ty = self.ty.clone();
         tokio::task::spawn_blocking(move || {
-            info!("tapping socket on fd={} interface={}", sock, interface);
+            info!("tapping socket on fd={} interface={}", sock.fd, interface);
             loop {
-                let n = unsafe {
-                    recv(sock, buf.as_ptr() as *mut c_void, buf.len(), 0)
-                };
-                if n < 0 {
-                    error!("failed to recv: {}", n);
-                    return;
-                }
+                let n = sock.recv(&buf).unwrap();
 
                 trace!("received {} bytes: {:?}", n, buf);
                 debug!("src_mac={} dst_mac={} src_ip={}.{}.{}.{} dst_ip={}.{}.{}.{}",
