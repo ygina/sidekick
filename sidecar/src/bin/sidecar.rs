@@ -1,8 +1,8 @@
 use std::net::SocketAddr;
-use std::time::Duration;
 use clap::{Parser, Subcommand};
 use sidecar::{Sidecar, SidecarType};
 use tokio::net::UdpSocket;
+use tokio::time::{self, Duration};
 use log::{debug, info};
 
 #[derive(Subcommand, Debug)]
@@ -53,8 +53,9 @@ async fn send_quacks(
     let socket = UdpSocket::bind("127.0.0.1:53534").await.expect(
         &format!("error binding to UDP socket: 127.0.0.1:53534"));
     if frequency_ms > 0 {
+        let mut interval = time::interval(Duration::from_millis(frequency_ms));
         loop {
-            tokio::time::sleep(Duration::from_millis(frequency_ms)).await;
+            interval.tick().await;
             let quack = sc.quack();
             let bytes = bincode::serialize(&quack).unwrap();
             println!("quack {}", quack.count);
@@ -68,8 +69,9 @@ async fn print_quacks(
     frequency_ms: u64,
 ) {
     if frequency_ms > 0 {
+        let mut interval = time::interval(Duration::from_millis(frequency_ms));
         loop {
-            tokio::time::sleep(Duration::from_millis(frequency_ms)).await;
+            interval.tick().await;
             let quack = sc.quack();
             println!("quack {}", quack.count);
         }
