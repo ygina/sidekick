@@ -1,15 +1,13 @@
 use std::ffi::CString;
 use log::{debug, error};
 use libc::*;
+use crate::BUFFER_SIZE;
 
 pub struct Socket {
     pub fd: i32,
     interface: String,
     interface_c: CString,
 }
-
-// Ethernet (14), IP (20), TCP/UDP (8) headers + 32 bits from QUIC (4)
-pub const BUFFER_SIZE: usize = 46;
 
 impl Socket {
     /// Create a raw socket and bind it to a specific interface.
