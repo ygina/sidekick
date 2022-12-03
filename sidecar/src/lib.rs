@@ -1,14 +1,15 @@
 use std::sync::{Arc, Mutex};
 use quack::*;
 use bincode;
-use log::{trace, debug, info};
+use log::{trace, debug, info, warn};
 use tokio;
 use tokio::{sync::mpsc, net::UdpSocket};
 
 mod socket;
+mod buffer;
 
 use socket::Socket;
-use socket::BUFFER_SIZE;
+use buffer::{BUFFER_SIZE, UdpParser};
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum SidecarType {
@@ -56,21 +57,19 @@ impl Sidecar {
             info!("tapping socket on fd={} interface={}", sock.fd, interface);
             loop {
                 let n = sock.recv(&buf).unwrap();
-
                 trace!("received {} bytes: {:?}", n, buf);
-                debug!("src_mac={} dst_mac={} src_ip={}.{}.{}.{} dst_ip={}.{}.{}.{}",
-                    buf[0..4].iter().map(|b| format!("{:x}", b)).collect::<Vec<_>>().join(":"),
-                    buf[4..8].iter().map(|b| format!("{:x}", b)).collect::<Vec<_>>().join(":"),
-                    buf[26], buf[27], buf[28], buf[29],
-                    buf[30], buf[31], buf[32], buf[33]);
-                let identifier = u32::from_be_bytes(
-                    [buf[42], buf[43], buf[44], buf[45]]);
-                debug!("identifier={}", identifier);
+                if n != (BUFFER_SIZE as _) {
+                    warn!("received {} < {} bytes", n, BUFFER_SIZE);
+                    continue;
+                }
+                let p = UdpParser::parse(&buf).unwrap();
+                debug!("src_mac={} dst_mac={} src_ip={} dst_ip={}, id={}",
+                    p.src_mac, p.dst_mac, p.src_ip, p.dst_ip, p.identifier);
                 {
                     let mut quack_log = quack_log.lock().unwrap();
-                    quack_log.0.insert(identifier);
+                    quack_log.0.insert(p.identifier);
                     if ty == SidecarType::QuackReceiver {
-                        quack_log.1.push(identifier);
+                        quack_log.1.push(p.identifier);
                     }
                 }
             }
