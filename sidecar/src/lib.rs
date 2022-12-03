@@ -106,15 +106,12 @@ impl Sidecar {
         let buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         let quack_log = self.quack_log.clone();
         let ty = self.ty.clone();
-        tokio::spawn(async move {
+        tokio::task::spawn_blocking(move || {
             debug!("tapping raw socket");
             loop {
-                let n = unsafe { recv(
-                    sock,
-                    buf.as_ptr() as *mut c_void,
-                    buf.len(),
-                    0,
-                ) };
+                let n = unsafe {
+                    recv(sock, buf.as_ptr() as *mut c_void, buf.len(), 0)
+                };
                 if n < 0 {
                     error!("failed to recv: {}", n);
                     return;
