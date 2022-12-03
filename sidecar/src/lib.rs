@@ -65,6 +65,22 @@ impl Sidecar {
         if res < 0 {
             return Err(format!("setsockopt: {}", res));
         }
+        let addr = sockaddr_ll {
+            sll_family: AF_PACKET as u16,
+            sll_protocol: protocol as u16,
+            sll_ifindex: unsafe { if_nametoindex(interface.as_ptr()) } as i32,
+            sll_hatype: 0,
+            sll_pkttype: 0,
+            sll_halen: 0,
+            sll_addr: [0; 8],
+        };
+        let addr_ptr = (&addr) as *const sockaddr_ll;
+        let addr_len = std::mem::size_of::<sockaddr_ll>();
+        let res = unsafe { bind(sock, addr_ptr as _, addr_len as u32)
+        };
+        if res < 0 {
+            return Err(format!("setsockopt: {}", res));
+        }
 
         // Set the network card in promiscuous mode
         info!("setting the network card to promiscuous mode");
