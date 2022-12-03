@@ -20,7 +20,8 @@ pub struct Sidecar {
     quack_log: Arc<Mutex<(Quack, IdentifierLog)>>,
 }
 
-const BUFFER_SIZE: usize = 65536;
+// Ethernet (14), IP (20), TCP/UDP (8) headers + 32 bits from QUIC (4)
+const BUFFER_SIZE: usize = 46;
 
 impl Sidecar {
     /// Create a new sidecar.
@@ -86,7 +87,7 @@ impl Sidecar {
         }
 
         // Loop over received packets
-        let buf = [0; BUFFER_SIZE];
+        let buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         let quack_log = self.quack_log.clone();
         let ty = self.ty.clone();
         tokio::spawn(async move {
