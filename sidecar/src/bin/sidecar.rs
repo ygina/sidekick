@@ -15,7 +15,7 @@ enum CliSidecarType {
         #[arg(long = "frequency-ms", default_value_t = 1000)]
         frequency_ms: u64,
         /// Address of the UDP socket to quack to e.g., <IP:PORT>. If missing,
-        /// goes to stdout. Sends from 0.0.0.0:53534.
+        /// goes to stdout.
         #[arg(long = "target-addr")]
         target_addr: Option<SocketAddr>,
     },
@@ -50,8 +50,8 @@ async fn send_quacks(
     addr: SocketAddr,
     frequency_ms: u64,
 ) {
-    let socket = UdpSocket::bind("0.0.0.0:53534").await.expect(
-        &format!("error binding to UDP socket: 0.0.0.0:53534"));
+    let socket = UdpSocket::bind("0.0.0.0:0").await.expect(
+        &format!("error binding to UDP socket"));
     if frequency_ms > 0 {
         let mut interval = time::interval(Duration::from_millis(frequency_ms));
         loop {
