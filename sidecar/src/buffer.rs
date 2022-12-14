@@ -38,7 +38,7 @@ pub struct UdpParser {
 impl UdpParser {
     pub fn parse(x: &[u8; BUFFER_SIZE]) -> Option<Self> {
         let ip_protocol = x[23];
-        if i32::from(ip_protocol) != libc::IPPROTO_ICMP {
+        if i32::from(ip_protocol) != libc::IPPROTO_UDP {
             return None;
         }
 
