@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 use sidecar::{Sidecar, SidecarType};
 use tokio::net::UdpSocket;
 use tokio::time::{self, Duration};
+use tokio::sync::oneshot;
 use log::{debug, info};
 
 #[derive(Subcommand, Debug)]
@@ -47,13 +48,17 @@ struct Cli {
 
 async fn send_quacks(
     sc: Sidecar,
+    rx: oneshot::Receiver<()>,
     addr: SocketAddr,
     frequency_ms: u64,
 ) {
     let socket = UdpSocket::bind("0.0.0.0:0").await.expect(
         &format!("error binding to UDP socket"));
     if frequency_ms > 0 {
+        rx.await.expect("couldn't receive notice that 1st packet was sniffed");
         let mut interval = time::interval(Duration::from_millis(frequency_ms));
+        // The first tick completes immediately
+        interval.tick().await;
         loop {
             interval.tick().await;
             let quack = sc.quack();
@@ -66,10 +71,14 @@ async fn send_quacks(
 
 async fn print_quacks(
     sc: Sidecar,
+    rx: oneshot::Receiver<()>,
     frequency_ms: u64,
 ) {
     if frequency_ms > 0 {
+        rx.await.expect("couldn't receive notice that 1st packet was sniffed");
         let mut interval = time::interval(Duration::from_millis(frequency_ms));
+        // The first tick completes immediately
+        interval.tick().await;
         loop {
             interval.tick().await;
             let quack = sc.quack();
@@ -99,15 +108,15 @@ async fn main() -> Result<(), String> {
                 args.threshold,
                 args.num_bits_id,
             );
-            sc.start()?;
+            let rx = sc.start()?;
 
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
                 info!("quACKing to {:?}", addr);
-                send_quacks(sc, addr, frequency_ms).await;
+                send_quacks(sc, rx, addr, frequency_ms).await;
             } else {
                 info!("printing quACKs");
-                print_quacks(sc, frequency_ms).await;
+                print_quacks(sc, rx, frequency_ms).await;
             }
         }
         CliSidecarType::QuackReceiver { port } => {
