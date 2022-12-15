@@ -56,6 +56,10 @@ class SidecarNetwork():
         self.s2.cmd("ovs-ofctl add-flow s2 priority=65535,ip,dl_dst=00:00:00:00:01:02,actions=output:1")
         self.s2.cmd("ovs-ofctl add-flow s2 priority=10,ip,nw_dst=10.0.2.0/24,actions=output:2")
 
+        # Configure link latency and delay
+        self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 200ms 20ms distribution normal")
+        self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10%")
+
     def cli(self):
         CLI(self.net)
 
