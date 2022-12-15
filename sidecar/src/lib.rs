@@ -3,7 +3,7 @@ use quack::*;
 use bincode;
 use log::{trace, debug, info};
 use tokio;
-use tokio::{sync::mpsc, net::UdpSocket};
+use tokio::{sync::{mpsc, oneshot}, net::UdpSocket};
 
 mod socket;
 mod buffer;
@@ -45,9 +45,13 @@ impl Sidecar {
     /// only listens for incoming packets. If the sidecar is a quACK receiver,
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
-    pub fn start(&self) -> Result<(), String> {
+    /// Returns a channel that indicates when the first packet is sniffed.
+    pub fn start(&self) -> Result<oneshot::Receiver<()>, String> {
         let sock = Socket::new(self.interface.clone())?;
         sock.set_promiscuous()?;
+
+        // Creates the channel that indicates when the first packet is sniffed.
+        let (tx, rx) = oneshot::channel();
 
         // Loop over received packets
         let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
@@ -62,6 +66,7 @@ impl Sidecar {
                 SidecarType::QuackSender => Direction::Incoming,
                 SidecarType::QuackReceiver => Direction::Outgoing,
             };
+            let mut tx = Some(tx);
             loop {
                 let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
                 trace!("received {} bytes: {:?}", n, buf);
@@ -89,6 +94,9 @@ impl Sidecar {
                     p.src_mac, p.dst_mac, p.src_ip, p.dst_ip, p.identifier);
                 // TODO: filter by QUIC connection?
                 {
+                    if let Some(tx) = tx.take() {
+                        tx.send(()).unwrap();
+                    }
                     let mut quack_log = quack_log.lock().unwrap();
                     quack_log.0.insert(p.identifier);
                     if ty == SidecarType::QuackReceiver {
@@ -97,7 +105,7 @@ impl Sidecar {
                 }
             }
         });
-        Ok(())
+        Ok(rx)
     }
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
