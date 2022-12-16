@@ -36,7 +36,7 @@ struct Cli {
     #[command(subcommand)]
     ty: CliSidecarType,
     /// Interface to listen on e.g., `eth1'.
-    #[arg(long)]
+    #[arg(long, short = 'i')]
     interface: String,
     /// The threshold number of missing packets.
     #[arg(long, short = 't', default_value_t = 20)]
