@@ -40,6 +40,17 @@ impl Sidecar {
         }
     }
 
+    /// Insert a packet into the cumulative quACK. Should be used by quACK
+    /// receivers, such as in the client code, with direct access to sent
+    /// packets. Typically if this function is used, do not call start().
+    pub fn insert_packet(&self, id: Identifier) {
+        let mut quack_log = self.quack_log.lock().unwrap();
+        quack_log.0.insert(id);
+        if self.ty == SidecarType::QuackReceiver {
+            quack_log.1.push(id);
+        }
+    }
+
     /// Start the raw socket that listens to the specified interface and
     /// accumulates those packets in a quACK. If the sidecar is a quACK sender,
     /// only listens for incoming packets. If the sidecar is a quACK receiver,
