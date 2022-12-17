@@ -18,6 +18,7 @@ pub enum SidecarType {
     QuackReceiver,
 }
 
+#[derive(Clone)]
 pub struct Sidecar {
     pub ty: SidecarType,
     pub interface: String,
