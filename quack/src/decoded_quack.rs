@@ -7,10 +7,10 @@ use crate::arithmetic::*;
 pub type IdentifierLog = Vec<Identifier>;
 
 pub struct DecodedQuack {
-    quack: Quack,
-    log: IdentifierLog,
+    pub quack: Quack,
+    pub log: IdentifierLog,
     // Indexes of the missing packets in the identifier log.
-    indexes: Vec<usize>,
+    pub indexes: Vec<usize>,
 }
 
 impl fmt::Display for DecodedQuack {
