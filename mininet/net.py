@@ -58,7 +58,8 @@ class SidecarNetwork():
 
         # Configure link latency and delay
         self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 250ms 25ms distribution normal")
-        self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10% delay 30ms 3ms distribution normal")
+        self.h2.cmd("tc qdisc add dev h2-eth0 root netem delay 30ms 3ms distribution normal")
+        # self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10% delay 30ms 3ms distribution normal")
         self.r1.cmd("tc qdisc add dev r1-eth0 root netem delay 250ms 25ms distribution normal")
         self.r1.cmd("tc qdisc add dev r1-eth1 root netem delay 30ms 3ms distribution normal")
 
