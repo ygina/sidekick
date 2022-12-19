@@ -1,10 +1,12 @@
 use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
 use clap::{Parser, Subcommand};
 use sidecar::{Sidecar, SidecarType};
 use tokio::net::UdpSocket;
 use tokio::time::{self, Duration};
 use tokio::sync::oneshot;
 use log::{debug, info};
+use quack::DecodedQuack;
 
 #[derive(Subcommand, Debug)]
 enum CliSidecarType {
@@ -47,7 +49,7 @@ struct Cli {
 }
 
 async fn send_quacks(
-    sc: Sidecar,
+    sc: Arc<Mutex<Sidecar>>,
     rx: oneshot::Receiver<()>,
     addr: SocketAddr,
     frequency_ms: u64,
@@ -61,7 +63,7 @@ async fn send_quacks(
         interval.tick().await;
         loop {
             interval.tick().await;
-            let quack = sc.quack();
+            let quack = sc.lock().unwrap().quack();
             let bytes = bincode::serialize(&quack).unwrap();
             println!("quack {}", quack.count);
             socket.send_to(&bytes, addr).await.unwrap();
@@ -70,7 +72,7 @@ async fn send_quacks(
 }
 
 async fn print_quacks(
-    sc: Sidecar,
+    sc: Arc<Mutex<Sidecar>>,
     rx: oneshot::Receiver<()>,
     frequency_ms: u64,
 ) {
@@ -81,7 +83,7 @@ async fn print_quacks(
         interval.tick().await;
         loop {
             interval.tick().await;
-            let quack = sc.quack();
+            let quack = sc.lock().unwrap().quack();
             println!("quack {}", quack.count);
         }
     }
@@ -102,13 +104,13 @@ async fn main() -> Result<(), String> {
         } => {
             debug!("frequency_ms={:?}", frequency_ms);
             // Start the sidecar.
-            let sc = Sidecar::new(
+            let sc = Arc::new(Mutex::new(Sidecar::new(
                 SidecarType::QuackSender,
                 &args.interface,
                 args.threshold,
                 args.num_bits_id,
-            );
-            let rx = sc.start()?;
+            )));
+            let rx = Sidecar::start(sc.clone())?;
 
             // Handle a snapshotted quACK at the specified frequency.
             if let Some(addr) = target_addr {
@@ -120,17 +122,19 @@ async fn main() -> Result<(), String> {
             }
         }
         CliSidecarType::QuackReceiver { port } => {
-            let sc = Sidecar::new(
+            let sc = Arc::new(Mutex::new(Sidecar::new(
                 SidecarType::QuackReceiver,
                 &args.interface,
                 args.threshold,
                 args.num_bits_id,
-            );
-            sc.start()?;
-            let mut rx = sc.listen(port);
+            )));
+            Sidecar::start(sc.clone())?;
+            let mut rx = sc.lock().unwrap().listen(port);
             loop {
                 let quack = rx.recv().await.expect("channel has hung up");
-                let result = sc.quack_decode(quack);
+                let (my_quack, my_log) = sc.lock().unwrap().quack_with_log();
+                let difference_quack = my_quack - quack;
+                let result = DecodedQuack::decode(difference_quack, my_log);
                 debug!("{}", result);
             }
         }

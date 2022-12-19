@@ -25,7 +25,8 @@ pub struct Sidecar {
     pub threshold: usize,
     pub bits: usize,
     // TODO: is there a better way to do synchronization?
-    quack_log: Arc<Mutex<(Quack, IdentifierLog)>>,
+    quack: Quack,
+    log: IdentifierLog,
 }
 
 impl Sidecar {
@@ -37,18 +38,18 @@ impl Sidecar {
             interface: interface.to_string(),
             threshold,
             bits,
-            quack_log: Arc::new(Mutex::new((Quack::new(threshold), vec![]))),
+            quack: Quack::new(threshold),
+            log: vec![],
         }
     }
 
     /// Insert a packet into the cumulative quACK. Should be used by quACK
     /// receivers, such as in the client code, with direct access to sent
     /// packets. Typically if this function is used, do not call start().
-    pub fn insert_packet(&self, id: Identifier) {
-        let mut quack_log = self.quack_log.lock().unwrap();
-        quack_log.0.insert(id);
+    pub fn insert_packet(&mut self, id: Identifier) {
+        self.quack.insert(id);
         if self.ty == SidecarType::QuackReceiver {
-            quack_log.1.push(id);
+            self.log.push(id);
         }
     }
 
@@ -58,8 +59,14 @@ impl Sidecar {
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     /// Returns a channel that indicates when the first packet is sniffed.
-    pub fn start(&self) -> Result<oneshot::Receiver<()>, String> {
-        let sock = Socket::new(self.interface.clone())?;
+    pub fn start(
+        sc: Arc<Mutex<Sidecar>>,
+    ) -> Result<oneshot::Receiver<()>, String> {
+        let (interface, ty) = {
+            let sc = sc.lock().unwrap();
+            (sc.interface.clone(), sc.ty.clone())
+        };
+        let sock = Socket::new(interface.clone())?;
         sock.set_promiscuous()?;
 
         // Creates the channel that indicates when the first packet is sniffed.
@@ -67,9 +74,6 @@ impl Sidecar {
 
         // Loop over received packets
         let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        let interface = self.interface.clone();
-        let quack_log = self.quack_log.clone();
-        let ty = self.ty.clone();
         tokio::task::spawn_blocking(move || {
             info!("tapping socket on fd={} interface={}", sock.fd, interface);
             let mut addr = SockAddr::new_sockaddr_ll();
@@ -110,11 +114,8 @@ impl Sidecar {
                     if let Some(tx) = tx.take() {
                         tx.send(()).unwrap();
                     }
-                    let mut quack_log = quack_log.lock().unwrap();
-                    quack_log.0.insert(p.identifier);
-                    if ty == SidecarType::QuackReceiver {
-                        quack_log.1.push(p.identifier);
-                    }
+                    let mut sc = sc.lock().unwrap();
+                    sc.insert_packet(p.identifier);
                 }
             }
         });
@@ -151,19 +152,12 @@ impl Sidecar {
 
     /// Snapshot the quACK.
     pub fn quack(&self) -> Quack {
-        self.quack_log.lock().unwrap().0.clone()
+        self.quack.clone()
     }
 
     /// Snapshot the quACK and current log.
     pub fn quack_with_log(&self) -> (Quack, IdentifierLog) {
         // TODO: don't clone the log
-        self.quack_log.lock().unwrap().clone()
-    }
-
-    /// Decode the quACK given the current snapshot.
-    pub fn quack_decode(&self, quack: Quack) -> DecodedQuack {
-        let (my_quack, my_log) = self.quack_with_log();
-        let difference_quack = my_quack - quack;
-        DecodedQuack::decode(difference_quack, my_log)
+        (self.quack.clone(), self.log.clone())
     }
 }
