@@ -102,8 +102,9 @@ impl Sidecar {
                         continue;
                     }
                 };
-                debug!("src_mac={} dst_mac={} src_ip={} dst_ip={}, id={}",
+                trace!("src_mac={} dst_mac={} src_ip={} dst_ip={}, id={}",
                     p.src_mac, p.dst_mac, p.src_ip, p.dst_ip, p.identifier);
+                debug!("insert {} ({:#10x})", p.identifier, p.identifier);
                 // TODO: filter by QUIC connection?
                 {
                     if let Some(tx) = tx.take() {
