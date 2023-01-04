@@ -1,7 +1,7 @@
 #!/bin/bash
 if [ "$#" -lt 2 ]; then
-    echo -e "Usage:   $0 [n-bytes] [h1|h2|h3] [ip:port (default: 127.0.0.1:443)]?"
-    echo -e "Example: $0 1M h3 10.0.2.10:443"
+    echo -e "Usage:   $0 [n-bytes] [h1|h2|h3] [ip:port (default: 10.0.1.10:443)]?"
+    echo -e "Example: $0 1M h3 127.0.0.1:443"
     exit 1
 fi
 
@@ -18,7 +18,7 @@ fi
 echo $http
 
 if [ -z "$3" ]; then
-    addr="127.0.0.1:443"
+    addr="10.0.1.10:443"
 else
     addr=$3
 fi
