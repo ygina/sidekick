@@ -29,9 +29,11 @@ echo "$cmd > $file"
 $cmd > $file
 
 # https://superuser.com/questions/590099/can-i-make-curl-fail-with-an-exitcode-different-than-0-if-the-http-status-code-i
-cmd="curl $http --insecure --data-binary @$file -v https://$addr/"
+fmt='\n\n   time_namelookup:  %{time_namelookup}s\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\n  time_pretransfer:  %{time_pretransfer}s\n     time_redirect:  %{time_redirect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n'
+echo $fmt
+cmd="curl $http --insecure --data-binary @$file -v https://$addr/ -w \"$fmt\""
 echo $cmd
-$cmd
+eval $cmd
 echo
 rm $file
 
