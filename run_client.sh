@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 if [ "$#" -lt 2 ]; then
     echo -e "Usage:   $0 [n-bytes] [1|2|3] [ip:port (default: 10.0.1.10:443)]?"
     echo -e "Example: $0 1M 3 127.0.0.1:443"
