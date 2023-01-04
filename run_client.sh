@@ -1,7 +1,7 @@
 #!/bin/bash
-if [ "$#" -ne 2 ]; then
-    echo -e "Usage:   $0 [n-bytes] [h1|h2|h3]"
-    echo -e "Example: $0 1M h3"
+if [ "$#" -lt 2 ]; then
+    echo -e "Usage:   $0 [n-bytes] [h1|h2|h3] [ip:port (default: 127.0.0.1:443)]?"
+    echo -e "Example: $0 1M h3 10.0.2.10:443"
     exit 1
 fi
 
@@ -17,13 +17,19 @@ else
 fi
 echo $http
 
+if [ -z "$3" ]; then
+    addr="127.0.0.1:443"
+else
+    addr=$3
+fi
+
 file=$(mktemp)
 cmd="head -c $1 /dev/urandom"
 echo "$cmd > $file"
 $cmd > $file
 
 # https://superuser.com/questions/590099/can-i-make-curl-fail-with-an-exitcode-different-than-0-if-the-http-status-code-i
-cmd="curl $http --insecure --data-binary @$file -v https://127.0.0.1:443/"
+cmd="curl $http --insecure --data-binary @$file -v https://$addr/"
 echo $cmd
 $cmd
 echo
