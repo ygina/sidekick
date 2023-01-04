@@ -1,18 +1,18 @@
 #!/bin/bash
 if [ "$#" -lt 2 ]; then
-    echo -e "Usage:   $0 [n-bytes] [h1|h2|h3] [ip:port (default: 10.0.1.10:443)]?"
-    echo -e "Example: $0 1M h3 127.0.0.1:443"
+    echo -e "Usage:   $0 [n-bytes] [1|2|3] [ip:port (default: 10.0.1.10:443)]?"
+    echo -e "Example: $0 1M 3 127.0.0.1:443"
     exit 1
 fi
 
-if [ $2 == "h1" ]; then
+if [ $2 -eq 1 ]; then
     http="--http1.1"
-elif [ $2 == "h2" ]; then
+elif [ $2 -eq 2 ]; then
     http="--http2"
-elif [ $2 == "h3" ]; then
+elif [ $2 -eq 3 ]; then
     http="--http3"
 else
-    echo -e "HTTP version must be 'h1', 'h2', or 'h3'"
+    echo -e "HTTP version must be '1', '2', or '3'"
     exit 1
 fi
 echo $http
