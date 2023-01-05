@@ -1,3 +1,5 @@
+import argparse
+import logging
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -12,8 +14,9 @@ def ip(digit):
     return '10.0.{}.10/24'.format(int(digit))
 
 class SidecarNetwork():
-    def __init__(self):
+    def __init__(self, pep=False):
         self.net = Mininet(controller=None, link=TCLink)
+        self.pep = pep
 
         # Add hosts and switches
         self.h1 = self.net.addHost('h1', ip=ip(1), mac=mac(1))
@@ -45,8 +48,21 @@ class SidecarNetwork():
 
         # Start the webserver on h1
         # TODO: not user-dependent path
+        print('[sidecar] Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
         self.h1.cmd("python3 webserver/server.py &")
+
+        # Start the TCP PEP on r1
+        if self.pep:
+            print('[sidecar] Starting the TCP PEP on r1...')
+            self.r1.cmd('ip rule add fwmark 1 lookup 100')
+            self.r1.cmd('ip route add local 0.0.0.0/0 dev lo table 100')
+            self.r1.cmd('iptables -t mangle -F')
+            self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
+            self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
+            self.r1.cmd('pepsal -v &')
+        else:
+            logging.info('NOT starting the TCP PEP')
 
         #self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 250ms 25ms distribution normal")
         # self.h2.cmd("tc qdisc add dev h2-eth0 root netem delay 30ms 3ms distribution normal")
@@ -63,7 +79,12 @@ class SidecarNetwork():
 
 if __name__ == '__main__':
     setLogLevel('info')
-    sc = SidecarNetwork()
+
+    parser = argparse.ArgumentParser(prog='Sidecar')
+    parser.add_argument('-p', '--pep', action='store_true')
+    args = parser.parse_args()
+
+    sc = SidecarNetwork(pep=args.pep)
     sc.start()
     sc.cli()
     sc.stop()
