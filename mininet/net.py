@@ -38,10 +38,10 @@ class SidecarNetwork():
         self.h2.cmd("ip route add default via 10.0.2.1")
 
         # Configure link latency and delay
-        self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 30ms")
-        self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10% delay 5ms")
-        self.r1.cmd("tc qdisc add dev r1-eth0 root netem delay 30ms")
-        self.r1.cmd("tc qdisc add dev r1-eth1 root netem delay 5ms")
+        self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 300ms")
+        self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10% delay 1ms")
+        self.r1.cmd("tc qdisc add dev r1-eth0 root netem delay 300ms")
+        self.r1.cmd("tc qdisc add dev r1-eth1 root netem delay 1ms")
 
         # Start the webserver on h1
         self.h1.cmd("nginx -c ../webserver/nginx.conf")
