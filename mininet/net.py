@@ -14,9 +14,12 @@ def ip(digit):
     return '10.0.{}.10/24'.format(int(digit))
 
 class SidecarNetwork():
-    def __init__(self, pep=False):
+    def __init__(self, args):
         self.net = Mininet(controller=None, link=TCLink)
-        self.pep = pep
+        self.pep = args.pep
+        self.delay1 = int(args.delay1)
+        self.delay2 = int(args.delay2)
+        self.loss2 = int(args.loss2)
 
         # Add hosts and switches
         self.h1 = self.net.addHost('h1', ip=ip(1), mac=mac(1))
@@ -41,10 +44,10 @@ class SidecarNetwork():
         self.h2.cmd("ip route add default via 10.0.2.1")
 
         # Configure link latency and delay
-        self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 300ms")
-        self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10% delay 1ms")
-        self.r1.cmd("tc qdisc add dev r1-eth0 root netem delay 300ms")
-        self.r1.cmd("tc qdisc add dev r1-eth1 root netem delay 1ms")
+        self.h1.cmd('tc qdisc add dev h1-eth0 root netem delay {}ms'.format(self.delay1))
+        self.h2.cmd('tc qdisc add dev h2-eth0 root netem loss {}% delay {}ms'.format(self.loss2, self.delay2))
+        self.r1.cmd('tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1))
+        self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
 
         # Start the webserver on h1
         # TODO: not user-dependent path
@@ -82,9 +85,18 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='Sidecar')
     parser.add_argument('-p', '--pep', action='store_true')
+    parser.add_argument('-d1', '--delay1',
+                        default=300,
+                        help='1/2 RTT (in ms) between h1 and r1')
+    parser.add_argument('-d2', '--delay2',
+                        default=1,
+                        help='1/2 RTT (in ms) between r1 and h2')
+    parser.add_argument('-l2', '--loss2',
+                        default=10,
+                        help='loss (in %%) between r1 and h2')
     args = parser.parse_args()
 
-    sc = SidecarNetwork(pep=args.pep)
+    sc = SidecarNetwork(args)
     sc.start()
     sc.cli()
     sc.stop()
