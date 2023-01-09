@@ -1,5 +1,7 @@
 import argparse
 import logging
+import sys
+import time
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -12,6 +14,9 @@ def mac(digit):
 def ip(digit):
     assert 0 <= digit < 10
     return '10.0.{}.10/24'.format(int(digit))
+
+def sclog(val):
+    print('[sidecar] {}'.format(val), file=sys.stderr);
 
 class SidecarNetwork():
     def __init__(self, args):
@@ -51,13 +56,13 @@ class SidecarNetwork():
 
         # Start the webserver on h1
         # TODO: not user-dependent path
-        print('[sidecar] Starting the NGINX/Python webserver on h1...')
+        sclog('Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
         self.h1.cmd("python3 webserver/server.py &")
 
         # Start the TCP PEP on r1
         if self.pep:
-            print('[sidecar] Starting the TCP PEP on r1...')
+            sclog('Starting the TCP PEP on r1...')
             self.r1.cmd('ip rule add fwmark 1 lookup 100')
             self.r1.cmd('ip route add local 0.0.0.0/0 dev lo table 100')
             self.r1.cmd('iptables -t mangle -F')
@@ -65,13 +70,37 @@ class SidecarNetwork():
             self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
             self.r1.cmd('pepsal -v &')
         else:
-            logging.info('NOT starting the TCP PEP')
+            sclog('NOT starting the TCP PEP')
 
-        #self.h1.cmd("tc qdisc add dev h1-eth0 root netem delay 250ms 25ms distribution normal")
-        # self.h2.cmd("tc qdisc add dev h2-eth0 root netem delay 30ms 3ms distribution normal")
-        #self.h2.cmd("tc qdisc add dev h2-eth0 root netem loss 10% delay 30ms 3ms distribution normal")
-        #self.r1.cmd("tc qdisc add dev r1-eth0 root netem delay 250ms 25ms distribution normal")
-        #self.r1.cmd("tc qdisc add dev r1-eth1 root netem delay 30ms 3ms distribution normal")
+    def benchmark(self, nbytes, http_version, trials):
+        """
+        Args:
+        - nbytes: Number of bytes to send e.g., 1M.
+        - http_version:
+            HTTP/1.1 - http/1.1 1.1 1 h1 tcp
+            HTTP/3.3 - http/3 3 h3 quic
+        - trials
+        """
+        if http_version is None:
+            sclog('must set http version: {}'.format(http_version))
+            return
+        http_version = http_version.lower()
+        if http_version in ['http/1.1', '1.1', '1', 'h1', 'tcp']:
+            http_version = 1
+        elif http_version in ['http/3', '3', 'h3', 'quic']:
+            http_version = 3
+        else:
+            sclog('must set http version: {}'.format(http_version))
+            return
+
+        try:
+            trials = int(trials)
+        except:
+            sclog('`trials` must be a number: {}'.format(trials))
+            return
+
+        self.h2.cmdPrint('./webserver/run_client.sh {} {} {}'.format(
+            nbytes, http_version, trials))
 
     def cli(self):
         CLI(self.net)
@@ -84,19 +113,44 @@ if __name__ == '__main__':
     setLogLevel('info')
 
     parser = argparse.ArgumentParser(prog='Sidecar')
-    parser.add_argument('-p', '--pep', action='store_true')
+    parser.add_argument('--benchmark', action='store_true',
+                        help='Run a single benchmark rather than start the CLI')
+    parser.add_argument('-p', '--pep', action='store_true',
+                        help='Start a TCP pep on r1')
     parser.add_argument('-d1', '--delay1',
-                        default=300,
-                        help='1/2 RTT (in ms) between h1 and r1')
+                        default=75,
+                        metavar='MS',
+                        help='1/2 RTT between h1 and r1 (default: 75)')
     parser.add_argument('-d2', '--delay2',
                         default=1,
-                        help='1/2 RTT (in ms) between r1 and h2')
+                        metavar='MS',
+                        help='1/2 RTT between r1 and h2 (default: 1)')
     parser.add_argument('-l2', '--loss2',
                         default=10,
-                        help='loss (in %%) between r1 and h2')
+                        metavar='num',
+                        help='loss (in %%) between r1 and h2 (default: 10)')
+    parser.add_argument('-s', '--sidecar', action='store_true',
+                        help='If benchmark, enables the sidecar')
+    parser.add_argument('-n', '--nbytes',
+                        default='100k',
+                        metavar='num',
+                        help='If benchmark, the number of bytes to run '
+                        '(default: 100k)')
+    parser.add_argument('--http',
+                        metavar='version',
+                        help='If benchmark, the HTTP version [tcp|quic]')
+    parser.add_argument('-t', '--trials',
+                        default=1,
+                        metavar='num',
+                        help='If benchmark, the number of trials (default: 1)')
     args = parser.parse_args()
-
     sc = SidecarNetwork(args)
     sc.start()
-    sc.cli()
+
+    if args.benchmark:
+        time.sleep(1)
+        sc.benchmark(args.nbytes, args.http, args.trials)
+    else:
+        sc.cli()
+
     sc.stop()

@@ -44,6 +44,8 @@ echo "$cmd > $file"
 $cmd > $file
 
 # Run $trials trials
+echo "Data Size: $1"
+echo "HTTP: $http"
 if [ $trials -eq 1 ]; then
     fmt='\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n'
     cmd="curl -v $http --insecure --data-binary @$file https://$addr/ -w \"$fmt\""
