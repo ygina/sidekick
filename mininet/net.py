@@ -20,11 +20,17 @@ def sclog(val):
 
 class SidecarNetwork():
     def __init__(self, args):
-        self.net = Mininet(controller=None, link=TCLink)
+        self.net=None
         self.pep = args.pep
         self.delay1 = int(args.delay1)
         self.delay2 = int(args.delay2)
         self.loss2 = int(args.loss2)
+        if args.cc not in ['reno', 'cubic']:
+            sclog('invalid congestion control algorithm: {}'.format(args.cc))
+        self.cc = args.cc
+
+    def start_and_configure(self):
+        self.net = Mininet(controller=None, link=TCLink)
 
         # Add hosts and switches
         self.h1 = self.net.addHost('h1', ip=ip(1), mac=mac(1))
@@ -36,7 +42,6 @@ class SidecarNetwork():
         self.net.addLink(self.r1, self.h2)
         self.net.build()
 
-    def start(self):
         # Configure interfaces
         self.r1.cmd("ifconfig r1-eth0 0")
         self.r1.cmd("ifconfig r1-eth1 0")
@@ -53,6 +58,12 @@ class SidecarNetwork():
         self.h2.cmd('tc qdisc add dev h2-eth0 root netem loss {}% delay {}ms'.format(self.loss2, self.delay2))
         self.r1.cmd('tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1))
         self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
+
+        # Set the TCP congestion control algorithm
+        cc_cmd = 'sysctl -w net.ipv4.tcp_congestion_control={}'.format(self.cc)
+        self.h1.cmd(cc_cmd)
+        self.r1.cmd(cc_cmd)
+        self.h2.cmd(cc_cmd)
 
         # Start the webserver on h1
         # TODO: not user-dependent path
@@ -99,6 +110,8 @@ class SidecarNetwork():
             sclog('`trials` must be a number: {}'.format(trials))
             return
 
+        self.start_and_configure()
+        time.sleep(1)
         self.h2.cmdPrint('./webserver/run_client.sh {} {} {}'.format(
             nbytes, http_version, trials))
 
@@ -106,26 +119,34 @@ class SidecarNetwork():
         CLI(self.net)
 
     def stop(self):
-        self.net.stop()
+        if self.net is not None:
+            self.net.stop()
 
 
 if __name__ == '__main__':
     setLogLevel('info')
 
     parser = argparse.ArgumentParser(prog='Sidecar')
-    parser.add_argument('--benchmark', action='store_true',
-                        help='Run a single benchmark rather than start the CLI')
+    parser.add_argument('--benchmark',
+                        metavar='HTTP_VER',
+                        help='Run a single benchmark rather than start the '
+                             'CLI for the HTTP version [tcp|quic]')
     parser.add_argument('-p', '--pep', action='store_true',
                         help='Start a TCP pep on r1')
-    parser.add_argument('-d1', '--delay1',
+    parser.add_argument('-cc',
+                        default='cubic',
+                        metavar='TCP_CC_ALG',
+                        help='Sets the TCP and QUIC congestion control '
+                             'mechanism [reno|cubic] (default: cubic)')
+    parser.add_argument('--delay1',
                         default=75,
                         metavar='MS',
                         help='1/2 RTT between h1 and r1 (default: 75)')
-    parser.add_argument('-d2', '--delay2',
+    parser.add_argument('--delay2',
                         default=1,
                         metavar='MS',
                         help='1/2 RTT between r1 and h2 (default: 1)')
-    parser.add_argument('-l2', '--loss2',
+    parser.add_argument('--loss2',
                         default=10,
                         metavar='num',
                         help='loss (in %%) between r1 and h2 (default: 10)')
@@ -136,21 +157,17 @@ if __name__ == '__main__':
                         metavar='num',
                         help='If benchmark, the number of bytes to run '
                         '(default: 100k)')
-    parser.add_argument('--http',
-                        metavar='version',
-                        help='If benchmark, the HTTP version [tcp|quic]')
     parser.add_argument('-t', '--trials',
                         default=1,
                         metavar='num',
                         help='If benchmark, the number of trials (default: 1)')
     args = parser.parse_args()
     sc = SidecarNetwork(args)
-    sc.start()
 
-    if args.benchmark:
-        time.sleep(1)
-        sc.benchmark(args.nbytes, args.http, args.trials)
+    if args.benchmark is not None:
+        sc.benchmark(args.nbytes, args.benchmark, args.trials)
+        sc.stop()
     else:
+        sc.start_and_configure()
         sc.cli()
-
-    sc.stop()
+        sc.stop()
