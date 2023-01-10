@@ -22,9 +22,12 @@ class SidecarNetwork():
     def __init__(self, args):
         self.net=None
         self.pep = args.pep
-        self.delay1 = int(args.delay1)
-        self.delay2 = int(args.delay2)
+        self.delay1 = '{}ms'.format(int(args.delay1))
+        self.delay2 = '{}ms'.format(int(args.delay2))
+        self.loss1 = int(args.loss1)
         self.loss2 = int(args.loss2)
+        self.bw1 = int(args.bw1)
+        self.bw2 = int(args.bw2)
         if args.cc not in ['reno', 'cubic']:
             sclog('invalid congestion control algorithm: {}'.format(args.cc))
         self.cc = args.cc
@@ -38,8 +41,8 @@ class SidecarNetwork():
         self.r1 = self.net.addHost('r1')
 
         # Add links
-        self.net.addLink(self.r1, self.h1)
-        self.net.addLink(self.r1, self.h2)
+        self.net.addLink(self.r1, self.h1, bw=self.bw1, delay=self.delay1, loss=self.loss1)
+        self.net.addLink(self.r1, self.h2, bw=self.bw2, delay=self.delay2, loss=self.loss2)
         self.net.build()
 
         # Configure interfaces
@@ -54,12 +57,22 @@ class SidecarNetwork():
         self.h2.cmd("ip route add default via 10.0.2.1")
 
         # Configure link latency and delay
-        self.h1.cmd('tc qdisc add dev h1-eth0 root netem delay {}ms'.format(self.delay1))
-        self.h2.cmd('tc qdisc add dev h2-eth0 root netem loss {}% delay {}ms'.format(self.loss2, self.delay2))
-        self.r1.cmd('tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1))
-        self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
+        # self.h1.cmd('tc qdisc add dev h1-eth0 root netem delay {}ms'.format(self.delay1))
+        # self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
+        # # r1 <-- h2
+        # h2_cmd = 'tc qdisc add dev h2-eth0 root netem delay {}ms'.format(self.delay2)
+        # if self.loss2 > 0:
+        #     h2_cmd += ' loss {}%'.format(self.loss2)
+        # print(h2_cmd)
+        # self.h2.cmd(h2_cmd)
+        # # h1 <-- r1
+        # r1_cmd = 'tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1)
+        # if self.loss1 > 0:
+        #     r1_cmd += ' loss {}%'.format(self.loss1)
+        # self.r1.cmd(r1_cmd)
 
         # Set the TCP congestion control algorithm
+        sclog('Setting congestion control to {}'.format(self.cc))
         cc_cmd = 'sysctl -w net.ipv4.tcp_congestion_control={}'.format(self.cc)
         self.h1.cmd(cc_cmd)
         self.r1.cmd(cc_cmd)
@@ -83,7 +96,7 @@ class SidecarNetwork():
         else:
             sclog('NOT starting the TCP PEP')
 
-    def benchmark(self, nbytes, http_version, trials):
+    def benchmark(self, nbytes, http_version, trials, cc):
         """
         Args:
         - nbytes: Number of bytes to send e.g., 1M.
@@ -112,8 +125,8 @@ class SidecarNetwork():
 
         self.start_and_configure()
         time.sleep(1)
-        self.h2.cmdPrint('./webserver/run_client.sh {} {} {}'.format(
-            nbytes, http_version, trials))
+        self.h2.cmdPrint('./webserver/run_client.sh {} {} {} {}'.format(
+            nbytes, http_version, trials, self.cc))
 
     def cli(self):
         CLI(self.net)
@@ -146,10 +159,22 @@ if __name__ == '__main__':
                         default=1,
                         metavar='MS',
                         help='1/2 RTT between r1 and h2 (default: 1)')
-    parser.add_argument('--loss2',
-                        default=10,
+    parser.add_argument('--loss1',
+                        default=0,
                         metavar='num',
-                        help='loss (in %%) between r1 and h2 (default: 10)')
+                        help='loss (in %%) between h1 and r1 (default: 0)')
+    parser.add_argument('--loss2',
+                        default=1,
+                        metavar='num',
+                        help='loss (in %%) between r1 and h2 (default: 1)')
+    parser.add_argument('--bw1',
+                        default=sys.maxsize,
+                        help='link bandwidth (in Mbps) between h1 and r1 '
+                             '(default: unlimited)')
+    parser.add_argument('--bw2',
+                        default=sys.maxsize,
+                        help='link bandwidth (in Mbps) between r1 and h2 '
+                             '(default: unlimited)')
     parser.add_argument('-s', '--sidecar', action='store_true',
                         help='If benchmark, enables the sidecar')
     parser.add_argument('-n', '--nbytes',
@@ -165,7 +190,7 @@ if __name__ == '__main__':
     sc = SidecarNetwork(args)
 
     if args.benchmark is not None:
-        sc.benchmark(args.nbytes, args.benchmark, args.trials)
+        sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc)
         sc.stop()
     else:
         sc.start_and_configure()
