@@ -180,13 +180,13 @@ if __name__ == '__main__':
                         metavar='num',
                         help='loss (in %%) between r1 and h2 (default: 1)')
     parser.add_argument('--bw1',
-                        default=sys.maxsize,
+                        default=10,
                         help='link bandwidth (in Mbps) between h1 and r1 '
-                             '(default: unlimited)')
+                             '(default: 10)')
     parser.add_argument('--bw2',
-                        default=sys.maxsize,
+                        default=10,
                         help='link bandwidth (in Mbps) between r1 and h2 '
-                             '(default: unlimited)')
+                             '(default: 10)')
     parser.add_argument('-s', '--sidecar', action='store_true',
                         help='If benchmark, enables the sidecar')
     parser.add_argument('-n', '--nbytes',
