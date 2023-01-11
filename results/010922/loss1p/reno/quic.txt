@@ -1,0 +1,292 @@
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 100k 3 7 reno',)
+--http3
+head -c 100k /dev/urandom > /tmp/tmp.pUGWyOsty5
+Data Size: 100k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.pUGWyOsty5 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.324135	0.000000	0.324236		1.087376
+0.160802	0.000000	0.160904		0.771174
+0.158222	0.000000	0.158329		0.768548
+0.163964	0.000000	0.164067		0.926389
+0.163994	0.000000	0.164091		2.296149
+0.160924	0.000000	0.161029		0.771229
+0.164056	0.000000	0.164153		0.774980
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 200k 3 7 reno',)
+--http3
+head -c 200k /dev/urandom > /tmp/tmp.Dh3BR1bd7k
+Data Size: 200k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.Dh3BR1bd7k https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.319013	0.000000	0.319142		1.082760
+0.158454	0.000000	0.158549		1.225763
+0.158293	0.000000	0.158405		1.529528
+0.158217	0.000000	0.158316		2.442354
+0.158256	0.000000	0.158353		0.921390
+0.158224	0.000000	0.158322		1.377263
+0.163983	0.000000	0.164083		1.231444
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 300k 3 7 reno',)
+--http3
+head -c 300k /dev/urandom > /tmp/tmp.t7QCZBNmOZ
+Data Size: 300k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.t7QCZBNmOZ https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.325215	0.000000	0.325314		2.458361
+0.158245	0.000000	0.158338		4.572950
+0.158504	0.000000	0.158602		1.682067
+0.158501	0.000000	0.158598		1.529647
+0.158251	0.000000	0.158348		1.834066
+0.158239	0.000000	0.158338		1.682726
+0.158205	0.000000	0.158324		1.377607
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 400k 3 7 reno',)
+--http3
+head -c 400k /dev/urandom > /tmp/tmp.mN43vAhIH1
+Data Size: 400k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.mN43vAhIH1 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.325545	0.000000	0.325644		1.242885
+0.158247	0.000000	0.158348		5.638140
+0.163953	0.000000	0.164055		3.362267
+0.158262	0.000000	0.158373		2.594972
+0.158248	0.000000	0.158360		4.268510
+0.158266	0.000000	0.158366		3.660140
+0.158206	0.000000	0.158305		5.942358
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 500k 3 7 reno',)
+--http3
+head -c 500k /dev/urandom > /tmp/tmp.jc9Qxm5i7E
+Data Size: 500k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.jc9Qxm5i7E https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.325226	0.000000	0.325328		6.263264
+0.158255	0.000000	0.158357		4.877358
+0.163931	0.000000	0.164028		4.580265
+0.158248	0.000000	0.158348		4.116939
+0.158300	0.000000	0.158411		5.486233
+0.158256	0.000000	0.158359		3.052091
+0.158290	0.000000	0.158387		1.378821
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 600k 3 7 reno',)
+--http3
+head -c 600k /dev/urandom > /tmp/tmp.XXYhBiIdWk
+Data Size: 600k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.XXYhBiIdWk https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.319018	0.000000	0.319122		4.736173
+0.158289	0.000000	0.158389		3.203995
+0.163896	0.000000	0.163997		1.688455
+0.163995	0.000000	0.164091		6.406996
+0.158220	0.000000	0.158320		3.508159
+0.158291	0.000000	0.158406		1.378245
+0.164051	0.000000	0.164150		7.318772
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 700k 3 7 reno',)
+--http3
+head -c 700k /dev/urandom > /tmp/tmp.8xUDCRbYhG
+Data Size: 700k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.8xUDCRbYhG https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 800k 3 7 reno',)
+--http3
+head -c 800k /dev/urandom > /tmp/tmp.4hJNQsBO33
+Data Size: 800k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.4hJNQsBO33 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.318847	0.000000	0.318946		5.648523
+0.158241	0.000000	0.158338		9.900003
+0.158283	0.000000	0.158386		1.228072
+0.163911	0.000000	0.164013		6.711740
+0.158243	0.000000	0.158343		8.682064
+0.158284	0.000000	0.158380		9.443593
+0.158278	0.000000	0.158377		9.139019
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 900k 3 7 reno',)
+--http3
+head -c 900k /dev/urandom > /tmp/tmp.uHMXRge4sP
+Data Size: 900k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.uHMXRge4sP https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.324290	0.000000	0.324410		7.785230
+0.163959	0.000000	0.164058		9.449095
+0.158289	0.000000	0.158388		5.486749
+0.158268	0.000000	0.158366		10.965583
+0.163971	0.000000	0.164071		10.059595
+0.158495	0.000000	0.158599		6.856597
+0.158262	0.000000	0.158361		4.422040
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to reno
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 1000k 3 7 reno',)
+--http3
+head -c 1000k /dev/urandom > /tmp/tmp.6LoIzugffw
+Data Size: 1000k
+HTTP: --http3
+timeout 1m curl-exp --http3 --insecure --quiche-cc reno --data-binary @/tmp/tmp.6LoIzugffw https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.318776	0.000000	0.318879		7.017921
+0.163954	0.000000	0.164061		11.128739
+0.164994	0.000000	0.165173		8.842619
+0.158219	0.000000	0.158324		10.052807
+0.158264	0.000000	0.158363		7.922461
+0.158291	0.000000	0.158394		3.358533
+0.158276	0.000000	0.158374		8.074420
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done

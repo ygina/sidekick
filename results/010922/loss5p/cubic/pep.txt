@@ -1,0 +1,600 @@
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 100k 1 7 cubic',)
+--http1.1
+head -c 100k /dev/urandom > /tmp/tmp.Ev1LwkrmhH
+Data Size: 100k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.Ev1LwkrmhH https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199467	0.670061	0.470615		1.074943
+0.199438	0.556908	0.357494		0.961011
+0.199446	0.556884	0.357461		0.961009
+0.199423	0.706997	0.507648		1.111157
+0.199434	0.556824	0.357461		0.960946
+0.199434	0.556864	0.357499		0.960957
+0.199430	0.556856	0.357447		0.960972
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 200k 1 7 cubic',)
+--http1.1
+head -c 200k /dev/urandom > /tmp/tmp.QQPq8wKmqW
+Data Size: 200k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.QQPq8wKmqW https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.200440	0.670878	0.470459		1.224967
+0.199465	0.556893	0.357451		1.111122
+0.199445	0.557113	0.357690		1.111303
+0.199470	0.557172	0.357727		1.111418
+0.199433	0.557063	0.357653		1.111297
+0.199447	0.557096	0.357671		1.111314
+0.199442	0.557078	0.357708		1.111267
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 300k 1 7 cubic',)
+--http1.1
+head -c 300k /dev/urandom > /tmp/tmp.D7JTNdeqNZ
+Data Size: 300k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.D7JTNdeqNZ https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199485	0.669940	0.470476		1.268243
+1.201544	2.561100	1.359580		2.157927
+0.199466	0.557182	0.357739		1.155082
+0.199439	0.557116	0.357747		1.155264
+0.200457	0.559078	0.358642		1.155161
+0.199461	0.557178	0.357740		1.155071
+0.199442	0.557125	0.357703		1.155441
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 400k 1 7 cubic',)
+--http1.1
+head -c 400k /dev/urandom > /tmp/tmp.uHRzmAEAs5
+Data Size: 400k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.uHRzmAEAs5 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199450	0.669964	0.470588		1.267929
+0.200454	0.558803	0.358371		1.158022
+0.199447	0.758205	0.558781		1.504462
+0.199432	0.556782	0.357372		1.157160
+0.200435	0.558815	0.358401		1.154950
+0.200440	0.558860	0.358442		1.155041
+0.199428	0.766438	0.567033		1.366881
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 500k 1 7 cubic',)
+--http1.1
+head -c 500k /dev/urandom > /tmp/tmp.VFKjNP7rHx
+Data Size: 500k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.VFKjNP7rHx https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199440	0.669877	0.470509		1.375537
+0.199435	0.557031	0.357618		1.261720
+0.199434	0.557091	0.357680		1.261665
+0.199430	0.557067	0.357709		1.261559
+0.200424	0.559008	0.358606		1.262535
+0.199435	0.556999	0.357589		1.303488
+0.199437	0.557047	0.357634		1.261549
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 600k 1 7 cubic',)
+--http1.1
+head -c 600k /dev/urandom > /tmp/tmp.bj1qHETu8e
+Data Size: 600k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.bj1qHETu8e https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199447	0.865360	0.665936		1.613710
+0.199428	0.556802	0.357446		1.415429
+0.199438	0.556874	0.357457		1.305181
+0.199434	0.556849	0.357437		1.263599
+0.199430	0.557332	0.357985		1.265700
+1.201531	2.561153	1.359644		2.307361
+0.199432	0.556785	0.357375		1.307067
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 700k 1 7 cubic',)
+--http1.1
+head -c 700k /dev/urandom > /tmp/tmp.nPmDbyHgAe
+Data Size: 700k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.nPmDbyHgAe https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.200442	0.670838	0.470418		1.421160
+0.199432	0.556927	0.357517		1.305803
+0.199437	0.556839	0.357474		1.306425
+0.199438	0.556787	0.357375		1.411329
+0.199442	0.556832	0.357412		1.306141
+0.199449	0.556858	0.357483		1.413959
+0.199429	0.556770	0.357362		1.307526
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 800k 1 7 cubic',)
+--http1.1
+head -c 800k /dev/urandom > /tmp/tmp.hybPIZdpTC
+Data Size: 800k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.hybPIZdpTC https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199447	0.669973	0.470597		1.419811
+0.199449	0.556937	0.357511		1.305806
+0.199444	0.556895	0.357474		1.306312
+0.200439	0.558890	0.358473		1.306630
+0.199443	0.707026	0.507605		1.454644
+0.199433	0.556829	0.357469		1.306836
+0.200430	0.558807	0.358399		1.412656
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 900k 1 7 cubic',)
+--http1.1
+head -c 900k /dev/urandom > /tmp/tmp.uBINC4iWCp
+Data Size: 900k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.uBINC4iWCp https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199445	0.670159	0.470785		1.526066
+0.199437	0.556832	0.357418		1.412151
+0.199439	0.556919	0.357553		1.411625
+0.199471	0.556906	0.357456		1.411615
+0.199440	0.556802	0.357387		1.411495
+0.200433	0.558893	0.358481		1.415265
+0.199472	0.556977	0.357527		1.411562
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 1000k 1 7 cubic',)
+--http1.1
+head -c 1000k /dev/urandom > /tmp/tmp.RwdbAEfUl2
+Data Size: 1000k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.RwdbAEfUl2 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199434	0.865243	0.665831		1.721305
+0.199432	0.556813	0.357451		1.412179
+1.201544	2.561035	1.359514		2.413792
+0.199435	0.556881	0.357523		1.411896
+0.199434	0.556872	0.357460		1.411757
+0.199431	0.556802	0.357393		1.453697
+0.200455	0.558821	0.358388		1.412807
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 100k 1 7 cubic',)
+--http1.1
+head -c 100k /dev/urandom > /tmp/tmp.10RYy3H91t
+Data Size: 100k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.10RYy3H91t https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.200447	0.670784	0.470360		1.076734
+0.199425	0.556809	0.357405		0.960900
+0.199441	0.556854	0.357434		0.960897
+0.199425	0.556738	0.357333		0.960733
+0.200429	0.558815	0.358407		0.963797
+0.200459	0.558873	0.358437		0.961889
+0.200424	0.558767	0.358365		0.961812
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 200k 1 7 cubic',)
+--http1.1
+head -c 200k /dev/urandom > /tmp/tmp.lCF2COTXyu
+Data Size: 200k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.lCF2COTXyu https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199440	0.669873	0.470456		1.082965
+0.199439	0.556808	0.357392		1.111032
+0.199434	0.556786	0.357374		1.113088
+0.199433	0.556863	0.357455		1.111071
+0.199428	0.556771	0.357418		1.260966
+0.200434	0.558797	0.358388		1.111945
+0.199430	0.761722	0.562318		1.315905
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 300k 1 7 cubic',)
+--http1.1
+head -c 300k /dev/urandom > /tmp/tmp.UhRpr6TJpb
+Data Size: 300k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.UhRpr6TJpb https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199443	0.669901	0.470530		1.268432
+0.200436	0.558767	0.358353		1.114213
+0.199429	0.556825	0.357418		1.155449
+0.199429	0.767137	0.567731		1.473587
+0.199427	0.556879	0.357523		1.153001
+0.200434	0.558895	0.358483		1.155385
+0.199424	0.556794	0.357392		1.155367
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 400k 1 7 cubic',)
+--http1.1
+head -c 400k /dev/urandom > /tmp/tmp.cTBls4u4yF
+Data Size: 400k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.cTBls4u4yF https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199448	0.773961	0.574585		1.374950
+0.200430	0.709002	0.508595		1.306666
+0.199434	0.556863	0.357451		1.154747
+0.199457	0.556891	0.357455		1.155252
+0.199460	0.556876	0.357437		1.263421
+0.199437	0.556843	0.357479		1.154977
+0.200435	0.558816	0.358401		1.155428
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 500k 1 7 cubic',)
+--http1.1
+head -c 500k /dev/urandom > /tmp/tmp.1OVFOSJq2y
+Data Size: 500k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.1OVFOSJq2y https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199452	0.669805	0.470375		1.527246
+0.200460	0.558845	0.358407		1.262412
+0.199448	0.556901	0.357475		1.304414
+0.199435	0.556820	0.357409		1.413265
+0.200457	0.558846	0.358412		1.262397
+0.199427	0.556799	0.357395		1.261323
+0.199432	0.707006	0.507596		1.411464
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 600k 1 7 cubic',)
+--http1.1
+head -c 600k /dev/urandom > /tmp/tmp.S5kiOLZXnM
+Data Size: 600k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.S5kiOLZXnM https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199446	0.669874	0.470449		1.421103
+0.199431	0.556837	0.357430		1.306207
+0.200432	0.558787	0.358376		1.307021
+0.199430	0.556756	0.357348		1.306938
+0.199435	0.556766	0.357353		1.263141
+0.200438	0.708954	0.508538		1.454818
+0.199432	0.556764	0.357352		1.264957
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 700k 1 7 cubic',)
+--http1.1
+head -c 700k /dev/urandom > /tmp/tmp.M4fOOcoGRy
+Data Size: 700k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.M4fOOcoGRy https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.200449	0.670935	0.470509		1.421018
+0.199426	0.556839	0.357435		1.411488
+0.199430	0.556863	0.357507		1.305143
+0.200436	0.558806	0.358393		1.266271
+0.199434	0.556779	0.357368		1.303673
+0.199430	0.556757	0.357348		1.411297
+0.199418	0.763608	0.564211		1.470419
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 800k 1 7 cubic',)
+--http1.1
+head -c 800k /dev/urandom > /tmp/tmp.GOuieNnHyg
+Data Size: 800k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.GOuieNnHyg https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+2.202615	4.716682	2.514138		3.465075
+0.199434	0.556859	0.357447		1.305809
+0.199423	0.706954	0.507604		1.565408
+0.199434	0.556804	0.357391		1.304158
+0.199434	0.556836	0.357424		1.415325
+0.200431	0.558893	0.358484		1.306401
+0.199425	0.556799	0.357395		1.306792
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 900k 1 7 cubic',)
+--http1.1
+head -c 900k /dev/urandom > /tmp/tmp.tce51t6KLX
+Data Size: 900k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.tce51t6KLX https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.199456	0.669842	0.470460		1.525758
+0.199436	0.556879	0.357465		1.414595
+1.201529	2.561000	1.359544		2.417426
+0.199435	0.556767	0.357355		1.944714
+0.199442	0.556863	0.357444		1.650573
+1.201499	2.560943	1.359466		2.413605
+0.199429	0.556819	0.357413		1.413342
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+*** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 1000k 1 7 cubic',)
+--http1.1
+head -c 1000k /dev/urandom > /tmp/tmp.E5R5QYhhjT
+Data Size: 1000k
+HTTP: --http1.1
+timeout 1m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.E5R5QYhhjT https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+0.200447	0.670999	0.470576		1.632968
+0.199427	0.556765	0.357358		1.412074
+0.199425	0.556832	0.357431		1.561792
+0.199439	0.556786	0.357370		1.411698
+0.199431	0.556840	0.357432		1.561664
+0.199428	0.556793	0.357388		1.411751
+0.199437	0.556860	0.357444		1.411721
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done

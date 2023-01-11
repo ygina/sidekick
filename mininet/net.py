@@ -60,6 +60,7 @@ class SidecarNetwork():
         self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
 
         # Set the TCP congestion control algorithm
+        sclog('Setting congestion control to {}'.format(self.cc))
         cc_cmd = 'sysctl -w net.ipv4.tcp_congestion_control={}'.format(self.cc)
         self.h1.cmd(cc_cmd)
         self.r1.cmd(cc_cmd)
@@ -83,7 +84,7 @@ class SidecarNetwork():
         else:
             sclog('NOT starting the TCP PEP')
 
-    def benchmark(self, nbytes, http_version, trials):
+    def benchmark(self, nbytes, http_version, trials, cc):
         """
         Args:
         - nbytes: Number of bytes to send e.g., 1M.
@@ -112,8 +113,8 @@ class SidecarNetwork():
 
         self.start_and_configure()
         time.sleep(1)
-        self.h2.cmdPrint('./webserver/run_client.sh {} {} {}'.format(
-            nbytes, http_version, trials))
+        self.h2.cmdPrint('./webserver/run_client.sh {} {} {} {}'.format(
+            nbytes, http_version, trials, self.cc))
 
     def cli(self):
         CLI(self.net)
@@ -165,7 +166,7 @@ if __name__ == '__main__':
     sc = SidecarNetwork(args)
 
     if args.benchmark is not None:
-        sc.benchmark(args.nbytes, args.benchmark, args.trials)
+        sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc)
         sc.stop()
     else:
         sc.start_and_configure()
