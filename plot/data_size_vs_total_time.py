@@ -1,4 +1,5 @@
 import os.path
+import statistics
 from os import path
 from common import *
 
@@ -6,16 +7,20 @@ DATE = '010922'
 NUM_TRIALS = 7
 NUM_XS = 10
 
-def median(arr):
-    try:
+class DataPoint:
+    def __init__(self, arr):
         arr.sort()
         mid = int(len(arr) / 2)
+        self.p50 = statistics.median(arr)
         if len(arr) % 2 == 1:
-            return arr[mid]
+            self.p25 = statistics.median(arr[:mid+1])
         else:
-            return (arr[mid] + arr[mid-1]) / 2.0
-    except:
-        import pdb; pdb.set_trace()
+            self.p25 = statistics.median(arr[:mid])
+        self.p75 = statistics.median(arr[mid:])
+        self.minval = arr[0]
+        self.maxval = arr[-1]
+        self.avg = statistics.mean(arr)
+        self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
 
 def parse_data(filename, data_key='time_total'):
     """
@@ -50,7 +55,7 @@ def parse_data(filename, data_key='time_total'):
             # Done reading data for this data_size
             if len(data) > 0:
                 xs.append(data_size)
-                ys.append(median(data))
+                ys.append(DataPoint(data))
             count += len(data)
             data_size = None
             key_index = None
@@ -80,14 +85,16 @@ def plot_graph(loss, cc, pdf, data_key='time_total', http_versions=['tcp', 'pep'
             continue
         try:
             data[http_version] = parse_data(filename, data_key=data_key)
-        except:
+        except Exception as e:
             print('Error parsing: {}'.format(filename))
+            print(e)
     plt.clf()
     for (i, label) in enumerate(http_versions):
         if label not in data:
             continue
-        (x, y) = data[label]
-        plt.plot(x, y, label=label, marker=MARKERS[i])
+        (xs, ys) = data[label]
+        ys = [point.p50 for point in ys]
+        plt.plot(xs, ys, label=label, marker=MARKERS[i])
     plt.xlabel('Data Size (kB)')
     plt.ylabel('{} (s)'.format(data_key))
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
