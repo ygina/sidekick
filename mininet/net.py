@@ -196,10 +196,10 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--sidecar', action='store_true',
                         help='If benchmark, enables the sidecar')
     parser.add_argument('-n', '--nbytes',
-                        default='100k',
+                        default='1M',
                         metavar='num',
                         help='If benchmark, the number of bytes to run '
-                        '(default: 100k)')
+                        '(default: 1M)')
     parser.add_argument('-t', '--trials',
                         default=1,
                         metavar='num',
