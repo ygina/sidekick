@@ -2,14 +2,20 @@ import os.path
 from os import path
 from common import *
 
+DATE = '010922'
+NUM_TRIALS = 7
+NUM_XS = 10
+
 def median(arr):
-    assert len(arr) != 0
-    arr.sort()
-    mid = int(len(arr) / 2)
-    if len(arr) % 2 == 1:
-        return arr[mid]
-    else:
-        return (arr[mid] + arr[mid+1]) / 2.0
+    try:
+        arr.sort()
+        mid = int(len(arr) / 2)
+        if len(arr) % 2 == 1:
+            return arr[mid]
+        else:
+            return (arr[mid] + arr[mid-1]) / 2.0
+    except:
+        import pdb; pdb.set_trace()
 
 def parse_data(filename, data_key='time_total'):
     """
@@ -23,9 +29,10 @@ def parse_data(filename, data_key='time_total'):
     data_size = None
     key_index = None
     data = None
+    count = 0
 
     for line in lines:
-        line = line.strip()        
+        line = line.strip()
         if 'Data Size' in line:
             data_size = int(line[11:-1])
             data = []
@@ -39,34 +46,42 @@ def parse_data(filename, data_key='time_total'):
             continue
         if key_index is None:
             continue
-        if line == '':
+        if line == '' or '***' in line:
             # Done reading data for this data_size
-            xs.append(data_size)
-            ys.append(median(data))
+            if len(data) > 0:
+                xs.append(data_size)
+                ys.append(median(data))
+            count += len(data)
             data_size = None
             key_index = None
             data = None
         else:
             # Read another data point for this data_size
             data.append(float(line.split()[key_index]))            
+    print('{}: missing data points = {}'.format(
+        filename, count % (NUM_TRIALS * NUM_XS)))
     return (xs, ys)
 
-def get_filename(cc, http):
+def get_filename(loss, cc, http):
     """
     Args:
+    - loss: <number>
     - cc: reno, cubic
     - http: tcp, quic, pep
     """
-    return '../results/{}/{}.txt'.format(cc, http)
+    return '../results/{}/loss{}p/{}/{}.txt'.format(DATE, loss, cc, http)
 
-def plot_graph(cc, pdf, data_key='time_total', http_versions=['tcp', 'pep', 'quic']):
+def plot_graph(loss, cc, pdf, data_key='time_total', http_versions=['tcp', 'pep', 'quic']):
     data = {}
     for http_version in http_versions:
-        filename = get_filename(cc, http_version)
+        filename = get_filename(loss, cc, http_version)
         if not path.exists(filename):
             print('Path does not exist: {}'.format(filename))
             continue
-        data[http_version] = parse_data(filename, data_key=data_key)
+        try:
+            data[http_version] = parse_data(filename, data_key=data_key)
+        except:
+            print('Error parsing: {}'.format(filename))
     plt.clf()
     for (i, label) in enumerate(http_versions):
         if label not in data:
@@ -76,9 +91,10 @@ def plot_graph(cc, pdf, data_key='time_total', http_versions=['tcp', 'pep', 'qui
     plt.xlabel('Data Size (kB)')
     plt.ylabel('{} (s)'.format(data_key))
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
-    plt.title(pdf)
+    plt.title('{} {}% loss'.format(cc, loss))
     if pdf is not None:
         save_pdf(pdf)
 
-plot_graph(cc='cubic', pdf='cubic.pdf')
-plot_graph(cc='reno', pdf='reno.pdf')
+for cc in ['cubic', 'reno']:
+    for loss in [1, 2, 5, 10]:
+        plot_graph(loss=loss, cc=cc, pdf='{}_loss{}p.pdf'.format(cc, loss))
