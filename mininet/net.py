@@ -9,14 +9,14 @@ from mininet.link import TCLink
 
 def mac(digit):
     assert 0 <= digit < 10
-    return '00:00:00:00:00:0{}'.format(int(digit))
+    return f'00:00:00:00:00:0{int(digit)}'
 
 def ip(digit):
     assert 0 <= digit < 10
-    return '10.0.{}.10/24'.format(int(digit))
+    return f'10.0.{int(digit)}.10/24'
 
 def sclog(val):
-    print('[sidecar] {}'.format(val), file=sys.stderr);
+    print(f'[sidecar] {val}', file=sys.stderr);
 
 def get_max_queue_size(rtt_ms, bw_mbps):
     """
@@ -38,7 +38,7 @@ class SidecarNetwork():
         self.bw1 = int(args.bw1)
         self.bw2 = int(args.bw2)
         if args.cc not in ['reno', 'cubic']:
-            sclog('invalid congestion control algorithm: {}'.format(args.cc))
+            sclog(f'invalid congestion control algorithm: {args.cc}')
         self.cc = args.cc
 
     def start_and_configure(self):
@@ -53,15 +53,15 @@ class SidecarNetwork():
         rtt_ms = 2 * (self.delay1 + self.delay2)
         bw_mbps = min(self.bw1, self.bw2)
         mqs = get_max_queue_size(rtt_ms, bw_mbps)
-        print('max_queue_size = {} packets'.format(mqs))
+        print(f'max_queue_size = {mqs} packets')
         self.net.addLink(self.r1, self.h1,
                          bw=self.bw1,
                          loss=self.loss1,
-                         delay='{}ms'.format(self.delay1),
+                         delay=f'{self.delay1}ms',
                          max_queue_size=mqs)
         self.net.addLink(self.r1, self.h2,
                          bw=self.bw2,
-                         delay='{}ms'.format(self.delay2),
+                         delay=f'{self.delay2}ms',
                          loss=self.loss2,
                          max_queue_size=mqs)
         self.net.build()
@@ -78,14 +78,14 @@ class SidecarNetwork():
         self.h2.cmd("ip route add default via 10.0.2.1")
 
         # Configure link latency and delay
-        # self.h1.cmd('tc qdisc add dev h1-eth0 root netem delay {}ms'.format(self.delay1))
-        # self.h2.cmd('tc qdisc add dev h2-eth0 root netem loss {}% delay {}ms'.format(self.loss2, self.delay2))
-        # self.r1.cmd('tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1))
-        # self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
+        # self.h1.cmd(f'tc qdisc add dev h1-eth0 root netem delay {self.delay1}ms')
+        # self.h2.cmd(f'tc qdisc add dev h2-eth0 root netem loss {self.loss2}% delay {self.delay2}ms')
+        # self.r1.cmd(f'tc qdisc add dev r1-eth0 root netem delay {self.delay1}ms')
+        # self.r1.cmd(f'tc qdisc add dev r1-eth1 root netem delay {self.delay2}ms')
 
         # Set the TCP congestion control algorithm
-        sclog('Setting congestion control to {}'.format(self.cc))
-        cc_cmd = 'sysctl -w net.ipv4.tcp_congestion_control={}'.format(self.cc)
+        sclog(f'Setting congestion control to {self.cc}')
+        cc_cmd = f'sysctl -w net.ipv4.tcp_congestion_control={self.cc}'
         self.h1.cmd(cc_cmd)
         self.r1.cmd(cc_cmd)
         self.h2.cmd(cc_cmd)
@@ -118,7 +118,7 @@ class SidecarNetwork():
         - trials
         """
         if http_version is None:
-            sclog('must set http version: {}'.format(http_version))
+            sclog(f'must set http version: {http_version}')
             return
         http_version = http_version.lower()
         if http_version in ['http/1.1', '1.1', '1', 'h1', 'tcp']:
@@ -126,13 +126,13 @@ class SidecarNetwork():
         elif http_version in ['http/3', '3', 'h3', 'quic']:
             http_version = 3
         else:
-            sclog('must set http version: {}'.format(http_version))
+            sclog(f'must set http version: {http_version}')
             return
 
         try:
             trials = int(trials)
         except:
-            sclog('`trials` must be a number: {}'.format(trials))
+            sclog(f'`trials` must be a number: {trials}')
             return
 
         self.start_and_configure()
