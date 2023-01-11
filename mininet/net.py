@@ -90,6 +90,12 @@ class SidecarNetwork():
         self.r1.cmd(cc_cmd)
         self.h2.cmd(cc_cmd)
 
+        # Turn off tso and gso to send MTU-sized packets
+        self.h1.cmd('ethtool -K h1-eth0 gso off tso off')
+        self.h2.cmd('ethtool -K h2-eth0 gso off tso off')
+        self.r1.cmd('ethtool -K r1-eth0 gso off tso off')
+        self.r1.cmd('ethtool -K r1-eth1 gso off tso off')
+
         # Start the webserver on h1
         # TODO: not user-dependent path
         sclog('Starting the NGINX/Python webserver on h1...')
