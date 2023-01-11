@@ -76,7 +76,10 @@ def get_filename(loss, cc, http):
     """
     return '../results/{}/loss{}p/{}/{}.txt'.format(DATE, loss, cc, http)
 
-def plot_graph(loss, cc, pdf, data_key='time_total', http_versions=['tcp', 'pep', 'quic']):
+def plot_graph(loss, cc, pdf,
+               data_key='time_total',
+               http_versions=['tcp', 'pep', 'quic'],
+               use_median=True):
     data = {}
     for http_version in http_versions:
         filename = get_filename(loss, cc, http_version)
@@ -92,13 +95,21 @@ def plot_graph(loss, cc, pdf, data_key='time_total', http_versions=['tcp', 'pep'
     for (i, label) in enumerate(http_versions):
         if label not in data:
             continue
-        (xs, ys) = data[label]
-        ys = [point.p50 for point in ys]
-        plt.plot(xs, ys, label=label, marker=MARKERS[i])
+        (xs, ys_raw) = data[label]
+        if use_median:
+            ys = [y.p50 for y in ys_raw]
+            plt.errorbar(xs, ys, yerr=([y.p50 - y.p25 for y in ys_raw],
+                [y.p75 - y.p50 for y in ys_raw]), capsize=5,
+                label=label, marker=MARKERS[i])
+        else:
+            ys = [y.avg for y in ys_raw]
+            plt.errorbar(xs, ys, yerr=[y.stdev if y.stdev is not None else 0 for
+                y in ys_raw], label=label, marker=MARKERS[i])
     plt.xlabel('Data Size (kB)')
     plt.ylabel('{} (s)'.format(data_key))
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
-    plt.title('{} {}% loss'.format(cc, loss))
+    statistic = 'median' if use_median else 'mean'
+    plt.title('{} {} {}% loss'.format(statistic, cc, loss))
     if pdf is not None:
         save_pdf(pdf)
 
