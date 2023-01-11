@@ -18,13 +18,25 @@ def ip(digit):
 def sclog(val):
     print('[sidecar] {}'.format(val), file=sys.stderr);
 
+def get_max_queue_size(rtt_ms, bw_mbps):
+    """
+    Calculate the maximum queue size as
+    Bandwidth Delay Product (BDP) / MTU * 1.1 packets.
+    """
+    bdp = rtt_ms * bw_mbps * 1000000. / 1000. / 8.
+    mtu = 1500
+    return int(bdp / mtu * 1.1) + 1
+
 class SidecarNetwork():
     def __init__(self, args):
         self.net=None
         self.pep = args.pep
         self.delay1 = int(args.delay1)
         self.delay2 = int(args.delay2)
+        self.loss1 = int(args.loss1)
         self.loss2 = int(args.loss2)
+        self.bw1 = int(args.bw1)
+        self.bw2 = int(args.bw2)
         if args.cc not in ['reno', 'cubic']:
             sclog('invalid congestion control algorithm: {}'.format(args.cc))
         self.cc = args.cc
@@ -38,8 +50,20 @@ class SidecarNetwork():
         self.r1 = self.net.addHost('r1')
 
         # Add links
-        self.net.addLink(self.r1, self.h1)
-        self.net.addLink(self.r1, self.h2)
+        rtt_ms = 2 * (self.delay1 + self.delay2)
+        bw_mbps = min(self.bw1, self.bw2)
+        mqs = get_max_queue_size(rtt_ms, bw_mbps)
+        print('max_queue_size = {} packets'.format(mqs))
+        self.net.addLink(self.r1, self.h1,
+                         bw=self.bw1,
+                         loss=self.loss1,
+                         delay='{}ms'.format(self.delay1),
+                         max_queue_size=mqs)
+        self.net.addLink(self.r1, self.h2,
+                         bw=self.bw2,
+                         delay='{}ms'.format(self.delay2),
+                         loss=self.loss2,
+                         max_queue_size=mqs)
         self.net.build()
 
         # Configure interfaces
@@ -54,10 +78,10 @@ class SidecarNetwork():
         self.h2.cmd("ip route add default via 10.0.2.1")
 
         # Configure link latency and delay
-        self.h1.cmd('tc qdisc add dev h1-eth0 root netem delay {}ms'.format(self.delay1))
-        self.h2.cmd('tc qdisc add dev h2-eth0 root netem loss {}% delay {}ms'.format(self.loss2, self.delay2))
-        self.r1.cmd('tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1))
-        self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
+        # self.h1.cmd('tc qdisc add dev h1-eth0 root netem delay {}ms'.format(self.delay1))
+        # self.h2.cmd('tc qdisc add dev h2-eth0 root netem loss {}% delay {}ms'.format(self.loss2, self.delay2))
+        # self.r1.cmd('tc qdisc add dev r1-eth0 root netem delay {}ms'.format(self.delay1))
+        # self.r1.cmd('tc qdisc add dev r1-eth1 root netem delay {}ms'.format(self.delay2))
 
         # Set the TCP congestion control algorithm
         sclog('Setting congestion control to {}'.format(self.cc))
@@ -147,10 +171,22 @@ if __name__ == '__main__':
                         default=1,
                         metavar='MS',
                         help='1/2 RTT between r1 and h2 (default: 1)')
-    parser.add_argument('--loss2',
-                        default=10,
+    parser.add_argument('--loss1',
+                        default=0,
                         metavar='num',
-                        help='loss (in %%) between r1 and h2 (default: 10)')
+                        help='loss (in %%) between h1 and r1 (default: 0)')
+    parser.add_argument('--loss2',
+                        default=1,
+                        metavar='num',
+                        help='loss (in %%) between r1 and h2 (default: 1)')
+    parser.add_argument('--bw1',
+                        default=sys.maxsize,
+                        help='link bandwidth (in Mbps) between h1 and r1 '
+                             '(default: unlimited)')
+    parser.add_argument('--bw2',
+                        default=sys.maxsize,
+                        help='link bandwidth (in Mbps) between r1 and h2 '
+                             '(default: unlimited)')
     parser.add_argument('-s', '--sidecar', action='store_true',
                         help='If benchmark, enables the sidecar')
     parser.add_argument('-n', '--nbytes',
