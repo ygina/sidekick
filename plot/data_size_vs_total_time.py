@@ -87,7 +87,8 @@ def parse_data(filename, normalize, data_key='time_total'):
             if len(y) < NUM_TRIALS:
                 missing = NUM_TRIALS - len(y)
                 print(f'{x}k missing {missing}/{NUM_TRIALS}')
-            ys.append(DataPoint(y, normalize=x if normalize else None))
+            xs[i] /= 1000.
+            ys.append(DataPoint(y, normalize=xs[i] if normalize else None))
     except:
         import pdb; pdb.set_trace()
     return (xs, ys)
@@ -134,9 +135,9 @@ def plot_graph(loss, cc, pdf,
             ys = [y.avg for y in ys_raw]
             yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
             plt.errorbar(xs, ys, yerr=yerr, label=label, marker=MARKERS[i])
-    plt.xlabel('Data Size (kB)')
+    plt.xlabel('Data Size (MB)')
     if normalize:
-        plt.ylabel('{} tput (kB/s)'.format(data_key))
+        plt.ylabel('{} tput (MB/s)'.format(data_key))
     else:
         plt.ylabel('{} (s)'.format(data_key))
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.7), ncol=3)
