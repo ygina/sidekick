@@ -40,6 +40,7 @@ class SidecarNetwork():
         if args.cc not in ['reno', 'cubic']:
             sclog(f'invalid congestion control algorithm: {args.cc}')
         self.cc = args.cc
+        self.tso = args.tso
 
     def start_and_configure(self):
         self.net = Mininet(controller=None, link=TCLink)
@@ -91,10 +92,12 @@ class SidecarNetwork():
         self.h2.cmd(cc_cmd)
 
         # Turn off tso and gso to send MTU-sized packets
-        self.h1.cmd('ethtool -K h1-eth0 gso off tso off')
-        self.h2.cmd('ethtool -K h2-eth0 gso off tso off')
-        self.r1.cmd('ethtool -K r1-eth0 gso off tso off')
-        self.r1.cmd('ethtool -K r1-eth1 gso off tso off')
+        sclog('tso and gso are {}'.format('ON' if self.tso else 'OFF'))
+        if not self.tso:
+            self.h1.cmd('ethtool -K h1-eth0 gso off tso off')
+            self.h2.cmd('ethtool -K h2-eth0 gso off tso off')
+            self.r1.cmd('ethtool -K r1-eth0 gso off tso off')
+            self.r1.cmd('ethtool -K r1-eth1 gso off tso off')
 
         # Start the webserver on h1
         # TODO: not user-dependent path
@@ -165,6 +168,10 @@ if __name__ == '__main__':
                              'CLI for the HTTP version [tcp|quic]')
     parser.add_argument('-p', '--pep', action='store_true',
                         help='Start a TCP pep on r1')
+    parser.add_argument('--tso', action='store_true',
+                        help='Enable TCP segment offloading (tso) and generic '
+                             'segment offloading (gso). By default, both are '
+                             'disabled')
     parser.add_argument('-cc',
                         default='cubic',
                         metavar='TCP_CC_ALG',
