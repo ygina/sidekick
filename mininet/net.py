@@ -114,7 +114,8 @@ class SidecarNetwork():
         else:
             sclog('NOT starting the TCP PEP')
 
-    def benchmark(self, nbytes, http_version, trials, cc):
+    def benchmark(self, nbytes, http_version, trials, cc, stdout_file,
+                  stderr_file):
         """
         Args:
         - nbytes: Number of bytes to send e.g., 1M.
@@ -143,8 +144,8 @@ class SidecarNetwork():
 
         self.start_and_configure()
         time.sleep(1)
-        self.h2.cmdPrint('./webserver/run_client.sh {} {} {} {}'.format(
-            nbytes, http_version, trials, self.cc))
+        self.h2.cmdPrint('./webserver/run_client.sh {} {} {} {} {} {}'.format(
+            nbytes, http_version, trials, stdout_file, stderr_file, self.cc))
 
     def cli(self):
         CLI(self.net)
@@ -204,11 +205,22 @@ if __name__ == '__main__':
                         default=1,
                         metavar='num',
                         help='If benchmark, the number of trials (default: 1)')
+    parser.add_argument('--stdout',
+                        default='/dev/null',
+                        metavar='FILENAME',
+                        help='If benchmark, file to write curl stdout '
+                             '(default: /dev/null)')
+    parser.add_argument('--stderr',
+                        default='/dev/null',
+                        metavar='FILENAME',
+                        help='If benchmark, file to write curl stderr '
+                             '(default: /dev/null)')
     args = parser.parse_args()
     sc = SidecarNetwork(args)
 
     if args.benchmark is not None:
-        sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc)
+        sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc,
+            args.stdout, args.stderr)
         sc.stop()
     else:
         sc.start_and_configure()
