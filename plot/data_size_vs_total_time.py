@@ -101,7 +101,8 @@ def get_filename(loss, cc, http):
 
 def plot_graph(loss, cc, pdf,
                data_key='time_total',
-               http_versions=['tcp', 'pep', 'quic', 'tcp-tso', 'pep-tso'],
+               http_versions=['tcp', 'pep', 'quic', 'tcp-tso', 'pep-tso',
+                              'quic-1460', 'quic-1200'],
                use_median=True):
     data = {}
     for http_version in http_versions:
@@ -134,7 +135,7 @@ def plot_graph(loss, cc, pdf,
         plt.ylabel('{} tput (kB/s)'.format(data_key))
     else:
         plt.ylabel('{} (s)'.format(data_key))
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=3)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.7), ncol=3)
     statistic = 'median' if use_median else 'mean'
     plt.title('{} {} {}% loss'.format(statistic, cc, loss))
     if pdf is not None:
