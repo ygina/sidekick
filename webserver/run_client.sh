@@ -66,11 +66,11 @@ if [ $trials -eq 1 ]; then
     eval $cmd
 else
     fmt='%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n'
-    cmd="timeout 1m curl-exp $http --insecure $quiche_cc --data-binary @$file https://$addr/ -w \"$fmt\" -o $stdout_file 2>$stderr_file"
+    cmd="curl-exp $http --insecure $quiche_cc --data-binary @$file https://$addr/ -w \"$fmt\" -o $stdout_file 2>$stderr_file"
     echo $cmd
     echo -e "\ntime_connect\ttime_appconnect\ttime_starttransfer\ttime_total"
     for i in $(seq 1 1 $trials); do
-        eval $cmd
+        eval "$cmd --max-time 300" || true
     done
 fi
 
