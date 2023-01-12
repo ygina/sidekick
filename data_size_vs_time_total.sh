@@ -1,6 +1,6 @@
 #!/bin/bash
-if [ $# -ne 5 ]; then
-  echo "USAGE: $0 [loss] [tcp|pep|quic] [trials] [min] [max]"
+if [ $# -ne 6 ]; then
+  echo "USAGE: $0 [loss] [tcp|pep|quic] [trials] [min] [skip] [max]"
   exit 1
 fi
 
@@ -20,11 +20,10 @@ for cc in cubic; do
   RESULTS_FILE=results/$SUFFIX/$2.txt
   STDOUT_FILE=/dev/null
   STDERR_FILE=/dev/null
-  for data_size in $(seq $4 100 $5); do
+  for data_size in $(seq $4 $5 $6); do
     echo $cc ${data_size}k
     sudo python3 mininet/net.py --loss2 $loss --benchmark $bm -cc $cc \
       --stdout ${STDOUT_FILE} --stderr ${STDERR_FILE} \
       -t $trials -n ${data_size}k 2> >(tee -a ${RESULTS_FILE})
   done
 done
-
