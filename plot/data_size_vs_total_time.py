@@ -32,6 +32,7 @@ def parse_data(filename, data_key='time_total'):
     xy_map = {}
     data_size = None
     key_index = None
+    exitcode_index = None
     data = None
 
     for line in lines:
@@ -45,7 +46,8 @@ def parse_data(filename, data_key='time_total'):
             for i in range(len(keys)):
                 if keys[i] == data_key:
                     key_index = i
-                    break 
+                elif keys[i] == 'exitcode':
+                    exitcode_index = i
             continue
         if key_index is None:
             continue
@@ -65,6 +67,8 @@ def parse_data(filename, data_key='time_total'):
         else:
             # Read another data point for this data_size
             line = line.split()
+            if exitcode_index is not None and int(line[exitcode_index]) != 0:
+                continue
             data.append(float(line[key_index]))
     print(filename)
 
