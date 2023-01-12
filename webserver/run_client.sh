@@ -2,8 +2,8 @@
 set -e
 
 if [ "$#" -lt 2 ]; then
-    echo -e "Usage:   $0 [n-bytes] [1|2|3] [trials (default: 1)] [cubic|reno]? [ip:port (default: 10.0.1.10:443)]?"
-    echo -e "Example: $0 1M 3 1 reno 127.0.0.1:443"
+    echo -e "Usage:   $0 [n-bytes] [1|2|3] [trials (default: 1)] [stdout]? [stderr]? [cubic|reno]?"
+    echo -e "Example: $0 1M 3 1"
     exit 1
 fi
 
@@ -31,17 +31,25 @@ else
 fi
 
 if [ -z "$4" ]; then
-    quiche_cc=""
+    stdout_file="/dev/null"
 else
-    quiche_cc="--quiche-cc $4"
+    stdout_file=$4
 fi
 
-# Parse the target address
 if [ -z "$5" ]; then
-    addr="10.0.1.10:443"
+    stderr_file="/dev/null"
 else
-    addr=$5
+    stderr_file=$5
 fi
+
+if [ -z "$6" ]; then
+    quiche_cc=""
+else
+    quiche_cc="--quiche-cc $6"
+fi
+
+# The target address
+addr="10.0.1.10:443"
 
 # Write the given number of bytes from /dev/urandom to a temporary file
 file=$(mktemp)
@@ -58,7 +66,7 @@ if [ $trials -eq 1 ]; then
     eval $cmd
 else
     fmt='%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n'
-    cmd="timeout 1m curl-exp $http --insecure $quiche_cc --data-binary @$file https://$addr/ -w \"$fmt\" -o /dev/null 2>/dev/null"
+    cmd="timeout 1m curl-exp $http --insecure $quiche_cc --data-binary @$file https://$addr/ -w \"$fmt\" -o $stdout_file 2>$stderr_file"
     echo $cmd
     echo -e "\ntime_connect\ttime_appconnect\ttime_starttransfer\ttime_total"
     for i in $(seq 1 1 $trials); do
