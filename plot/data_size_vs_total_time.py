@@ -29,12 +29,10 @@ def parse_data(filename, data_key='time_total'):
     """
     with open(filename) as f:
         lines = f.read().split('\n')
-    xs = []
-    ys = []
+    xy_map = {}
     data_size = None
     key_index = None
     data = None
-    count = 0
 
     for line in lines:
         line = line.strip()
@@ -54,17 +52,37 @@ def parse_data(filename, data_key='time_total'):
         if line == '' or '***' in line:
             # Done reading data for this data_size
             if len(data) > 0:
-                xs.append(data_size)
-                ys.append(DataPoint(data))
-            count += len(data)
+                if data_size not in xy_map:
+                    xy_map[data_size] = []
+                xy_map[data_size].extend(data)
+                if len(xy_map[data_size]) > NUM_TRIALS:
+                    # truncated = len(xy_map[data_size]) - NUM_TRIALS
+                    # print(f'{data_size}k truncating {truncated} points')
+                    xy_map[data_size] = xy_map[data_size][:NUM_TRIALS]
             data_size = None
             key_index = None
             data = None
         else:
             # Read another data point for this data_size
-            data.append(float(line.split()[key_index]))            
-    print('{}: missing data points = {}'.format(
-        filename, count % (NUM_TRIALS * NUM_XS)))
+            line = line.split()
+            data.append(float(line[key_index]))
+    print(filename)
+
+    xs = [data_size for data_size in xy_map]
+    xs.sort()
+    if len(xs) != NUM_XS:
+        print(f'missing {NUM_XS - len(xs)} xs: {xs}')
+    ys = []
+    try:
+        for i in range(len(xs)):
+            x = xs[i]
+            y = xy_map[x]
+            if len(y) < NUM_TRIALS:
+                missing = NUM_TRIALS - len(y)
+                print(f'{x}k missing {missing}/{NUM_TRIALS}')
+            ys.append(DataPoint(y))
+    except:
+        import pdb; pdb.set_trace()
     return (xs, ys)
 
 def get_filename(loss, cc, http):
