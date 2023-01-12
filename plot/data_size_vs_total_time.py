@@ -3,9 +3,10 @@ import statistics
 from os import path
 from common import *
 
-DATE = '010922'
-NUM_TRIALS = 7
-NUM_XS = 10
+# DATE = '010922'
+DATE = ''
+NUM_TRIALS = 50
+NUM_XS = 19
 
 class DataPoint:
     def __init__(self, arr):
@@ -120,21 +121,26 @@ def plot_graph(loss, cc, pdf,
         (xs, ys_raw) = data[label]
         if use_median:
             ys = [y.p50 for y in ys_raw]
-            plt.errorbar(xs, ys, yerr=([y.p50 - y.p25 for y in ys_raw],
-                [y.p75 - y.p50 for y in ys_raw]), capsize=5,
+            yerr_lower = [y.p50 - y.p25 for y in ys_raw]
+            yerr_upper = [y.p75 - y.p50 for y in ys_raw]
+            plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
                 label=label, marker=MARKERS[i])
         else:
             ys = [y.avg for y in ys_raw]
-            plt.errorbar(xs, ys, yerr=[y.stdev if y.stdev is not None else 0 for
-                y in ys_raw], label=label, marker=MARKERS[i])
+            yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
+            plt.errorbar(xs, ys, yerr=yerr, label=label, marker=MARKERS[i])
     plt.xlabel('Data Size (kB)')
-    plt.ylabel('{} (s)'.format(data_key))
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
+    if normalize:
+        plt.ylabel('{} tput (kB/s)'.format(data_key))
+    else:
+        plt.ylabel('{} (s)'.format(data_key))
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=3)
     statistic = 'median' if use_median else 'mean'
     plt.title('{} {} {}% loss'.format(statistic, cc, loss))
     if pdf is not None:
         save_pdf(pdf)
 
-for cc in ['cubic', 'reno']:
-    for loss in [1, 2, 5, 10]:
-        plot_graph(loss=loss, cc=cc, pdf='{}_loss{}p.pdf'.format(cc, loss))
+for cc in ['cubic']:
+    for loss in [1, 2, 5]:
+        plot_graph(loss=loss, cc=cc, pdf='median_{}_loss{}p.pdf'.format(cc, loss), use_median=True)
+        plot_graph(loss=loss, cc=cc, pdf='mean_{}_loss{}p.pdf'.format(cc, loss), use_median=False)
