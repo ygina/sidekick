@@ -9,7 +9,9 @@ NUM_TRIALS = 50
 NUM_XS = 19
 
 class DataPoint:
-    def __init__(self, arr):
+    def __init__(self, arr, normalize=None):
+        if normalize is not None:
+            arr = [normalize * 1. / x for x in arr]
         arr.sort()
         mid = int(len(arr) / 2)
         self.p50 = statistics.median(arr)
@@ -23,7 +25,7 @@ class DataPoint:
         self.avg = statistics.mean(arr)
         self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
 
-def parse_data(filename, data_key='time_total'):
+def parse_data(filename, normalize, data_key='time_total'):
     """
     Parses the median keyed time and the data size.
     ([data_size], [time_total])
@@ -85,7 +87,7 @@ def parse_data(filename, data_key='time_total'):
             if len(y) < NUM_TRIALS:
                 missing = NUM_TRIALS - len(y)
                 print(f'{x}k missing {missing}/{NUM_TRIALS}')
-            ys.append(DataPoint(y))
+            ys.append(DataPoint(y, normalize=x if normalize else None))
     except:
         import pdb; pdb.set_trace()
     return (xs, ys)
@@ -103,7 +105,8 @@ def plot_graph(loss, cc, pdf,
                data_key='time_total',
                http_versions=['tcp', 'pep', 'quic', 'tcp-tso', 'pep-tso',
                               'quic-1460', 'quic-1200'],
-               use_median=True):
+               use_median=True,
+               normalize=True):
     data = {}
     for http_version in http_versions:
         filename = get_filename(loss, cc, http_version)
@@ -111,7 +114,8 @@ def plot_graph(loss, cc, pdf,
             print('Path does not exist: {}'.format(filename))
             continue
         try:
-            data[http_version] = parse_data(filename, data_key=data_key)
+            data[http_version] = parse_data(filename, normalize,
+                                            data_key=data_key)
         except Exception as e:
             print('Error parsing: {}'.format(filename))
             print(e)
