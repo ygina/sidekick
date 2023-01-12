@@ -1,12 +1,18 @@
 #!/bin/bash
 if [ $# -ne 6 ]; then
-  echo "USAGE: $0 [loss] [tcp|pep|quic] [trials] [min] [skip] [max]"
+  echo "USAGE: $0 [loss] [tcp|tcp-tso|pep-tso|pep|quic] [trials] [min] [skip] [max]"
   exit 1
 fi
 
 loss=$1
 if [ $2 == "pep" ]; then
   bm="tcp --pep"
+elif [ $2 == "tcp-tso" ]; then
+  bm="tcp --tso"
+elif [ $2 == "pep-tso" ]; then
+  bm="tcp --tso --pep"
+elif [[ $2 == "quic-"* ]]; then
+  bm="quic"
 else
   bm=$2
 fi
