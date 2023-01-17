@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 import time
+import client
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -141,9 +142,9 @@ class SidecarNetwork():
             return
         http_version = http_version.lower()
         if http_version in ['http/1.1', '1.1', '1', 'h1', 'tcp']:
-            http_version = 1
+            http_version = 'tcp'
         elif http_version in ['http/3', '3', 'h3', 'quic']:
-            http_version = 3
+            http_version = 'quic'
         else:
             sclog(f'must set http version: {http_version}')
             return
@@ -156,8 +157,10 @@ class SidecarNetwork():
 
         self.start_and_configure()
         time.sleep(1)
-        self.h2.cmdPrint('./webserver/run_client.sh {} {} {} {} {} {}'.format(
-            nbytes, http_version, trials, stdout_file, stderr_file, self.cc))
+        self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
+                         f'--http {http_version} -t {trials} '
+                         f'--stdout {stdout_file} --stderr {stderr_file} '
+                         f'-cc {self.cc}')
 
     def cli(self):
         CLI(self.net)
