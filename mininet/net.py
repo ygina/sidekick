@@ -163,25 +163,27 @@ class SidecarNetwork():
             return
 
         try:
-            trials = int(trials)
+            trials = 0 if trials is None else int(trials)
         except:
             sclog(f'`trials` must be a number: {trials}')
             return
 
         self.start_and_configure()
-        if self.sidecar:
-            for _ in range(trials):
+        if self.sidecar is not None:
+            trials_cmd = '' if trials == 0 else '-t 1'
+            for _ in range(max(1, trials)):
                 self.start_quack_sender()
                 time.sleep(1)
                 self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
-                                 f'--http {http_version} -t 1 '
+                                 f'--http {http_version} {trials_cmd} '
                                  f'--stdout {stdout_file} --stderr {stderr_file} '
                                  f'-cc {self.cc}')
                 self.kill_quack_sender()
         else:
             time.sleep(1)
+            trials_cmd = '' if trials == 0 else f'-t {trials}'
             self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
-                             f'--http {http_version} -t {trials} '
+                             f'--http {http_version} {trials_cmd} '
                              f'--stdout {stdout_file} --stderr {stderr_file} '
                              f'-cc {self.cc}')
 
@@ -245,9 +247,8 @@ if __name__ == '__main__':
                         help='If benchmark, the number of bytes to run '
                         '(default: 1M)')
     parser.add_argument('-t', '--trials',
-                        default=1,
                         metavar='num',
-                        help='If benchmark, the number of trials (default: 1)')
+                        help='If benchmark, the number of trials')
     parser.add_argument('--stdout',
                         default='/dev/null',
                         metavar='FILENAME',
