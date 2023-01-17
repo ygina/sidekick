@@ -31,14 +31,19 @@ class SidecarNetwork():
     def __init__(self, args):
         self.net=None
         self.pep = args.pep
+        self.sidecar = None if args.sidecar is None else int(args.sidecar)
         self.delay1 = int(args.delay1)
         self.delay2 = int(args.delay2)
         self.loss1 = int(args.loss1)
         self.loss2 = int(args.loss2)
         self.bw1 = int(args.bw1)
         self.bw2 = int(args.bw2)
+        if args.pep and args.sidecar is not None:
+            sclog('only one of the PEP or sidecar can be enabled')
+            exit()
         if args.cc not in ['reno', 'cubic']:
             sclog(f'invalid congestion control algorithm: {args.cc}')
+            exit()
         self.cc = args.cc
         self.tso = args.tso
 
@@ -114,8 +119,12 @@ class SidecarNetwork():
             self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
             self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
             self.r1.cmd('pepsal -v &')
+        elif self.sidecar is not None:
+            sclog('Starting the QUIC sidecar sender on r1...')
+            self.r1.cmd('./target/release/sidecar --interface r1-eth1 '
+                '10.0.1.10:5103 --frequency-ms {}'.format(self.sidecar))
         else:
-            sclog('NOT starting the TCP PEP')
+            sclog('NOT starting the TCP PEP or sidecar')
 
     def benchmark(self, nbytes, http_version, trials, cc, stdout_file,
                   stderr_file):
@@ -201,8 +210,9 @@ if __name__ == '__main__':
                         default=10,
                         help='link bandwidth (in Mbps) between r1 and h2 '
                              '(default: 10)')
-    parser.add_argument('-s', '--sidecar', action='store_true',
-                        help='If benchmark, enables the sidecar')
+    parser.add_argument('-s', '--sidecar',
+                        help='If benchmark, enables the sidecar and sends '
+                             'the quACK with the specified frequency.')
     parser.add_argument('-n', '--nbytes',
                         default='1M',
                         metavar='num',
