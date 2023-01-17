@@ -70,7 +70,7 @@ else
     echo $cmd
     echo -e "\ntime_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg"
     for i in $(seq 1 1 $trials); do
-        eval "$cmd --max-time 300" || true
+        eval "$cmd --max-time 3000" || true
     done
 fi
 
