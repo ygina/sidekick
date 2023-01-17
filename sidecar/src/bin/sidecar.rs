@@ -65,7 +65,7 @@ async fn send_quacks(
             interval.tick().await;
             let quack = sc.lock().unwrap().quack();
             let bytes = bincode::serialize(&quack).unwrap();
-            println!("quack {}", quack.count);
+            info!("quack {}", quack.count);
             socket.send_to(&bytes, addr).await.unwrap();
         }
     }
@@ -84,7 +84,7 @@ async fn print_quacks(
         loop {
             interval.tick().await;
             let quack = sc.lock().unwrap().quack();
-            println!("quack {}", quack.count);
+            info!("quack {}", quack.count);
         }
     }
 }
