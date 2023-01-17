@@ -6,7 +6,15 @@ def print_and_run_cmd(cmd):
     print(cmd)
     return os.system(cmd)
 
-def run_client(nbytes, http, trials, stdout, stderr, cc, addr):
+def estimate_timeout(nbytes, http, loss):
+    try:
+        if 'k' in nbytes:
+            nbytes = int(nbytes[:-1])
+        return max(int(0.03 * nbytes), 30)
+    except:
+        return 3000
+
+def run_client(nbytes, http, trials, stdout, stderr, cc, addr, loss=None):
     f = tempfile.NamedTemporaryFile()
     print_and_run_cmd(f'head -c {nbytes} /dev/urandom > {f.name}')
     print(f'Data Size: {nbytes}')
@@ -19,7 +27,7 @@ def run_client(nbytes, http, trials, stdout, stderr, cc, addr):
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
         cmd=f'curl-exp {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\" -o {stdout} 2>>{stderr}'
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
-        timeout = 3000  # TODO: calculate based on http version, nbytes, loss
+        timeout = estimate_timeout(nbytes, http, loss)
         print(cmd)
         print(header)
         for _ in range(trials):
@@ -84,7 +92,10 @@ if __name__ == '__main__':
     parser.add_argument('--addr',
                         default='10.0.1.10:443',
                         help='Server address (default: 10.0.1.10:443)')
+    parser.add_argument('--loss',
+                        help='Loss percentage, used to estimate timeout')
     args = parser.parse_args()
 
     run_client(nbytes=args.n, http=args.http, trials=args.trials,
-        stdout=args.stdout, stderr=args.stderr, cc=args.cc, addr=args.addr)
+        stdout=args.stdout, stderr=args.stderr, cc=args.cc, addr=args.addr,
+        loss=args.loss)
