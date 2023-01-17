@@ -8,7 +8,7 @@ def print_and_run_cmd(cmd):
 
 def run_client(nbytes, http, trials, stdout, stderr, cc, addr):
     f = tempfile.NamedTemporaryFile()
-    print_and_run_cmd(f'head -c ${nbytes} /dev/urandom > {f.name}')
+    print_and_run_cmd(f'head -c {nbytes} /dev/urandom > {f.name}')
     print(f'Data Size: {nbytes}')
     print(f'HTTP: {http}')
     if trials is None:
