@@ -12,9 +12,9 @@ NUM_TRIALS = None
 MAX_X = None
 EXECUTE = None
 WORKDIR = None
-TARGET_XS = [x for x in range(100, 1001, 100)] + \
-            [x for x in range(1000, 10001, 1000)] + \
-            [x for x in range(10000, 100001, 10000)]
+TARGET_XS = [x for x in range(100, 1000, 100)] + \
+            [x for x in range(1000, 10000, 1000)] + \
+            [x for x in range(10000, 100000, 10000)]
 
 class DataPoint:
     def __init__(self, arr, normalize=None):
@@ -92,7 +92,7 @@ def parse_data(loss, cc, http_version, normalize, data_key='time_total'):
             continue
         if key_index is None:
             continue
-        if line == '' or '***' in line:
+        if line == '' or '***' in line or '/tmp' in line:
             # Done reading data for this data_size
             if len(data) > 0:
                 if data_size not in xy_map:
