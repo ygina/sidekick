@@ -42,6 +42,8 @@ def execute_cmd(loss, http_version, cc, trials, data_size):
         bm = ['tcp', '--tso']
     elif http_version == 'pep-tso':
         bm = ['tcp', '--tso', '--pep']
+    elif 'quack' in http_version:
+        bm = ['quic', '--sidecar', http_version[6:]]
     elif 'quic-' in http_version:
         bm = ['quic']
     else:
@@ -157,6 +159,7 @@ def get_filename(loss, cc, http):
 def plot_graph(loss, cc, pdf,
                data_key='time_total',
                http_versions=['tcp-tso', 'pep-tso', 'quic'],
+               # http_versions=['tcp-tso', 'pep-tso', 'quic', 'quack-152'],
                use_median=True,
                normalize=True):
     data = {}

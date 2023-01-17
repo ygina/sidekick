@@ -48,6 +48,33 @@ class SidecarNetwork():
         self.cc = args.cc
         self.tso = args.tso
 
+    def start_webserver(self):
+        # Start the webserver on h1
+        # TODO: not user-dependent path
+        sclog('Starting the NGINX/Python webserver on h1...')
+        self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
+        self.h1.cmd("python3 webserver/server.py &")
+
+    def start_tcp_pep(self):
+        # Start the TCP PEP on r1
+        sclog('Starting the TCP PEP on r1...')
+        self.r1.cmd('ip rule add fwmark 1 lookup 100')
+        self.r1.cmd('ip route add local 0.0.0.0/0 dev lo table 100')
+        self.r1.cmd('iptables -t mangle -F')
+        self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
+        self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
+        self.r1.cmd('pepsal -v &')
+
+    def start_quack_sender(self):
+        # Start the quACK sender on r1
+        sclog('Starting the QUIC sidecar sender on r1...')
+        self.r1.cmdPrint(f'RUST_LOG=debug ./target/release/sidecar --interface r1-eth1 '+ \
+            f'quack-sender --target-addr 10.0.1.10:5103 ' + \
+            f'--frequency-ms {self.sidecar} &')
+
+    def kill_quack_sender(self):
+        self.r1.cmdPrint(f'kill $(pidof sidecar)')
+
     def start_and_configure(self):
         self.net = Mininet(controller=None, link=TCLink)
 
@@ -105,25 +132,11 @@ class SidecarNetwork():
             self.r1.cmd('ethtool -K r1-eth0 gso off tso off')
             self.r1.cmd('ethtool -K r1-eth1 gso off tso off')
 
-        # Start the webserver on h1
-        # TODO: not user-dependent path
-        sclog('Starting the NGINX/Python webserver on h1...')
-        self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
-        self.h1.cmd("python3 webserver/server.py &")
-
-        # Start the TCP PEP on r1
+        self.start_webserver()
         if self.pep:
-            sclog('Starting the TCP PEP on r1...')
-            self.r1.cmd('ip rule add fwmark 1 lookup 100')
-            self.r1.cmd('ip route add local 0.0.0.0/0 dev lo table 100')
-            self.r1.cmd('iptables -t mangle -F')
-            self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
-            self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
-            self.r1.cmd('pepsal -v &')
+            self.start_tcp_pep()
         elif self.sidecar is not None:
-            sclog('Starting the QUIC sidecar sender on r1...')
-            self.r1.cmd('./target/release/sidecar --interface r1-eth1 '
-                '10.0.1.10:5103 --frequency-ms {}'.format(self.sidecar))
+            pass
         else:
             sclog('NOT starting the TCP PEP or sidecar')
 
@@ -156,11 +169,21 @@ class SidecarNetwork():
             return
 
         self.start_and_configure()
-        time.sleep(1)
-        self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
-                         f'--http {http_version} -t {trials} '
-                         f'--stdout {stdout_file} --stderr {stderr_file} '
-                         f'-cc {self.cc}')
+        if self.sidecar:
+            for _ in range(trials):
+                self.start_quack_sender()
+                time.sleep(1)
+                self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
+                                 f'--http {http_version} -t 1 '
+                                 f'--stdout {stdout_file} --stderr {stderr_file} '
+                                 f'-cc {self.cc}')
+                self.kill_quack_sender()
+        else:
+            time.sleep(1)
+            self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
+                             f'--http {http_version} -t {trials} '
+                             f'--stdout {stdout_file} --stderr {stderr_file} '
+                             f'-cc {self.cc}')
 
     def cli(self):
         CLI(self.net)
