@@ -177,7 +177,7 @@ class SidecarNetwork():
                 self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
                                  f'--http {http_version} {trials_cmd} '
                                  f'--stdout {stdout_file} --stderr {stderr_file} '
-                                 f'-cc {self.cc}')
+                                 f'-cc {self.cc} --loss {self.loss2}')
                 self.kill_quack_sender()
         else:
             time.sleep(1)
