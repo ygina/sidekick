@@ -5,8 +5,8 @@ from common import *
 
 # DATE = '010922'
 DATE = ''
-NUM_TRIALS = 50
-NUM_XS = 19
+NUM_TRIALS = 20
+TARGET_XS = [x for x in range(200, 1000, 200)] + [x for x in range(2000, 40001, 2000)]
 
 class DataPoint:
     def __init__(self, arr, normalize=None):
@@ -75,11 +75,18 @@ def parse_data(filename, normalize, data_key='time_total'):
             data.append(float(line[key_index]))
     print(filename)
 
-    xs = [data_size for data_size in xy_map]
-    xs.sort()
-    if len(xs) != NUM_XS:
-        print(f'missing {NUM_XS - len(xs)} xs: {xs}')
+    xs = []
     ys = []
+    for data_size in xy_map:
+        if data_size in TARGET_XS:
+            xs.append(data_size)
+    xs.sort()
+    if len(xs) != len(TARGET_XS):
+        missing_xs = []
+        for x in TARGET_XS:
+            if x not in xs:
+                missing_xs.append(x)
+        print(f'missing {len(missing_xs)} xs: {missing_xs}')
     try:
         for i in range(len(xs)):
             x = xs[i]
@@ -104,8 +111,7 @@ def get_filename(loss, cc, http):
 
 def plot_graph(loss, cc, pdf,
                data_key='time_total',
-               http_versions=['tcp', 'pep', 'quic', 'tcp-tso', 'pep-tso',
-                              'quic-1460', 'quic-1200'],
+               http_versions=['tcp-tso', 'pep-tso', 'quic'],
                use_median=True,
                normalize=True):
     data = {}
@@ -140,7 +146,7 @@ def plot_graph(loss, cc, pdf,
         plt.ylabel('{} tput (MB/s)'.format(data_key))
     else:
         plt.ylabel('{} (s)'.format(data_key))
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.7), ncol=3)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
     statistic = 'median' if use_median else 'mean'
     plt.title('{} {} {}% loss'.format(statistic, cc, loss))
     if pdf is not None:
