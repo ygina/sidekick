@@ -68,7 +68,7 @@ class SidecarNetwork():
     def start_quack_sender(self):
         # Start the quACK sender on r1
         sclog('Starting the QUIC sidecar sender on r1...')
-        self.r1.cmdPrint(f'RUST_LOG=debug ./target/release/sidecar --interface r1-eth1 '+ \
+        self.r1.cmdPrint(f'RUST_LOG=error ./target/release/sidecar --interface r1-eth1 '+ \
             f'quack-sender --target-addr 10.0.1.10:5103 ' + \
             f'--frequency-ms {self.sidecar} &')
 
