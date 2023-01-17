@@ -1,0 +1,476 @@
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 200k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 200k /dev/urandom > /tmp/tmp.mmq95wanAC
+Data Size: 200k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.mmq95wanAC https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199434	0.669997	0.470637		1.160956	0		200		204800		18	
+0.199429	0.556780	0.357422		1.046796	0		200		204800		18	
+0.199429	0.556769	0.357413		1.046765	0		200		204800		18	
+0.200421	0.558768	0.358373		1.047734	0		200		204800		18	
+0.200445	0.558837	0.358418		1.047779	0		200		204800		18	
+0.200432	0.558733	0.358326		1.047721	0		200		204800		18	
+0.199425	0.556792	0.357390		1.046709	0		200		204800		18	
+0.199423	0.556789	0.357388		1.046815	0		200		204800		18	
+0.199439	0.556861	0.357464		1.046869	0		200		204800		18	
+0.199446	0.556869	0.357447		1.046823	0		200		204800		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 400k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 400k /dev/urandom > /tmp/tmp.THcqguMNri
+Data Size: 400k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.THcqguMNri https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199449	0.670005	0.470628		1.386260	0		200		409600		18	
+0.200445	0.558929	0.358507		1.273272	0		200		409600		18	
+0.199432	0.556805	0.357396		1.271976	0		200		409600		18	
+0.199468	0.556946	0.357500		1.272079	0		200		409600		18	
+0.200433	0.558714	0.358301		1.272905	0		200		409600		18	
+0.199450	0.556913	0.357486		1.272158	0		200		409600		18	
+0.199441	0.556839	0.357421		1.272096	0		200		409600		18	
+0.199427	0.556702	0.357347		1.271892	0		200		409600		18	
+0.200427	0.558807	0.358402		1.273022	0		200		409600		18	
+0.199435	0.556829	0.357418		1.272035	0		200		409600		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 600k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 600k /dev/urandom > /tmp/tmp.qtH1dBvEbC
+Data Size: 600k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.qtH1dBvEbC https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.200442	0.671074	0.470654		1.557103	0		200		614400		18	
+0.199431	0.557065	0.357657		1.443328	0		200		614400		18	
+0.200439	0.558939	0.358524		1.443967	0		200		614400		18	
+0.199444	0.556908	0.357489		1.442880	0		200		614400		18	
+0.199419	0.556641	0.357290		1.442759	0		200		614400		18	
+0.199443	0.556816	0.357396		1.442921	0		200		614400		18	
+0.199424	0.556751	0.357397		1.442844	0		200		614400		18	
+0.199467	0.556879	0.357435		1.442786	0		200		614400		18	
+0.199440	0.556911	0.357494		1.442932	0		200		614400		18	
+0.199442	0.556796	0.357376		1.442829	0		200		614400		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 800k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 800k /dev/urandom > /tmp/tmp.vQmxwdIU7K
+Data Size: 800k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.vQmxwdIU7K https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199436	0.669819	0.470454		1.729143	0		200		819200		18	
+0.199427	0.556806	0.357402		1.713078	0		200		819200		18	
+0.199438	0.556870	0.357455		1.710412	0		200		819200		18	
+0.200457	0.558817	0.358382		1.711363	0		200		819200		18	
+0.199470	0.556982	0.357584		1.713216	0		200		819200		18	
+0.199449	0.556888	0.357462		1.713036	0		200		819200		18	
+0.199432	0.556911	0.357503		1.713086	0		200		819200		18	
+0.200438	0.558797	0.358382		1.615908	0		200		819200		18	
+0.199444	0.556823	0.357402		1.712794	0		200		819200		18	
+0.199433	0.556786	0.357375		1.712865	0		200		819200		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 1000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 1000k /dev/urandom > /tmp/tmp.5N8jH3dZdP
+Data Size: 1000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.5N8jH3dZdP https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199441	0.669972	0.470555		1.990369	0		200		1024000		18	
+0.199445	0.556805	0.357386		1.891996	0		200		1024000		18	
+0.199436	0.557041	0.357631		1.891980	0		200		1024000		18	
+0.199416	0.556945	0.357551		1.891822	0		200		1024000		18	
+0.200446	0.559136	0.358716		1.893097	0		200		1024000		18	
+0.200436	0.559038	0.358643		1.892974	0		200		1024000		18	
+0.199411	0.556899	0.357558		1.891935	0		200		1024000		18	
+0.199448	0.557157	0.357782		1.892150	0		200		1024000		18	
+0.199450	0.557100	0.357675		1.892009	0		200		1024000		18	
+0.199446	0.557071	0.357648		1.786264	0		200		1024000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 2000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 2000k /dev/urandom > /tmp/tmp.AHR2uSEqQu
+Data Size: 2000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.AHR2uSEqQu https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199462	0.669860	0.813942		3.102298	0		200		2048000		18	
+0.199437	0.556816	0.701740		2.987441	0		200		2048000		18	
+0.199455	0.556889	0.700727		2.985957	0		200		2048000		18	
+0.199348	0.556692	0.701231		2.986592	0		200		2048000		18	
+0.199446	0.556899	0.701230		2.986379	0		200		2048000		18	
+0.199308	0.556589	0.701259		2.986710	0		200		2048000		18	
+0.199435	0.556830	0.700952		2.986280	0		200		2048000		18	
+0.199436	0.556785	0.701039		2.986484	0		200		2048000		18	
+0.199427	0.556730	0.700870		2.986122	0		200		2048000		18	
+0.199440	0.556823	0.700860		2.986054	0		200		2048000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 3000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 3000k /dev/urandom > /tmp/tmp.gMwnNZeYZf
+Data Size: 3000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.gMwnNZeYZf https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199430	0.669786	0.815103		3.961365	0		200		3072000		18	
+0.199431	0.557018	0.509962		3.653981	0		200		3072000		18	
+0.199418	0.557055	0.702757		3.847232	0		200		3072000		18	
+0.199434	0.556976	0.701076		3.845445	0		200		3072000		18	
+0.200453	0.559037	0.701076		3.845898	0		200		3072000		18	
+0.200434	0.559005	0.704569		3.849272	0		200		3072000		18	
+0.199462	0.557148	0.700662		3.845119	0		200		3072000		18	
+0.199464	0.557128	0.700662		3.845034	0		200		3072000		18	
+0.199443	0.557106	0.700937		3.845728	0		200		3072000		18	
+0.199441	0.557057	0.700527		3.845333	0		200		3072000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 4000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 4000k /dev/urandom > /tmp/tmp.dmEUqmGPxZ
+Data Size: 4000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.dmEUqmGPxZ https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199455	0.669912	0.812800		4.816148	0		200		4096000		18	
+0.199435	0.556831	0.701014		4.703009	0		200		4096000		18	
+0.199434	0.556865	0.702490		4.703988	0		200		4096000		18	
+0.199428	0.556875	0.702916		4.703940	0		200		4096000		18	
+0.199431	0.556778	0.703473		4.707567	0		200		4096000		18	
+0.199582	0.557219	0.700813		4.701711	0		200		4096000		18	
+0.200430	0.558867	0.703814		4.705485	0		200		4096000		18	
+0.199432	0.556963	0.702828		4.703912	0		200		4096000		18	
+0.199430	0.556809	0.703452		4.704576	0		200		4096000		18	
+0.199420	0.556701	0.703450		4.704490	0		200		4096000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 5000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 5000k /dev/urandom > /tmp/tmp.YoZYCXbXq0
+Data Size: 5000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.YoZYCXbXq0 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199441	0.669958	0.814888		5.678170	0		200		5120000		18	
+0.199436	0.556804	0.700090		5.680067	0		200		5120000		18	
+0.199429	0.556717	0.699573		5.678469	0		200		5120000		18	
+0.199436	0.556765	0.700792		5.679498	0		200		5120000		18	
+0.200430	0.558708	0.701012		5.679819	0		200		5120000		18	
+0.199435	0.556729	0.700715		5.679555	0		200		5120000		18	
+0.199445	0.556751	0.700692		5.679327	0		200		5120000		18	
+0.200460	0.558863	0.704548		5.683143	0		200		5120000		18	
+0.199439	0.556893	0.701350		5.680159	0		200		5120000		18	
+0.199430	0.556813	0.700883		5.679685	0		200		5120000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 6000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 6000k /dev/urandom > /tmp/tmp.M92l0fVFUa
+Data Size: 6000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.M92l0fVFUa https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199441	0.669964	0.816006		6.683573	0		200		6144000		18	
+0.199442	0.556853	0.702766		6.532113	0		200		6144000		18	
+0.199427	0.556764	0.701407		6.529983	0		200		6144000		18	
+0.199462	0.556910	0.702313		6.530822	0		200		6144000		18	
+0.199454	0.556932	0.702196		6.530031	0		200		6144000		18	
+0.199442	0.556893	0.702973		6.530693	0		200		6144000		18	
+0.200429	0.558760	0.703069		6.530998	0		200		6144000		18	
+0.199417	0.556810	0.702928		6.531572	0		200		6144000		18	
+0.200438	0.558915	0.702222		6.530184	0		200		6144000		18	
+0.199436	0.556853	0.702849		6.530783	0		200		6144000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 7000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 7000k /dev/urandom > /tmp/tmp.Bk6SJkRbj9
+Data Size: 7000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.Bk6SJkRbj9 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199447	0.669881	0.814023		7.391901	0		200		7168000		18	
+0.199419	0.556683	0.703264		7.281405	0		200		7168000		18	
+0.199437	0.556838	0.703661		7.280583	0		200		7168000		18	
+0.199433	0.556877	0.700876		7.277926	0		200		7168000		18	
+0.199443	0.556918	0.700806		7.277730	0		200		7168000		18	
+0.200436	0.558817	0.700717		7.276881	0		200		7168000		18	
+0.199443	0.556896	0.701837		7.278796	0		200		7168000		18	
+0.199462	0.556942	0.700558		7.276601	0		200		7168000		18	
+0.200429	0.558746	0.701322		7.277325	0		200		7168000		18	
+0.199443	0.556877	0.701928		7.277933	0		200		7168000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 8000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 8000k /dev/urandom > /tmp/tmp.APB4r8Z8JA
+Data Size: 8000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.APB4r8Z8JA https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199446	0.670184	0.815755		8.255223	0		200		8192000		18	
+0.199437	0.557040	0.700758		8.205579	0		200		8192000		18	
+0.199429	0.556805	0.700072		8.203241	0		200		8192000		18	
+0.199422	0.556830	0.701917		8.204094	0		200		8192000		18	
+0.199422	0.556717	0.702716		8.205833	0		200		8192000		18	
+0.200435	0.558808	0.701756		8.204925	0		200		8192000		18	
+0.199439	0.556875	0.701908		8.205163	0		200		8192000		18	
+0.199445	0.556992	0.701739		8.203952	0		200		8192000		18	
+0.199431	0.556883	0.702744		8.204963	0		200		8192000		18	
+0.200420	0.558756	0.702745		8.204983	0		200		8192000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 9000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 9000k /dev/urandom > /tmp/tmp.4dgypj4v7X
+Data Size: 9000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.4dgypj4v7X https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199441	0.670047	0.813762		9.110171	0		200		9216000		18	
+0.199434	0.557050	0.702878		9.026659	0		200		9216000		18	
+0.199460	0.557083	0.700337		9.020431	0		200		9216000		18	
+0.199429	0.556999	0.703688		9.024962	0		200		9216000		18	
+0.199426	0.556988	0.702504		9.022851	0		200		9216000		18	
+0.199414	0.556897	0.703467		9.024752	0		200		9216000		18	
+0.199442	0.556967	0.702342		9.023599	0		200		9216000		18	
+0.200456	0.559195	0.702166		9.022259	0		200		9216000		18	
+0.200442	0.559032	0.703737		9.024930	0		200		9216000		18	
+0.200434	0.559141	0.702767		9.022891	0		200		9216000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are ON
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('./webserver/run_client.sh 10000k 1 10 /dev/null /dev/null cubic',)
+--http1.1
+head -c 10000k /dev/urandom > /tmp/tmp.80NcgBbE8L
+Data Size: 10000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.80NcgBbE8L https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.199443	0.669868	0.815814		9.969501	0		200		10240000		18	
+0.199445	0.556856	0.700417		9.854666	0		200		10240000		18	
+0.199440	0.556832	0.700463		9.850074	0		200		10240000		18	
+0.199479	0.557006	0.701379		9.852397	0		200		10240000		18	
+0.200442	0.558857	0.704028		9.853764	0		200		10240000		18	
+0.199449	0.556939	0.700630		9.851694	0		200		10240000		18	
+0.199447	0.556852	0.703686		9.854748	0		200		10240000		18	
+0.199434	0.556865	0.699961		9.849738	0		200		10240000		18	
+0.199447	0.556862	0.701272		9.852347	0		200		10240000		18	
+0.199426	0.556741	0.699974		9.849701	0		200		10240000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done

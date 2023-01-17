@@ -1,0 +1,1411 @@
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 100k 1 50 cubic',)
+--http1.1
+head -c 100k /dev/urandom > /tmp/tmp.SxK59pW286
+Data Size: 100k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.SxK59pW286 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201566	2.569483	1.367941		1.981722
+0.199462	0.556881	0.357444		0.970444
+0.199456	0.556846	0.357413		0.970440
+0.199453	1.189046	0.989672		1.617285
+0.199464	0.556868	0.357427		1.582244
+0.199478	0.557023	0.357619		1.595658
+0.199459	0.556876	0.357440		0.970570
+0.199444	0.556804	0.357382		0.970486
+1.201552	2.561035	1.359507		2.013734
+0.199446	0.556865	0.357443		0.970545
+0.199449	0.556808	0.357383		1.135933
+0.199445	0.556870	0.357451		0.970477
+1.201558	2.561081	1.359547		1.982479
+0.199465	0.556870	0.357429		1.423280
+0.200455	0.558847	0.358416		1.029652
+0.200443	0.558796	0.358377		1.025874
+0.199472	1.183940	0.984543		1.622990
+0.199476	0.556892	0.357493		0.970473
+0.199448	0.556836	0.357463		0.970468
+0.199454	0.556808	0.357379		1.578658
+0.199449	0.556805	0.357380		1.172292
+0.199453	0.556894	0.357463		0.981530
+0.199451	0.556830	0.357402		1.124274
+0.199459	0.556847	0.357436		1.014820
+0.199455	0.556848	0.357417		0.991053
+0.199464	0.556896	0.357455		0.970526
+0.199455	0.556829	0.357398		1.026759
+0.199457	0.556837	0.357404		1.025756
+0.199502	0.556983	0.357557		0.971778
+0.199469	0.556877	0.357481		0.971719
+0.199449	0.556770	0.357395		0.978914
+1.201569	2.713046	1.511572		2.125819
+0.199446	0.563243	0.363872		1.150775
+0.200492	0.762605	0.562138		1.734867
+0.199447	0.556789	0.357414		0.971681
+0.199466	0.556892	0.357503		0.971708
+0.199450	0.556845	0.357468		1.138138
+0.200464	0.558871	0.358430		0.971454
+0.200454	0.558857	0.358428		1.152677
+0.200504	0.558910	0.358431		2.045462
+0.199457	0.556803	0.357369		0.999583
+0.199440	0.556828	0.357413		0.988694
+1.201553	2.561047	1.359517		2.281558
+0.199443	0.556847	0.357428		0.971715
+0.199488	0.556960	0.357496		1.065443
+0.199444	0.556819	0.357398		1.302394
+0.199456	0.556853	0.357474		0.975375
+0.199458	0.556847	0.357464		0.997065
+0.199456	0.556875	0.357495		1.138112
+0.200462	0.558893	0.358455		1.275640
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 200k 1 50 cubic',)
+--http1.1
+head -c 200k /dev/urandom > /tmp/tmp.Mya7qy1hoI
+Data Size: 200k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.Mya7qy1hoI https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201561	2.569417	1.367881		2.380683
+0.200440	0.558849	0.358436		1.058898
+0.200442	0.558888	0.358473		1.174463
+0.199461	0.556862	0.357428		1.370953
+0.199452	0.556842	0.357417		1.058780
+0.199462	0.556859	0.357422		1.140581
+0.199494	0.556978	0.357565		1.156506
+0.200460	0.558847	0.358414		1.154973
+0.199459	0.556853	0.357420		1.459242
+0.199460	0.556873	0.357438		1.059394
+0.199451	0.556892	0.357520		2.650289
+0.199439	0.556790	0.357379		1.059773
+0.199457	0.556856	0.357426		1.176685
+0.199454	0.556866	0.357439		1.140781
+0.199456	0.556864	0.357486		1.189108
+0.200459	0.558868	0.358437		1.740114
+0.199461	0.556857	0.357474		2.805875
+0.199451	0.556828	0.357402		2.718444
+0.199461	0.556874	0.357439		1.674282
+0.200463	0.558899	0.358462		1.487007
+0.199455	0.556816	0.357388		1.146695
+0.199450	0.556879	0.357457		1.780414
+0.199434	0.556831	0.357426		1.282989
+0.199447	0.556838	0.357469		2.409045
+0.199461	0.556871	0.357437		1.283081
+0.199466	0.556877	0.357439		1.471313
+0.200452	0.558903	0.358477		1.066699
+0.199446	0.556801	0.357381		3.000940
+0.199462	0.759814	0.560380		1.355712
+0.199456	1.291317	1.091948		3.896716
+0.199461	0.556840	0.357408		2.391226
+0.199453	0.556842	0.357467		1.059053
+0.200452	0.565231	0.364804		1.159004
+0.200460	0.558858	0.358424		1.168441
+0.199444	0.556807	0.357400		1.456174
+0.199455	0.556833	0.357455		1.065111
+0.199450	0.556779	0.357406		1.928518
+0.199439	0.556811	0.357449		1.151548
+0.200456	0.558872	0.358442		1.328933
+0.199462	0.556817	0.357381		1.211385
+0.199449	0.556827	0.357404		2.196368
+0.199456	0.556875	0.357445		1.476248
+0.199278	0.556463	0.357214		1.060535
+0.199447	0.556799	0.357376		1.290252
+0.199445	0.556808	0.357389		1.453391
+0.200454	0.558870	0.358443		1.134488
+0.199451	0.556823	0.357400		1.142003
+0.199458	0.556846	0.357415		1.366979
+0.199449	0.556814	0.357441		2.033883
+0.199449	0.556806	0.357436		1.937845
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 300k 1 50 cubic',)
+--http1.1
+head -c 300k /dev/urandom > /tmp/tmp.bfnCwc8Y8n
+Data Size: 300k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.bfnCwc8Y8n https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201558	2.569385	1.367850		3.967133
+0.200459	0.558881	0.358445		1.600273
+0.199439	0.556821	0.357406		5.016370
+0.199463	0.556837	0.357397		2.285356
+0.200456	0.558828	0.358395		1.202509
+0.199435	0.556779	0.357366		1.910775
+0.199454	0.556845	0.357412		1.462870
+0.199450	0.556862	0.357436		1.473101
+0.200450	0.558875	0.358449		1.759847
+0.199457	0.556823	0.357442		4.391785
+1.201545	2.713009	1.511488		2.978945
+0.199460	0.556884	0.357449		1.200226
+0.199450	0.556850	0.357423		1.312298
+0.199467	0.556862	0.357469		1.315847
+0.199461	0.556882	0.357444		1.336417
+0.199453	0.556890	0.357461		2.959018
+0.199443	0.556817	0.357399		1.434977
+0.200445	0.558801	0.358380		1.305871
+0.199453	0.556829	0.357400		2.813036
+0.200449	1.073467	0.873040		4.380315
+0.199462	1.091407	0.892018		4.919430
+0.199460	0.556827	0.357391		1.203777
+0.199455	0.556866	0.357435		1.735500
+0.199487	0.556943	0.357480		1.325566
+0.199446	0.556863	0.357444		1.759783
+0.199451	0.556918	0.357492		1.202021
+0.199482	0.556876	0.357417		2.096340
+0.199436	0.556864	0.357503		1.200149
+0.200455	0.558825	0.358392		1.440793
+0.199461	0.556868	0.357430		1.272384
+1.201559	2.561056	1.359571		2.589442
+0.199457	0.556856	0.357423		1.307355
+0.199447	0.563142	0.363719		4.329269
+0.200460	0.559067	0.358631		1.343768
+0.199451	0.557059	0.357631		1.305135
+0.199462	0.557108	0.357723		1.345044
+0.199464	0.557218	0.357777		1.332018
+0.199488	0.556905	0.357441		1.286885
+0.199474	0.557087	0.357687		2.548345
+0.199465	0.557063	0.357620		2.352459
+0.199457	0.557140	0.357708		1.463492
+0.199446	0.557054	0.357633		1.313663
+0.199453	1.177521	0.978165		2.380364
+0.200488	0.559111	0.358647		1.203302
+0.199455	0.557076	0.357645		1.582343
+0.199465	0.557177	0.357736		1.341558
+0.200452	0.559069	0.358641		1.463244
+0.199456	0.557065	0.357633		2.234321
+0.199469	0.557064	0.357672		1.201041
+0.200468	0.559129	0.358683		1.332848
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 400k 1 50 cubic',)
+--http1.1
+head -c 400k /dev/urandom > /tmp/tmp.WSKzKe1SsC
+Data Size: 400k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.WSKzKe1SsC https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201603	2.569562	1.367981		4.131665
+0.199452	0.556940	0.357564		2.206260
+0.200489	0.558910	0.358445		1.366713
+0.199457	0.556852	0.357418		2.998393
+0.199452	0.556861	0.357434		1.780426
+0.199454	0.556853	0.357424		1.405790
+0.199456	0.556873	0.357442		1.365549
+0.200440	0.558829	0.358414		1.934504
+0.200442	0.558808	0.358390		1.882439
+0.199463	0.556856	0.357468		1.452169
+0.199481	0.556935	0.357477		1.421445
+0.199449	0.757822	0.558447		1.488562
+0.199443	0.556834	0.357415		1.494550
+0.199456	0.556938	0.357556		3.738033
+0.199456	0.556844	0.357412		4.934536
+0.199458	0.556848	0.357413		2.649045
+0.199446	0.556892	0.357469		2.387219
+0.199437	0.556824	0.357412		1.934852
+0.199442	0.556826	0.357409		2.842689
+0.199450	0.556869	0.357444		1.890000
+0.199451	0.556911	0.357484		3.364611
+0.199466	0.556837	0.357395		1.584630
+0.199451	0.556843	0.357415		3.111617
+0.199460	0.556875	0.357440		1.294361
+0.199443	0.556817	0.357397		1.393462
+0.199457	0.556804	0.357372		1.428545
+0.199446	0.556840	0.357419		1.984959
+0.199459	0.556833	0.357398		1.363317
+0.200461	0.558847	0.358409		1.413983
+0.199452	0.556837	0.357408		3.555704
+0.200457	0.558865	0.358432		1.434983
+0.199462	0.556863	0.357425		2.349992
+0.199458	0.563485	0.364102		6.298698
+0.199446	0.557045	0.357621		1.415633
+0.199465	0.557220	0.357779		1.338095
+0.199452	0.557078	0.357701		1.459642
+0.199465	0.557097	0.357655		4.925035
+0.199465	0.557109	0.357668		1.434264
+0.199451	0.557007	0.357631		1.459545
+0.199455	0.557158	0.357728		1.497175
+0.199457	0.557105	0.357724		2.514482
+0.199367	0.556922	0.357580		1.404445
+0.199449	0.557051	0.357625		1.368367
+1.201535	2.561250	1.359737		3.668549
+0.199460	0.557157	0.357772		2.195834
+0.200446	0.559037	0.358614		1.317322
+0.199465	0.557055	0.357613		6.887186
+0.199454	0.557055	0.357625		2.129607
+0.199460	0.557105	0.357669		4.024178
+0.199457	0.557103	0.357670		1.602270
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 500k 1 50 cubic',)
+--http1.1
+head -c 500k /dev/urandom > /tmp/tmp.Afa9a3Ls9d
+Data Size: 500k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.Afa9a3Ls9d https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201596	2.569414	1.367841		4.313639
+0.199454	0.556904	0.357474		1.745633
+0.199469	0.556855	0.357409		1.595644
+0.200462	0.558891	0.358452		4.482128
+0.199462	0.556858	0.357420		1.908072
+0.199461	0.556883	0.357446		3.426289
+0.199450	0.556814	0.357439		1.808074
+0.199462	0.556856	0.357418		1.532116
+0.199452	0.556817	0.357388		1.372186
+0.199451	0.556848	0.357420		4.174803
+0.199449	0.556816	0.357442		2.215690
+1.201552	3.177594	1.976075		8.009517
+0.200460	0.558860	0.358424		3.432817
+0.199452	0.556818	0.357387		1.468612
+0.200442	0.558822	0.358402		5.318369
+0.199448	0.556833	0.357407		1.414104
+0.199450	0.556809	0.357435		1.888808
+0.199457	0.556854	0.357419		3.262029
+0.200473	0.558862	0.358414		1.563473
+0.199456	0.556823	0.357390		1.786342
+0.199409	0.556757	0.357372		6.342517
+0.199457	0.556823	0.357389		1.949199
+0.199464	0.556887	0.357447		3.577164
+1.201525	2.560988	1.359486		2.641434
+0.200469	0.558840	0.358397		1.492641
+0.199457	0.556817	0.357384		1.472253
+0.200446	0.558840	0.358417		1.434562
+0.199453	0.556835	0.357407		1.671840
+0.200461	0.558904	0.358467		4.324677
+0.199456	0.556845	0.357413		4.930181
+0.199442	0.556851	0.357432		1.972434
+0.199447	0.556847	0.357424		1.673319
+0.200472	0.565259	0.364812		1.595781
+0.199461	0.556919	0.357483		1.506820
+0.199442	0.556822	0.357404		4.012265
+0.199463	0.556836	0.357394		2.081995
+0.199459	0.556819	0.357384		8.332524
+0.199457	0.556798	0.357365		3.424987
+0.199457	0.556893	0.357459		1.454614
+0.199450	0.556861	0.357435		2.661172
+0.199451	0.556838	0.357412		1.802094
+0.200461	0.558901	0.358462		1.744063
+1.201552	2.561016	1.359558		5.851732
+0.199442	0.556795	0.357376		4.044202
+0.199445	0.556851	0.357481		2.389618
+0.199457	0.556843	0.357410		2.039299
+0.199453	0.556812	0.357382		1.513298
+0.199460	0.556863	0.357476		1.625864
+0.199468	0.556842	0.357397		5.417336
+0.199449	0.556832	0.357460		2.677916
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 600k 1 50 cubic',)
+--http1.1
+head -c 600k /dev/urandom > /tmp/tmp.h7my1mWgnT
+Data Size: 600k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.h7my1mWgnT https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201564	2.773217	1.571731		3.173407
+0.200444	0.559039	0.358620		5.638851
+0.199451	0.557058	0.357630		1.461730
+0.199482	0.557136	0.357677		5.896005
+0.200467	0.559049	0.358604		1.644272
+0.199452	0.557151	0.357724		5.779127
+0.199451	0.557039	0.357612		4.710753
+0.199452	0.557057	0.357629		7.835202
+0.200451	0.559089	0.358663		1.742985
+0.199452	0.760317	0.560940		6.681594
+0.199463	0.557144	0.357706		4.948671
+0.199446	0.557027	0.357603		1.768383
+0.199456	0.557035	0.357601		4.344831
+0.199454	0.557062	0.357631		1.651822
+0.199447	0.557060	0.357640		1.766124
+0.199451	0.557020	0.357593		4.637310
+0.199466	0.557077	0.357686		1.780833
+0.199448	0.557065	0.357640		3.441002
+0.200446	0.559045	0.358622		1.497829
+0.199460	0.759421	0.560036		3.648181
+0.199464	0.557069	0.357649		3.249782
+0.199438	1.182152	0.982789		8.008435
+0.199450	0.557097	0.357670		2.517771
+0.200447	0.559070	0.358647		2.558636
+0.199461	0.557125	0.357691		4.538285
+0.199449	0.557067	0.357641		2.196780
+0.199458	0.557092	0.357658		7.205098
+0.199454	0.557066	0.357635		6.650978
+0.199475	0.557105	0.357654		1.637720
+0.200456	0.559087	0.358656		2.540472
+0.199457	0.557066	0.357633		7.988884
+0.199458	0.557110	0.357676		4.624464
+0.199468	0.563483	0.364039		2.085213
+0.199460	0.557086	0.357650		6.519555
+0.199469	0.557107	0.357712		1.580969
+0.199454	0.557074	0.357641		4.715575
+0.199465	0.557152	0.357711		4.428960
+0.199457	0.557191	0.357757		5.931924
+0.199457	0.759516	0.560083		1.944009
+0.199453	0.556997	0.357568		3.755931
+0.199461	0.557094	0.357656		1.643302
+0.200464	0.559152	0.358712		2.063036
+0.200454	0.559054	0.358624		5.318979
+0.199459	0.557068	0.357632		6.950346
+0.199465	0.557101	0.357661		5.178811
+0.199460	0.557096	0.357659		2.672328
+0.199448	0.557026	0.357600		2.554011
+1.201205	2.762845	1.561716		2.756463
+0.199445	0.557033	0.357611		2.269268
+0.199447	0.557053	0.357681		6.662778
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 700k 1 50 cubic',)
+--http1.1
+head -c 700k /dev/urandom > /tmp/tmp.bm2PqMxG25
+Data Size: 700k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.bm2PqMxG25 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201564	2.569388	1.367904		8.267487
+0.200461	0.558877	0.358441		3.142970
+0.199450	0.557063	0.357638		5.541084
+0.199459	0.557066	0.357680		1.643010
+0.199456	0.557073	0.357660		1.849747
+0.199447	0.557059	0.357636		2.118762
+0.199453	0.557041	0.357610		7.214829
+0.199453	0.557048	0.357619		6.003761
+0.199447	0.557020	0.357597		4.819986
+0.199464	0.557073	0.357632		6.858911
+0.199447	0.556954	0.357529		8.293268
+0.199455	0.557073	0.357642		2.358663
+0.200459	0.559038	0.358604		2.553165
+0.199453	0.557093	0.357665		4.170157
+0.199449	0.561294	0.361919		3.009718
+0.199453	0.557113	0.357736		3.584777
+0.199259	0.556679	0.357443		2.543278
+0.200461	0.559124	0.358687		1.745030
+0.199462	0.557088	0.357700		1.733097
+0.199454	0.557094	0.357662		1.969109
+0.199450	0.557076	0.357649		7.136621
+0.199455	0.557257	0.357827		7.663037
+0.199452	0.557105	0.357675		1.731836
+0.199453	0.557067	0.357637		1.659241
+0.199460	0.557052	0.357666		5.130578
+0.200458	0.559102	0.358666		1.697119
+0.199439	0.557058	0.357644		2.085064
+0.199466	0.557347	0.357958		1.827240
+0.199487	0.557155	0.357692		2.381792
+0.200448	0.559082	0.358658		10.164142
+0.199462	0.557129	0.357697		1.605870
+0.199493	1.075223	0.875810		8.588434
+0.199443	0.563303	0.363882		5.403847
+0.199533	0.557274	0.357817		2.871561
+0.199456	0.557023	0.357593		5.105109
+0.199476	0.557138	0.357736		1.885068
+0.199451	0.557023	0.357597		1.726223
+0.199447	0.556990	0.357566		1.609260
+0.199464	0.557149	0.357708		2.694090
+0.199451	0.557069	0.357692		5.087357
+0.200472	0.559074	0.358626		2.548250
+0.199468	0.557118	0.357674		7.524090
+1.201556	2.713221	1.511689		3.818984
+0.199452	0.557112	0.357751		7.972298
+0.199458	0.557071	0.357691		1.673844
+0.199466	0.557117	0.357676		1.859277
+0.199457	0.557084	0.357650		1.764701
+0.199485	0.557220	0.357759		1.865573
+0.200453	0.559069	0.358640		1.816296
+0.200456	0.559017	0.358583		5.095173
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 800k 1 50 cubic',)
+--http1.1
+head -c 800k /dev/urandom > /tmp/tmp.BOUNEp3ysa
+Data Size: 800k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.BOUNEp3ysa https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201564	2.569655	1.368114		9.931374
+0.199490	0.556989	0.357522		2.032529
+0.199444	0.556872	0.357454		2.739839
+0.200453	0.558855	0.358424		5.804727
+0.199451	0.556850	0.357473		1.839946
+0.199466	0.556906	0.357464		5.394320
+0.199459	0.556895	0.357458		4.166670
+0.199459	0.556897	0.357461		3.226845
+0.199294	0.556509	0.357240		1.724154
+0.199457	0.556934	0.357500		1.770272
+0.200456	0.558872	0.358440		1.785858
+0.200454	0.558813	0.358382		4.663216
+0.199449	0.556890	0.357465		2.839000
+0.199459	0.556944	0.357508		2.690288
+0.199453	0.556977	0.357547		9.496491
+0.199449	0.556853	0.357428		6.020077
+0.199451	0.556855	0.357426		9.036392
+0.199459	0.556839	0.357454		5.928461
+0.199485	0.556908	0.357446		1.756336
+0.199459	0.556840	0.357405		3.119769
+0.199455	0.556820	0.357397		7.884032
+0.199454	0.556901	0.357470		1.793483
+0.199490	1.200036	1.000621		5.147165
+0.199457	0.556805	0.357373		5.957652
+0.199482	0.556957	0.357499		2.262215
+0.199442	0.556838	0.357472		2.810964
+0.199452	0.556834	0.357406		1.842615
+0.199452	0.556955	0.357527		7.874755
+0.199458	0.556861	0.357427		6.949213
+0.199453	1.192851	0.993473		7.530498
+0.199463	0.556950	0.357561		2.852196
+0.199452	0.556899	0.357473		11.398132
+0.199303	0.562922	0.363645		10.295515
+0.199464	0.556842	0.357401		4.821681
+0.199449	0.556856	0.357430		1.790241
+0.200439	0.558786	0.358369		1.915318
+0.200453	0.558808	0.358378		5.714852
+0.199460	0.556826	0.357439		7.820599
+0.199441	0.556819	0.357401		2.006560
+0.199457	0.556878	0.357445		1.889038
+0.199462	1.030768	0.831380		9.759308
+0.199463	0.556882	0.357443		2.056977
+0.199456	0.556866	0.357434		2.070192
+0.199468	0.556858	0.357415		6.699661
+0.199465	0.556928	0.357486		1.661254
+0.199452	0.556823	0.357444		2.048965
+0.200444	0.558820	0.358400		1.978515
+0.200444	0.558818	0.358395		8.229773
+0.199481	0.556955	0.357497		1.849714
+0.200444	0.558838	0.358417		6.180739
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 900k 1 50 cubic',)
+--http1.1
+head -c 900k /dev/urandom > /tmp/tmp.SWHl9k6kyR
+Data Size: 900k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.SWHl9k6kyR https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201549	2.569482	1.367956		2.887338
+0.199461	0.557038	0.357601		2.146786
+0.199458	0.556822	0.357387		4.203682
+1.201559	2.561120	1.359637		2.991273
+0.199446	0.556820	0.357450		2.046567
+0.199460	0.556869	0.357481		10.405721
+0.199438	0.556794	0.357379		3.477272
+0.199460	0.556834	0.357449		9.885788
+0.199449	0.556821	0.357394		1.876308
+0.199428	0.556756	0.357354		2.385153
+0.200457	0.558870	0.358438		6.060628
+0.200455	0.558836	0.358411		10.197375
+1.200975	2.559913	1.358961		5.849576
+0.199462	0.556846	0.357408		7.596125
+0.199453	0.556859	0.357430		2.030910
+0.199467	0.556865	0.357473		9.564601
+0.199451	0.556822	0.357395		11.162514
+0.199482	0.556919	0.357461		9.858562
+0.199459	0.556854	0.357418		2.609401
+0.200449	0.558845	0.358419		3.439562
+0.199450	0.556872	0.357445		9.489583
+0.200460	0.558846	0.358409		2.869128
+0.200465	0.558864	0.358423		1.901794
+0.199448	0.556795	0.357422		8.467136
+0.199447	0.556794	0.357370		5.041506
+0.199448	0.556761	0.357337		10.430703
+0.199456	0.556827	0.357446		3.134423
+0.200457	0.558827	0.358392		2.210499
+0.199449	0.556865	0.357440		2.107312
+0.199461	0.556855	0.357417		2.219817
+0.199450	0.556807	0.357382		11.001114
+0.199460	0.556842	0.357406		8.480092
+0.200516	0.565292	0.364800		2.121571
+0.199460	0.556862	0.357426		10.916412
+0.199444	0.556771	0.357350		1.980393
+0.199456	0.556829	0.357397		1.818733
+0.200448	0.558865	0.358442		5.782680
+0.199485	0.556938	0.357527		1.917128
+0.199449	0.556904	0.357477		7.833413
+0.199468	0.556912	0.357468		3.449592
+0.200466	0.558911	0.358468		10.010328
+0.200461	0.558853	0.358415		3.575840
+0.199460	0.556837	0.357401		2.027812
+0.199459	0.556858	0.357424		4.648605
+0.199455	0.556802	0.357371		2.064781
+1.201555	2.561011	1.359479		5.794523
+0.199448	0.556859	0.357433		3.505025
+0.199453	0.556812	0.357434		2.167170
+0.200445	0.558821	0.358398		9.738589
+0.199466	0.556889	0.357446		2.000124
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 1000k 1 50 cubic',)
+--http1.1
+head -c 1000k /dev/urandom > /tmp/tmp.mOceJz9FIU
+Data Size: 1000k
+HTTP: --http1.1
+timeout 2m curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.mOceJz9FIU https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\n" -o /dev/null 2>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total
+1.201568	2.569403	1.367863		3.330967
+0.199448	0.556822	0.357398		1.882977
+0.199456	0.556864	0.357432		6.638576
+0.200481	0.558937	0.358480		5.570940
+0.199318	0.556546	0.357252		6.260860
+0.199457	0.556870	0.357489		3.931357
+0.199458	0.556872	0.357439		9.351463
+0.200457	0.558877	0.358444		7.838198
+0.200447	0.558858	0.358435		3.015632
+0.200456	0.558875	0.358442		2.504853
+0.199457	0.556825	0.357392		2.652429
+0.199455	0.556871	0.357440		9.018817
+0.199460	1.191110	0.991725		9.127999
+0.199454	0.556827	0.357396		6.070446
+0.199459	0.556864	0.357429		13.251111
+0.199444	0.556839	0.357418		1.962793
+0.199459	0.556919	0.357483		2.193863
+0.200489	0.558899	0.358435		8.078307
+0.200460	0.558848	0.358413		11.008935
+0.200455	0.558849	0.358418		8.727705
+0.199451	0.556813	0.357437		12.018877
+0.199448	0.556818	0.357444		10.134087
+0.200461	0.558866	0.358428		3.001582
+0.200462	0.558834	0.358397		5.845231
+0.199454	0.556830	0.357451		2.950826
+0.199462	0.556900	0.357512		10.421810
+0.199450	0.556811	0.357384		3.432505
+0.199470	0.556850	0.357405		2.257947
+0.200453	0.558848	0.358417		3.133109
+0.199459	0.556816	0.357381		1.958997
+0.199514	0.556988	0.357498		12.056287
+0.199453	0.556835	0.357406		11.475868
+0.199463	0.563306	0.363866		12.740770
+0.199465	1.050903	0.851515		15.601336
+0.200450	0.558855	0.358430		11.116183
+0.199450	0.556830	0.357404		2.465245
+0.199453	0.556795	0.357366		8.044751
+0.199457	0.556863	0.357429		3.272189
+0.200453	0.558880	0.358450		2.311048
+0.199457	0.556855	0.357422		3.673882
+0.200486	0.558886	0.358424		13.493919
+0.199457	0.556874	0.357442		13.657938
+0.199450	0.556825	0.357397		10.927000
+0.199448	0.556782	0.357357		4.635848
+0.199458	0.556853	0.357469		2.134915
+0.200457	0.558846	0.358412		2.139716
+0.199451	0.556861	0.357433		2.090061
+0.199457	0.556836	0.357404		2.390060
+0.199454	0.556870	0.357440		2.390894
+0.200464	0.558860	0.358419		8.008728
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 2000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 2000k /dev/urandom > /tmp/tmp.crW30D7iHQ
+Data Size: 2000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.crW30D7iHQ https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201538	2.569107	1.519835		5.584566	0		200		2048000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 3000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 3000k /dev/urandom > /tmp/tmp.b4N8HX8uL1
+Data Size: 3000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.b4N8HX8uL1 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201561	2.569440	1.520184		29.785082	0		200		3072000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 4000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 4000k /dev/urandom > /tmp/tmp.BTce7E7teJ
+Data Size: 4000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.BTce7E7teJ https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201564	2.569140	1.519863		41.857751	0		200		4096000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 5000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 5000k /dev/urandom > /tmp/tmp.HzTWsVXuwU
+Data Size: 5000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.HzTWsVXuwU https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201568	2.569127	1.519853		46.847735	0		200		5120000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 6000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 6000k /dev/urandom > /tmp/tmp.HkXwXwoIWs
+Data Size: 6000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.HkXwXwoIWs https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201559	3.206550	2.157298		49.171232	0		200		6144000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 7000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 7000k /dev/urandom > /tmp/tmp.db9W1LtbE5
+Data Size: 7000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.db9W1LtbE5 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201562	2.569426	1.520157		63.894430	0		200		7168000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 8000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 8000k /dev/urandom > /tmp/tmp.6d3Epnuigg
+Data Size: 8000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.6d3Epnuigg https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201576	2.569356	1.520051		91.090406	0		200		8192000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 9000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 9000k /dev/urandom > /tmp/tmp.XbWQuo7Ipp
+Data Size: 9000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.XbWQuo7Ipp https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201574	2.569397	1.520082		94.528553	0		200		9216000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 10000k 1 1 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 10000k /dev/urandom > /tmp/tmp.UZfHyuOJVB
+Data Size: 10000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.UZfHyuOJVB https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201573	2.569352	1.520046		103.104983	0		200		10240000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 2000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 2000k /dev/urandom > /tmp/tmp.CCLjjFgB2I
+Data Size: 2000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.CCLjjFgB2I https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201566	2.569776	1.520509		23.692713	0		200		2048000		18	
+0.199451	0.556784	0.509609		21.033154	0		200		2048000		18	
+0.199467	0.556819	0.509642		19.951701	0		200		2048000		18	
+0.199458	0.556803	0.509610		7.650527	0		200		2048000		18	
+0.199455	0.556782	0.509590		8.840952	0		200		2048000		18	
+0.200470	0.558823	0.510624		13.605345	0		200		2048000		18	
+0.199457	0.556812	0.509629		7.019058	0		200		2048000		18	
+0.199452	0.556818	0.509637		22.225988	0		200		2048000		18	
+0.200466	0.558822	0.510589		17.968196	0		200		2048000		18	
+0.200456	0.558838	0.510619		14.697976	0		200		2048000		18	
+0.199437	0.556753	0.509549		13.084406	0		200		2048000		18	
+0.199478	0.556882	0.509676		7.535572	0		200		2048000		18	
+0.199453	0.556802	0.509619		13.761957	0		200		2048000		18	
+0.199460	0.556826	0.509636		22.780558	0		200		2048000		18	
+0.200457	0.558806	0.510597		7.250267	0		200		2048000		18	
+0.199468	0.556833	0.509624		4.435597	0		200		2048000		18	
+0.199453	0.556797	0.509612		14.209635	0		200		2048000		18	
+0.199457	0.556821	0.509612		16.977632	0		200		2048000		18	
+0.199454	0.556807	0.509633		21.370971	0		200		2048000		18	
+0.199458	0.556805	0.509579		11.539685	0		200		2048000		18	
+0.199478	0.556847	0.509615		16.391623	0		200		2048000		18	
+0.199451	0.556839	0.509660		20.194983	0		200		2048000		18	
+0.199458	0.556820	0.509629		10.611573	0		200		2048000		18	
+0.200516	0.558961	0.510719		23.450640	0		200		2048000		18	
+0.199462	1.056464	1.009281		19.761693	0		200		2048000		18	
+0.199460	0.556815	0.711959		20.945616	0		200		2048000		18	
+0.199455	0.556797	0.509610		15.338533	0		200		2048000		18	
+0.199452	0.556795	0.509608		4.094669	0		200		2048000		18	
+0.199463	0.556828	0.509643		8.193525	0		200		2048000		18	
+1.201545	2.561016	1.511764		11.041626	0		200		2048000		18	
+0.200492	0.558883	0.510661		17.799351	0		200		2048000		18	
+0.199449	0.556784	0.509587		29.737898	0		200		2048000		18	
+0.199452	0.563154	0.515969		22.508021	0		200		2048000		18	
+0.199457	0.556802	0.509603		8.649963	0		200		2048000		18	
+0.199452	0.556848	0.509633		21.368966	0		200		2048000		18	
+0.199460	0.556823	0.509595		18.760657	0		200		2048000		18	
+0.200459	0.558828	0.510653		11.158654	0		200		2048000		18	
+0.199455	0.556804	0.509620		24.761307	0		200		2048000		18	
+0.199465	0.556861	0.509671		19.740000	0		200		2048000		18	
+0.199467	0.556825	0.509677		12.703906	0		200		2048000		18	
+0.199451	0.556790	0.509608		13.173840	0		200		2048000		18	
+0.199465	0.556859	0.509662		13.374965	0		200		2048000		18	
+0.200454	1.029415	0.981235		27.985203	0		200		2048000		18	
+0.200484	0.558885	0.510679		13.339830	0		200		2048000		18	
+0.199456	0.556880	0.509655		6.304441	0		200		2048000		18	
+0.199449	0.556835	0.711916		21.846009	0		200		2048000		18	
+0.199453	0.556831	0.509608		16.672300	0		200		2048000		18	
+0.199468	0.556884	0.509653		14.467256	0		200		2048000		18	
+0.199453	0.556827	0.509625		19.250399	0		200		2048000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 3000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 3000k /dev/urandom > /tmp/tmp.aL0kS3B6CY
+Data Size: 3000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.aL0kS3B6CY https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201555	2.569348	1.520093		32.871763	0		200		3072000		18	
+0.199451	0.556820	0.509635		26.654123	0		200		3072000		18	
+0.199482	0.556865	0.509651		21.078420	0		200		3072000		18	
+0.199463	0.556813	0.509636		13.558811	0		200		3072000		18	
+0.199457	0.556822	0.509598		29.324048	0		200		3072000		18	
+0.199457	0.556839	0.509654		19.011861	0		200		3072000		18	
+0.199459	0.556808	0.711284		29.287437	0		200		3072000		18	
+0.199448	0.556782	0.509565		29.952286	0		200		3072000		18	
+0.199455	0.757783	0.710609		25.932361	0		200		3072000		18	
+0.200458	0.558823	0.510604		9.036809	0		200		3072000		18	
+0.199464	0.556821	0.509615		34.522983	0		200		3072000		18	
+0.199450	0.556779	0.509562		12.188935	0		200		3072000		18	
+0.199458	0.760410	0.713220		25.960287	0		200		3072000		18	
+0.199464	0.556862	0.509662		34.775241	0		200		3072000		18	
+0.199461	0.556803	0.509582		35.309082	0		200		3072000		18	
+0.200460	0.558842	0.510652		27.480398	0		200		3072000		18	
+0.199450	0.556760	0.509540		14.649905	0		200		3072000		18	
+0.199456	0.556788	0.509562		16.400093	0		200		3072000		18	
+1.201536	2.560963	1.511679		30.734255	0		200		3072000		18	
+0.199449	0.556797	0.509612		29.018559	0		200		3072000		18	
+0.199452	0.556837	0.509665		14.621072	0		200		3072000		18	
+0.200453	0.558806	0.510577		34.690831	0		200		3072000		18	
+0.199453	0.556773	0.509553		27.227378	0		200		3072000		18	
+0.200457	0.558875	0.510664		26.370477	0		200		3072000		18	
+0.199464	0.556838	0.509649		24.019167	0		200		3072000		18	
+0.199451	0.556801	0.509610		11.163560	0		200		3072000		18	
+0.199447	0.556780	0.509567		35.252588	0		200		3072000		18	
+0.199458	0.556800	0.509593		17.675142	0		200		3072000		18	
+0.199463	0.556930	0.509688		23.186256	0		200		3072000		18	
+0.199455	0.556813	0.509634		25.294762	0		200		3072000		18	
+0.200456	0.558816	0.510639		25.419409	0		200		3072000		18	
+1.201603	2.713033	1.663677		29.090475	0		200		3072000		18	
+0.199448	0.563491	1.006904		37.170727	0		200		3072000		18	
+0.199458	0.557083	0.509874		35.467564	0		200		3072000		18	
+0.199457	0.557072	1.098600		30.711676	0		200		3072000		18	
+0.200462	0.559065	0.510846		11.932986	0		200		3072000		18	
+0.200452	0.559023	0.510844		29.093594	0		200		3072000		18	
+0.200459	0.559055	0.510834		19.735303	0		200		3072000		18	
+0.199451	0.557074	0.509880		15.136250	0		200		3072000		18	
+0.200464	0.559063	0.510842		24.685846	0		200		3072000		18	
+0.199450	0.557051	0.509866		27.408663	0		200		3072000		18	
+0.199455	0.557046	0.509826		15.369918	0		200		3072000		18	
+0.199465	1.184460	1.137279		10.398113	0		200		3072000		18	
+0.200460	1.200368	1.152188		22.557994	0		200		3072000		18	
+0.199449	0.556992	0.509779		35.735553	0		200		3072000		18	
+0.199459	0.557035	0.509823		20.256869	0		200		3072000		18	
+0.199455	0.557027	0.509809		19.843448	0		200		3072000		18	
+0.199451	0.557019	0.509810		20.311582	0		200		3072000		18	
+0.199459	0.557029	0.509849		33.517006	0		200		3072000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 4000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 4000k /dev/urandom > /tmp/tmp.CE5IQAmLAW
+Data Size: 4000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.CE5IQAmLAW https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201565	3.210348	2.656523		48.665866	0		200		4096000		18	
+0.199465	0.556829	0.509603		21.329955	0		200		4096000		18	
+0.199468	0.557092	0.509853		25.372522	0		200		4096000		18	
+0.200452	0.559018	0.510859		37.837777	0		200		4096000		18	
+0.199452	0.557046	0.509824		34.149836	0		200		4096000		18	
+0.200452	0.558982	0.510792		39.456283	0		200		4096000		18	
+0.199451	0.557029	0.509807		29.627994	0		200		4096000		18	
+0.199459	0.557035	0.509840		34.161532	0		200		4096000		18	
+0.199434	0.557002	0.509839		41.253942	0		200		4096000		18	
+0.199452	0.557018	0.509804		37.383889	0		200		4096000		18	
+0.200466	0.559082	0.510864		34.594462	0		200		4096000		18	
+0.199453	0.557045	0.509840		32.772076	0		200		4096000		18	
+0.199446	0.557033	0.710979		40.913744	0		200		4096000		18	
+0.199462	0.557055	0.997210		22.805783	0		200		4096000		18	
+0.199463	0.557051	0.509853		27.365020	0		200		4096000		18	
+0.199449	0.557002	0.509823		38.581865	0		200		4096000		18	
+0.199474	0.557113	0.509906		40.253408	0		200		4096000		18	
+0.199449	0.557048	0.509858		30.207072	0		200		4096000		18	
+0.199452	0.557004	0.509797		50.093339	0		200		4096000		18	
+1.201542	3.063209	2.013905		38.088813	0		200		4096000		18	
+0.199458	0.557013	0.509798		36.200693	0		200		4096000		18	
+0.200453	0.559049	0.510861		44.525263	0		200		4096000		18	
+0.199457	0.557069	0.509844		32.913935	0		200		4096000		18	
+0.199454	0.759747	1.376067		40.207103	0		200		4096000		18	
+0.199471	0.557105	0.713141		51.414317	0		200		4096000		18	
+0.199452	0.557026	0.509828		38.384251	0		200		4096000		18	
+0.199460	0.557023	0.509790		29.561874	0		200		4096000		18	
+1.201556	2.561322	1.512045		35.408037	0		200		4096000		18	
+0.199457	1.369316	1.322128		39.632417	0		200		4096000		18	
+0.199475	0.557077	0.509882		33.195974	0		200		4096000		18	
+0.199462	0.557054	0.712952		37.558666	0		200		4096000		18	
+0.200445	0.559044	0.510856		35.564548	0		200		4096000		18	
+0.199459	0.563437	0.516249		26.162706	0		200		4096000		18	
+0.199459	0.557061	0.509883		37.850766	0		200		4096000		18	
+0.199453	0.557048	0.509868		31.904908	0		200		4096000		18	
+0.199447	0.557056	0.509873		31.808273	0		200		4096000		18	
+0.199454	0.557027	0.509804		40.419479	0		200		4096000		18	
+0.199462	0.557067	0.509865		43.038558	0		200		4096000		18	
+0.200469	0.559093	0.510904		32.744816	0		200		4096000		18	
+0.199464	0.760187	0.713002		37.594669	0		200		4096000		18	
+0.199457	0.557017	0.509808		24.937767	0		200		4096000		18	
+0.199446	0.556992	0.509776		33.830261	0		200		4096000		18	
+0.199462	0.557037	0.509844		32.123668	0		200		4096000		18	
+0.199449	0.557007	0.509814		30.181493	0		200		4096000		18	
+0.199447	0.557020	0.509831		40.240016	0		200		4096000		18	
+0.199453	0.557037	0.509833		36.556219	0		200		4096000		18	
+1.201533	2.561183	1.511891		38.725606	0		200		4096000		18	
+0.200450	0.559028	0.510817		29.020092	0		200		4096000		18	
+0.199448	0.557014	0.509822		47.004064	0		200		4096000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 5000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 5000k /dev/urandom > /tmp/tmp.iT1hD5ZFVo
+Data Size: 5000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.iT1hD5ZFVo https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201562	2.569657	1.520383		33.101123	0		200		5120000		18	
+0.199452	0.556848	0.712927		51.630983	0		200		5120000		18	
+0.199462	0.556842	0.509604		39.785744	0		200		5120000		18	
+0.200462	0.558838	0.510608		32.661366	0		200		5120000		18	
+0.199475	0.556857	0.509652		44.959055	0		200		5120000		18	
+0.199458	0.556810	1.164539		46.635278	0		200		5120000		18	
+0.199451	0.556805	1.164045		49.961818	0		200		5120000		18	
+0.199459	0.556859	0.509674		43.720925	0		200		5120000		18	
+0.200459	0.558841	0.510651		47.587501	0		200		5120000		18	
+0.199454	0.556808	0.509628		38.311864	0		200		5120000		18	
+0.200454	0.558809	0.510621		52.083623	0		200		5120000		18	
+0.200467	0.558865	0.997965		39.208005	0		200		5120000		18	
+0.199449	0.556806	0.509593		33.367593	0		200		5120000		18	
+0.199444	0.556793	0.509612		37.545215	0		200		5120000		18	
+0.199456	0.556780	0.509587		51.588804	0		200		5120000		18	
+1.201548	2.560989	1.511726		50.462236	0		200		5120000		18	
+0.199451	0.556797	0.509636		49.532175	0		200		5120000		18	
+0.200446	0.558844	0.510646		40.537771	0		200		5120000		18	
+0.199441	0.556791	0.509621		44.767105	0		200		5120000		18	
+0.199451	1.189596	1.142422		47.415519	0		200		5120000		18	
+0.199454	0.556808	0.509631		44.462099	0		200		5120000		18	
+0.199450	0.556802	0.509624		43.486676	0		200		5120000		18	
+0.199457	0.556798	0.509610		38.361276	0		200		5120000		18	
+0.200453	0.558816	0.510616		52.579063	0		200		5120000		18	
+1.201545	2.560965	1.511680		42.023773	0		200		5120000		18	
+0.199456	0.556790	0.509570		42.595065	0		200		5120000		18	
+0.199456	0.556818	0.509597		41.283036	0		200		5120000		18	
+0.199461	0.556840	0.509667		40.877064	0		200		5120000		18	
+0.199465	0.556806	0.509574		47.539814	0		200		5120000		18	
+0.200455	0.558844	0.510669		32.596558	0		200		5120000		18	
+0.199461	0.556851	0.509660		43.682943	0		200		5120000		18	
+0.199449	0.556795	0.509581		46.446099	0		200		5120000		18	
+0.199446	0.563121	1.157218		52.519416	0		200		5120000		18	
+0.199450	0.556805	0.509591		50.333413	0		200		5120000		18	
+0.199443	0.556779	0.509605		40.179655	0		200		5120000		18	
+0.200449	0.558822	0.510656		45.204390	0		200		5120000		18	
+0.199453	0.556755	0.509533		52.174599	0		200		5120000		18	
+0.199452	0.556768	0.509585		28.348529	0		200		5120000		18	
+0.199451	0.556829	0.509641		44.833175	0		200		5120000		18	
+0.199456	0.556768	0.509554		52.730448	0		200		5120000		18	
+0.199540	0.556992	0.509725		40.401671	0		200		5120000		18	
+0.199463	0.556816	0.509649		49.434770	0		200		5120000		18	
+0.199463	0.556815	0.509589		41.810431	0		200		5120000		18	
+0.200456	0.558822	0.510636		45.122333	0		200		5120000		18	
+0.199455	0.556827	0.509643		46.432791	0		200		5120000		18	
+0.199452	0.556776	0.509577		48.683494	0		200		5120000		18	
+0.199450	0.556790	0.509638		55.783818	0		200		5120000		18	
+0.199459	0.556827	0.509646		38.529785	0		200		5120000		18	
+0.199467	0.556852	0.509660		54.565294	0		200		5120000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 6000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 6000k /dev/urandom > /tmp/tmp.eYGthQNmV3
+Data Size: 6000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.eYGthQNmV3 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201556	2.569425	1.520162		53.419564	0		200		6144000		18	
+0.200461	0.558849	0.510667		61.149730	0		200		6144000		18	
+0.199466	0.556856	0.509688		54.572523	0		200		6144000		18	
+1.201539	2.560990	1.511723		61.765849	0		200		6144000		18	
+0.199415	1.179167	1.132005		60.264036	0		200		6144000		18	
+1.201540	2.560997	1.511704		46.330129	0		200		6144000		18	
+0.199462	0.556828	0.509599		61.705962	0		200		6144000		18	
+0.200462	0.558954	0.510772		48.600550	0		200		6144000		18	
+0.199458	0.556847	0.509620		60.010471	0		200		6144000		18	
+0.199454	0.556805	0.509588		58.828035	0		200		6144000		18	
+0.199459	0.556822	0.509642		58.696032	0		200		6144000		18	
+0.199460	0.556817	0.509589		68.846040	0		200		6144000		18	
+0.200447	0.558813	0.510643		56.757241	0		200		6144000		18	
+0.199464	0.556842	0.509653		54.515875	0		200		6144000		18	
+0.199458	0.556770	0.509572		46.443249	0		200		6144000		18	
+0.199457	0.556811	0.509592		50.279378	0		200		6144000		18	
+0.199443	0.556692	0.509506		54.822439	0		200		6144000		18	
+0.200452	0.558770	0.510586		71.899465	0		200		6144000		18	
+0.200463	0.558838	0.510628		65.121228	0		200		6144000		18	
+0.200441	0.558757	0.510553		63.115591	0		200		6144000		18	
+0.199458	0.556806	0.509602		53.154211	0		200		6144000		18	
+0.199451	0.556822	0.509634		63.612028	0		200		6144000		18	
+0.200450	0.558817	0.510643		35.734998	0		200		6144000		18	
+0.199448	0.556822	0.509643		51.386269	0		200		6144000		18	
+0.199455	0.556817	0.509653		66.374739	0		200		6144000		18	
+0.199455	0.760857	0.713670		71.780898	0		200		6144000		18	
+0.199465	0.556818	0.710411		65.187390	0		200		6144000		18	
+0.199455	0.556815	0.509593		54.438825	0		200		6144000		18	
+0.200457	0.558887	0.510705		59.176582	0		200		6144000		18	
+0.199456	0.556825	0.509600		47.481516	0		200		6144000		18	
+0.199464	0.556818	0.509590		73.175492	0		200		6144000		18	
+0.200463	0.558848	0.510666		54.541419	0		200		6144000		18	
+0.199462	0.563190	0.515975		51.022932	0		200		6144000		18	
+0.199453	0.556786	0.509600		45.218470	0		200		6144000		18	
+0.199458	0.556828	0.509613		51.342394	0		200		6144000		18	
+0.199443	0.556765	0.509587		57.595690	0		200		6144000		18	
+0.199450	0.556843	0.509628		54.809369	0		200		6144000		18	
+0.199452	0.556784	0.509605		66.394492	0		200		6144000		18	
+0.200457	0.558849	0.510639		60.404744	0		200		6144000		18	
+0.199453	0.556865	0.509683		67.611271	0		200		6144000		18	
+0.200448	0.558823	0.510653		53.254179	0		200		6144000		18	
+0.199465	0.556847	0.509656		39.033339	0		200		6144000		18	
+0.199457	0.556844	0.509659		54.697842	0		200		6144000		18	
+0.199446	0.556798	0.509620		55.044913	0		200		6144000		18	
+0.199461	0.556828	0.509654		49.402003	0		200		6144000		18	
+0.199452	0.556800	0.509626		44.842312	0		200		6144000		18	
+0.199464	0.556860	0.509675		62.608518	0		200		6144000		18	
+0.199451	0.556788	0.509603		52.763748	0		200		6144000		18	
+0.200445	0.558824	0.510663		58.611581	0		200		6144000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 7000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 7000k /dev/urandom > /tmp/tmp.Bt3R6TzltD
+Data Size: 7000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.Bt3R6TzltD https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201566	2.569415	1.520148		63.988609	0		200		7168000		18	
+0.199448	0.556791	0.509629		46.350284	0		200		7168000		18	
+0.199451	0.556817	0.509609		49.704101	0		200		7168000		18	
+0.200466	0.558821	0.510640		60.183973	0		200		7168000		18	
+0.199485	0.556873	0.509665		59.788507	0		200		7168000		18	
+0.200456	0.558797	0.510585		68.703805	0		200		7168000		18	
+0.199452	0.556822	0.509632		75.031377	0		200		7168000		18	
+0.199437	0.556771	0.509574		68.885251	0		200		7168000		18	
+0.199462	0.556878	0.509719		52.161519	0		200		7168000		18	
+0.199462	0.556901	0.509703		60.709721	0		200		7168000		18	
+0.199464	0.557040	0.509879		63.653846	0		200		7168000		18	
+0.199451	0.556852	0.977651		72.684802	0		200		7168000		18	
+0.200458	0.558871	0.510653		66.725652	0		200		7168000		18	
+0.199454	0.556834	0.509655		72.342166	0		200		7168000		18	
+0.200454	0.558906	0.510712		56.773991	0		200		7168000		18	
+0.199471	0.556896	0.509704		65.879257	0		200		7168000		18	
+0.199463	0.556835	0.985880		70.972342	0		200		7168000		18	
+0.199457	0.556866	0.509677		64.632291	0		200		7168000		18	
+0.199480	0.556899	0.509673		63.348997	0		200		7168000		18	
+0.199452	0.556861	0.509713		69.980772	0		200		7168000		18	
+0.199448	1.184490	1.137347		72.580107	0		200		7168000		18	
+0.199468	0.556941	0.509750		84.877906	0		200		7168000		18	
+0.199468	0.556909	0.509711		53.021329	0		200		7168000		18	
+1.201549	2.561050	1.511760		74.894279	0		200		7168000		18	
+0.199458	0.556861	0.509679		60.300567	0		200		7168000		18	
+0.199476	0.556904	0.509707		66.187627	0		200		7168000		18	
+0.199452	0.556856	0.509681		63.026854	0		200		7168000		18	
+0.199287	0.556548	0.509548		58.660258	0		200		7168000		18	
+0.199460	0.556975	0.509775		59.495838	0		200		7168000		18	
+1.201542	2.561058	1.511800		82.551519	0		200		7168000		18	
+0.199470	0.556811	0.509610		62.707740	0		200		7168000		18	
+0.199456	0.556835	0.509610		56.177618	0		200		7168000		18	
+0.199465	0.563278	0.516089		75.256155	0		200		7168000		18	
+0.199462	0.556838	0.509629		70.841720	0		200		7168000		18	
+0.199451	0.556815	0.509626		78.591203	0		200		7168000		18	
+0.199453	0.556813	0.509636		44.856624	0		200		7168000		18	
+0.199459	0.556838	0.509671		65.833401	0		200		7168000		18	
+0.200457	0.558778	0.975809		75.299058	0		200		7168000		18	
+0.199451	0.556784	0.509607		73.646783	0		200		7168000		18	
+0.200450	0.558840	0.510632		52.968343	0		200		7168000		18	
+0.200458	0.558813	0.510599		80.565693	0		200		7168000		18	
+0.199463	0.556927	0.509704		76.572141	0		200		7168000		18	
+0.199458	0.556826	0.509643		64.335378	0		200		7168000		18	
+0.199465	0.556848	0.509632		58.186999	0		200		7168000		18	
+0.199463	0.556818	0.509597		75.119932	0		200		7168000		18	
+0.200458	0.558861	0.510688		59.061571	0		200		7168000		18	
+0.200455	0.558808	0.510590		75.160960	0		200		7168000		18	
+0.199473	0.556880	0.509651		45.349345	0		200		7168000		18	
+0.199465	0.556822	0.509607		63.964861	0		200		7168000		18	
+
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 8000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 8000k /dev/urandom > /tmp/tmp.XLXxJeRO72
+Data Size: 8000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.XLXxJeRO72 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) (10.00Mbit 1ms delay 2.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP
+*** h2 : ('./webserver/run_client.sh 7000k 1 49 stdout/loss2p/cubic/tcp.txt stderr/loss2p/cubic/tcp.txt cubic',)
+--http1.1
+head -c 7000k /dev/urandom > /tmp/tmp.r6wDdXlWXK
+Data Size: 7000k
+HTTP: --http1.1
+curl-exp --http1.1 --insecure --quiche-cc cubic --data-binary @/tmp/tmp.r6wDdXlWXK https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" -o /dev/null 2>>/dev/null
+
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+1.201632	2.582979	1.533764		67.109976	0		200		7168000		18	
+0.199392	0.556671	0.509539		68.846568	0		200		7168000		18	
+0.199433	0.556732	0.509559		54.877688	0		200		7168000		18	
+0.199463	1.193619	1.146436		66.866720	0		200		7168000		18	
+0.199472	0.556879	0.509691		62.628258	0		200		7168000		18	
+0.199456	0.556922	0.509737		62.722706	0		200		7168000		18	
+0.199447	0.556822	0.509652		65.718686	0		200		7168000		18	
