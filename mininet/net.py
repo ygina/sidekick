@@ -142,9 +142,9 @@ class SidecarNetwork():
             return
         http_version = http_version.lower()
         if http_version in ['http/1.1', '1.1', '1', 'h1', 'tcp']:
-            http_version = 'tcp'
+            http_version = 1
         elif http_version in ['http/3', '3', 'h3', 'quic']:
-            http_version = 'quic'
+            http_version = 3
         else:
             sclog(f'must set http version: {http_version}')
             return
