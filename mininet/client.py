@@ -20,7 +20,7 @@ def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, loss=Non
     print(f'Data Size: {nbytes}')
     print(f'HTTP: {http}')
     # curl = 'curl-exp'
-    curl = '/home/gina/curl/sidecurl/wrapped_sidecurl'
+    curl = 'sidecurl'
     if args.sidecar is None:
         sidecar = ''
     else:
