@@ -99,23 +99,21 @@ impl Sidecar {
                     trace!("not IP packet: {}", addr.sll_protocol);
                     continue;
                 }
-                let p = match UdpParser::parse(&buf) {
-                    Some(p) => p,
+                let id = match UdpParser::parse_identifier(&buf) {
+                    Some(id) => id,
                     None => {
-                        trace!("not UDP packet");
+                        trace!("not UDP idacket");
                         continue;
                     }
                 };
-                trace!("src_mac={} dst_mac={} src_ip={} dst_ip={}, id={}",
-                    p.src_mac, p.dst_mac, p.src_ip, p.dst_ip, p.identifier);
-                debug!("insert {} ({:#10x})", p.identifier, p.identifier);
+                debug!("insert {} ({:#10x})", id, id);
                 // TODO: filter by QUIC connection?
                 {
                     if let Some(tx) = tx.take() {
                         tx.send(()).unwrap();
                     }
                     let mut sc = sc.lock().unwrap();
-                    sc.insert_packet(p.identifier);
+                    sc.insert_packet(id);
                 }
             }
         });
