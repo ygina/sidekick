@@ -167,6 +167,7 @@ def plot_graph(loss, cc, pdf,
         filename = get_filename(loss, cc, http_version)
         if not path.exists(filename):
             print('Path does not exist: {}'.format(filename))
+            open(filename, 'w')
             continue
         try:
             data[http_version] = parse_data(loss, cc, http_version, normalize,
