@@ -13,8 +13,8 @@ MAX_X = None
 EXECUTE = None
 WORKDIR = None
 TARGET_XS = [x for x in range(100, 1000, 100)] + \
-            [x for x in range(1000, 10000, 1000)] + \
-            [x for x in range(10000, 100000, 10000)]
+            [x for x in range(1000, 20000, 1000)] + \
+            [x for x in range(20000, 100000, 10000)]
 
 class DataPoint:
     def __init__(self, arr, normalize=None):
@@ -42,7 +42,9 @@ def execute_cmd(loss, http_version, cc, trials, data_size):
         bm = ['tcp', '--tso']
     elif http_version == 'pep-tso':
         bm = ['tcp', '--tso', '--pep']
-    elif 'quack' in http_version:
+    # elif http_version == 'quack':
+    elif 'quack-' in http_version:
+        # quack-<frequency_ms>
         bm = ['quic', '--sidecar', http_version[6:]]
     elif 'quic-' in http_version:
         bm = ['quic']
@@ -158,8 +160,7 @@ def get_filename(loss, cc, http):
 
 def plot_graph(loss, cc, pdf,
                data_key='time_total',
-               http_versions=['pep', 'tcp', 'quic'],
-               # http_versions=['tcp-tso', 'pep-tso', 'quic', 'quack-152'],
+               http_versions=['pep', 'tcp', 'quic', 'quic-sidecurl', 'quack-100', 'quack-10', 'quack-2'],
                use_median=True,
                normalize=True):
     data = {}
@@ -195,7 +196,7 @@ def plot_graph(loss, cc, pdf,
         plt.ylabel('{} tput (MB/s)'.format(data_key))
     else:
         plt.ylabel('{} (s)'.format(data_key))
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.7), ncol=3)
     statistic = 'median' if use_median else 'mean'
     plt.title('{} {} {}% loss'.format(statistic, cc, loss))
     if pdf is not None:
