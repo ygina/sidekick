@@ -158,7 +158,7 @@ def get_filename(loss, cc, http):
 
 def plot_graph(loss, cc, pdf,
                data_key='time_total',
-               http_versions=['tcp-tso', 'pep-tso', 'quic'],
+               http_versions=['pep', 'tcp', 'quic'],
                # http_versions=['tcp-tso', 'pep-tso', 'quic', 'quack-152'],
                use_median=True,
                normalize=True):
