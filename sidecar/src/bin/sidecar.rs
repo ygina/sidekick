@@ -89,7 +89,7 @@ async fn print_quacks(
     }
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() -> Result<(), String> {
     env_logger::init();
 
