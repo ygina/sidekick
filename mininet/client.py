@@ -19,13 +19,15 @@ def run_client(nbytes, http, trials, stdout, stderr, cc, addr, loss=None):
     print_and_run_cmd(f'head -c {nbytes} /dev/urandom > {f.name}')
     print(f'Data Size: {nbytes}')
     print(f'HTTP: {http}')
+    # curl = 'curl-exp'
+    curl = '/home/gina/curl/sidecurl/wrapped_sidecurl'
     if trials is None:
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
-        cmd=f'curl-exp -v {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\"'
+        cmd=f'{curl} -v {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\"'
         print_and_run_cmd(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
-        cmd=f'curl-exp {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\" -o {stdout} 2>>{stderr}'
+        cmd=f'{curl} {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\" -o {stdout} 2>>{stderr}'
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         timeout = estimate_timeout(nbytes, http, loss)
         print(cmd)
