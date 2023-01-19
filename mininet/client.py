@@ -14,26 +14,30 @@ def estimate_timeout(nbytes, http, loss):
     except:
         return 3000
 
-def run_client(nbytes, http, trials, stdout, stderr, cc, addr, loss=None):
+def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, loss=None):
     f = tempfile.NamedTemporaryFile()
     print_and_run_cmd(f'head -c {nbytes} /dev/urandom > {f.name}')
     print(f'Data Size: {nbytes}')
     print(f'HTTP: {http}')
     # curl = 'curl-exp'
     curl = '/home/gina/curl/sidecurl/wrapped_sidecurl'
+    if args.sidecar is None:
+        sidecar = ''
+    else:
+        sidecar = f'--sidecar {args.sidecar[0]} --threshold {args.sidecar[1]}'
     if trials is None:
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
-        cmd=f'{curl} -v {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\"'
+        cmd=f'{curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\"'
         print_and_run_cmd(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
-        cmd=f'{curl} {http} --insecure {cc} --data-binary @{f.name} https://{addr}/ -w \"{fmt}\" -o {stdout} 2>>{stderr}'
-        header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         timeout = estimate_timeout(nbytes, http, loss)
+        cmd=f'{curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\" --max-time {timeout} -o {stdout} 2>>{stderr}'
+        header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         print(cmd)
         print(header)
         for _ in range(trials):
-            os.system(f'eval \'{cmd} --max-time {timeout}\'')
+            os.system(f'eval \'{cmd}\'')
 
 def check_trials(value):
     try:
@@ -77,6 +81,11 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--trials',
                         help='Number of trials',
                         type=check_trials)
+    parser.add_argument('-s', '--sidecar',
+                        metavar=('IFACE', 'THRESHOLD'),
+                        nargs=2,
+                        help='Sidecar interface that packets are being sent on '
+                             'and the quACK threshold.')
     parser.add_argument('--stdout',
                         default='/dev/null',
                         metavar='FILE',
@@ -86,7 +95,7 @@ if __name__ == '__main__':
                         metavar='FILE',
                         help='File to write stderr to (default: /dev/null)')
     parser.add_argument('-cc',
-                        default='',
+                        default='cubic',
                         metavar='TCP_CC_ALG',
                         type=check_cc,
                         help='Sets the TCP and QUIC congestion control '
@@ -100,4 +109,4 @@ if __name__ == '__main__':
 
     run_client(nbytes=args.n, http=args.http, trials=args.trials,
         stdout=args.stdout, stderr=args.stderr, cc=args.cc, addr=args.addr,
-        loss=args.loss)
+        sidecar=args.sidecar, loss=args.loss)
