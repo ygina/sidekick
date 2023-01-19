@@ -136,7 +136,7 @@ class SidecarNetwork():
         if self.pep:
             self.start_tcp_pep()
         elif self.sidecar is not None:
-            pass
+            self.start_quack_sender()
         else:
             sclog('NOT starting the TCP PEP or sidecar')
 
@@ -172,13 +172,13 @@ class SidecarNetwork():
         if self.sidecar is not None:
             trials_cmd = '' if trials == 0 else '-t 1'
             for _ in range(max(1, trials)):
-                self.start_quack_sender()
                 time.sleep(1)
                 self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
                                  f'--http {http_version} {trials_cmd} '
                                  f'--stdout {stdout_file} --stderr {stderr_file} '
                                  f'-cc {self.cc} --loss {self.loss2}')
                 self.kill_quack_sender()
+                self.start_quack_sender()
         else:
             time.sleep(1)
             trials_cmd = '' if trials == 0 else f'-t {trials}'
