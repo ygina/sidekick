@@ -171,12 +171,14 @@ class SidecarNetwork():
         self.start_and_configure()
         if self.sidecar is not None:
             trials_cmd = '' if trials == 0 else '-t 1'
+            threshold = 20
             for _ in range(max(1, trials)):
                 time.sleep(1)
                 self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
                                  f'--http {http_version} {trials_cmd} '
                                  f'--stdout {stdout_file} --stderr {stderr_file} '
-                                 f'-cc {self.cc} --loss {self.loss2}')
+                                 f'-cc {self.cc} --loss {self.loss2} '
+                                 f'--sidecar h2-eth0 {threshold}')
                 self.kill_quack_sender()
                 self.start_quack_sender()
         else:
