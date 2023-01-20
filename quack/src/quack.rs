@@ -43,6 +43,20 @@ impl Quack {
         self.count += 1;
     }
 
+    pub fn remove(&mut self, value: Identifier) {
+        trace!("remove {}", value);
+        let size = self.power_sums.len();
+        let x = ModularInteger::new(value);
+        let mut y = x;
+        for i in 0..(size-1) {
+            self.power_sums[i] -= y;
+            y *= x;
+        }
+        self.power_sums[size - 1] -= y;
+        // TODO: handle count overflow
+        self.count -= 1;
+    }
+
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
     pub(crate) fn to_polynomial_coefficients(
