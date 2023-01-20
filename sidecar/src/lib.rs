@@ -11,6 +11,7 @@ mod buffer;
 pub use socket::Socket;
 use socket::SockAddr;
 use buffer::{BUFFER_SIZE, Direction, UdpParser};
+pub use buffer::ID_OFFSET;
 
 #[derive(Clone, PartialEq, Eq)]
 pub enum SidecarType {
