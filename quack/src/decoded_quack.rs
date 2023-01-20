@@ -30,6 +30,15 @@ impl fmt::Debug for DecodedQuack {
 }
 
 impl DecodedQuack {
+    pub fn to_coeffs(quack: &Quack) -> Vec<ModularInteger> {
+        assert!(quack.count > 0);
+        let mut coeffs = (0..quack.count)
+            .map(|_| ModularInteger::zero())
+            .collect();
+        quack.to_polynomial_coefficients(&mut coeffs);
+        coeffs
+    }
+
     pub fn decode(quack: Quack, log: IdentifierLog) -> Self {
         let num_packets = log.len();
         let num_missing = quack.count;
@@ -42,13 +51,7 @@ impl DecodedQuack {
                 indexes: vec![],
             };
         }
-        let coeffs = {
-            let mut coeffs = (0..num_missing)
-                .map(|_| ModularInteger::zero())
-                .collect();
-            quack.to_polynomial_coefficients(&mut coeffs);
-            coeffs
-        };
+        let coeffs = DecodedQuack::to_coeffs(&quack);
         trace!("coeffs = {:?}", coeffs);
         let indexes: Vec<usize> = (0..num_packets)
             .filter(|&i| {
