@@ -3,7 +3,8 @@ use libc::c_uchar;
 // Ethernet (14), IP (20), TCP/UDP (8) headers
 // The randomly-encrypted payload in a QUIC packet with a short header is at
 // offset 63.
-pub const BUFFER_SIZE: usize = 67;
+pub const ID_OFFSET: usize = 63;
+pub const BUFFER_SIZE: usize = ID_OFFSET+4;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Direction {
@@ -52,7 +53,12 @@ impl UdpParser {
         let dst_ip = format!("{}.{}.{}.{}", x[30], x[31], x[32], x[33]);
         let src_port = u16::from_be_bytes([x[34], x[35]]);
         let dst_port = u16::from_be_bytes([x[36], x[37]]);
-        let identifier = u32::from_be_bytes([x[63], x[64], x[65], x[66]]);
+        let identifier = u32::from_be_bytes([
+            x[ID_OFFSET],
+            x[ID_OFFSET+1],
+            x[ID_OFFSET+2],
+            x[ID_OFFSET+3],
+        ]);
         Some(UdpParser {
             src_mac, dst_mac, src_ip, dst_ip, identifier, src_port, dst_port,
         })
@@ -64,7 +70,12 @@ impl UdpParser {
         if i32::from(ip_protocol) != libc::IPPROTO_UDP {
             None
         } else {
-            Some(u32::from_be_bytes([x[63], x[64], x[65], x[66]]))
+            Some(u32::from_be_bytes([
+                x[ID_OFFSET],
+                x[ID_OFFSET+1],
+                x[ID_OFFSET+2],
+                x[ID_OFFSET+3],
+            ]))
         }
     }
 }
