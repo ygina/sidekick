@@ -1,0 +1,859 @@
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 886558
+*** h2 : ('python3 mininet/client.py -n 100k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 100k /dev/urandom > /tmp/tmpyay8aoyv
+Data Size: 100k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpyay8aoyv --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318867	0.000000	0.318923		0.931434	0		200		102400		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 886566
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 886646
+*** h2 : ('python3 mininet/client.py -n 200k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 200k /dev/urandom > /tmp/tmpigs2ps0k
+Data Size: 200k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpigs2ps0k --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.323957	0.000000	0.324014		1.107799	0		200		204800		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 886654
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** h2 : ('python3 mininet/client.py -n 300k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 300k /dev/urandom > /tmp/tmpduryg3gr
+Data Size: 300k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpduryg3gr --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318842	0.000000	0.318897		1.254758	0		200		307200		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 886822
+*** h2 : ('python3 mininet/client.py -n 400k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 400k /dev/urandom > /tmp/tmpd8bko_69
+Data Size: 400k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpd8bko_69 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318947	0.000000	0.319004		1.411211	0		200		409600		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 886830
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 886910
+*** h2 : ('python3 mininet/client.py -n 500k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 500k /dev/urandom > /tmp/tmp6211wyjl
+Data Size: 500k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp6211wyjl --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318990	0.000000	0.319046		1.478903	0		200		512000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 886918
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 886998
+*** h2 : ('python3 mininet/client.py -n 600k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 600k /dev/urandom > /tmp/tmpmqohimq3
+Data Size: 600k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpmqohimq3 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325448	0.000000	0.325505		1.585206	0		200		614400		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 887086
+*** h2 : ('python3 mininet/client.py -n 700k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 700k /dev/urandom > /tmp/tmpseud_21t
+Data Size: 700k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpseud_21t --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330803	0.000000	0.330856		1.684877	0		200		716800		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 887175
+*** h2 : ('python3 mininet/client.py -n 800k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 800k /dev/urandom > /tmp/tmpppchiapt
+Data Size: 800k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpppchiapt --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319004	0.000000	0.319061		1.804377	0		200		819200		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 887183
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** h2 : ('python3 mininet/client.py -n 900k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 900k /dev/urandom > /tmp/tmpsdxyotml
+Data Size: 900k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpsdxyotml --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324872	0.000000	0.324928		1.864233	0		200		921600		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 887272
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** h2 : ('python3 mininet/client.py -n 1000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 1000k /dev/urandom > /tmp/tmppkarc2io
+Data Size: 1000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmppkarc2io --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.327553	0.000000	0.327606		1.960086	0		200		1024000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 887360
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893071
+*** h2 : ('python3 mininet/client.py -n 2000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 2000k /dev/urandom > /tmp/tmpv565a492
+Data Size: 2000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpv565a492 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 60 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318880	0.000000	0.318934		3.364866	0		200		2048000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893159
+*** h2 : ('python3 mininet/client.py -n 3000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 3000k /dev/urandom > /tmp/tmpukwlj3ad
+Data Size: 3000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpukwlj3ad --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 90 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.320812	0.000000	0.320867		4.230754	0		200		3072000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893168
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** h2 : ('python3 mininet/client.py -n 4000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 4000k /dev/urandom > /tmp/tmpvvviv_kg
+Data Size: 4000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpvvviv_kg --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 120 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324840	0.000000	0.324895		5.108507	0		200		4096000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893256
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893337
+*** h2 : ('python3 mininet/client.py -n 5000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 5000k /dev/urandom > /tmp/tmpnsswe57t
+Data Size: 5000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpnsswe57t --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 150 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318893	0.000000	0.318946		5.980636	0		200		5120000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893425
+*** h2 : ('python3 mininet/client.py -n 6000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 6000k /dev/urandom > /tmp/tmpp3i99v4y
+Data Size: 6000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpp3i99v4y --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 180 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318816	0.000000	0.318874		6.861242	0		200		6144000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893433
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893514
+*** h2 : ('python3 mininet/client.py -n 7000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 7000k /dev/urandom > /tmp/tmp8908yrln
+Data Size: 7000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp8908yrln --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 210 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319048	0.000000	0.319103		7.735776	0		200		7168000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893522
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893602
+*** h2 : ('python3 mininet/client.py -n 8000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 8000k /dev/urandom > /tmp/tmplg2dv_5m
+Data Size: 8000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmplg2dv_5m --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 240 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325873	0.000000	0.325929		8.618476	0		200		8192000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893610
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893690
+*** h2 : ('python3 mininet/client.py -n 9000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 9000k /dev/urandom > /tmp/tmpvfgia67k
+Data Size: 9000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpvfgia67k --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 270 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325390	0.000000	0.325445		9.618967	0		200		9216000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893700
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 893780
+*** h2 : ('python3 mininet/client.py -n 10000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 10000k /dev/urandom > /tmp/tmp1qlcuzce
+Data Size: 10000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp1qlcuzce --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 300 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330596	0.000000	0.330652		11.036453	0		200		10240000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 893789
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 897182
+*** h2 : ('python3 mininet/client.py -n 20000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 20000k /dev/urandom > /tmp/tmppov_5t0h
+Data Size: 20000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmppov_5t0h --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 600 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318800	0.000000	0.318857		22.276795	0		200		20480000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 897190
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 897270
+*** h2 : ('python3 mininet/client.py -n 30000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 30000k /dev/urandom > /tmp/tmphkasrgie
+Data Size: 30000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmphkasrgie --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 900 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318846	0.000000	0.318899		34.143551	0		200		30720000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 897279
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902260
+*** h2 : ('python3 mininet/client.py -n 11000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 11000k /dev/urandom > /tmp/tmpij0zqxet
+Data Size: 11000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpij0zqxet --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 330 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319249	0.000000	0.319306		12.369592	0		200		11264000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902269
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902349
+*** h2 : ('python3 mininet/client.py -n 12000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 12000k /dev/urandom > /tmp/tmpw8w0w7s9
+Data Size: 12000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpw8w0w7s9 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 360 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318910	0.000000	0.318968		13.870830	0		200		12288000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902357
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902438
+*** h2 : ('python3 mininet/client.py -n 13000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 13000k /dev/urandom > /tmp/tmpqg1v1oqs
+Data Size: 13000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpqg1v1oqs --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 390 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319110	0.000000	0.319165		15.054275	0		200		13312000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902446
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902527
+*** h2 : ('python3 mininet/client.py -n 14000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 14000k /dev/urandom > /tmp/tmpaaopsb_2
+Data Size: 14000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpaaopsb_2 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 420 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319128	0.000000	0.319183		16.302399	0		200		14336000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902535
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** h2 : ('python3 mininet/client.py -n 15000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 15000k /dev/urandom > /tmp/tmp6lceciak
+Data Size: 15000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp6lceciak --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 450 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318946	0.000000	0.319002		17.347357	0		200		15360000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902704
+*** h2 : ('python3 mininet/client.py -n 16000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 16000k /dev/urandom > /tmp/tmpt3mhyz5q
+Data Size: 16000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpt3mhyz5q --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 480 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324729	0.000000	0.324787		18.354321	0		200		16384000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902712
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902793
+*** h2 : ('python3 mininet/client.py -n 17000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 17000k /dev/urandom > /tmp/tmpz9hm2_h_
+Data Size: 17000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpz9hm2_h_ --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 510 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325575	0.000000	0.325631		20.057297	0		200		17408000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902801
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902881
+*** h2 : ('python3 mininet/client.py -n 18000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 18000k /dev/urandom > /tmp/tmpu5gl3bo2
+Data Size: 18000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpu5gl3bo2 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 540 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319050	0.000000	0.319106		20.112775	0		200		18432000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902896
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) (10.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[1] 902976
+*** h2 : ('python3 mininet/client.py -n 19000k --http 3 -t 1 --stdout /dev/null --stderr /dev/null -cc cubic --loss 0 --sidecar h2-eth0 20',)
+head -c 19000k /dev/urandom > /tmp/tmpsqg_2k95
+Data Size: 19000k
+HTTP: --http3
+sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpsqg_2k95 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 570 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330587	0.000000	0.330644		23.817448	0		200		19456000		18	
+*** r1 : ('kill $(pidof sidecar)',)
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** r1 : ('RUST_LOG=error ./target/release/sidecar --interface r1-eth1 quack-sender --target-addr 10.0.2.10:5103 --frequency-ms 10 &',)
+[2] 902984
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
