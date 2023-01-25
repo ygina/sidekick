@@ -33,6 +33,7 @@ class SidecarNetwork():
         self.net=None
         self.pep = args.pep
         self.sidecar = args.sidecar
+        self.threshold = args.threshold
         self.delay1 = args.delay1
         self.delay2 = args.delay2
         self.loss1 = args.loss1
@@ -68,7 +69,8 @@ class SidecarNetwork():
     def start_quack_sender(self):
         # Start the quACK sender on r1
         sclog('Starting the QUIC sidecar sender on r1...')
-        self.r1.cmdPrint(f'RUST_LOG=error ./target/release/sidecar --interface r1-eth1 '+ \
+        self.r1.cmdPrint(f'RUST_BACKTRACE=1 RUST_LOG=error ' \
+            f'./target/release/sidecar -i r1-eth1 -t {self.threshold} ' + \
             f'quack-sender --target-addr 10.0.2.10:5103 ' + \
             f'--frequency-ms {self.sidecar} &')
 
@@ -167,8 +169,7 @@ class SidecarNetwork():
                  f'--stdout {stdout_file} --stderr {stderr_file} ' \
                  f'-cc {self.cc} --loss {self.loss2} '
         if self.sidecar is not None:
-            threshold = 20
-            h2_cmd += f'--sidecar h2-eth0 {threshold} '
+            h2_cmd += f'--sidecar h2-eth0 {self.threshold} '
         if trials is not None:
             h2_cmd += f'-t {trials} '
         else:
@@ -248,6 +249,12 @@ if __name__ == '__main__':
                         type=int,
                         help='If benchmark, enables the sidecar and sends '
                              'the quACK with the specified frequency.')
+    parser.add_argument('--threshold',
+                        type=int,
+                        default=20,
+                        help='If benchmark, sets the quACK sender and '
+                             'receiver to initialize their quACKs with '
+                             'this threshold.')
     parser.add_argument('-n', '--nbytes',
                         default='1M',
                         metavar='num',
