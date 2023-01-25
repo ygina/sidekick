@@ -14,7 +14,7 @@ def estimate_timeout(nbytes, http, loss):
     except:
         return 3000
 
-def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, loss=None):
+def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, log_level, loss=None):
     f = tempfile.NamedTemporaryFile()
     print_and_run_cmd(f'head -c {nbytes} /dev/urandom > {f.name}')
     print(f'Data Size: {nbytes}')
@@ -27,12 +27,12 @@ def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, loss=Non
         sidecar = f'--sidecar {args.sidecar[0]} --threshold {args.sidecar[1]}'
     if trials is None:
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
-        cmd=f'{curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\"'
+        cmd=f'RUST_LOG={log_level} {curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\"'
         print_and_run_cmd(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
         timeout = estimate_timeout(nbytes, http, loss)
-        cmd=f'{curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\" --max-time {timeout} -o {stdout} 2>>{stderr}'
+        cmd=f'RUST_LOG={log_level} {curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\" --max-time {timeout} -o {stdout} 2>>{stderr}'
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         print(cmd)
         print(header)
@@ -88,6 +88,10 @@ if __name__ == '__main__':
                         nargs=2,
                         help='Sidecar interface that packets are being sent on '
                              'and the quACK threshold.')
+    parser.add_argument('--log-level',
+                        default='error',
+                        help='Sets the RUST_LOG level in the quiche client. '
+                             '[error|warn|info|debug|trace] (default: error)')
     parser.add_argument('--stdout',
                         default='/dev/null',
                         metavar='FILE',
@@ -111,4 +115,4 @@ if __name__ == '__main__':
 
     run_client(nbytes=args.n, http=args.http, trials=args.trials,
         stdout=args.stdout, stderr=args.stderr, cc=args.cc, addr=args.addr,
-        sidecar=args.sidecar, loss=args.loss)
+        sidecar=args.sidecar, log_level=args.log_level, loss=args.loss)
