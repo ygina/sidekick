@@ -12,3 +12,5 @@ Cargo.lock
 __pycache__/
 env/
 plot/*.pdf
+
+webserver/server.py

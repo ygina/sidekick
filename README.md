@@ -1,11 +1,30 @@
 # fixhang
 this branch attempts to fix a hanging issue in the mininet setup.
 
-To trigger the early hang:
+to trigger the early hang:
 
+    $ cp webserver/server.original.py webserver/server.py
     $ sudo python3 mininet/net.py
     > h2 bash trigger_hang.sh
-    (hangs around request #117)
+    (hang around 117)
+
+to fix the hang...
+
+    $ cp webserver/server.fixed.py webserver/server.py
+    $ sudo python3 mininet/net.py
+    > h2 bash trigger_hang.sh
+    (completes all 1000 transfers)
+
+the underlying issue appears to be the same as
+https://github.com/mininet/mininet/issues/519#issuecomment-102198929
+namely, the original server process was logging requests to stderr, which
+mininet was reading from via a pipe. but if the server process is sent to the
+background, mininet won't empty the buffer until the next time a command is run
+on that server. this can cause the server to hang if, before that time, it
+produces enough output to fill the pipe and hence block future reads.
+
+a simpler solution might be to just pipe all output from the website into
+/dev/null or a log file, if that info appears useful.
 
 # sidecar
 ```
