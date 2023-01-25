@@ -40,6 +40,7 @@ class SidecarNetwork():
         self.loss2 = args.loss2
         self.bw1 = args.bw1
         self.bw2 = args.bw2
+        self.log_level = args.log_level
         if args.pep and args.sidecar is not None:
             sclog('only one of the PEP or sidecar can be enabled')
             exit()
@@ -69,7 +70,7 @@ class SidecarNetwork():
     def start_quack_sender(self):
         # Start the quACK sender on r1
         sclog('Starting the QUIC sidecar sender on r1...')
-        self.r1.cmdPrint(f'RUST_BACKTRACE=1 RUST_LOG=error ' \
+        self.r1.cmdPrint(f'RUST_BACKTRACE=1 RUST_LOG={self.log_level} ' \
             f'./target/release/sidecar -i r1-eth1 -t {self.threshold} ' + \
             f'quack-sender --target-addr 10.0.2.10:5103 ' + \
             f'--frequency-ms {self.sidecar} &')
@@ -167,7 +168,8 @@ class SidecarNetwork():
         h2_cmd = f'python3 mininet/client.py -n {nbytes} ' \
                  f'--http {http_version} ' \
                  f'--stdout {stdout_file} --stderr {stderr_file} ' \
-                 f'-cc {self.cc} --loss {self.loss2} '
+                 f'-cc {self.cc} --loss {self.loss2} ' \
+                 f'--log-level {self.log_level} '
         if self.sidecar is not None:
             h2_cmd += f'--sidecar h2-eth0 {self.threshold} '
         if trials is not None:
@@ -215,6 +217,11 @@ if __name__ == '__main__':
                         metavar='TCP_CC_ALG',
                         help='Sets the TCP and QUIC congestion control '
                              'mechanism [reno|cubic] (default: cubic)')
+    parser.add_argument('--log-level',
+                        default='error',
+                        help='Sets the RUST_LOG level in the quACK sender '
+                             '(if applicable) and the quiche client. '
+                             '[error|warn|info|debug|trace] (default: error)')
     parser.add_argument('--delay1',
                         type=int,
                         default=75,
