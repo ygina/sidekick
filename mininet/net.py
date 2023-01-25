@@ -32,13 +32,13 @@ class SidecarNetwork():
     def __init__(self, args):
         self.net=None
         self.pep = args.pep
-        self.sidecar = None if args.sidecar is None else int(args.sidecar)
-        self.delay1 = int(args.delay1)
-        self.delay2 = int(args.delay2)
-        self.loss1 = int(args.loss1)
-        self.loss2 = int(args.loss2)
-        self.bw1 = int(args.bw1)
-        self.bw2 = int(args.bw2)
+        self.sidecar = args.sidecar
+        self.delay1 = args.delay1
+        self.delay2 = args.delay2
+        self.loss1 = args.loss1
+        self.loss2 = args.loss2
+        self.bw1 = args.bw1
+        self.bw2 = args.bw2
         if args.pep and args.sidecar is not None:
             sclog('only one of the PEP or sidecar can be enabled')
             exit()
@@ -162,11 +162,7 @@ class SidecarNetwork():
             sclog(f'must set http version: {http_version}')
             return
 
-        try:
-            trials = 0 if trials is None else int(trials)
-        except:
-            sclog(f'`trials` must be a number: {trials}')
-            return
+        trials = 0 if trials is None else trials
 
         self.start_and_configure()
         if self.sidecar is not None:
@@ -217,30 +213,37 @@ if __name__ == '__main__':
                         help='Sets the TCP and QUIC congestion control '
                              'mechanism [reno|cubic] (default: cubic)')
     parser.add_argument('--delay1',
+                        type=int,
                         default=75,
                         metavar='MS',
                         help='1/2 RTT between h1 and r1 (default: 75)')
     parser.add_argument('--delay2',
+                        type=int,
                         default=1,
                         metavar='MS',
                         help='1/2 RTT between r1 and h2 (default: 1)')
     parser.add_argument('--loss1',
+                        type=int,
                         default=0,
                         metavar='num',
                         help='loss (in %%) between h1 and r1 (default: 0)')
     parser.add_argument('--loss2',
+                        type=int,
                         default=1,
                         metavar='num',
                         help='loss (in %%) between r1 and h2 (default: 1)')
     parser.add_argument('--bw1',
+                        type=int,
                         default=10,
                         help='link bandwidth (in Mbps) between h1 and r1 '
                              '(default: 10)')
     parser.add_argument('--bw2',
+                        type=int,
                         default=10,
                         help='link bandwidth (in Mbps) between r1 and h2 '
                              '(default: 10)')
     parser.add_argument('-s', '--sidecar',
+                        type=int,
                         help='If benchmark, enables the sidecar and sends '
                              'the quACK with the specified frequency.')
     parser.add_argument('-n', '--nbytes',
@@ -249,6 +252,7 @@ if __name__ == '__main__':
                         help='If benchmark, the number of bytes to run '
                         '(default: 1M)')
     parser.add_argument('-t', '--trials',
+                        type=int,
                         metavar='num',
                         help='If benchmark, the number of trials')
     parser.add_argument('--stdout',
