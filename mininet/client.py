@@ -64,6 +64,8 @@ def check_http(value):
     raise argparse.ArgumentTypeError(err)
 
 def check_cc(value):
+    if value == '':
+        return ''
     if value not in ['reno', 'cubic']:
         err = f'tcp congestion control algorithm must be reno or cubic: {value}'
         raise argparse.ArgumentTypeError(err)
@@ -95,7 +97,7 @@ if __name__ == '__main__':
                         metavar='FILE',
                         help='File to write stderr to (default: /dev/null)')
     parser.add_argument('-cc',
-                        default='cubic',
+                        default='',
                         metavar='TCP_CC_ALG',
                         type=check_cc,
                         help='Sets the TCP and QUIC congestion control '
