@@ -162,28 +162,30 @@ class SidecarNetwork():
             sclog(f'must set http version: {http_version}')
             return
 
-        trials = 0 if trials is None else trials
+        h2_cmd = f'python3 mininet/client.py -n {nbytes} ' \
+                 f'--http {http_version} ' \
+                 f'--stdout {stdout_file} --stderr {stderr_file} ' \
+                 f'-cc {self.cc} --loss {self.loss2} '
+        if self.sidecar is not None:
+            threshold = 20
+            h2_cmd += f'--sidecar h2-eth0 {threshold} '
+        if trials is not None:
+            h2_cmd += f'-t {trials} '
+        else:
+            trials = 1
 
         self.start_and_configure()
+        time.sleep(1)
+
         if self.sidecar is not None:
-            trials_cmd = '' if trials == 0 else '-t 1'
-            threshold = 20
-            for _ in range(max(1, trials)):
-                time.sleep(1)
-                self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
-                                 f'--http {http_version} {trials_cmd} '
-                                 f'--stdout {stdout_file} --stderr {stderr_file} '
-                                 f'-cc {self.cc} --loss {self.loss2} '
-                                 f'--sidecar h2-eth0 {threshold}')
+            self.h2.cmdPrint(h2_cmd)
+            for _ in range(trials - 1):
                 self.kill_quack_sender()
                 self.start_quack_sender()
+                time.sleep(1)
+                self.h2.cmdPrint(h2_cmd)
         else:
-            time.sleep(1)
-            trials_cmd = '' if trials == 0 else f'-t {trials}'
-            self.h2.cmdPrint(f'python3 mininet/client.py -n {nbytes} '
-                             f'--http {http_version} {trials_cmd} '
-                             f'--stdout {stdout_file} --stderr {stderr_file} '
-                             f'-cc {self.cc}')
+            self.h2.cmdPrint(h2_cmd)
 
     def cli(self):
         CLI(self.net)
