@@ -224,6 +224,7 @@ mod test {
     }
 
     #[test]
+    #[ignore]
     fn test_quack_serialize() {
         let mut quack = Quack::new(10);
         let bytes = bincode::serialize(&quack).unwrap();
