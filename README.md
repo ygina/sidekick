@@ -1,3 +1,12 @@
+# fixhang
+this branch attempts to fix a hanging issue in the mininet setup.
+
+To trigger the early hang:
+
+    $ sudo python3 mininet/net.py
+    > h2 bash trigger_hang.sh
+    (hangs around request #117)
+
 # sidecar
 ```
  ________                                  ________                   ________
