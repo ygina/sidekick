@@ -19,7 +19,7 @@ paper_rc = {
     'lines.markersize': 10,
 }
 sns.set_context("paper", font_scale=3,  rc=paper_rc)
-plt.style.use('tableau-colorblind10')
+plt.style.use('seaborn-v0_8-deep')
 
 
 def save_pdf(output_filename, bbox_inches='tight'):
