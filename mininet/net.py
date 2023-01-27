@@ -50,12 +50,17 @@ class SidecarNetwork():
         self.cc = args.cc
         self.tso = args.tso
 
+    def clean_logs(self):
+        self.r1.cmd('rm r1.log')
+        self.h1.cmd('rm h1.log')
+        self.h2.cmd('rm h2.log')
+
     def start_webserver(self):
         # Start the webserver on h1
         # TODO: not user-dependent path
         sclog('Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
-        self.h1.cmd("python3 webserver/server.py &")
+        self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
 
     def start_tcp_pep(self):
         # Start the TCP PEP on r1
@@ -65,7 +70,7 @@ class SidecarNetwork():
         self.r1.cmd('iptables -t mangle -F')
         self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
         self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
-        self.r1.cmd('pepsal -v &')
+        self.r1.cmd('pepsal -v >> r1.log 2>&1 &')
 
     def start_quack_sender(self):
         # Start the quACK sender on r1
@@ -73,7 +78,7 @@ class SidecarNetwork():
         self.r1.cmdPrint(f'RUST_BACKTRACE=1 RUST_LOG={self.log_level} ' \
             f'./target/release/sidecar -i r1-eth1 -t {self.threshold} ' + \
             f'quack-sender --target-addr 10.0.2.10:5103 ' + \
-            f'--frequency-ms {self.sidecar} &')
+            f'--frequency-ms {self.sidecar} >> r1.log 2>&1 &')
 
     def kill_quack_sender(self):
         self.r1.cmdPrint(f'kill $(pidof sidecar)')
@@ -178,6 +183,7 @@ class SidecarNetwork():
             trials = 1
 
         self.start_and_configure()
+        self.clean_logs()
         time.sleep(1)
 
         if self.sidecar is not None:
@@ -290,5 +296,6 @@ if __name__ == '__main__':
         sc.stop()
     else:
         sc.start_and_configure()
+        sc.clean_logs()
         sc.cli()
         sc.stop()
