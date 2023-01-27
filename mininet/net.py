@@ -75,14 +75,13 @@ class SidecarNetwork():
 
     def start_quack_sender(self):
         # Start the quACK sender on r1
+        print('', file=sys.stderr)
         sclog('Starting the QUIC sidecar sender on r1...')
-        self.r1.cmdPrint(f'RUST_BACKTRACE=1 RUST_LOG={self.log_level} ' \
+        self.r1.cmd(f'kill $(pidof sidecar)')
+        self.r1.cmd(f'RUST_BACKTRACE=1 RUST_LOG={self.log_level} ' \
             f'./target/release/sidecar -i r1-eth1 -t {self.threshold} ' + \
             f'quack-sender --target-addr 10.0.2.10:5103 ' + \
             f'--frequency-ms {self.sidecar} >> r1.log 2>&1 &')
-
-    def kill_quack_sender(self):
-        self.r1.cmdPrint(f'kill $(pidof sidecar)')
 
     def start_and_configure(self):
         self.net = Mininet(controller=None, link=TCLink)
@@ -190,7 +189,6 @@ class SidecarNetwork():
         if self.sidecar is not None:
             self.h2.cmdPrint(h2_cmd)
             for _ in range(trials - 1):
-                self.kill_quack_sender()
                 self.start_quack_sender()
                 time.sleep(1)
                 self.h2.cmdPrint(h2_cmd)
