@@ -15,6 +15,17 @@ WORKDIR = None
 TARGET_XS = [x for x in range(100, 1000, 100)] + \
             [x for x in range(1000, 20000, 1000)] + \
             [x for x in range(20000, 100000, 10000)]
+LOSSES = [0, 1, 2, 5]
+HTTP_VERSIONS = [
+    'pep',
+    'tcp',
+    'quic',
+    # 'quack-10-200',
+    'quack-2-200',
+    # 'quack-10-20',
+    'quack-2-20',
+    # 'quack-200-20',
+]
 
 class DataPoint:
     def __init__(self, arr, normalize=None):
@@ -44,8 +55,12 @@ def execute_cmd(loss, http_version, cc, trials, data_size):
         bm = ['tcp', '--tso', '--pep']
     # elif http_version == 'quack':
     elif 'quack-' in http_version:
-        # quack-<frequency_ms>
-        bm = ['quic', '--sidecar', http_version[6:]]
+        # quack-<frequency_ms>[-<threshold>]?
+        split = http_version.split('-')
+        bm = ['quic', '--sidecar', split[1]]
+        if len(split) > 2:
+            bm.append('--threshold')
+            bm.append(split[2])
     elif 'quic-' in http_version:
         bm = ['quic']
     else:
@@ -160,7 +175,7 @@ def get_filename(loss, cc, http):
 
 def plot_graph(loss, cc, pdf,
                data_key='time_total',
-               http_versions=['pep', 'tcp', 'quic', 'quic-sidecurl', 'quack-100', 'quack-10', 'quack-2'],
+               http_versions=HTTP_VERSIONS,
                use_median=True,
                normalize=True):
     data = {}
@@ -241,7 +256,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.loss is None:
-        losses = [1, 2, 5]
+        losses = LOSSES
     else:
         losses = [args.loss]
     cc = args.cc
