@@ -59,6 +59,7 @@ class SidecarNetwork():
         # Start the webserver on h1
         # TODO: not user-dependent path
         sclog('Starting the NGINX/Python webserver on h1...')
+        self.h1.cmd("kill $(pidof nginx)")
         self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
         self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
 
