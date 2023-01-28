@@ -15,8 +15,11 @@ enum CliSidecarType {
     QuackSender {
         /// Frequency at which to quack, in ms. If frequency is 0, does not
         /// quack.
-        #[arg(long = "frequency-ms", default_value_t = 1000)]
-        frequency_ms: u64,
+        #[arg(long = "frequency-ms")]
+        frequency_ms: Option<u64>,
+        /// Frequency at which to quack, in packets.
+        #[arg(long = "frequency-pkts")]
+        frequency_pkts: Option<usize>,
         /// Address of the UDP socket to quack to e.g., <IP:PORT>. If missing,
         /// goes to stdout.
         #[arg(long = "target-addr")]
@@ -100,25 +103,32 @@ async fn main() -> Result<(), String> {
     match args.ty {
         CliSidecarType::QuackSender {
             frequency_ms,
+            frequency_pkts,
             target_addr,
         } => {
             debug!("frequency_ms={:?}", frequency_ms);
             // Start the sidecar.
-            let sc = Arc::new(Mutex::new(Sidecar::new(
+            let mut sc = Sidecar::new(
                 SidecarType::QuackSender,
                 &args.interface,
                 args.threshold,
                 args.num_bits_id,
-            )));
-            let rx = Sidecar::start(sc.clone())?;
+            );
 
             // Handle a snapshotted quACK at the specified frequency.
-            if let Some(addr) = target_addr {
-                info!("quACKing to {:?}", addr);
-                send_quacks(sc, rx, addr, frequency_ms).await;
-            } else {
-                info!("printing quACKs");
-                print_quacks(sc, rx, frequency_ms).await;
+            if let Some(frequency_ms) = frequency_ms {
+                let sc = Arc::new(Mutex::new(sc));
+                let rx = Sidecar::start(sc.clone())?;
+                if let Some(addr) = target_addr {
+                    info!("quACKing to {:?}", addr);
+                    send_quacks(sc, rx, addr, frequency_ms).await;
+                } else {
+                    info!("printing quACKs");
+                    print_quacks(sc, rx, frequency_ms).await;
+                }
+            } else if let Some(frequency_pkts) = frequency_pkts {
+                let addr = target_addr.expect("Address must be set");
+                sc.start_frequency_pkts(frequency_pkts, addr).await.unwrap();
             }
         }
         CliSidecarType::QuackReceiver { port } => {

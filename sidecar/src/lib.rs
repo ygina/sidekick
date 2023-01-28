@@ -13,7 +13,7 @@ use socket::SockAddr;
 use buffer::{BUFFER_SIZE, Direction, UdpParser};
 pub use buffer::ID_OFFSET;
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum SidecarType {
     QuackSender,
     QuackReceiver,
@@ -32,7 +32,12 @@ pub struct Sidecar {
 
 impl Sidecar {
     /// Create a new sidecar.
-    pub fn new(ty: SidecarType, interface: &str, threshold: usize, bits: usize) -> Self {
+    pub fn new(
+        ty: SidecarType,
+        interface: &str,
+        threshold: usize,
+        bits: usize,
+    ) -> Self {
         assert_eq!(bits, 32, "ERROR: <num_bits_id> must be 32");
         Self {
             ty,
@@ -119,6 +124,63 @@ impl Sidecar {
             }
         });
         Ok(rx)
+    }
+
+    /// Start the raw socket that listens to the specified interface and
+    /// accumulates those packets in a quACK. If the sidecar is a quACK sender,
+    /// only listens for incoming packets. If the sidecar is a quACK receiver,
+    /// only listens for outgoing packets, and additionally logs the packet
+    /// identifiers.
+    /// Returns a channel that indicates when the first packet is sniffed.
+    pub async fn start_frequency_pkts(
+        &mut self,
+        frequency_pkts: usize,
+        sendaddr: std::net::SocketAddr,
+    ) -> Result<(), String> {
+        let recvsock = Socket::new(self.interface.clone())?;
+        let sendsock = UdpSocket::bind("0.0.0.0:0").await.unwrap();
+        recvsock.set_promiscuous()?;
+
+        // Loop over received packets
+        let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+        info!("tapping socket on fd={} interface={}", recvsock.fd, self.interface);
+        let mut addr = SockAddr::new_sockaddr_ll();
+        let ip_protocol = (libc::ETH_P_IP as u16).to_be();
+        assert_eq!(self.ty, SidecarType::QuackSender);
+        let mut mod_count = 0;
+        loop {
+            let n = recvsock.recvfrom(&mut addr, &mut buf).unwrap();
+            trace!("received {} bytes: {:?}", n, buf);
+            if n != (BUFFER_SIZE as _) {
+                trace!("underfilled buffer: {} < {}", n, BUFFER_SIZE);
+                continue;
+            }
+            let actual_dir: Direction = addr.sll_pkttype.into();
+            if actual_dir != Direction::Incoming {
+                trace!("packet in wrong direction: {:?}", actual_dir);
+                continue;
+            }
+            if addr.sll_protocol != ip_protocol {
+                trace!("not IP packet: {}", addr.sll_protocol);
+                continue;
+            }
+            let id = match UdpParser::parse_identifier(&buf) {
+                Some(id) => id,
+                None => {
+                    trace!("not UDP idacket");
+                    continue;
+                }
+            };
+            debug!("insert {} ({:#10x})", id, id);
+            // TODO: filter by QUIC connection?
+            self.quack.insert(id);
+            mod_count = (mod_count + 1) % frequency_pkts;
+            if mod_count == 0 {
+                let bytes = bincode::serialize(&self.quack).unwrap();
+                info!("quack {}", self.quack.count);
+                sendsock.send_to(&bytes, sendaddr).await.unwrap();
+            }
+        }
     }
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
