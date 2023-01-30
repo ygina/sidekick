@@ -164,7 +164,7 @@ class SidecarNetwork():
         self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic')
 
     def benchmark(self, nbytes, http_version, trials, cc, stdout_file,
-                  stderr_file):
+                  stderr_file, quack_log):
         """
         Args:
         - nbytes: Number of bytes to send e.g., 1M.
@@ -196,6 +196,8 @@ class SidecarNetwork():
             h2_cmd += f'-t {trials} '
         else:
             trials = 1
+        if quack_log:
+            h2_cmd += ' > h2.log'
 
         self.start_and_configure()
         time.sleep(1)
@@ -306,6 +308,7 @@ if __name__ == '__main__':
                         metavar='TIME_S',
                         help='Run an iperf test for this length of time with '
                              'a server on h1 and client on h2.')
+    parser.add_argument('--quack-log', action='store_true')
     args = parser.parse_args()
     sc = SidecarNetwork(args)
     sc.clean_logs()
@@ -314,7 +317,7 @@ if __name__ == '__main__':
         sc.iperf(args.iperf)
     elif args.benchmark is not None:
         sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc,
-            args.stdout, args.stderr)
+            args.stdout, args.stderr, args.quack_log)
     else:
         sc.start_and_configure()
         sc.cli()
