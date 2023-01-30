@@ -14,3 +14,9 @@ libc = "0.2.137"
 
 [[example]]
 name = "cc_proxy"
+
+[features]
+default = []
+
+# Log the sidecar identifier when it is inserted in a quACK.
+quack_log = []
