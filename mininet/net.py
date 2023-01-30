@@ -3,6 +3,7 @@ import logging
 import sys
 import time
 import client
+import re
 import os
 from mininet.net import Mininet
 from mininet.cli import CLI
@@ -76,11 +77,21 @@ class SidecarNetwork():
         # Start the quACK sender on r1
         print('', file=sys.stderr)
         sclog('Starting the QUIC sidecar sender on r1...')
+        assert self.sidecar is not None
+        if 'ms' in self.sidecar:
+            frequency = re.match(r'(\d+)ms', self.sidecar).group(1)
+            frequency = f'--frequency-ms {frequency}'
+        elif 'p' in self.sidecar:
+            frequency = re.match(r'(\d+)p.*', self.sidecar).group(1)
+            frequency = f'--frequency-pkts {frequency}'
+        else:
+            raise 'Invalid frequency: {}'.format(self.sidecar)
+
         self.r1.cmd(f'kill $(pidof sidecar)')
         self.r1.cmd(f'RUST_BACKTRACE=1 RUST_LOG={self.log_level} ' \
             f'./target/release/sidecar -i r1-eth1 -t {self.threshold} ' + \
             f'quack-sender --target-addr 10.0.2.10:5103 ' + \
-            f'--frequency-ms {self.sidecar} >> r1.log 2>&1 &')
+            f'{frequency} >> r1.log 2>&1 &')
 
     def start_and_configure(self):
         self.net = Mininet(controller=None, link=TCLink)
@@ -256,9 +267,10 @@ if __name__ == '__main__':
                         help='link bandwidth (in Mbps) between r1 and h2 '
                              '(default: 10)')
     parser.add_argument('-s', '--sidecar',
-                        type=int,
                         help='If benchmark, enables the sidecar and sends '
-                             'the quACK with the specified frequency.')
+                             'the quACK with the specified frequency. '
+                             'Units are in terms of ms or packets e.g., '
+                             '2ms or 2p')
     parser.add_argument('--threshold',
                         type=int,
                         default=20,
