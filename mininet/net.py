@@ -3,6 +3,7 @@ import logging
 import sys
 import time
 import client
+import os
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -51,9 +52,7 @@ class SidecarNetwork():
         self.tso = args.tso
 
     def clean_logs(self):
-        self.r1.cmd('rm r1.log')
-        self.h1.cmd('rm h1.log')
-        self.h2.cmd('rm h2.log')
+        os.system('rm -f r1.log h1.log h2.log')
 
     def start_webserver(self):
         # Start the webserver on h1
@@ -183,7 +182,6 @@ class SidecarNetwork():
             trials = 1
 
         self.start_and_configure()
-        self.clean_logs()
         time.sleep(1)
 
         if self.sidecar is not None:
@@ -288,6 +286,7 @@ if __name__ == '__main__':
                              '(default: /dev/null)')
     args = parser.parse_args()
     sc = SidecarNetwork(args)
+    sc.clean_logs()
 
     if args.benchmark is not None:
         sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc,
@@ -295,6 +294,5 @@ if __name__ == '__main__':
         sc.stop()
     else:
         sc.start_and_configure()
-        sc.clean_logs()
         sc.cli()
         sc.stop()
