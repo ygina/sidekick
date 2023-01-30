@@ -158,6 +158,11 @@ class SidecarNetwork():
         else:
             sclog('NOT starting the TCP PEP or sidecar')
 
+    def iperf(self, time_s):
+        self.start_and_configure()
+        self.h1.cmd('iperf3 -s -f m > /dev/null 2>&1 &')
+        self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic')
+
     def benchmark(self, nbytes, http_version, trials, cc, stdout_file,
                   stderr_file):
         """
@@ -296,15 +301,21 @@ if __name__ == '__main__':
                         metavar='FILENAME',
                         help='If benchmark, file to write curl stderr '
                              '(default: /dev/null)')
+    parser.add_argument('--iperf',
+                        type=int,
+                        metavar='TIME_S',
+                        help='Run an iperf test for this length of time with '
+                             'a server on h1 and client on h2.')
     args = parser.parse_args()
     sc = SidecarNetwork(args)
     sc.clean_logs()
 
-    if args.benchmark is not None:
+    if args.iperf is not None:
+        sc.iperf(args.iperf)
+    elif args.benchmark is not None:
         sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc,
             args.stdout, args.stderr)
-        sc.stop()
     else:
         sc.start_and_configure()
         sc.cli()
-        sc.stop()
+    sc.stop()
