@@ -119,6 +119,8 @@ impl Sidecar {
                         tx.send(()).unwrap();
                     }
                     let mut sc = sc.lock().unwrap();
+                    #[cfg(feature = "quack_log")]
+                    println!("quack {:?} {}", std::time::Instant::now(), id);
                     sc.insert_packet(id);
                 }
             }
@@ -174,6 +176,8 @@ impl Sidecar {
             debug!("insert {} ({:#10x})", id, id);
             // TODO: filter by QUIC connection?
             self.quack.insert(id);
+            #[cfg(feature = "quack_log")]
+            println!("quack {:?} {}", std::time::Instant::now(), id);
             mod_count = (mod_count + 1) % frequency_pkts;
             if mod_count == 0 {
                 let bytes = bincode::serialize(&self.quack).unwrap();
