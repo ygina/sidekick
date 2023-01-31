@@ -270,9 +270,9 @@ if __name__ == '__main__':
                              '(default: 10)')
     parser.add_argument('--bw2',
                         type=int,
-                        default=10,
+                        default=100,
                         help='link bandwidth (in Mbps) between r1 and h2 '
-                             '(default: 10)')
+                             '(default: 100)')
     parser.add_argument('-s', '--sidecar',
                         help='If benchmark, enables the sidecar and sends '
                              'the quACK with the specified frequency. '
