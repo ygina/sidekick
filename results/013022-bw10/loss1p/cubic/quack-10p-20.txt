@@ -1,0 +1,5924 @@
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 100k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 100k /dev/urandom > /tmp/tmpqblsn4ht
+Data Size: 100k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpqblsn4ht --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330267	0.000000	0.330325		0.945375	0		200		102400		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 200k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 200k /dev/urandom > /tmp/tmpfc5ssq_y
+Data Size: 200k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpfc5ssq_y --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318949	0.000000	0.319007		1.103449	0		200		204800		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 300k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 300k /dev/urandom > /tmp/tmp2nugwmbd
+Data Size: 300k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp2nugwmbd --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.321805	0.000000	0.321863		1.404696	0		200		307200		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 400k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 400k /dev/urandom > /tmp/tmp34d0swls
+Data Size: 400k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp34d0swls --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325078	0.000000	0.325138		1.499341	0		200		409600		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 500k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 500k /dev/urandom > /tmp/tmpwskcd0fu
+Data Size: 500k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpwskcd0fu --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330244	0.000000	0.330301		1.625081	0		200		512000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 600k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 600k /dev/urandom > /tmp/tmp_r3o8r86
+Data Size: 600k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp_r3o8r86 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325118	0.000000	0.325174		1.621517	0		200		614400		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 700k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 700k /dev/urandom > /tmp/tmpt4zne6ve
+Data Size: 700k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpt4zne6ve --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319033	0.000000	0.319092		1.728495	0		200		716800		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 800k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 800k /dev/urandom > /tmp/tmp4g3so968
+Data Size: 800k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp4g3so968 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330360	0.000000	0.330419		1.817735	0		200		819200		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 900k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 900k /dev/urandom > /tmp/tmptwr_e7t_
+Data Size: 900k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmptwr_e7t_ --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.326364	0.000000	0.326421		2.229917	0		200		921600		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 1000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 1000k /dev/urandom > /tmp/tmpk8mncc_u
+Data Size: 1000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpk8mncc_u --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330166	0.000000	0.330224		2.101695	0		200		1024000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 2000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 2000k /dev/urandom > /tmp/tmp8acxw1rr
+Data Size: 2000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp8acxw1rr --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 60 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324369	0.000000	0.324430		3.477589	0		200		2048000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 3000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 3000k /dev/urandom > /tmp/tmpbswtfxsl
+Data Size: 3000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpbswtfxsl --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 90 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324072	0.000000	0.324131		4.250013	0		200		3072000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 4000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 4000k /dev/urandom > /tmp/tmp2vpqqkfu
+Data Size: 4000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp2vpqqkfu --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 120 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319071	0.000000	0.319130		5.300476	0		200		4096000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 5000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 5000k /dev/urandom > /tmp/tmp5x6e2fic
+Data Size: 5000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp5x6e2fic --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 150 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324300	0.000000	0.324356		6.126423	0		200		5120000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 6000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 6000k /dev/urandom > /tmp/tmp1qng87kb
+Data Size: 6000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp1qng87kb --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 180 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324869	0.000000	0.324925		6.947465	0		200		6144000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 7000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 7000k /dev/urandom > /tmp/tmpk9djzia8
+Data Size: 7000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpk9djzia8 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 210 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324082	0.000000	0.324137		7.840372	0		200		7168000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 8000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 8000k /dev/urandom > /tmp/tmpo1g8edbq
+Data Size: 8000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpo1g8edbq --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 240 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330170	0.000000	0.330228		8.696854	0		200		8192000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 9000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 9000k /dev/urandom > /tmp/tmp4ewvbj_u
+Data Size: 9000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp4ewvbj_u --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 270 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.323990	0.000000	0.324047		9.758194	0		200		9216000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 10000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 10000k /dev/urandom > /tmp/tmpsgk6d9y7
+Data Size: 10000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpsgk6d9y7 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 300 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.323988	0.000000	0.324046		10.717663	0		200		10240000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 11000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 11000k /dev/urandom > /tmp/tmp90oifeot
+Data Size: 11000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp90oifeot --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 330 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325746	0.000000	0.325803		11.663457	0		200		11264000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 12000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 12000k /dev/urandom > /tmp/tmpeeroaqjf
+Data Size: 12000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpeeroaqjf --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 360 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.324670	0.000000	0.324726		14.101800	0		200		12288000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 13000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 13000k /dev/urandom > /tmp/tmpnj_1tyrk
+Data Size: 13000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpnj_1tyrk --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 390 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.319155	0.000000	0.319210		14.639890	0		200		13312000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 14000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 14000k /dev/urandom > /tmp/tmp64pw8vd1
+Data Size: 14000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp64pw8vd1 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 420 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.327781	0.000000	0.327835		17.343792	0		200		14336000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 15000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 15000k /dev/urandom > /tmp/tmpmaptsqsc
+Data Size: 15000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpmaptsqsc --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 450 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+0.324160	0.000000	0.324216		21.647801	0		200		15360000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 16000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 16000k /dev/urandom > /tmp/tmp0lekmk96
+Data Size: 16000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp0lekmk96 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 480 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.319025	0.000000	0.319081		21.158042	0		200		16384000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 17000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 17000k /dev/urandom > /tmp/tmpp1a19f2p
+Data Size: 17000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpp1a19f2p --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 510 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.319119	0.000000	0.319176		24.763525	0		200		17408000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 18000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 18000k /dev/urandom > /tmp/tmpmaegwjon
+Data Size: 18000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpmaegwjon --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 540 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.318909	0.000000	0.318966		25.241911	0		200		18432000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 19000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 19000k /dev/urandom > /tmp/tmps0wy3i0s
+Data Size: 19000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmps0wy3i0s --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 570 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.319294	0.000000	0.319351		27.129344	0		200		19456000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 20000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 20000k /dev/urandom > /tmp/tmps7r8ckpl
+Data Size: 20000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmps7r8ckpl --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 600 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+1.322937	0.000000	1.322996		34.902771	0		200		20480000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 22000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 22000k /dev/urandom > /tmp/tmpvkveei5q
+Data Size: 22000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpvkveei5q --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 660 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.319091	0.000000	0.319148		32.647256	0		200		22528000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 24000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 24000k /dev/urandom > /tmp/tmpqe5pt5yu
+Data Size: 24000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpqe5pt5yu --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 720 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.327657	0.000000	0.327713		719.999013	28		000		24576000		0	Operation timed out after 719999 milliseconds with 0 bytes received
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 26000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 26000k /dev/urandom > /tmp/tmprxs7x4ob
+Data Size: 26000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmprxs7x4ob --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 780 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.324212	0.000000	0.324268		42.198619	0		200		26624000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 28000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 28000k /dev/urandom > /tmp/tmpltyswqjd
+Data Size: 28000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpltyswqjd --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 840 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.325270	0.000000	0.325328		43.149414	0		200		28672000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 30000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 30000k /dev/urandom > /tmp/tmp8leqf7d3
+Data Size: 30000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp8leqf7d3 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 900 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.329840	0.000000	0.329896		49.332163	0		200		30720000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 32000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 32000k /dev/urandom > /tmp/tmpoe4galu4
+Data Size: 32000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpoe4galu4 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 960 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.319064	0.000000	0.319121		54.057937	0		200		32768000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 34000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 34000k /dev/urandom > /tmp/tmpun3qof9a
+Data Size: 34000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpun3qof9a --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1020 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+0.318825	0.000000	0.318881		60.281562	0		200		34816000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 36000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 36000k /dev/urandom > /tmp/tmp38_ia4xs
+Data Size: 36000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp38_ia4xs --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1080 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 38000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 38000k /dev/urandom > /tmp/tmpm9ixtqm2
+Data Size: 38000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpm9ixtqm2 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1140 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 40000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 40000k /dev/urandom > /tmp/tmpl7qad4fo
+Data Size: 40000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpl7qad4fo --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1200 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+failed to factor
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 50000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 50000k /dev/urandom > /tmp/tmpzhjggwof
+Data Size: 50000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpzhjggwof --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1500 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'r1.log': No such file or directory
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 12000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 12000k /dev/urandom > /tmp/tmp7eacv4l1
+Data Size: 12000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp7eacv4l1 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 360 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319051	0.000000	0.319111		14.097749	0		200		12288000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 13000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 13000k /dev/urandom > /tmp/tmp0t1jrjg2
+Data Size: 13000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp0t1jrjg2 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 390 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319216	0.000000	0.319272		15.491644	0		200		13312000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 14000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 14000k /dev/urandom > /tmp/tmplvovkqmf
+Data Size: 14000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmplvovkqmf --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 420 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319101	0.000000	0.319159		18.615162	0		200		14336000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 15000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 15000k /dev/urandom > /tmp/tmp4fh3onk1
+Data Size: 15000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp4fh3onk1 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 450 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330320	0.000000	0.330379		21.151679	0		200		15360000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 16000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 16000k /dev/urandom > /tmp/tmpbol36dlm
+Data Size: 16000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpbol36dlm --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 480 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325415	0.000000	0.325474		21.945251	0		200		16384000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 17000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 17000k /dev/urandom > /tmp/tmpggmvo0yl
+Data Size: 17000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpggmvo0yl --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 510 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.327972	0.000000	0.328032		25.566244	0		200		17408000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 18000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 18000k /dev/urandom > /tmp/tmpd7hhtggr
+Data Size: 18000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpd7hhtggr --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 540 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330183	0.000000	0.330239		27.963223	0		200		18432000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 19000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 19000k /dev/urandom > /tmp/tmptg2551t_
+Data Size: 19000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmptg2551t_ --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 570 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.325266	0.000000	0.325324		28.896324	0		200		19456000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 20000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 20000k /dev/urandom > /tmp/tmpmcuy92yl
+Data Size: 20000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpmcuy92yl --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 600 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319083	0.000000	0.319139		30.947816	0		200		20480000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 22000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 22000k /dev/urandom > /tmp/tmp9kiufc_u
+Data Size: 22000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp9kiufc_u --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 660 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319109	0.000000	0.319168		34.702421	0		200		22528000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 24000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 24000k /dev/urandom > /tmp/tmpt8w_e2tx
+Data Size: 24000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpt8w_e2tx --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 720 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.319053	0.000000	0.319110		39.267685	0		200		24576000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 26000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 26000k /dev/urandom > /tmp/tmpxfr83q80
+Data Size: 26000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpxfr83q80 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 780 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324213	0.000000	0.324271		42.808914	0		200		26624000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 28000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 28000k /dev/urandom > /tmp/tmpc79wkcl5
+Data Size: 28000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpc79wkcl5 --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 840 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.330367	0.000000	0.330426		45.780149	0		200		28672000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 32000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 32000k /dev/urandom > /tmp/tmpk0zx5z8v
+Data Size: 32000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpk0zx5z8v --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 960 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.324744	0.000000	0.324800		54.455791	0		200		32768000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 34000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 34000k /dev/urandom > /tmp/tmpwp9ioy1x
+Data Size: 34000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpwp9ioy1x --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1020 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.318957	0.000000	0.319015		58.504870	0		200		34816000		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 36000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 36000k /dev/urandom > /tmp/tmp8pt036gm
+Data Size: 36000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp8pt036gm --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1080 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 38000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 38000k /dev/urandom > /tmp/tmpiuzj_2bd
+Data Size: 38000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpiuzj_2bd --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1140 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 40000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 40000k /dev/urandom > /tmp/tmppho3x15p
+Data Size: 40000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmppho3x15p --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1200 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 50000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 50000k /dev/urandom > /tmp/tmpvpl8v64e
+Data Size: 50000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpvpl8v64e --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1500 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 36000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 36000k /dev/urandom > /tmp/tmpcboneteh
+Data Size: 36000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpcboneteh --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1080 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 38000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 38000k /dev/urandom > /tmp/tmpai5qgfla
+Data Size: 38000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpai5qgfla --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1140 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 40000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 40000k /dev/urandom > /tmp/tmpxcitnarr
+Data Size: 40000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmpxcitnarr --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1200 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+rm: cannot remove 'h2.log': No such file or directory
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) (10.00Mbit 1ms delay 1.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+
+[sidecar] Starting the QUIC sidecar sender on r1...
+*** h2 : ('python3 mininet/client.py -n 50000k --http 3 --stdout /dev/null --stderr /dev/null -cc cubic --loss 1 --log-level error --sidecar h2-eth0 20 -t 1 ',)
+head -c 50000k /dev/urandom > /tmp/tmp2vqwx5wz
+Data Size: 50000k
+HTTP: --http3
+RUST_LOG=error sidecurl --http3 --insecure --quiche-cc cubic --data-binary @/tmp/tmp2vqwx5wz --sidecar h2-eth0 --threshold 20 https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 1500 -o /dev/null 2>>/dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
