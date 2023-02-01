@@ -161,7 +161,7 @@ class SidecarNetwork():
     def iperf(self, time_s):
         self.start_and_configure()
         self.h1.cmd('iperf3 -s -f m > /dev/null 2>&1 &')
-        self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic')
+        self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic -i 0.1')
 
     def benchmark(self, nbytes, http_version, trials, cc, stdout_file,
                   stderr_file, quack_log):
