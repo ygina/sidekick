@@ -105,7 +105,10 @@ def run(args, loss):
         p.wait()
 
     # basically hardcoded time to get the right-length iperf test
-    time_s = 25 * (int(loss) + 1)
+    if args.tcp is None:
+        time_s = 25 * (int(loss) + 1)
+    else:
+        time_s = int(args.tcp)
     tcp_filename = 'cwnd_tcp_{}s_loss{}p.out'.format(time_s, loss)
     tcp_filename = f'{WORKDIR}/results/cwnd/{tcp_filename}'
     print(tcp_filename)
@@ -130,6 +133,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('-n', help='data size e.g., 10M')
+    parser.add_argument('--tcp', help='how long to run the tcp iperf test, in s')
     parser.add_argument('--loss', help='loss perecentage e.g, 0')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
