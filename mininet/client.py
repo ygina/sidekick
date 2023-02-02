@@ -32,7 +32,15 @@ def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, log_leve
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
         timeout = estimate_timeout(nbytes, http, loss)
-        cmd=f'RUST_LOG={log_level} {curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\" --max-time {timeout} -o {stdout} 2>>{stderr}'
+        # cmd=f'RUST_LOG={log_level} QLOGDIR=/home/gina/sidecar/qlog '+\
+        cmd=f'RUST_LOG={log_level} '+\
+            f'{curl} {http} --insecure {cc} '+\
+            f'--data-binary @{f.name} {sidecar} https://{addr}/ '+\
+            f'-w \"{fmt}\" --max-time {timeout} -o {stdout} 2>>{stderr}'
+        # cmd = f"/usr/bin/time -f\"0\t\t0\t\t0\t\t\t%e\t0\t200\" "+\
+        #       f"/home/gina/quiche-sidecar/target/release/quiche-client "+\
+        #       f"--max-data 100000000 "+\
+        #       f"--no-verify https://10.0.1.10:443 --body {f.name} > /dev/null"
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         print(cmd)
         print(header)
