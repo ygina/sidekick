@@ -64,6 +64,16 @@ impl UdpParser {
         })
     }
 
+    /// Returns the dst_ip if it is a UDP packet, otherwise None.
+    pub fn parse_dst_ip(x: &[u8; BUFFER_SIZE]) -> Option<[u8; 4]> {
+        let ip_protocol = x[23];
+        if i32::from(ip_protocol) != libc::IPPROTO_UDP {
+            None
+        } else {
+            Some([x[30], x[31], x[32], x[33]])
+        }
+    }
+
     /// Returns the sidecar identifier if it is a UDP packet, otherwise None.
     pub fn parse_identifier(x: &[u8; BUFFER_SIZE]) -> Option<u32> {
         let ip_protocol = x[23];

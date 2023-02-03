@@ -59,6 +59,12 @@ impl Sidecar {
         }
     }
 
+    /// Reset the sidecar state.
+    pub fn reset(&mut self) {
+        self.quack = Quack::new(self.threshold);
+        self.log = vec![];
+    }
+
     /// Start the raw socket that listens to the specified interface and
     /// accumulates those packets in a quACK. If the sidecar is a quACK sender,
     /// only listens for incoming packets. If the sidecar is a quACK receiver,
@@ -92,10 +98,6 @@ impl Sidecar {
             loop {
                 let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
                 trace!("received {} bytes: {:?}", n, buf);
-                if n != (BUFFER_SIZE as _) {
-                    trace!("underfilled buffer: {} < {}", n, BUFFER_SIZE);
-                    continue;
-                }
                 let actual_dir: Direction = addr.sll_pkttype.into();
                 if actual_dir != dir {
                     trace!("packet in wrong direction: {:?}", actual_dir);
@@ -105,13 +107,28 @@ impl Sidecar {
                     trace!("not IP packet: {}", addr.sll_protocol);
                     continue;
                 }
-                let id = match UdpParser::parse_identifier(&buf) {
-                    Some(id) => id,
+
+                // Reset the quack if the dst IP is our own (and not for
+                // another e2e quic connection).
+                let dst_ip = match UdpParser::parse_dst_ip(&buf) {
+                    Some(dst_ip) => dst_ip,
                     None => {
-                        trace!("not UDP idacket");
+                        trace!("not UDP packet");
                         continue;
                     }
                 };
+                if dst_ip == [10, 0, 2, 1] {
+                    // TODO: check if dst port corresponds to this connection
+                    sc.lock().unwrap().reset();
+                    continue;
+                }
+
+                // Otherwise parse the identifier and insert it into the quack.
+                if n != (BUFFER_SIZE as _) {
+                    trace!("underfilled buffer: {} < {}", n, BUFFER_SIZE);
+                    continue;
+                }
+                let id = UdpParser::parse_identifier(&buf).unwrap();
                 debug!("insert {} ({:#10x})", id, id);
                 // TODO: filter by QUIC connection?
                 {
