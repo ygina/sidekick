@@ -171,20 +171,11 @@ class SidecarNetwork():
         self.h1.cmd('iperf3 -s -f m > /dev/null 2>&1 &')
         self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic -i 0.1')
 
-    def benchmark(self, nbytes, http_version, trials, cc, stdout_file,
-                  stderr_file, quack_log):
-        """
-        Args:
-        - nbytes: Number of bytes to send e.g., 1M.
-        - http_version:
-            HTTP/1.1 - http/1.1 1.1 1 h1 tcp
-            HTTP/3.3 - http/3 3 h3 quic
-        - trials
-        """
-        if http_version is None:
-            sclog(f'must set http version: {http_version}')
+    def benchmark(self, args):
+        if args.benchmark is None:
+            sclog(f'must set http version: {args.benchmark}')
             return
-        http_version = http_version.lower()
+        http_version = args.benchmark.lower()
         if http_version in ['http/1.1', '1.1', '1', 'h1', 'tcp']:
             http_version = 1
         elif http_version in ['http/3', '3', 'h3', 'quic']:
@@ -193,18 +184,25 @@ class SidecarNetwork():
             sclog(f'must set http version: {http_version}')
             return
 
-        h2_cmd = f'python3 mininet/client.py -n {nbytes} ' \
+        h2_cmd = f'python3 mininet/client.py -n {args.nbytes} ' \
                  f'--http {http_version} ' \
-                 f'--stdout {stdout_file} --stderr {stderr_file} ' \
+                 f'--stdout {args.stdout} --stderr {args.stderr} ' \
                  f'-cc {self.cc} --loss {self.loss2} ' \
                  f'--log-level {self.log_level} '
         if self.sidecar is not None:
             h2_cmd += f'--sidecar h2-eth0 {self.threshold} '
-        if trials is not None:
-            h2_cmd += f'-t {trials} ' if self.sidecar is None else '-t 1 '
-        else:
+        if args.trials is None:
             trials = 1
-        if quack_log:
+        else:
+            trials = args.trials
+            h2_cmd += f'-t {trials} ' if self.sidecar is None else '-t 1 '
+
+        # Add flags
+        if args.quack_reset:
+            h2_cmd += '--quack-reset '
+        if args.sidecar_mtu:
+            h2_cmd += '--sidecar-mtu '
+        if args.quack_log:
             h2_cmd += ' > h2.log'
 
         self.start_and_configure()
@@ -317,6 +315,10 @@ if __name__ == '__main__':
                         help='Run an iperf test for this length of time with '
                              'a server on h1 and client on h2.')
     parser.add_argument('--quack-log', action='store_true')
+    parser.add_argument('--sidecar-mtu', action='store_true',
+                        help='Send packets only if cwnd > mtu')
+    parser.add_argument('--quack-reset', action='store_true',
+                        help='Whether to send quack reset messages')
     args = parser.parse_args()
     sc = SidecarNetwork(args)
     sc.clean_logs()
@@ -324,8 +326,7 @@ if __name__ == '__main__':
     if args.iperf is not None:
         sc.iperf(args.iperf)
     elif args.benchmark is not None:
-        sc.benchmark(args.nbytes, args.benchmark, args.trials, args.cc,
-            args.stdout, args.stderr, args.quack_log)
+        sc.benchmark(args)
     else:
         sc.start_and_configure()
         sc.cli()
