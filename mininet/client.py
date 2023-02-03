@@ -19,29 +19,42 @@ def estimate_timeout(nbytes, http, loss):
     except:
         return 3000
 
-def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, log_level, loss=None):
+def build_base_command(args, filename):
+    cmd = f'RUST_LOG={args.log_level} '
+    if args.qlog:
+        cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
+    # cmd += 'curl-exp '
+    cmd += 'sidecurl '
+    if args.sidecar is not None:
+        cmd += f'--sidecar {args.sidecar[0]} --threshold {args.sidecar[1]} '
+    if args.quack_reset:
+        cmd += '--quack-reset '
+    if args.sidecar_mtu:
+        cmd += '--sidecar-mtu '
+    cmd += f'{args.http} {args.cc} --data-binary @{filename} --insecure '
+    cmd += f'https://{args.addr}/ '
+    return cmd
+
+def run_client(args):
     f = tempfile.NamedTemporaryFile()
-    print_and_run_cmd(f'head -c {nbytes} /dev/urandom > {f.name}')
-    print(f'Data Size: {nbytes}')
-    print(f'HTTP: {http}')
+    print_and_run_cmd(f'head -c {args.n} /dev/urandom > {f.name}')
+    print(f'Data Size: {args.n}')
+    print(f'HTTP: {args.http}')
     # curl = 'curl-exp'
     curl = 'sidecurl'
-    if args.sidecar is None:
-        sidecar = ''
-    else:
-        sidecar = f'--sidecar {args.sidecar[0]} --threshold {args.sidecar[1]}'
-    if trials is None:
+
+    cmd = build_base_command(args, f.name)
+
+    if args.trials is None:
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
-        cmd=f'RUST_LOG={log_level} {curl} {http} --insecure {cc} --data-binary @{f.name} {sidecar} https://{addr}/ -w \"{fmt}\"'
+        cmd += f'-w \"{fmt}\" '
         print_and_run_cmd(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
-        timeout = estimate_timeout(nbytes, http, loss)
-        # cmd=f'RUST_LOG={log_level} QLOGDIR=/home/gina/sidecar/qlog '+\
-        cmd=f'RUST_LOG={log_level} '+\
-            f'{curl} {http} --insecure {cc} '+\
-            f'--data-binary @{f.name} {sidecar} https://{addr}/ '+\
-            f'-w \"{fmt}\" --max-time {timeout} -o {stdout} 2>>{stderr}'
+        timeout = estimate_timeout(args.n, args.http, args.loss)
+        cmd += f'-w \"{fmt}\" '
+        cmd += f'--max-time {timeout} '
+        cmd += f'-o {args.stdout} 2>>{args.stderr} '
         # cmd = f"/usr/bin/time -f\"0\t\t0\t\t0\t\t\t%e\t0\t200\" "+\
         #       f"/home/gina/quiche-sidecar/target/release/quiche-client "+\
         #       f"--max-data 100000000 "+\
@@ -49,7 +62,7 @@ def run_client(nbytes, http, trials, stdout, stderr, cc, addr, sidecar, log_leve
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         print(cmd)
         print(header)
-        for _ in range(trials):
+        for _ in range(args.trials):
             os.system(f'eval \'{cmd}\'')
 
 def check_trials(value):
@@ -101,6 +114,12 @@ if __name__ == '__main__':
                         nargs=2,
                         help='Sidecar interface that packets are being sent on '
                              'and the quACK threshold.')
+    parser.add_argument('--sidecar-mtu', action='store_true',
+                        help='Send packets only if cwnd > mtu')
+    parser.add_argument('--quack-reset', action='store_true',
+                        help='Whether to send quack reset messages')
+    parser.add_argument('--qlog', action='store_true',
+                        help='Store qlogs at $HOME/sidecar/qlog')
     parser.add_argument('--log-level',
                         default='error',
                         help='Sets the RUST_LOG level in the quiche client. '
@@ -126,6 +145,4 @@ if __name__ == '__main__':
                         help='Loss percentage, used to estimate timeout')
     args = parser.parse_args()
 
-    run_client(nbytes=args.n, http=args.http, trials=args.trials,
-        stdout=args.stdout, stderr=args.stderr, cc=args.cc, addr=args.addr,
-        sidecar=args.sidecar, log_level=args.log_level, loss=args.loss)
+    run_client(args)
