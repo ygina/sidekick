@@ -41,7 +41,7 @@ class SidecarNetwork():
         self.delay1 = args.delay1
         self.delay2 = args.delay2
         self.loss1 = args.loss1
-        self.loss2 = args.loss2
+        self.loss2 = float(args.loss2) if '.' in args.loss2 else int(args.loss2)
         self.bw1 = args.bw1
         self.bw2 = args.bw2
         self.log_level = args.log_level
@@ -265,8 +265,8 @@ if __name__ == '__main__':
                         metavar='num',
                         help='loss (in %%) between h1 and r1 (default: 0)')
     parser.add_argument('--loss2',
-                        type=int,
-                        default=1,
+                        type=str,
+                        default='1',
                         metavar='num',
                         help='loss (in %%) between r1 and h2 (default: 1)')
     parser.add_argument('--bw1',
