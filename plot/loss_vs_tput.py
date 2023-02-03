@@ -10,7 +10,13 @@ from collections import defaultdict
 from common import *
 
 KEYS = ['tcp', 'quic']
-TARGET_XS = [x for x in range(20)]
+TARGET_XS = {}
+TARGET_XS['tcp'] =  [x for x in range(0, 30, 2)] + \
+                    [x for x in range(0, 100, 10)] + \
+                    [100]
+TARGET_XS['quic'] = [x for x in range(0, 30, 2)] + \
+                    [x for x in range(30, 200, 10)] + \
+                    [200]
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def empty_list():
@@ -21,7 +27,7 @@ def collect_ys(ys, n):
     n_megabyte = int(n[:-1]) * 1.0
     return [n_megabyte / statistics.mean(ys)]
 
-def parse_data(filename, trials, max_x, data_key='time_total'):
+def parse_data(filename, key, trials, max_x, data_key='time_total'):
     loss = None
     key_index = None
     exitcode_index = None
@@ -32,10 +38,10 @@ def parse_data(filename, trials, max_x, data_key='time_total'):
     for line in lines:
         line = line.strip()
 
-        # Get the current loss percentage in tenths of a percent
+        # Get the current loss percentage in hundredths of a percent
         m = re.search(r'.*1ms delay (\S+)% loss.*', line)
         if m is not None:
-            loss = round(float(m.group(1)) * 10.0)
+            loss = round(float(m.group(1)) * 100.0)
             continue
 
         # Figure out which index to parse the total time and exitcode
@@ -62,22 +68,22 @@ def parse_data(filename, trials, max_x, data_key='time_total'):
                 continue
             data[loss].append(float(line[key_index]))
 
-    xs = [x for x in filter(lambda x: x <= max_x, TARGET_XS)]
+    xs = [x for x in filter(lambda x: x <= max_x, TARGET_XS[key])]
     xs.sort()
     ys = [data[x][:min(len(data[x]), trials)] for x in xs]
     return (xs, ys)
 
 def maybe_collect_missing_data(filename, key, args):
-    (xs, ys) = parse_data(filename, args.trials, args.max_x)
+    (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
 
     missing_losses = []
     for i in range(len(xs)):
         missing = max(0, args.trials - len(ys[i]))
-        loss = f'{i*0.1:.1f}'
+        loss = f'{xs[i]*0.01:.2f}'
         if missing == args.trials:
             missing_losses.append(loss)
         elif missing > 0:
-            print(f'{i*0.1:.1f}% {len(ys[i])}/{args.trials} {filename}')
+            print(f'{loss}% {len(ys[i])}/{args.trials} {filename}')
     if len(missing_losses) > 0:
         print('missing', missing_losses)
 
@@ -85,7 +91,7 @@ def maybe_collect_missing_data(filename, key, args):
         return
     for i in range(len(xs)):
         missing = max(0, args.trials - len(ys[i]))
-        loss = f'{i*0.1:.1f}'
+        loss = f'{xs[i]*0.01:.2f}'
         if missing == 0:
             continue
         cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.n,
@@ -125,8 +131,8 @@ if __name__ == '__main__':
         help='number of trials per data point (default: 5)')
     parser.add_argument('--bw', default=100, type=int,
         help='bandwidth of near subpath link in Mbps (default: 100)')
-    parser.add_argument('--max-x', default=20, type=int,
-        help='maximum loss perecentage in tenths of a percentage (default: 20)')
+    parser.add_argument('--max-x', default=200, type=int,
+        help='maximum loss perecentage in hundredths of a percentage (default: 200)')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
     args = parser.parse_args()
@@ -142,13 +148,13 @@ if __name__ == '__main__':
         print(filename)
         os.system(f'touch {filename}')
         maybe_collect_missing_data(filename, key, args)
-        (xs, ys) = parse_data(filename, args.trials, args.max_x)
+        (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
         new_xs = []
         new_ys = []
         for i in range(len(ys)):
             if len(ys[i]) == 0:
                 continue
-            new_xs.append(0.1*xs[i])
+            new_xs.append(0.01*xs[i])
             new_ys.append(collect_ys(ys[i], args.n))
         data[key] = (new_xs, new_ys)
 
