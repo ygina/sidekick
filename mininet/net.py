@@ -142,6 +142,12 @@ class SidecarNetwork():
         self.r1.cmd(cc_cmd)
         self.h2.cmd(cc_cmd)
 
+        # Don't cache TCP metrics
+        tcp_metrics_cmd = 'echo 1 > /proc/sys/net/ipv4/tcp_no_metrics_save'
+        self.h1.cmd(tcp_metrics_cmd)
+        self.r1.cmd(tcp_metrics_cmd)
+        self.h2.cmd(tcp_metrics_cmd)
+
         # Turn off tso and gso to send MTU-sized packets
         sclog('tso and gso are {}'.format('ON' if self.tso else 'OFF'))
         if not self.tso:
