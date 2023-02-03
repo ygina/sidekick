@@ -10,6 +10,8 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.link import TCLink
 
+SLEEP_S = 0.1
+
 def mac(digit):
     assert 0 <= digit < 10
     return f'00:00:00:00:00:0{int(digit)}'
@@ -206,13 +208,13 @@ class SidecarNetwork():
             h2_cmd += ' > h2.log'
 
         self.start_and_configure()
-        time.sleep(1)
+        time.sleep(SLEEP_S)
 
         if self.sidecar is not None:
             self.h2.cmdPrint(h2_cmd)
             for _ in range(trials - 1):
                 self.start_quack_sender()
-                time.sleep(1)
+                time.sleep(SLEEP_S)
                 self.h2.cmdPrint(h2_cmd)
         else:
             self.h2.cmdPrint(h2_cmd)
