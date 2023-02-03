@@ -14,7 +14,8 @@ EXECUTE = None
 WORKDIR = None
 TARGET_XS = [x for x in range(100, 1000, 100)] + \
             [x for x in range(1000, 20000, 1000)] + \
-            [x for x in range(20000, 100000, 10000)]
+            [x for x in range(20000, 40000, 2000)] + \
+            [x for x in range(40000, 100000, 10000)]
 LOSSES = [0, 1, 2, 5]
 HTTP_VERSIONS = [
     'pep',
