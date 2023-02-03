@@ -19,13 +19,28 @@ TARGET_XS = [x for x in range(100, 1000, 100)] + \
 LOSSES = [0, 1, 2, 5]
 HTTP_VERSIONS = [
     'pep',
-    'tcp',
     'quic',
-    # 'quack-10-200',
-    'quack-2-200',
-    # 'quack-10-20',
-    'quack-2-20',
-    # 'quack-200-20',
+    # 'quic-m',
+    # 'quack-2ms',
+    'quack-2ms-r',
+    # 'quack-2ms-m',
+    # 'quack-2ms-rm',
+    # 'quack-2ms-20-reset',
+    # 'quack-2ms-20',
+    # 'quic',
+    'tcp',
+    # 'quic-quiche-5a753c25',
+    # 'quic-bw10',
+    # 'quic-1460',
+    # 'quic-quiche-max-data',
+    # 'quic-curl-100m',
+    # 'quic-1200',
+    # 'quic',
+    # 'quic-curl-mtu',
+    # 'quic-curl-1000m',
+    # 'quic-quiche-mtu',
+    # 'quic-quiche-1000m-1000m',
+    # 'quic-quiche-1000m-1m',
 ]
 
 class DataPoint:
@@ -57,13 +72,27 @@ def execute_cmd(loss, http_version, cc, trials, data_size, bw2):
     # elif http_version == 'quack':
     elif 'quack-' in http_version:
         # quack-<frequency_ms>[-<threshold>]?
+        # quack-<frequency_ms>[-<flags>]?
+        # r = --quack-reset
+        # m = --sidecar-mtu
         split = http_version.split('-')
         bm = ['quic', '--sidecar', split[1]]
+        # if len(split) > 2:
+        #     bm.append('--threshold')
+        #     bm.append(split[2])
         if len(split) > 2:
-            bm.append('--threshold')
-            bm.append(split[2])
+            if 'r' in split[-1]:
+                bm.append('--quack-reset')
+            if 'm' in split[-1]:
+                bm.append('--sidecar-mtu')
     elif 'quic-' in http_version:
+        # quic[-<flags>]?
+        # m = --sidecar-mtu
+        split = http_version.split('-')
         bm = ['quic']
+        if len(split) > 1:
+            if 'm' in split[-1]:
+                bm.append('--sidecar-mtu')
     elif 'tcp-' in http_version:
         bm = ['tcp']
     else:
@@ -217,8 +246,9 @@ def plot_graph(loss, cc, bw2, pdf,
         plt.ylabel('{} (s)'.format(data_key))
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.55), ncol=2)
     statistic = 'median' if use_median else 'mean'
-    plt.title('{} {} {}% loss'.format(statistic, cc, loss))
+    plt.title(f'{statistic} {cc} {loss}% loss bw{bw2}')
     if pdf is not None:
+        print(pdf)
         save_pdf(pdf)
 
 if __name__ == '__main__':
