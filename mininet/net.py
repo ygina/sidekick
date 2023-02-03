@@ -201,7 +201,7 @@ class SidecarNetwork():
         if self.sidecar is not None:
             h2_cmd += f'--sidecar h2-eth0 {self.threshold} '
         if trials is not None:
-            h2_cmd += f'-t {trials} '
+            h2_cmd += f'-t {trials} ' if self.sidecar is None else '-t 1 '
         else:
             trials = 1
         if quack_log:
