@@ -13,8 +13,8 @@ def estimate_timeout(nbytes, http, loss):
         scale = 0.005
         if '1.1' in http:
             scale *= 2
-        if loss == '2' or loss == '5':
-            scale *= int(loss)
+        if float(loss) > 1:
+            scale *= float(loss)
         return max(int(scale * nbytes), 15)
     except:
         return 3000
