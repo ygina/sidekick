@@ -45,7 +45,7 @@ class DataPoint:
         self.avg = statistics.mean(arr)
         self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
 
-def execute_cmd(loss, http_version, cc, trials, data_size):
+def execute_cmd(loss, http_version, cc, trials, data_size, bw2):
     suffix = f'loss{loss}p/{cc}'
     results_file = f'{WORKDIR}/results/{suffix}/{http_version}.txt'
     if http_version == 'pep':
@@ -64,12 +64,14 @@ def execute_cmd(loss, http_version, cc, trials, data_size):
             bm.append(split[2])
     elif 'quic-' in http_version:
         bm = ['quic']
+    elif 'tcp-' in http_version:
+        bm = ['tcp']
     else:
         bm = [http_version]
     subprocess.Popen(['mkdir', '-p', f'results/{suffix}'], cwd=WORKDIR).wait()
     cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', str(loss),
-        '--benchmark'] + bm + ['-cc', cc, '-t', str(trials),
-        '-n', f'{data_size}k']
+        '--benchmark'] + bm + ['-cc', cc, '-t', str(trials), '--bw2', str(bw2),
+        '-n', f'{data_size}k', '--stderr', '/home/gina/sidecar/error.log']
     print(cmd)
     p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
@@ -80,7 +82,7 @@ def execute_cmd(loss, http_version, cc, trials, data_size):
             f.write(line)
     p.wait()
 
-def parse_data(loss, cc, http_version, normalize, data_key='time_total'):
+def parse_data(loss, cc, http_version, bw2, normalize, data_key='time_total'):
     """
     Parses the median keyed time and the data size.
     ([data_size], [time_total])
@@ -110,7 +112,8 @@ def parse_data(loss, cc, http_version, normalize, data_key='time_total'):
             continue
         if key_index is None:
             continue
-        if line == '' or '***' in line or '/tmp' in line:
+        if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
+            'factor' in line or 'unaccounted' in line:
             # Done reading data for this data_size
             if len(data) > 0:
                 if data_size not in xy_map:
@@ -145,7 +148,7 @@ def parse_data(loss, cc, http_version, normalize, data_key='time_total'):
             missing_xs.append(x)
         if EXECUTE:
             for x in missing_xs:
-                execute_cmd(loss, http_version, cc, NUM_TRIALS, x)
+                execute_cmd(loss, http_version, cc, NUM_TRIALS, x, bw2)
         elif len(missing_xs) > 0:
             print(f'missing {len(missing_xs)} xs: {missing_xs}')
     try:
@@ -155,7 +158,7 @@ def parse_data(loss, cc, http_version, normalize, data_key='time_total'):
             if len(y) < NUM_TRIALS:
                 missing = NUM_TRIALS - len(y)
                 if EXECUTE:
-                    execute_cmd(loss, http_version, cc, missing, x)
+                    execute_cmd(loss, http_version, cc, missing, x, bw2)
                 else:
                     print(f'{x}k missing {missing}/{NUM_TRIALS}')
             xs[i] /= 1000.
@@ -174,7 +177,7 @@ def get_filename(loss, cc, http):
     """
     return '../results/{}/loss{}p/{}/{}.txt'.format(DATE, loss, cc, http)
 
-def plot_graph(loss, cc, pdf,
+def plot_graph(loss, cc, bw2, pdf,
                data_key='time_total',
                http_versions=HTTP_VERSIONS,
                use_median=True,
@@ -187,8 +190,8 @@ def plot_graph(loss, cc, pdf,
             open(filename, 'w')
             continue
         try:
-            data[http_version] = parse_data(loss, cc, http_version, normalize,
-                                            data_key=data_key)
+            data[http_version] = parse_data(loss, cc, http_version, bw2,
+                                            normalize, data_key=data_key)
         except Exception as e:
             print('Error parsing: {}'.format(filename))
             print(e)
@@ -212,7 +215,7 @@ def plot_graph(loss, cc, pdf,
         plt.ylabel('{} tput (MB/s)'.format(data_key))
     else:
         plt.ylabel('{} (s)'.format(data_key))
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.7), ncol=3)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.55), ncol=2)
     statistic = 'median' if use_median else 'mean'
     plt.title('{} {} {}% loss'.format(statistic, cc, loss))
     if pdf is not None:
@@ -241,6 +244,10 @@ if __name__ == '__main__':
                         type=int,
                         help='Loss percentages to plot [0|1|2|5]. If no '
                              'argument is provided, plots 1, 2, and 5.')
+    parser.add_argument('--bw2',
+                        type=int,
+                        default=100,
+                        help='Bandwidth of link 2 (default: 100).')
     parser.add_argument('--cc',
                         default='cubic',
                         help='TCP congestion control algorithm to plot '
@@ -261,6 +268,7 @@ if __name__ == '__main__':
     else:
         losses = [args.loss]
     cc = args.cc
+    bw2 = args.bw2
     NUM_TRIALS = args.trials
     DATE = args.date
     MAX_X = args.max_x
@@ -268,6 +276,6 @@ if __name__ == '__main__':
     WORKDIR = args.workdir
     for loss in losses:
         if args.median:
-            plot_graph(loss=loss, cc=cc, pdf='median_{}_loss{}p.pdf'.format(cc, loss), use_median=True)
+            plot_graph(loss=loss, cc=cc, bw2=bw2, pdf=f'median_{cc}_loss{loss}p_bw{bw2}.pdf', use_median=True)
         if args.mean:
-            plot_graph(loss=loss, cc=cc, pdf='mean_{}_loss{}p.pdf'.format(cc, loss), use_median=False)
+            plot_graph(loss=loss, cc=cc, bw2=bw2, pdf=f'mean_{cc}_loss{loss}p_bw{bw2}.pdf', use_median=False)
