@@ -23,6 +23,10 @@ def ip(digit):
 def sclog(val):
     print(f'[sidecar] {val}', file=sys.stderr);
 
+def get_max_queue_size_bytes(rtt_ms, bw_mbps):
+    bdp = rtt_ms * bw_mbps * 1000000. / 1000. / 8.
+    return bdp
+
 def get_max_queue_size(rtt_ms, bw_mbps):
     """
     Calculate the maximum queue size as
@@ -106,18 +110,8 @@ class SidecarNetwork():
         # Add links
         rtt_ms = 2 * (self.delay1 + self.delay2)
         bw_mbps = min(self.bw1, self.bw2)
-        mqs = get_max_queue_size(rtt_ms, bw_mbps)
-        print(f'max_queue_size = {mqs} packets')
-        self.net.addLink(self.r1, self.h1,
-                         bw=self.bw1,
-                         loss=self.loss1,
-                         delay=f'{self.delay1}ms',
-                         max_queue_size=mqs)
-        self.net.addLink(self.r1, self.h2,
-                         bw=self.bw2,
-                         delay=f'{self.delay2}ms',
-                         loss=self.loss2,
-                         max_queue_size=mqs)
+        self.net.addLink(self.r1, self.h1)
+        self.net.addLink(self.r1, self.h2)
         self.net.build()
 
         # Configure interfaces
@@ -131,11 +125,19 @@ class SidecarNetwork():
         self.h1.cmd("ip route add default via 10.0.1.1")
         self.h2.cmd("ip route add default via 10.0.2.1")
 
-        # Configure link latency and delay
-        # self.h1.cmd(f'tc qdisc add dev h1-eth0 root netem delay {self.delay1}ms')
-        # self.h2.cmd(f'tc qdisc add dev h2-eth0 root netem loss {self.loss2}% delay {self.delay2}ms')
-        # self.r1.cmd(f'tc qdisc add dev r1-eth0 root netem delay {self.delay1}ms')
-        # self.r1.cmd(f'tc qdisc add dev r1-eth1 root netem delay {self.delay2}ms')
+        # Configure link latency, delay, bandwidth, and queue size
+        # https://unix.stackexchange.com/questions/100785/bucket-size-in-tbf
+        mqs = get_max_queue_size_bytes(rtt_ms, bw_mbps)
+        print(f'max_queue_size (bytes) = {mqs}')
+        def tc(host, iface, loss, delay, bw, queue_size):
+            host.cmd(f'tc qdisc add dev {iface} root handle 1:0 '+\
+                     f'netem loss {loss}% delay {delay}ms')
+            host.cmd(f'tc qdisc add dev {iface} parent 1:1 handle 10: '+\
+                     f'tbf rate {bw}mbit burst {bw*500*2} limit {queue_size}')
+        tc(self.h1, 'h1-eth0', self.loss1, self.delay1, self.bw1, mqs)
+        tc(self.r1, 'r1-eth0', self.loss1, self.delay1, self.bw1, mqs)
+        tc(self.r1, 'r1-eth1', self.loss2, self.delay2, self.bw2, mqs)
+        tc(self.h2, 'h2-eth0', self.loss2, self.delay2, self.bw2, mqs)
 
         # Set the TCP congestion control algorithm
         sclog(f'Setting congestion control to {self.cc}')
