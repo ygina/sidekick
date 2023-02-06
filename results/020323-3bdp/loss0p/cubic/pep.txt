@@ -1,0 +1,519 @@
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 10000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 10000k /dev/urandom > /tmp/tmpsmtezpaa
+Data Size: 10000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpsmtezpaa --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 100 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004162	0.474774	0.813248		9.970442	0		200		10241261		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 20000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 20000k /dev/urandom > /tmp/tmpvpf0v_zq
+Data Size: 20000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpvpf0v_zq --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 200 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 20000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 20000k /dev/urandom > /tmp/tmpyewamr2m
+Data Size: 20000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpyewamr2m --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 200 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004166	0.474808	0.815646		18.557858	0		200		20482509		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 30000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 30000k /dev/urandom > /tmp/tmpnuk4klhi
+Data Size: 30000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpnuk4klhi --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 300 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 30000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 30000k /dev/urandom > /tmp/tmpc2c2ywbf
+Data Size: 30000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpc2c2ywbf --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 300 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004180	0.474963	0.815805		27.138110	0		200		30723757		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 40000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 40000k /dev/urandom > /tmp/tmpfa5528gu
+Data Size: 40000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpfa5528gu --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 400 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004186	0.475292	0.816542		35.738836	0		200		40965013		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 50000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 50000k /dev/urandom > /tmp/tmpv0krehpv
+Data Size: 50000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpv0krehpv --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 500 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004172	0.474913	0.816020		44.316565	0		200		51206261		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 100k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 100k /dev/urandom > /tmp/tmp3d_obdph
+Data Size: 100k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp3d_obdph --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004168	0.474941	0.815999		1.421482	0		200		102421		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 300k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 300k /dev/urandom > /tmp/tmpv8j7vc0h
+Data Size: 300k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpv8j7vc0h --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004168	0.475126	0.816119		1.644654	0		200		307245		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 500k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 500k /dev/urandom > /tmp/tmp7_pg173u
+Data Size: 500k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp7_pg173u --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004171	0.474902	0.816264		1.816043	0		200		512069		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 700k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 700k /dev/urandom > /tmp/tmp0zq3nc7j
+Data Size: 700k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp0zq3nc7j --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004183	0.474910	0.815750		1.987698	0		200		716893		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 900k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 900k /dev/urandom > /tmp/tmpxjvqlzoa
+Data Size: 900k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpxjvqlzoa --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004186	0.474903	0.813842		2.156832	0		200		921725		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 1000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 1000k /dev/urandom > /tmp/tmpug2xma9q
+Data Size: 1000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpug2xma9q --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004151	0.474992	0.814913		2.243634	0		200		1024133		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 3000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 3000k /dev/urandom > /tmp/tmpnbkxs48z
+Data Size: 3000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpnbkxs48z --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 30 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004178	0.475094	0.816597		3.961910	0		200		3072381		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 5000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 5000k /dev/urandom > /tmp/tmp7o5sd935
+Data Size: 5000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp7o5sd935 --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 50 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004171	0.474879	0.816631		5.682032	0		200		5120637		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 7000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 7000k /dev/urandom > /tmp/tmpgro4v1um
+Data Size: 7000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpgro4v1um --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 70 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 200k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 200k /dev/urandom > /tmp/tmp3vjx03uf
+Data Size: 200k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp3vjx03uf --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004157	0.474773	0.814386		1.504797	0		200		204837		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 400k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 400k /dev/urandom > /tmp/tmp7u5_f1ww
+Data Size: 400k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp7u5_f1ww --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004161	0.474858	0.813082		1.726450	0		200		409661		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 600k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 600k /dev/urandom > /tmp/tmpohcocvg1
+Data Size: 600k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpohcocvg1 --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004165	0.474708	0.813020		1.897515	0		200		614485		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 800k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 800k /dev/urandom > /tmp/tmpr5zxx6ce
+Data Size: 800k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpr5zxx6ce --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 15 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004179	0.474836	0.813796		2.071640	0		200		819309		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 2000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 2000k /dev/urandom > /tmp/tmpifxvmfxb
+Data Size: 2000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpifxvmfxb --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 20 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004168	0.474826	0.814494		3.101773	0		200		2048261		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 4000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 4000k /dev/urandom > /tmp/tmp1p9fdmhu
+Data Size: 4000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp1p9fdmhu --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 40 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004179	0.474891	0.813108		4.820314	0		200		4096509		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 6000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 6000k /dev/urandom > /tmp/tmp7j4gdmyc
+Data Size: 6000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmp7j4gdmyc --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 60 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004179	0.474977	0.816822		6.538017	0		200		6144757		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] Starting the TCP PEP on r1...
+*** h2 : ('python3 mininet/client.py -n 8000k --http 1 --stdout /dev/null --stderr /home/gina/sidecar/error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 8000k /dev/urandom > /tmp/tmpk1kh6hrj
+Data Size: 8000k
+HTTP: --http1.1
+RUST_LOG=error sidecurl --http1.1 --quiche-cc cubic --data-binary @/tmp/tmpk1kh6hrj --insecure https://10.0.1.10:443/ -w "%{time_connect}\t%{time_appconnect}\t%{time_starttransfer}\t\t%{time_total}\t%{exitcode}\t\t%{response_code}\t\t%{size_upload}\t\t%{size_download}\t%{errormsg}\n" --max-time 80 -o /dev/null 2>>/home/gina/sidecar/error.log 
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0.004174	0.475066	0.815079		8.254778	0		200		8193012		18	
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 418 packets

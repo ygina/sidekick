@@ -1,0 +1,932 @@
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 100k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 100k /dev/urandom > /tmp/tmptk9obxe2
+Data Size: 100k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmptk9obxe2 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			1.63	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 200k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 200k /dev/urandom > /tmp/tmpjao72g_b
+Data Size: 200k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpjao72g_b > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			1.94	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 300k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 300k /dev/urandom > /tmp/tmpq51z74xn
+Data Size: 300k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpq51z74xn > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			1.97	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 400k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 400k /dev/urandom > /tmp/tmpqr4szk4v
+Data Size: 400k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpqr4szk4v > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.29	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 500k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 500k /dev/urandom > /tmp/tmp3fl491l2
+Data Size: 500k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp3fl491l2 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.40	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 600k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 600k /dev/urandom > /tmp/tmp4lwa7_oc
+Data Size: 600k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp4lwa7_oc > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.18	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 700k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 700k /dev/urandom > /tmp/tmppjolq0y4
+Data Size: 700k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmppjolq0y4 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.21	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 800k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 800k /dev/urandom > /tmp/tmp9l81ua02
+Data Size: 800k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp9l81ua02 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.25	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 900k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 900k /dev/urandom > /tmp/tmpu4jxhinu
+Data Size: 900k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpu4jxhinu > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.43	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 1000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 1000k /dev/urandom > /tmp/tmpu4bf0aj2
+Data Size: 1000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpu4bf0aj2 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			2.53	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 2000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 2000k /dev/urandom > /tmp/tmpu0cc6mc9
+Data Size: 2000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpu0cc6mc9 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			4.40	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 3000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 3000k /dev/urandom > /tmp/tmp31ulbjmc
+Data Size: 3000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp31ulbjmc > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			6.41	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 4000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 4000k /dev/urandom > /tmp/tmp_w_fcbm1
+Data Size: 4000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp_w_fcbm1 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			7.93	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 5000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 5000k /dev/urandom > /tmp/tmpc3fwvzo3
+Data Size: 5000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpc3fwvzo3 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			9.53	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 6000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 6000k /dev/urandom > /tmp/tmpftwe9ehn
+Data Size: 6000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpftwe9ehn > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			10.79	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 7000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 7000k /dev/urandom > /tmp/tmpxqy1gs4d
+Data Size: 7000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpxqy1gs4d > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			13.04	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 8000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 8000k /dev/urandom > /tmp/tmp7msjzc3p
+Data Size: 8000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp7msjzc3p > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			13.73	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 9000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 9000k /dev/urandom > /tmp/tmpgm9jtodf
+Data Size: 9000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpgm9jtodf > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			14.77	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 10000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 10000k /dev/urandom > /tmp/tmp3iqlrvk2
+Data Size: 10000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp3iqlrvk2 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			18.79	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 11000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 11000k /dev/urandom > /tmp/tmp2sr7qcks
+Data Size: 11000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp2sr7qcks > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			19.89	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 12000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 12000k /dev/urandom > /tmp/tmps4b7jh4t
+Data Size: 12000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmps4b7jh4t > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			21.18	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 13000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 13000k /dev/urandom > /tmp/tmpby_3utnp
+Data Size: 13000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpby_3utnp > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			20.63	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 14000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 14000k /dev/urandom > /tmp/tmpx8iurc63
+Data Size: 14000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpx8iurc63 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			18.33	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 15000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 15000k /dev/urandom > /tmp/tmpolafysjl
+Data Size: 15000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpolafysjl > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			20.74	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 16000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 16000k /dev/urandom > /tmp/tmp83r3jmsu
+Data Size: 16000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp83r3jmsu > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			25.23	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 17000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 17000k /dev/urandom > /tmp/tmp2kdongro
+Data Size: 17000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp2kdongro > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			27.33	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 18000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 18000k /dev/urandom > /tmp/tmpcdgu6dek
+Data Size: 18000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpcdgu6dek > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			28.24	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 19000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 19000k /dev/urandom > /tmp/tmpjh9nix9m
+Data Size: 19000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpjh9nix9m > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			28.14	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 20000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 20000k /dev/urandom > /tmp/tmp10glstrl
+Data Size: 20000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp10glstrl > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			27.20	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 22000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 22000k /dev/urandom > /tmp/tmprbiyt4f0
+Data Size: 22000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmprbiyt4f0 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			36.62	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 24000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 24000k /dev/urandom > /tmp/tmpnsri0ekm
+Data Size: 24000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpnsri0ekm > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			37.73	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 26000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 26000k /dev/urandom > /tmp/tmpwchelpss
+Data Size: 26000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpwchelpss > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			39.64	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 28000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 28000k /dev/urandom > /tmp/tmpklwk90rr
+Data Size: 28000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpklwk90rr > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			42.48	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 30000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 30000k /dev/urandom > /tmp/tmprmwbc7gn
+Data Size: 30000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmprmwbc7gn > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			39.55	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 32000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 32000k /dev/urandom > /tmp/tmpm2xl94b8
+Data Size: 32000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpm2xl94b8 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			48.97	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 34000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 34000k /dev/urandom > /tmp/tmp6ex27udo
+Data Size: 34000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmp6ex27udo > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			53.16	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 36000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 36000k /dev/urandom > /tmp/tmpjvlj5uis
+Data Size: 36000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpjvlj5uis > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 36000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 36000k /dev/urandom > /tmp/tmpoz1j6dmf
+Data Size: 36000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpoz1j6dmf > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			52.84	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 38000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 38000k /dev/urandom > /tmp/tmpi0r0a4q3
+Data Size: 38000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpi0r0a4q3 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			58.48	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 40000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 40000k /dev/urandom > /tmp/tmpimmz904c
+Data Size: 40000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpimmz904c > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			56.95	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
+(10.00Mbit 75ms delay 0.00000% loss) (10.00Mbit 75ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) (100.00Mbit 1ms delay 0.00000% loss) *** Configuring hosts
+h1 h2 r1 
+[sidecar] Setting congestion control to cubic
+[sidecar] tso and gso are OFF
+[sidecar] Starting the NGINX/Python webserver on h1...
+[sidecar] NOT starting the TCP PEP or sidecar
+*** h2 : ('python3 mininet/client.py -n 50000k --http 3 --stdout /dev/null --stderr error.log -cc cubic --loss 0 --log-level error -t 1 ',)
+head -c 50000k /dev/urandom > /tmp/tmpdxiu2qk4
+Data Size: 50000k
+HTTP: --http3
+/usr/bin/time -f"0		0		0			%e	0	200" /home/gina/quiche-sidecar/target/release/quiche-client --no-verify https://10.0.1.10:443 --body /tmp/tmpdxiu2qk4 > /dev/null
+time_connect	time_appconnect	time_starttransfer	time_total	exitcode	response_code	size_upload	size_download	errormsg
+0		0		0			74.04	0	200
+*** Stopping 0 controllers
+
+*** Stopping 2 links
+..
+*** Stopping 0 switches
+
+*** Stopping 3 hosts
+h1 h2 r1 
+*** Done
+max_queue_size = 140 packets
