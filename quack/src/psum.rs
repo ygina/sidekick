@@ -1,21 +1,12 @@
 use std::ops::{Sub, SubAssign};
 use crate::arithmetic::ModularInteger;
+use crate::{Quack, Identifier};
 use serde::{Serialize, Deserialize};
 use log::{debug, trace};
-
-pub type Identifier = u32;
 
 /// The i-th term corresponds to dividing by i+1 in modular arithemtic.
 fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
     (0..(size as u32)).map(|i| ModularInteger::new(i+1).inv()).collect()
-}
-
-pub trait Quack {
-    fn new(threshold: usize) -> Self;
-    fn insert(&mut self, value: Identifier);
-    fn remove(&mut self, value: Identifier);
-    fn threshold(&self) -> usize;
-    fn count(&self) -> u16;
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
