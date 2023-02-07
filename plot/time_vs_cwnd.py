@@ -60,18 +60,20 @@ def parse_tcp_data(filename):
 
     return (xs, ys)
 
-def plot_graph(tcp_filename, quic_filename, quack_filename, max_x_arg,
-               loss):
+def plot_graph(tcp_filename, pep_filename, quic_filename, quack_filename,
+               max_x_arg, loss):
     xy_quic = parse_quic_data(quic_filename)
     xy_quack = parse_quic_data(quack_filename)
     (xs_tcp, ys_tcp) = parse_tcp_data(tcp_filename)
+    (xs_pep, ys_pep) = parse_tcp_data(pep_filename)
 
     max_x = 0
     plt.figure(figsize=(9, 6))
+    plt.plot(xs_pep, ys_pep, label='pep')
     for (i, key) in enumerate(KEYS):
         if key != 'cwnd':
             continue
-        for ((xs, ys), label) in [(xy_quic, 'quic'), (xy_quack, 'quack')]:
+        for ((xs, ys), label) in [(xy_quack, 'quack'), (xy_quic, 'quic')]:
             xs = xs[key]
             ys = ys[key]
             plt.plot(xs, ys, label=f'{label}')
@@ -85,7 +87,7 @@ def plot_graph(tcp_filename, quic_filename, quack_filename, max_x_arg,
     else:
         plt.xlim(0, max_x)
     plt.ylim(0, 600)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=3)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
     pdf = 'cwnd_{}s_loss{}p.pdf'.format(max_x_arg, loss)
     plt.title(pdf)
     print(pdf)
@@ -93,68 +95,53 @@ def plot_graph(tcp_filename, quic_filename, quack_filename, max_x_arg,
     plt.clf()
 
 def run(args, loss):
-    quic_filename = 'cwnd_quic_{}_loss{}p.out'.format(args.quic_n, loss)
-    quic_filename = f'{WORKDIR}/results/cwnd/{quic_filename}'
-    print(quic_filename)
-    if not path.exists(quic_filename):
-        if not args.execute:
-            print('ERROR: path does not exist: {}'.format(quic_filename))
-            exit(1)
-        assert args.quic_n is not None
-        cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.quic_n,
-               '--loss2', loss, '-t', '1', '--benchmark', 'quic']
-        cmd += args.args
-        print(' '.join(cmd))
-        p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
-        with open(quic_filename, 'wb') as f:
-            for line in p.stdout:
-                f.write(line)
-        p.wait()
-
-    quack_filename = 'cwnd_quack_{}_loss{}p.out'.format(args.quack_n, loss)
-    quack_filename = f'{WORKDIR}/results/cwnd/{quack_filename}'
-    print(quack_filename)
-    if not path.exists(quack_filename):
-        if not args.execute:
-            print('ERROR: path does not exist: {}'.format(quack_filename))
-            exit(1)
-        assert args.quack_n is not None
-        cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.quack_n,
-               '--loss2', loss, '-t', '1', '--benchmark', 'quic', '-s', '2ms']
-        cmd += args.args
-        print(' '.join(cmd))
-        p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
-        with open(quack_filename, 'wb') as f:
-            for line in p.stdout:
-                f.write(line)
-        p.wait()
-
+    keys = ['quic', 'quack', 'tcp', 'pep']
+    data = {}
     # basically hardcoded time to get the right-length iperf test
     if args.tcp is None:
         time_s = int(25 * (float(loss) + 1))
     else:
         time_s = int(args.tcp)
-    tcp_filename = 'cwnd_tcp_{}s_loss{}p.out'.format(time_s, loss)
-    tcp_filename = f'{WORKDIR}/results/cwnd/{tcp_filename}'
-    print(tcp_filename)
-    if not path.exists(tcp_filename):
+    data['quic'] = 'cwnd_quic_{}_loss{}p.out'.format(args.quic_n, loss)
+    data['quack'] = 'cwnd_quack_{}_loss{}p.out'.format(args.quack_n, loss)
+    data['tcp'] = 'cwnd_tcp_{}s_loss{}p.out'.format(time_s, loss)
+    data['pep'] = 'cwnd_pep_{}s_loss{}p.out'.format(time_s, loss)
+
+    for key in keys:
+        data[key] = f'{WORKDIR}/results/cwnd/{data[key]}'
+        filename = data[key]
+        print(filename)
+        if path.exists(filename):
+            continue
         if not args.execute:
-            print('ERROR: path does not exist: {}'.format(tcp_filename))
+            print('ERROR: path does not exist: {}'.format(filename))
             exit(1)
-        cmd = ['sudo', '-E', 'python3', 'mininet/net.py',
-               '--loss2', loss, '--iperf', str(time_s)]
+
+        cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', loss]
+        if key == 'quic':
+            assert args.quic_n is not None
+            cmd += ['-n', args.quic_n, '--benchmark', 'quic', '-t', '1']
+        elif key == 'quack':
+            assert args.quack_n is not None
+            cmd += ['-n', args.quack_n, '--benchmark', 'quic', '-t', '1',
+                    '-s', '2ms']
+        elif key == 'tcp':
+            cmd += ['--iperf', str(time_s)]
+        elif key == 'pep':
+            cmd += ['--iperf', str(time_s), '--pep']
+
+        cmd += args.args
         print(' '.join(cmd))
         p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
-        with open(tcp_filename, 'wb') as f:
+        with open(filename, 'wb') as f:
             for line in p.stdout:
                 f.write(line)
         p.wait()
 
-    plot_graph(tcp_filename=tcp_filename, quic_filename=quic_filename,
-        quack_filename=quack_filename, max_x_arg=args.max_x, loss=loss)
+    plot_graph(tcp_filename=data['tcp'], pep_filename=data['pep'],
+        quic_filename=data['quic'], quack_filename=data['quack'],
+        max_x_arg=args.max_x, loss=loss)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
