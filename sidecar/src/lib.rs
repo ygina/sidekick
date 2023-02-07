@@ -26,7 +26,7 @@ pub struct Sidecar {
     pub threshold: usize,
     pub bits: usize,
     // TODO: is there a better way to do synchronization?
-    quack: Quack,
+    quack: PowerSumQuack,
     log: IdentifierLog,
 }
 
@@ -44,7 +44,7 @@ impl Sidecar {
             interface: interface.to_string(),
             threshold,
             bits,
-            quack: Quack::new(threshold),
+            quack: PowerSumQuack::new(threshold),
             log: vec![],
         }
     }
@@ -61,7 +61,7 @@ impl Sidecar {
 
     /// Reset the sidecar state.
     pub fn reset(&mut self) {
-        self.quack = Quack::new(self.threshold);
+        self.quack = PowerSumQuack::new(self.threshold);
         self.log = vec![];
     }
 
@@ -206,12 +206,12 @@ impl Sidecar {
 
     /// Receive quACKs on the given UDP port. Returns the channel on which
     /// to loop received quACKs.
-    pub fn listen(&self, port: u16) -> mpsc::Receiver<Quack> {
+    pub fn listen(&self, port: u16) -> mpsc::Receiver<PowerSumQuack> {
         // https://docs.rs/tokio/latest/tokio/sync/mpsc/fn.channel.html
         // buffer up to 100 messages
         let (tx, rx) = mpsc::channel(100);
         let buf_len = {
-            let quack = Quack::new(self.threshold);
+            let quack = PowerSumQuack::new(self.threshold);
             bincode::serialize(&quack).unwrap().len()
         };
         debug!("allocating {} bytes for receiving quACKs", buf_len);
@@ -224,7 +224,7 @@ impl Sidecar {
                 let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
                 assert_eq!(nbytes, buf.len());
                 // TODO: check that it's actually a quack
-                let quack: Quack = bincode::deserialize(&buf).unwrap();
+                let quack: PowerSumQuack = bincode::deserialize(&buf).unwrap();
                 trace!("received quACK with count {}", quack.count);
                 tx.send(quack).await.unwrap();
             }
@@ -233,12 +233,12 @@ impl Sidecar {
     }
 
     /// Snapshot the quACK.
-    pub fn quack(&self) -> Quack {
+    pub fn quack(&self) -> PowerSumQuack {
         self.quack.clone()
     }
 
     /// Snapshot the quACK and current log.
-    pub fn quack_with_log(&self) -> (Quack, IdentifierLog) {
+    pub fn quack_with_log(&self) -> (PowerSumQuack, IdentifierLog) {
         // TODO: don't clone the log
         (self.quack.clone(), self.log.clone())
     }

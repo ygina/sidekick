@@ -1,13 +1,13 @@
 use std::fmt;
 use log::{trace, info, debug};
 
-use crate::{Quack, Identifier};
+use crate::{PowerSumQuack, Identifier};
 use crate::arithmetic::*;
 
 pub type IdentifierLog = Vec<Identifier>;
 
 pub struct DecodedQuack {
-    pub quack: Quack,
+    pub quack: PowerSumQuack,
     pub log: IdentifierLog,
     // Indexes of the missing packets in the identifier log.
     pub indexes: Vec<usize>,
@@ -30,7 +30,7 @@ impl fmt::Debug for DecodedQuack {
 }
 
 impl DecodedQuack {
-    pub fn to_coeffs(quack: &Quack) -> Vec<ModularInteger> {
+    pub fn to_coeffs(quack: &PowerSumQuack) -> Vec<ModularInteger> {
         assert!(quack.count > 0);
         let mut coeffs = (0..quack.count)
             .map(|_| ModularInteger::zero())
@@ -39,7 +39,7 @@ impl DecodedQuack {
         coeffs
     }
 
-    pub fn decode(quack: Quack, log: IdentifierLog) -> Self {
+    pub fn decode(quack: PowerSumQuack, log: IdentifierLog) -> Self {
         let num_packets = log.len();
         let num_missing = quack.count;
         info!("decoding quACK: num_packets={}, num_missing={}",
@@ -115,7 +115,7 @@ mod test {
 
     #[test]
     fn test_decode_empty_quack() {
-        let quack = Quack::new(10);
+        let quack = PowerSumQuack::new(10);
         let log = vec![1, 2, 3];
         let result = DecodedQuack::decode(quack, log);
         assert_eq!(result.num_suffix(), 0);
@@ -127,11 +127,11 @@ mod test {
     #[test]
     fn test_quack_decode() {
         let log = vec![1, 2, 3, 4, 5, 6];
-        let mut q1 = Quack::new(3);
+        let mut q1 = PowerSumQuack::new(3);
         for x in &log {
             q1.insert(*x);
         }
-        let mut q2 = Quack::new(3);
+        let mut q2 = PowerSumQuack::new(3);
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
