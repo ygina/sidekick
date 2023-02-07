@@ -5,6 +5,7 @@ import time
 import client
 import re
 import os
+import subprocess
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -59,7 +60,7 @@ class SidecarNetwork():
         self.tso = args.tso
 
     def clean_logs(self):
-        os.system('rm -f r1.log h1.log h2.log')
+        os.system('rm -f r1.log h1.log h2.log f1.log f2.log')
 
     def start_webserver(self):
         # Start the webserver on h1
@@ -163,15 +164,84 @@ class SidecarNetwork():
         self.start_webserver()
         if self.pep:
             self.start_tcp_pep()
-        elif self.sidecar is not None:
+        if self.sidecar is not None:
             self.start_quack_sender()
-        else:
-            sclog('NOT starting the TCP PEP or sidecar')
 
     def iperf(self, time_s):
         self.start_and_configure()
         self.h1.cmd('iperf3 -s -f m > /dev/null 2>&1 &')
         self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic -i 0.1')
+
+    def multiflow(self, f1, f2, delay):
+        """
+        o = currently possible
+        x = needs to be implemented
+        - = impossible
+
+              pep quack quic tcp
+        pep   o   o     o    -
+        quack -   x     o    o
+        quic  -   -     o    o
+        tcp   -   -     -    o
+        """
+        assert args.nbytes is not None
+        assert not (f1 == 'quack' and f2 == 'quack')
+        assert not (f1 == 'tcp' and f2 == 'pep')
+        assert not (f1 == 'pep' and f2 == 'tcp')
+        if 'pep' in [f1, f2]:
+            self.pep = True
+        if 'quack' in [f1, f2]:
+            self.sidecar = '2ms'
+        self.start_and_configure()
+
+        def make_cmd(bm):
+            if bm in ['tcp', 'pep']:
+                http_version = 1
+            elif bm in ['quic', 'quack']:
+                http_version = 3
+            elif bm == 'null':
+                return 'echo ""'
+            else:
+                raise f'invalid benchmark: {bm}'
+            cmd = ['python3', 'mininet/client.py', '-n', args.nbytes,
+                   '--http', str(http_version),
+                   '--stdout', args.stdout, '--stderr', args.stderr,
+                   '-cc', self.cc, '--loss', str(self.loss2), '-t', '1']
+            if bm == 'quack':
+                cmd += ['-s', 'h2-eth0', str(self.threshold), '--quack-reset']
+            return cmd
+
+        f1_cmd = make_cmd(f1)
+        f2_cmd = make_cmd(f2)
+
+        home_dir = os.environ['HOME']
+        prefix = f'{home_dir}/sidecar/results/multiflow/loss{self.loss2}p'
+        pcap_file = f'{prefix}/{f1}_{f2}_{args.nbytes}_delay{args.delay}s.pcap'
+        os.system(f'mkdir -p {prefix}')
+        os.system(f'rm -f {pcap_file}')
+        self.h1.cmd(f"tcpdump -w {pcap_file} -i h1-eth0 'ip src 10.0.2.10 and (tcp or udp)' &")
+        p1 = self.h2.popen(f1_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        time.sleep(args.delay)
+        p2 = self.h2.popen(f2_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        def wait(p, logfile, i, bm):
+            with open(logfile, 'ab') as f:
+                for line in p.stdout:
+                    f.write(line)
+                    if b'200' in line:
+                        sys.stdout.buffer.write(line.strip())
+                        sys.stdout.buffer.write(
+                            bytes(f'\t\t(flow{i}={bm})\n', 'utf-8'))
+                        sys.stdout.buffer.flush()
+                    if b'time_total' in line and b'sidecurl' not in line:
+                        sys.stdout.buffer.write(line)
+                        sys.stdout.buffer.flush()
+            p.wait()
+
+        wait(p1, 'f1.log', 1, f1)
+        wait(p2, 'f2.log', 2, f2)
+        print(pcap_file)
+
 
     def benchmark(self, args):
         if args.benchmark is None:
@@ -225,7 +295,6 @@ class SidecarNetwork():
     def stop(self):
         if self.net is not None:
             self.net.stop()
-
 
 if __name__ == '__main__':
     setLogLevel('info')
@@ -321,12 +390,24 @@ if __name__ == '__main__':
                         help='Send packets only if cwnd > mtu')
     parser.add_argument('--quack-reset', action='store_true',
                         help='Whether to send quack reset messages')
+
+    subparsers = parser.add_subparsers(title='subcommands')
+    mf = subparsers.add_parser('multiflow', help='run two flows simultaneously')
+    mf.add_argument('-f1', '--flow1', required=True,
+                    help='[quack|quic|tcp|pep]')
+    mf.add_argument('-f2', '--flow2', required=True,
+                    help='[quack|quic|tcp|pep]')
+    mf.add_argument('-d', '--delay', default=0, type=int,
+                    help='delay in starting flow2, in s (default: 0)')
+
     args = parser.parse_args()
     sc = SidecarNetwork(args)
     sc.clean_logs()
 
     if args.iperf is not None:
         sc.iperf(args.iperf)
+    elif hasattr(args, 'flow1') and hasattr(args, 'flow2'):
+        sc.multiflow(args.flow1, args.flow2, args.delay)
     elif args.benchmark is not None:
         sc.benchmark(args)
     else:
