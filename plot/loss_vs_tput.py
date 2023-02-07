@@ -9,7 +9,7 @@ from os import path
 from collections import defaultdict
 from common import *
 
-KEYS = ['tcp', 'quic', 'quack', 'pep']
+KEYS = ['pep', 'quack', 'quic', 'tcp']
 TARGET_XS = {}
 # [x for x in range(0, 30, 2)] + \
 TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
@@ -21,6 +21,8 @@ TARGET_XS['quic'] = [x for x in range(0, 20, 5)] + \
                     [x for x in range(40, 100, 20)] + \
                     [x for x in range(100, 500, 20)] + \
                     [x for x in range(500, 1000, 100)]
+# TARGET_XS['tcp'] = [0]
+# TARGET_XS['quic'] = [0]
 TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
 TARGET_XS['pep'] = TARGET_XS['quack']
 WORKDIR = os.environ['HOME'] + '/sidecar'

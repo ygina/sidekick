@@ -87,7 +87,7 @@ def maybe_collect_missing_data(args, filename, bm, data_sizes,
         subprocess.Popen(['mkdir', '-p', f'results/{suffix}'],
                          cwd=args.workdir).wait()
         cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', str(loss),
-            '--benchmark'] + bm_args + ['-t', str(args.trials), '-n', f'{n}k']
+            '--benchmark'] + bm_args + ['-t', str(missing), '-n', f'{n}k']
         print(cmd)
         p = subprocess.Popen(cmd, cwd=args.workdir, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
@@ -149,7 +149,7 @@ def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
         fontsize=fontsize)
     ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4,
         fontsize=fontsize)
-    ax.set_ylabel('Goodput (MB/s)', fontsize=fontsize)
+    ax.set_ylabel('Goodput (Mbyte/s)', fontsize=fontsize)
     ax.set_title(f'{loss}% loss on near subpath', fontsize=fontsize+5)
     ax.set_ylim(0, 1.2)
     if pdf is not None:
