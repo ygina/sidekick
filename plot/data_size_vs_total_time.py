@@ -12,23 +12,29 @@ NUM_TRIALS = None
 MAX_X = None
 EXECUTE = None
 WORKDIR = None
-TARGET_XS = [x for x in range(100, 1000, 100)] + \
-            [x for x in range(1000, 20000, 1000)] + \
-            [x for x in range(20000, 40000, 2000)] + \
-            [x for x in range(40000, 100000, 10000)]
+# TARGET_XS = [x for x in range(100, 1000, 100)] + \
+#             [x for x in range(1000, 20000, 1000)] + \
+#             [x for x in range(20000, 40000, 2000)] + \
+#             [x for x in range(40000, 100000, 10000)]
+TARGET_XS = [x for x in range(200, 1000, 200)] + \
+            [x for x in range(1000, 10000, 1000)] + \
+            [x for x in range(10000, 20000, 2000)] + \
+            [x for x in range(20000, 100000, 5000)] + \
+            [100000]
 LOSSES = [0, 1, 2, 5]
 HTTP_VERSIONS = [
     'pep',
+    'quack-2ms-r',
     'quic',
+    'tcp',
     # 'quic-m',
     # 'quack-2ms',
-    'quack-2ms-r',
     # 'quack-2ms-m',
     # 'quack-2ms-rm',
     # 'quack-2ms-20-reset',
     # 'quack-2ms-20',
     # 'quic',
-    'tcp',
+
     # 'quic-quiche-5a753c25',
     # 'quic-bw10',
     # 'quic-1460',
@@ -111,7 +117,8 @@ def execute_cmd(loss, http_version, cc, trials, data_size, bw2):
             f.write(line)
     p.wait()
 
-def parse_data(loss, cc, http_version, bw2, normalize, data_key='time_total'):
+def parse_data(loss, http_version, bw2=100, normalize=True, cc='cubic',
+               data_key='time_total'):
     """
     Parses the median keyed time and the data size.
     ([data_size], [time_total])
@@ -219,8 +226,8 @@ def plot_graph(loss, cc, bw2, pdf,
             open(filename, 'w')
             continue
         try:
-            data[http_version] = parse_data(loss, cc, http_version, bw2,
-                                            normalize, data_key=data_key)
+            data[http_version] = parse_data(loss, http_version, bw2, normalize,
+                                            cc=cc, data_key=data_key)
         except Exception as e:
             print('Error parsing: {}'.format(filename))
             print(e)
@@ -241,7 +248,7 @@ def plot_graph(loss, cc, bw2, pdf,
             plt.errorbar(xs, ys, yerr=yerr, label=label, marker=MARKERS[i])
     plt.xlabel('Data Size (MB)')
     if normalize:
-        plt.ylabel('{} tput (MB/s)'.format(data_key))
+        plt.ylabel('Goodput (MB/s)')
     else:
         plt.ylabel('{} (s)'.format(data_key))
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.55), ncol=2)

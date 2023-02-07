@@ -169,7 +169,8 @@ def parse_data(r1_filename, h2_filename):
     return (xs, ys)
 
 def plot_graph(xs, ys, data_size, loss, threshold):
-    for (i, key) in enumerate(['r1', 'h2', 'diff', 'lost_quack', 'lost_e2e', 'h2-r1']):
+    # for (i, key) in enumerate(['r1', 'h2', 'diff', 'lost_quack', 'lost_e2e', 'h2-r1']):
+    for (i, key) in enumerate(['r1', 'h2', 'diff', 'lost_quack', 'h2-r1']):
         plt.plot(xs, ys[key], label=key)
     plt.plot(xs, ys['cwnd'], label='cwnd')
     plt.xlabel('Time (s)')

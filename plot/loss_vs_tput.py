@@ -9,14 +9,20 @@ from os import path
 from collections import defaultdict
 from common import *
 
-KEYS = ['tcp', 'quic']
+KEYS = ['tcp', 'quic', 'quack', 'pep']
 TARGET_XS = {}
-TARGET_XS['tcp'] =  [x for x in range(0, 30, 2)] + \
-                    [x for x in range(0, 100, 10)] + \
-                    [100]
-TARGET_XS['quic'] = [x for x in range(0, 30, 2)] + \
-                    [x for x in range(30, 200, 10)] + \
-                    [200]
+# [x for x in range(0, 30, 2)] + \
+TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
+                    [x for x in range(20, 40, 10)] + \
+                    [x for x in range(40, 100, 20)] + \
+                    [x for x in range(100, 1000, 100)]
+TARGET_XS['quic'] = [x for x in range(0, 20, 5)] + \
+                    [x for x in range(20, 40, 10)] + \
+                    [x for x in range(40, 100, 20)] + \
+                    [x for x in range(100, 500, 20)] + \
+                    [x for x in range(500, 1000, 100)]
+TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
+TARGET_XS['pep'] = TARGET_XS['quack']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def empty_list():
@@ -25,7 +31,10 @@ def empty_list():
 def collect_ys(ys, n):
     assert n[-1] == 'M'
     n_megabyte = int(n[:-1]) * 1.0
-    return [n_megabyte / statistics.mean(ys)]
+    ys = [n_megabyte / y for y in ys]
+    y = statistics.mean(ys)
+    yerr = 0 if len(ys) == 1 else statistics.stdev(ys)
+    return (y, yerr)
 
 def parse_data(filename, key, trials, max_x, data_key='time_total'):
     loss = None
@@ -39,7 +48,7 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
         line = line.strip()
 
         # Get the current loss percentage in hundredths of a percent
-        m = re.search(r'.*1ms delay (\S+)% loss.*', line)
+        m = re.search(r'.*--loss (\S+) .*', line)
         if m is not None:
             loss = round(float(m.group(1)) * 100.0)
             continue
@@ -64,6 +73,11 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
             exitcode_index = None
         else:
             line = line.split()
+            if len(line) < exitcode_index:
+                loss = None
+                key_index = None
+                exitcode_index = None
+                continue
             if exitcode_index is not None and int(line[exitcode_index]) != 0:
                 continue
             data[loss].append(float(line[key_index]))
@@ -94,8 +108,18 @@ def maybe_collect_missing_data(filename, key, args):
         loss = f'{xs[i]*0.01:.2f}'
         if missing == 0:
             continue
+        if key == 'quack':
+            extra_args = ['--benchmark', 'quic', '-s', '2ms']
+        elif key == 'pep':
+            extra_args = ['--benchmark', 'tcp', '--pep']
+        elif key == 'tcp' or key == 'quic':
+            extra_args = ['--benchmark', key]
+        else:
+            print('unknown key:', key)
+            exit()
         cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.n,
-               '--loss2', loss, '-t', str(missing), '--benchmark', key]
+               '--loss2', loss, '-t', str(missing)]
+        cmd += extra_args
         cmd += args.args
         print(' '.join(cmd))
         p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
@@ -108,14 +132,15 @@ def maybe_collect_missing_data(filename, key, args):
 
 def plot_graph(data, pdf):
     max_x = 0
+    plt.figure(figsize=(15, 5))
     for (i, key) in enumerate(KEYS):
-        (xs, ys) = data[key]
-        plt.plot(xs, ys, marker=MARKERS[i], label=key)
+        (xs, ys, yerr) = data[key]
+        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=key)
         max_x = max(max_x, max(xs))
     plt.xlabel('Loss (%)')
-    plt.ylabel('Tput (MB/s)')
+    plt.ylabel('Goodput (MBytes/s)')
     plt.xlim(0, max_x)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=4)
     plt.title(pdf)
     print(pdf)
     save_pdf(pdf)
@@ -127,8 +152,8 @@ if __name__ == '__main__':
         help='whether to execute benchmarks to collect missing data points')
     parser.add_argument('-n', default='20M',
         help='data size (default: 20M)')
-    parser.add_argument('-t', '--trials', default=5, type=int,
-        help='number of trials per data point (default: 5)')
+    parser.add_argument('-t', '--trials', default=1, type=int,
+        help='number of trials per data point (default: 1)')
     parser.add_argument('--bw', default=100, type=int,
         help='bandwidth of near subpath link in Mbps (default: 100)')
     parser.add_argument('--max-x', default=200, type=int,
@@ -151,12 +176,15 @@ if __name__ == '__main__':
         (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
         new_xs = []
         new_ys = []
+        new_yerrs = []
         for i in range(len(ys)):
             if len(ys[i]) == 0:
                 continue
             new_xs.append(0.01*xs[i])
-            new_ys.append(collect_ys(ys[i], args.n))
-        data[key] = (new_xs, new_ys)
+            (collected_ys, yerr) = collect_ys(ys[i], args.n)
+            new_ys.append(collected_ys)
+            new_yerrs.append(yerr)
+        data[key] = (new_xs, new_ys, new_yerrs)
 
     # Plot data.
     pdf = f'loss_bw{args.bw}_{args.n}.pdf'
