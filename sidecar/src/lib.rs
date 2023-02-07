@@ -12,6 +12,7 @@ pub use socket::Socket;
 use socket::SockAddr;
 use buffer::{BUFFER_SIZE, Direction, UdpParser};
 pub use buffer::ID_OFFSET;
+use crate::Quack;
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum SidecarType {
@@ -198,7 +199,7 @@ impl Sidecar {
             mod_count = (mod_count + 1) % frequency_pkts;
             if mod_count == 0 {
                 let bytes = bincode::serialize(&self.quack).unwrap();
-                info!("quack {}", self.quack.count);
+                info!("quack {}", self.quack.count());
                 sendsock.send_to(&bytes, sendaddr).await.unwrap();
             }
         }
@@ -225,7 +226,7 @@ impl Sidecar {
                 assert_eq!(nbytes, buf.len());
                 // TODO: check that it's actually a quack
                 let quack: PowerSumQuack = bincode::deserialize(&buf).unwrap();
-                trace!("received quACK with count {}", quack.count);
+                trace!("received quACK with count {}", quack.count());
                 tx.send(quack).await.unwrap();
             }
         });

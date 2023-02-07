@@ -3,7 +3,7 @@ use crate::common::*;
 use std::time::{Instant, Duration};
 use log::info;
 use rand::Rng;
-use quack::PowerSumQuack;
+use quack::{Quack, PowerSumQuack};
 
 fn benchmark_construct_32(
     size: usize,

@@ -10,17 +10,25 @@ fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
     (0..(size as u32)).map(|i| ModularInteger::new(i+1).inv()).collect()
 }
 
+pub trait Quack {
+    fn new(threshold: usize) -> Self;
+    fn insert(&mut self, value: Identifier);
+    fn remove(&mut self, value: Identifier);
+    fn threshold(&self) -> usize;
+    fn count(&self) -> u16;
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PowerSumQuack {
     // https://serde.rs/attr-skip-serializing.html
     #[serde(skip)]
     inverse_table: Vec<ModularInteger>,
-    pub power_sums: Vec<ModularInteger>,
-    pub count: u16,
+    power_sums: Vec<ModularInteger>,
+    count: u16,
 }
 
-impl PowerSumQuack {
-    pub fn new(size: usize) -> Self {
+impl Quack for PowerSumQuack {
+    fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
         Self {
             inverse_table: modular_inverse_table(size),
@@ -29,7 +37,7 @@ impl PowerSumQuack {
         }
     }
 
-    pub fn insert(&mut self, value: Identifier) {
+    fn insert(&mut self, value: Identifier) {
         trace!("insert {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::new(value);
@@ -43,7 +51,7 @@ impl PowerSumQuack {
         self.count += 1;
     }
 
-    pub fn remove(&mut self, value: Identifier) {
+    fn remove(&mut self, value: Identifier) {
         trace!("remove {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::new(value);
@@ -57,6 +65,16 @@ impl PowerSumQuack {
         self.count -= 1;
     }
 
+    fn threshold(&self) -> usize {
+        self.power_sums.len()
+    }
+
+    fn count(&self) -> u16 {
+        self.count
+    }
+}
+
+impl PowerSumQuack {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
     pub(crate) fn to_polynomial_coefficients(
