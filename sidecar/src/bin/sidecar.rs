@@ -6,7 +6,7 @@ use tokio::net::UdpSocket;
 use tokio::time::{self, Duration};
 use tokio::sync::oneshot;
 use log::{debug, info};
-use quack::DecodedQuack;
+use quack::{Quack, DecodedQuack};
 
 #[derive(Subcommand, Debug)]
 enum CliSidecarType {
@@ -68,7 +68,7 @@ async fn send_quacks(
             interval.tick().await;
             let quack = sc.lock().unwrap().quack();
             let bytes = bincode::serialize(&quack).unwrap();
-            info!("quack {}", quack.count);
+            info!("quack {}", quack.count());
             socket.send_to(&bytes, addr).await.unwrap();
         }
     }
@@ -87,7 +87,7 @@ async fn print_quacks(
         loop {
             interval.tick().await;
             let quack = sc.lock().unwrap().quack();
-            info!("quack {}", quack.count);
+            info!("quack {}", quack.count());
         }
     }
 }

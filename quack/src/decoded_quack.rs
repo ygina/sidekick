@@ -1,7 +1,7 @@
 use std::fmt;
 use log::{trace, info, debug};
 
-use crate::{PowerSumQuack, Identifier};
+use crate::{Quack, PowerSumQuack, Identifier};
 use crate::arithmetic::*;
 
 pub type IdentifierLog = Vec<Identifier>;
@@ -22,7 +22,7 @@ impl fmt::Display for DecodedQuack {
 impl fmt::Debug for DecodedQuack {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("DecodedQuack")
-         .field("quack_count", &self.quack.count)
+         .field("quack_count", &self.quack.count())
          .field("log_length", &self.log.len())
          .field("indexes", &self.indexes)
          .finish()
@@ -31,8 +31,8 @@ impl fmt::Debug for DecodedQuack {
 
 impl DecodedQuack {
     pub fn to_coeffs(quack: &PowerSumQuack) -> Vec<ModularInteger> {
-        assert!(quack.count > 0);
-        let mut coeffs = (0..quack.count)
+        assert!(quack.count() > 0);
+        let mut coeffs = (0..quack.count())
             .map(|_| ModularInteger::zero())
             .collect();
         quack.to_polynomial_coefficients(&mut coeffs);
@@ -41,7 +41,7 @@ impl DecodedQuack {
 
     pub fn decode(quack: PowerSumQuack, log: IdentifierLog) -> Self {
         let num_packets = log.len();
-        let num_missing = quack.count;
+        let num_missing = quack.count();
         info!("decoding quACK: num_packets={}, num_missing={}",
             num_packets, num_missing);
         if num_missing == 0 {
