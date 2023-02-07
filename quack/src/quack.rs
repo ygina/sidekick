@@ -11,7 +11,7 @@ fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct Quack {
+pub struct PowerSumQuack {
     // https://serde.rs/attr-skip-serializing.html
     #[serde(skip)]
     inverse_table: Vec<ModularInteger>,
@@ -19,7 +19,7 @@ pub struct Quack {
     pub count: u16,
 }
 
-impl Quack {
+impl PowerSumQuack {
     pub fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
         Self {
@@ -75,7 +75,7 @@ impl Quack {
     }
 }
 
-impl SubAssign for Quack {
+impl SubAssign for PowerSumQuack {
     fn sub_assign(&mut self, rhs: Self) {
         assert_eq!(self.power_sums.len(), rhs.power_sums.len(),
             "expected subtracted quacks to have the same number of sums");
@@ -90,7 +90,7 @@ impl SubAssign for Quack {
     }
 }
 
-impl Sub for Quack {
+impl Sub for PowerSumQuack {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -107,7 +107,7 @@ mod test {
     #[test]
     fn test_quack_constructor() {
         let size = 3;
-        let quack = Quack::new(size);
+        let quack = PowerSumQuack::new(size);
         assert_eq!(quack.count, 0);
         assert_eq!(quack.power_sums.len(), size);
         for i in 0..size {
@@ -117,7 +117,7 @@ mod test {
 
     #[test]
     fn test_quack_insert_no_modulus() {
-        let mut quack = Quack::new(3);
+        let mut quack = PowerSumQuack::new(3);
         quack.insert(1);
         assert_eq!(quack.count, 1);
         assert_eq!(quack.power_sums, vec![1, 1, 1]);
@@ -131,7 +131,7 @@ mod test {
 
     #[test]
     fn test_quack_insert_with_modulus() {
-        let mut quack = Quack::new(5);
+        let mut quack = PowerSumQuack::new(5);
         quack.insert(1143971604);
         quack.insert(734067013);
         quack.insert(130412990);
@@ -145,7 +145,7 @@ mod test {
 
     #[test]
     fn test_quack_to_polynomial_coefficients() {
-        let mut quack = Quack::new(5);
+        let mut quack = PowerSumQuack::new(5);
         quack.insert(3616712547);
         quack.insert(2333013068);
         quack.insert(2234311686);
@@ -162,10 +162,10 @@ mod test {
     #[test]
     #[should_panic]
     fn test_quack_sub_with_underflow() {
-        let mut q1 = Quack::new(3);
+        let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
         q1.insert(2);
-        let mut q2 = Quack::new(3);
+        let mut q2 = PowerSumQuack::new(3);
         q2.insert(1);
         q2.insert(2);
         q2.insert(3);
@@ -175,10 +175,10 @@ mod test {
     #[test]
     #[should_panic]
     fn test_quack_sub_with_diff_thresholds() {
-        let mut q1 = Quack::new(3);
+        let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
         q1.insert(2);
-        let mut q2 = Quack::new(2);
+        let mut q2 = PowerSumQuack::new(2);
         q2.insert(1);
         q2.insert(2);
         let _ = q1 - q2;
@@ -187,7 +187,7 @@ mod test {
     #[test]
     fn test_quack_sub_num_missing_eq_threshold() {
         let mut coeffs = (0..3).map(|_| ModularInteger::zero()).collect();
-        let mut q1 = Quack::new(3);
+        let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
@@ -204,13 +204,13 @@ mod test {
     #[test]
     fn test_quack_sub_num_missing_lt_threshold() {
         let mut coeffs = (0..3).map(|_| ModularInteger::zero()).collect();
-        let mut q1 = Quack::new(3);
+        let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
         q1.insert(4);
         q1.insert(5);
-        let mut q2 = Quack::new(3);
+        let mut q2 = PowerSumQuack::new(3);
         q2.insert(1);
         q2.insert(2);
         q2.insert(3);
@@ -226,7 +226,7 @@ mod test {
     #[test]
     #[ignore]
     fn test_quack_serialize() {
-        let mut quack = Quack::new(10);
+        let mut quack = PowerSumQuack::new(10);
         let bytes = bincode::serialize(&quack).unwrap();
         // expected length is 4*10+2 = 42 bytes (ten u32 sums and a u16 count)
         // TODO: extra 8 bytes from bincode
@@ -242,21 +242,21 @@ mod test {
 
     #[test]
     fn test_quack_deserialize_empty() {
-        let q1 = Quack::new(10);
+        let q1 = PowerSumQuack::new(10);
         let bytes = bincode::serialize(&q1).unwrap();
-        let q2: Quack = bincode::deserialize(&bytes).unwrap();
+        let q2: PowerSumQuack = bincode::deserialize(&bytes).unwrap();
         assert_eq!(q1.count, q2.count);
         assert_eq!(q1.power_sums, q2.power_sums);
     }
 
     #[test]
     fn test_quack_deserialize_with_data() {
-        let mut q1 = Quack::new(10);
+        let mut q1 = PowerSumQuack::new(10);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
         let bytes = bincode::serialize(&q1).unwrap();
-        let q2: Quack = bincode::deserialize(&bytes).unwrap();
+        let q2: PowerSumQuack = bincode::deserialize(&bytes).unwrap();
         assert_eq!(q1.count, q2.count);
         assert_eq!(q1.power_sums, q2.power_sums);
     }

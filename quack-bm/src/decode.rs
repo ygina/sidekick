@@ -21,9 +21,9 @@ fn benchmark_decode_32(
         let numbers: IdentifierLog =
             (0..num_packets).map(|_| rng.gen()).collect();
 
-        // Construct two empty Quacks.
-        let mut acc1 = Quack::new(size);
-        let mut acc2 = Quack::new(size);
+        // Construct two empty PowerSumQuacks.
+        let mut acc1 = PowerSumQuack::new(size);
+        let mut acc2 = PowerSumQuack::new(size);
 
         // Insert all random numbers into the first accumulator.
         for j in 0..num_packets {

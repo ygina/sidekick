@@ -1,10 +1,10 @@
 use std::fs::File;
 use std::io::Write;
 use bincode;
-use quack::Quack;
+use quack::PowerSumQuack;
 
 fn main() {
-    let mut q = Quack::new(20);
+    let mut q = PowerSumQuack::new(20);
     for id in [1, 2, 3] {
         q.insert(id);
     }
