@@ -9,7 +9,7 @@ from os import path
 from common import *
 
 LOSSES = ['0', '0.25', '1', '2', '5']
-KEYS = ['cwnd', 'bytes_in_flight']
+KEYS = ['cwnd']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
@@ -40,7 +40,7 @@ def parse_quic_data(filename):
         xs[key] = [x - min_x for x in xs[key]]
     return (xs, ys)
 
-def parse_tcp_data(filename):
+def parse_tcp_data_iperf(filename):
     with open(filename) as f:
         lines = f.read().split('\n')
     xs = []
@@ -60,33 +60,56 @@ def parse_tcp_data(filename):
 
     return (xs, ys)
 
-def plot_graph(tcp_filename, pep_filename, quic_filename, quack_filename,
-               max_x_arg, loss):
-    xy_quic = parse_quic_data(quic_filename)
-    xy_quack = parse_quic_data(quack_filename)
-    (xs_tcp, ys_tcp) = parse_tcp_data(tcp_filename)
-    (xs_pep, ys_pep) = parse_tcp_data(pep_filename)
+def parse_tcp_data_ss(filename):
+    with open(filename) as f:
+        lines = f.read().split('\n')
+    xs = []
+    ys = []
 
-    max_x = 0
-    plt.figure(figsize=(9, 6))
-    plt.plot(xs_pep, ys_pep, label='pep')
-    for (i, key) in enumerate(KEYS):
-        if key != 'cwnd':
+    interval_s = 0.1
+    for line in lines:
+        line = line.strip()
+        r = r'.*cwnd:(\d+).*'
+        m = re.search(r, line)
+        if m is None:
             continue
-        for ((xs, ys), label) in [(xy_quack, 'quack'), (xy_quic, 'quic')]:
-            xs = xs[key]
-            ys = ys[key]
-            plt.plot(xs, ys, label=f'{label}')
-            max_x = max(max_x, max(xs))
-    plt.plot(xs_tcp, ys_tcp, label='tcp')
+        m = m.groups()
+        y = float(m[0]) * 1.5
+        x = interval_s * len(ys)
+        xs.append(x)
+        ys.append(y)
+
+    return (xs, ys)
+
+def plot_graph(data, iperf, max_x_arg, loss):
+    xy_quic = parse_quic_data(data['quic'])
+    xy_quack = parse_quic_data(data['quack'])
+    if iperf:
+        xy_tcp = parse_tcp_data_iperf(data['tcp'])
+        xy_pep_h2 = parse_tcp_data_iperf(data['pep_h2'])
+        xy_pep_r1 = parse_tcp_data_iperf(data['pep_r1'])
+    else:
+        xy_tcp = parse_tcp_data_ss(data['tcp'])
+        xy_pep_h2 = parse_tcp_data_ss(data['pep_h2'])
+        xy_pep_r1 = parse_tcp_data_ss(data['pep_r1'])
+
+    plt.figure(figsize=(9, 6))
+    plot_data = [
+        (xy_pep_h2[0], xy_pep_h2[1], 'pep_h2'),
+        (xy_quack[0]['cwnd'], xy_quack[1]['cwnd'], 'quack'),
+        (xy_quic[0]['cwnd'], xy_quic[1]['cwnd'], 'quic'),
+        (xy_tcp[0], xy_tcp[1], 'tcp'),
+        (xy_pep_r1[0], xy_pep_r1[1], 'pep_r1'),
+    ]
+    for (xs, ys, label) in plot_data:
+        ys = [y / 1.5 for y in ys]
+        plt.plot(xs, ys, label=label)
 
     plt.xlabel('Time (s)')
-    plt.ylabel('cwnd (kBytes)')
+    plt.ylabel('cwnd (packets)')
     if max_x_arg is not None:
         plt.xlim(0, max_x_arg)
-    else:
-        plt.xlim(0, max_x)
-    plt.ylim(0, 600)
+    plt.ylim(0, 600/1.5)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
     pdf = 'cwnd_{}s_loss{}p.pdf'.format(max_x_arg, loss)
     plt.title(pdf)
@@ -95,17 +118,19 @@ def plot_graph(tcp_filename, pep_filename, quic_filename, quack_filename,
     plt.clf()
 
 def run(args, loss):
-    keys = ['quic', 'quack', 'tcp', 'pep']
+    keys = ['quic', 'quack', 'tcp', 'pep_h2', 'pep_r1']
     data = {}
-    # basically hardcoded time to get the right-length iperf test
+    # basically hardcoded time to get the right-length tcp cwnd test
     if args.tcp is None:
         time_s = int(25 * (float(loss) + 1))
     else:
         time_s = int(args.tcp)
+    tcp_test = 'iperf' if args.iperf else 'ss'
     data['quic'] = 'cwnd_quic_{}_loss{}p.out'.format(args.quic_n, loss)
     data['quack'] = 'cwnd_quack_{}_loss{}p.out'.format(args.quack_n, loss)
-    data['tcp'] = 'cwnd_tcp_{}s_loss{}p.out'.format(time_s, loss)
-    data['pep'] = 'cwnd_pep_{}s_loss{}p.out'.format(time_s, loss)
+    data['tcp'] = f'cwnd_tcp_{time_s}s_loss{loss}p_{tcp_test}.out'
+    data['pep_h2'] = f'cwnd_pep_h2_{time_s}s_loss{loss}p_{tcp_test}.out'
+    data['pep_r1'] = f'cwnd_pep_r1_{time_s}s_loss{loss}p_{tcp_test}.out'
 
     for key in keys:
         data[key] = f'{WORKDIR}/results/cwnd/{data[key]}'
@@ -125,10 +150,20 @@ def run(args, loss):
             assert args.quack_n is not None
             cmd += ['-n', args.quack_n, '--benchmark', 'quic', '-t', '1',
                     '-s', '2ms']
-        elif key == 'tcp':
-            cmd += ['--iperf', str(time_s)]
-        elif key == 'pep':
-            cmd += ['--iperf', str(time_s), '--pep']
+        elif args.iperf:
+            if key == 'tcp':
+                cmd += ['--iperf', str(time_s)]
+            elif key == 'pep_h2':
+                cmd += ['--iperf', str(time_s), '--pep']
+            elif key == 'pep_r1':
+                cmd += ['--iperf-r1', str(time_s)]
+        else:
+            if key == 'tcp':
+                cmd += ['--ss', str(time_s), 'h2']
+            elif key == 'pep_h2':
+                cmd += ['--ss', str(time_s), 'h2', '--pep']
+            elif key == 'pep_r1':
+                cmd += ['--ss', str(time_s), 'r1', '--pep']
 
         cmd += args.args
         print(' '.join(cmd))
@@ -139,9 +174,7 @@ def run(args, loss):
                 f.write(line)
         p.wait()
 
-    plot_graph(tcp_filename=data['tcp'], pep_filename=data['pep'],
-        quic_filename=data['quic'], quack_filename=data['quack'],
-        max_x_arg=args.max_x, loss=loss)
+    plot_graph(data, iperf=args.iperf, max_x_arg=args.max_x, loss=loss)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -154,6 +187,7 @@ if __name__ == '__main__':
     parser.add_argument('--max-x', type=float, help='max x axis')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
+    parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
     args = parser.parse_args()
 
     if args.loss is not None:
