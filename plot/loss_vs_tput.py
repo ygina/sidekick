@@ -30,12 +30,27 @@ WORKDIR = os.environ['HOME'] + '/sidecar'
 def empty_list():
     return []
 
-def collect_ys(ys, n):
+def collect_ys_mean(ys, n):
     assert n[-1] == 'M'
     n_megabyte = int(n[:-1]) * 1.0
     ys = [n_megabyte / y for y in ys]
     y = statistics.mean(ys)
     yerr = 0 if len(ys) == 1 else statistics.stdev(ys)
+    return (y, yerr)
+
+def collect_ys_median(ys, n):
+    assert n[-1] == 'M'
+    n_megabyte = int(n[:-1]) * 1.0
+    ys = [n_megabyte / y for y in ys]
+    ys.sort()
+    y = statistics.median(ys)
+    mid = int(len(ys) / 2)
+    if len(ys) % 2 == 1:
+        p25 = statistics.median(ys[:mid+1])
+    else:
+        p25 = statistics.median(ys[:mid])
+    p75 = statistics.median(ys[mid:])
+    yerr = (y-p25, p75-y)
     return (y, yerr)
 
 def parse_data(filename, key, trials, max_x, data_key='time_total'):
@@ -111,7 +126,7 @@ def maybe_collect_missing_data(filename, key, args):
         if missing == 0:
             continue
         if key == 'quack':
-            extra_args = ['--benchmark', 'quic', '-s', '2ms']
+            extra_args = ['--benchmark', 'quic', '-s', '2ms', '--quack-reset']
         elif key == 'pep':
             extra_args = ['--benchmark', 'tcp', '--pep']
         elif key == 'tcp' or key == 'quic':
@@ -120,7 +135,8 @@ def maybe_collect_missing_data(filename, key, args):
             print('unknown key:', key)
             exit()
         cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.n,
-               '--loss2', loss, '-t', str(missing)]
+               '--loss2', loss, '-t', str(missing),
+               '--stderr', 'loss_tput.error']
         cmd += extra_args
         cmd += args.args
         print(' '.join(cmd))
@@ -162,6 +178,8 @@ if __name__ == '__main__':
         help='maximum loss perecentage in hundredths of a percentage (default: 200)')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
+    parser.add_argument('--median', action='store_true',
+        help='use the median instead of the mean')
     args = parser.parse_args()
 
     # Create the directory that holds the results.
@@ -178,14 +196,23 @@ if __name__ == '__main__':
         (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
         new_xs = []
         new_ys = []
-        new_yerrs = []
+        if args.median:
+            new_yerrs = ([], [])
+        else:
+            new_yerrs = []
         for i in range(len(ys)):
             if len(ys[i]) == 0:
                 continue
             new_xs.append(0.01*xs[i])
-            (collected_ys, yerr) = collect_ys(ys[i], args.n)
-            new_ys.append(collected_ys)
-            new_yerrs.append(yerr)
+            if args.median:
+                (collected_ys, yerr) = collect_ys_median(ys[i], args.n)
+                new_ys.append(collected_ys)
+                new_yerrs[0].append(yerr[0])
+                new_yerrs[1].append(yerr[1])
+            else:
+                (collected_ys, yerr) = collect_ys_mean(ys[i], args.n)
+                new_ys.append(collected_ys)
+                new_yerrs.append(yerr)
         data[key] = (new_xs, new_ys, new_yerrs)
 
     # Plot data.
