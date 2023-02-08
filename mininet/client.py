@@ -6,16 +6,20 @@ def print_and_run_cmd(cmd):
     print(cmd)
     return os.system(cmd)
 
-def estimate_timeout(nbytes, http, loss):
+def estimate_timeout(args, n, http, loss):
     try:
-        if 'k' in nbytes:
-            nbytes = int(nbytes[:-1])
-        scale = 0.005
+        if 'k' in n:
+            kb = int(n[:-1])
+        elif 'M' in n:
+            kb = int(n[:-1]) * 1000
+        scale = 0.008
         if '1.1' in http:
             scale *= 2
         if float(loss) > 1:
-            scale *= float(loss)
-        return max(int(scale * nbytes), 15)
+            scale *= float(loss) / 1.5
+        if args.sidecar is not None:
+            scale *= 0.4
+        return max(int(scale * kb), 15)
     except:
         return 3000
 
@@ -51,7 +55,7 @@ def run_client(args):
         print_and_run_cmd(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
-        timeout = estimate_timeout(args.n, args.http, args.loss)
+        timeout = estimate_timeout(args, args.n, args.http, args.loss)
         cmd += f'-w \"{fmt}\" '
         cmd += f'--max-time {timeout} '
         cmd += f'-o {args.stdout} 2>>{args.stderr} '
