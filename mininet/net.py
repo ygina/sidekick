@@ -24,6 +24,17 @@ def ip(digit):
 def sclog(val):
     print(f'[sidecar] {val}', file=sys.stderr);
 
+def popen(host, cmd):
+    p = host.popen(cmd.split(' '))
+    exitcode = p.wait()
+    for line in p.stderr:
+        sys.stderr.buffer.write(line)
+    if exitcode != 0:
+        print(f'{host}({cmd}) = {exitcode}')
+        sys.stderr.buffer.write(b'\n')
+        sys.stderr.buffer.flush()
+        exit(1)
+
 def get_max_queue_size_bytes(rtt_ms, bw_mbps):
     bdp = rtt_ms * bw_mbps * 1000000. / 1000. / 8.
     return bdp
@@ -50,6 +61,7 @@ class SidecarNetwork():
         self.bw1 = args.bw1
         self.bw2 = args.bw2
         self.log_level = args.log_level
+        self.qdisc = args.qdisc
         if args.pep and args.sidecar is not None:
             sclog('only one of the PEP or sidecar can be enabled')
             exit()
@@ -128,17 +140,62 @@ class SidecarNetwork():
 
         # Configure link latency, delay, bandwidth, and queue size
         # https://unix.stackexchange.com/questions/100785/bucket-size-in-tbf
-        mqs = get_max_queue_size_bytes(rtt_ms, bw_mbps)
-        print(f'max_queue_size (bytes) = {mqs}')
-        def tc(host, iface, loss, delay, bw, queue_size):
-            host.cmd(f'tc qdisc add dev {iface} root handle 1:0 '+\
-                     f'netem loss {loss}% delay {delay}ms')
-            host.cmd(f'tc qdisc add dev {iface} parent 1:1 handle 10: '+\
-                     f'tbf rate {bw}mbit burst {bw*500*2} limit {queue_size}')
-        tc(self.h1, 'h1-eth0', self.loss1, self.delay1, self.bw1, mqs)
-        tc(self.r1, 'r1-eth0', self.loss1, self.delay1, self.bw1, mqs)
-        tc(self.r1, 'r1-eth1', self.loss2, self.delay2, self.bw2, mqs)
-        tc(self.h2, 'h2-eth0', self.loss2, self.delay2, self.bw2, mqs)
+        bdp = get_max_queue_size_bytes(rtt_ms, bw_mbps)
+        print(f'max_queue_size (bytes) = {bdp}')
+        def tc(host, iface, loss, delay, bw, bdp):
+            if self.qdisc == 'tbf':
+                popen(host, f'tc qdisc add dev {iface} root handle 1:0 ' \
+                            f'netem loss {loss}% delay {delay}ms')
+                popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 10: ' \
+                            f'tbf rate {bw}mbit burst {bw*500*2} limit {bdp}')
+            elif self.qdisc == 'cake':
+                popen(host, f'tc qdisc add dev {iface} root handle 1:0 ' \
+                            f'netem loss {loss}% delay {delay}ms')
+                popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 10: ' \
+                            f'cake ' \
+                            f'internet flowblind besteffort')
+            elif self.qdisc == 'codel':
+                popen(host, f'tc qdisc add dev {iface} root handle 1:0 ' \
+                            f'netem loss {loss}% delay {delay}ms rate {bw}mbit')
+                popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 10: codel')
+            elif self.qdisc == 'red':
+                popen(host, f'tc qdisc add dev {iface} handle 1:0 root ' \
+                            f'red limit {bdp*4} avpkt 1000 adaptive ' \
+                            f'harddrop bandwidth {bw}Mbit')
+                popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 10: ' \
+                            f'netem loss {loss}% delay {delay}ms rate {bw}mbit')
+            else:
+                sclog('{} {} no qdisc enabled'.format(host, iface))
+                pass
+
+            # grenville
+            # pseudo_iface = f'ifb-{iface}'
+            # popen(host, f'ip link add {pseudo_iface} type veth')
+            # popen(host, f'tc class add dev {pseudo_iface} classid 1:1 '\
+            #             f'htb rate {bw}mbit')
+            # popen(host, 'iptables -t mangle -A POSTROUTING -j MARK --set-mark 1')
+
+            # popen(host, f'tc class add dev ifb-{iface} parent 1: classid 1:1 htb rate {bw}Mbit')
+            # popen(host, f'tc qdisc add dev {iface} handle 1: root ' \
+            #             f'red limit {bdp*4} avpkt 1000 adaptive ' \
+            #             f'harddrop bandwidth {bw}mbit')
+            # popen(host, f'tc qdisc add dev {iface} parent 1: handle 10: htb')
+            # popen(host, f'tc class add dev {iface} parent 10: classid 10:1 htb rate {bw}mbit')
+            # popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 100: ' \
+            #             f'netem loss {loss}% delay {delay}ms')
+
+            # host.cmd(f'tc qdisc add dev {iface} root handle 1:0 '+\
+            #          f'netem loss {loss}% delay {delay}ms')
+            # host.cmd(f'tc class add dev {iface} parent 1: classid 1:1'+\
+            #          f'htb rate {bw_mbps}mbit ceil {bw_mbps}mbit')
+            # host.cmd(f'tc qdisc add dev {iface} parent 1:1 handle 10:'+\
+            #          f'fifo limit 1000 ')
+            # host.cmd(f'tc qdisc add dev {iface} parent 1:1 handle 10: '+\
+            #          f'tbf rate {bw}mbit burst {bw*500*2} limit {queue_size}')
+        tc(self.h1, 'h1-eth0', self.loss1, self.delay1, self.bw1, bdp)
+        tc(self.r1, 'r1-eth0', self.loss1, self.delay1, self.bw1, bdp)
+        tc(self.r1, 'r1-eth1', self.loss2, self.delay2, self.bw2, bdp)
+        tc(self.h2, 'h2-eth0', self.loss2, self.delay2, self.bw2, bdp)
 
         # Set the TCP congestion control algorithm
         sclog(f'Setting congestion control to {self.cc}')
@@ -167,10 +224,45 @@ class SidecarNetwork():
         if self.sidecar is not None:
             self.start_quack_sender()
 
-    def iperf(self, time_s):
+    def ping(self, num_pings):
+        self.start_and_configure()
+        self.h2.cmdPrint(f'ping -c{num_pings} 10.0.1.10')
+        # self.h1.cmdPrint(f'ping -c{num_pings} 10.0.2.10')
+        # self.r1.cmdPrint(f'ping -c{num_pings} 10.0.1.10')
+        # self.h1.cmdPrint(f'ping -c{num_pings} 10.0.1.1')
+        # self.r1.cmdPrint(f'ping -c{num_pings} 10.0.2.10')
+        # self.h2.cmdPrint(f'ping -c{num_pings} 10.0.2.1')
+
+    def ss(self, time_s, host):
+        self.start_and_configure()
+        if host == 'r1':
+            host = self.r1
+        elif host == 'h2':
+            host = self.h2
+        else:
+            exit(1)
+
+        # start the client in the background
+        cmd = f'python3 mininet/client.py -n 50M --http 1 -t 1 ' \
+              f'-cc {self.cc} --loss {self.loss2} &'
+        self.h2.cmd(cmd)
+
+        # every 0.1s
+        sleep_s = 0.1
+        for _ in range(int(time_s / sleep_s)):
+            host.cmdPrint('ss -t -i | grep -A1 "10.0.1.10:https$" | grep cwnd')
+            time.sleep(sleep_s)
+
+    def iperf(self, time_s, host):
         self.start_and_configure()
         self.h1.cmd('iperf3 -s -f m > /dev/null 2>&1 &')
-        self.h2.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic -i 0.1')
+        if host == 'r1':
+            host = self.r1
+        elif host == 'h2':
+            host = self.h2
+        else:
+            exit(1)
+        host.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic -i 0.1')
 
     def multiflow(self, f1, f2, delay):
         """
@@ -380,16 +472,32 @@ if __name__ == '__main__':
                         metavar='FILENAME',
                         help='If benchmark, file to write curl stderr '
                              '(default: /dev/null)')
-    parser.add_argument('--iperf',
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--iperf-r1',
+                        type=int,
+                        metavar='TIME_S',
+                        help='Run an iperf test for this length of time with '
+                             'a server on h1 and client on r1.')
+    group.add_argument('--iperf',
                         type=int,
                         metavar='TIME_S',
                         help='Run an iperf test for this length of time with '
                              'a server on h1 and client on h2.')
+
+    parser.add_argument('--ping', type=int,
+                        help='Run this many pings from h2 to h1.')
+    parser.add_argument('--ss', nargs=2, metavar=('TIME_S', 'HOST'),
+                        help='Run an ss test for this length of time, in s '
+                             '(while uploading a 100M file) on this host. Gets '
+                             'ss data every 0.1s of a TCP connection to h1.')
     parser.add_argument('--quack-log', action='store_true')
     parser.add_argument('--sidecar-mtu', action='store_true',
                         help='Send packets only if cwnd > mtu')
     parser.add_argument('--quack-reset', action='store_true',
                         help='Whether to send quack reset messages')
+    parser.add_argument('--qdisc', default='tbf',
+                        help='queuing discipline [tbf|cake|codel|red|none]')
 
     subparsers = parser.add_subparsers(title='subcommands')
     mf = subparsers.add_parser('multiflow', help='run two flows simultaneously')
@@ -404,8 +512,14 @@ if __name__ == '__main__':
     sc = SidecarNetwork(args)
     sc.clean_logs()
 
-    if args.iperf is not None:
-        sc.iperf(args.iperf)
+    if args.ping is not None:
+        sc.ping(args.ping)
+    elif args.ss is not None:
+        sc.ss(int(args.ss[0]), args.ss[1])
+    elif args.iperf is not None:
+        sc.iperf(args.iperf, host='h2')
+    elif args.iperf_r1 is not None:
+        sc.iperf(args.iperf_r1, host='r1')
     elif hasattr(args, 'flow1') and hasattr(args, 'flow2'):
         sc.multiflow(args.flow1, args.flow2, args.delay)
     elif args.benchmark is not None:
