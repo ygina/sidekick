@@ -9,22 +9,28 @@ from os import path
 from collections import defaultdict
 from common import *
 
-KEYS = ['pep', 'quack', 'quic', 'tcp']
+KEYS = ['pep', 'quack', 'tcp', 'quic']
 TARGET_XS = {}
 # [x for x in range(0, 30, 2)] + \
-TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
-                    [x for x in range(20, 40, 10)] + \
-                    [x for x in range(40, 100, 20)] + \
-                    [x for x in range(100, 1000, 100)]
-TARGET_XS['quic'] = [x for x in range(0, 20, 5)] + \
-                    [x for x in range(20, 40, 10)] + \
-                    [x for x in range(40, 100, 20)] + \
-                    [x for x in range(100, 500, 20)] + \
-                    [x for x in range(500, 1000, 100)]
-# TARGET_XS['tcp'] = [0]
-# TARGET_XS['quic'] = [0]
+# TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
+#                     [x for x in range(20, 40, 10)] + \
+#                     [x for x in range(40, 100, 20)] + \
+#                     [x for x in range(100, 1000, 100)]
+# TARGET_XS['quic'] = [x for x in range(0, 20, 5)] + \
+#                     [x for x in range(20, 40, 10)] + \
+#                     [x for x in range(40, 100, 20)] + \
+#                     [x for x in range(100, 500, 20)] + \
+#                     [x for x in range(500, 1000, 100)]
+# # TARGET_XS['tcp'] = [0]
+# # TARGET_XS['quic'] = [0]
+# TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
+# TARGET_XS['pep'] = TARGET_XS['quack']
+TARGET_XS['pep'] = [x for x in range(0, 1000, 100)]
 TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
-TARGET_XS['pep'] = TARGET_XS['quack']
+TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
+TARGET_XS['quic'] += [200, 400, 800]
+TARGET_XS['tcp'] = TARGET_XS['quic']
+
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def empty_list():

@@ -22,8 +22,10 @@ def plot_graph(filename, xs, ys0, ys1, f1, f2, pdf):
     plt.plot(xs, ys1, label=f2)
     plt.xlabel('Time (s)')
     plt.ylabel('Throughput (MBytes/s)')
-    # plt.xlim(0, X_MAX)
-    plt.xlim(0, max(xs))
+    if X_MAX is not None:
+        plt.xlim(0, X_MAX)
+    else:
+        plt.xlim(0, max(xs))
     plt.ylim(0, 1.4)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
     plt.title(pdf)
@@ -114,6 +116,17 @@ def run_loss0p(args):
         run(args.execute, 0, n, 'quic', 'quack', delay)
         run(args.execute, 0, n, 'quack', 'quic', delay)
 
+def run_loss1p(args):
+    # 30M for every 30 seconds
+    if args.n is None:
+        n = str(int(args.max_x / 30. * 30)) + 'M'
+    else:
+        n = args.n
+    for delay in [0, 5]:
+        run(args.execute, 1, n, 'pep', 'pep', delay)
+        run(args.execute, 1, n, 'pep', 'quack', delay)
+        run(args.execute, 1, n, 'quack', 'pep', delay)
+
 def run_loss5p(args):
     # 30M for every 30 seconds
     if args.n is None:
@@ -135,16 +148,18 @@ if __name__ == '__main__':
     parser.add_argument('-f2', '--flow2', help='[quack|quic|tcp|pep]')
     parser.add_argument('-d', '--delay', default=0, type=int,
                         help='delay in starting flow2, in s (default: 0)')
-    parser.add_argument('--max-x', default=30, type=int,
-                        help='max x, in s (default: 30)')
+    parser.add_argument('--max-x', type=int,
+                        help='max x, in s')
     parser.add_argument('--loss', default=0, type=int,
                         help='loss on near subpath in %% (default: 0)')
     parser.set_defaults(func=main)
 
     subparsers = parser.add_subparsers(title='subcommands')
     loss0p = subparsers.add_parser('loss0p', help='quic+quic vs quic+quack')
+    loss1p = subparsers.add_parser('loss1p', help='quic+quic vs quic+quack')
     loss5p = subparsers.add_parser('loss5p', help='pep+pep vs pep+quack')
     loss0p.set_defaults(func=run_loss0p)
+    loss1p.set_defaults(func=run_loss1p)
     loss5p.set_defaults(func=run_loss5p)
 
     args = parser.parse_args()

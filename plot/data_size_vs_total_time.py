@@ -21,7 +21,7 @@ TARGET_XS = [x for x in range(200, 1000, 200)] + \
             [x for x in range(10000, 20000, 2000)] + \
             [x for x in range(20000, 100000, 5000)] + \
             [100000]
-LOSSES = [0, 1, 2, 5]
+LOSSES = [0, 1]
 HTTP_VERSIONS = [
     'pep',
     'quack-2ms-r',
@@ -198,7 +198,11 @@ def parse_data(loss, http_version, bw2=100, normalize=True, cc='cubic',
                 else:
                     print(f'{x}k missing {missing}/{NUM_TRIALS}')
             xs[i] /= 1000.
-            ys.append(DataPoint(y, normalize=xs[i] if normalize else None))
+            y = DataPoint(y, normalize=xs[i] if normalize else None)
+            # if 'quic' in filename or 'quack' in filename:
+            #     if y.stdev is not None and y.stdev > 0.1:
+            #         print(f'ABNORMAL x={x} stdev={y.stdev} f={filename}')
+            ys.append(y)
     except Exception as e:
         import pdb; pdb.set_trace()
         raise e

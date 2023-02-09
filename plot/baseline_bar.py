@@ -8,10 +8,8 @@ import numpy as np
 from os import path
 from common import *
 
-NUM_TRIALS = None
-MAX_X = None
-DATA_SIZES = [1000, 10000, 100000]
-LOSSES = [0, 2, 5]
+DATA_SIZES = [1000, 10000, 50000]
+LOSSES = [0, 1]
 HTTP_VERSIONS = ['pep', 'quack-2ms-r', 'quic', 'tcp']
 
 def get_filename(loss, bm):
@@ -166,7 +164,7 @@ if __name__ == '__main__':
                         type=int,
                         help='Loss percentages to plot [0|1|2|5]. Multiple '
                              'arguments can be provided. If no argument is '
-                             'provided, plots 0, 2, and 5.')
+                             'provided, plots 0 and 5.')
     parser.add_argument('-n', action='extend', nargs='+', default=[],
                         type=int,
                         help='Data sizes to plot, in kBytes. Multiple '
