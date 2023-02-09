@@ -152,8 +152,8 @@ class SidecarNetwork():
                 popen(host, f'tc qdisc add dev {iface} root handle 1:0 ' \
                             f'netem loss {loss}% delay {delay}ms')
                 popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 10: ' \
-                            f'cake ' \
-                            f'internet flowblind besteffort')
+                            f'cake bandwidth {bw}mbit' \
+                            f'oceanic flowblind besteffort')
             elif self.qdisc == 'codel':
                 popen(host, f'tc qdisc add dev {iface} root handle 1:0 ' \
                             f'netem loss {loss}% delay {delay}ms rate {bw}mbit')
@@ -164,6 +164,12 @@ class SidecarNetwork():
                             f'harddrop bandwidth {bw}Mbit')
                 popen(host, f'tc qdisc add dev {iface} parent 1:1 handle 10: ' \
                             f'netem loss {loss}% delay {delay}ms rate {bw}mbit')
+            elif self.qdisc == 'grenville':
+                popen(host, f'tc qdisc add dev {iface} root handle 2: netem loss {loss}% delay {delay}ms')
+                popen(host, f'tc qdisc add dev {iface} parent 2: handle 3: htb default 10')
+                popen(host, f'tc class add dev {iface} parent 3: classid 10 htb rate {bw}Mbit')
+                popen(host, f'tc qdisc add dev {iface} parent 3:10 handle 11: ' \
+                            f'red limit {bdp*4} avpkt 1000 adaptive harddrop bandwidth {bw}Mbit')
             else:
                 sclog('{} {} no qdisc enabled'.format(host, iface))
                 pass
@@ -496,8 +502,8 @@ if __name__ == '__main__':
                         help='Send packets only if cwnd > mtu')
     parser.add_argument('--quack-reset', action='store_true',
                         help='Whether to send quack reset messages')
-    parser.add_argument('--qdisc', default='tbf',
-                        help='queuing discipline [tbf|cake|codel|red|none]')
+    parser.add_argument('--qdisc', default='grenville',
+                        help='queuing discipline [tbf|cake|codel|red|grenville|none]')
 
     subparsers = parser.add_subparsers(title='subcommands')
     mf = subparsers.add_parser('multiflow', help='run two flows simultaneously')
