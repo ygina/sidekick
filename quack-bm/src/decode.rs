@@ -4,6 +4,38 @@ use std::time::{Instant, Duration};
 use log::info;
 use rand::Rng;
 use quack::*;
+use multiset::HashMultiSet;
+
+fn benchmark_decode_strawman1(
+    numbers: Vec<u32>,
+    num_packets: usize,
+    num_drop: usize,
+) -> Duration {
+    // Construct two empty Quacks.
+    let mut acc1 = HashMultiSet::new();
+    let mut acc2 = HashMultiSet::new();
+
+    // Insert all random numbers into the first accumulator.
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
+
+    // Insert all but num_drop random numbers into the second accumulator.
+    for j in 0..(num_packets - num_drop) {
+        acc2.insert(numbers[j]);
+    }
+
+    let t1 = Instant::now();
+    let dropped = acc1 - acc2;
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Decode time (num_packets={}, \
+        false_positives = {}, dropped = {}): {:?}", num_packets,
+        dropped.len() - num_drop, num_drop, duration);
+    assert_eq!(dropped.len(), num_drop);
+    duration
+}
 
 fn benchmark_decode_power_sum_32(
     numbers: Vec<u32>,
@@ -39,6 +71,7 @@ fn benchmark_decode_power_sum_32(
     info!("Decode time (u32, threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}", size, num_packets,
         dropped.len() - num_drop, num_drop, duration);
+    assert_eq!(dropped.len(), num_drop);
     duration
 }
 
@@ -66,7 +99,8 @@ pub fn run_benchmark(
             (0..num_packets).map(|_| rng.gen()).collect();
 
         let duration = match quack_ty {
-            QuackType::Strawman1 => unimplemented!(),
+            QuackType::Strawman1 => benchmark_decode_strawman1(
+                numbers, num_packets, num_drop),
             QuackType::Strawman2 => unimplemented!(),
             QuackType::PowerSum => benchmark_decode_power_sum_32(
                 numbers, factor, threshold, num_packets, num_drop),
