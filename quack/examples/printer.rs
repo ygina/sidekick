@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 use bincode;
-use quack::PowerSumQuack;
+use quack::{Quack, PowerSumQuack};
 
 fn main() {
     let mut q = PowerSumQuack::new(20);
