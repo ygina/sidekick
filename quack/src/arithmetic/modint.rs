@@ -5,6 +5,25 @@ use serde::{Serialize, Deserialize};
 
 /// A 63-bit prime.
 pub const MODULUS: u64 = 9223372036854775783;
+pub const R_INV: u64 = 553402322211286547;
+pub const R_LOG2: u64 = 64;
+pub const NEG_MODULUS_INV: u64 = 1106804644422573097;
+
+// from wiki https://en.wikipedia.org/wiki/Montgomery_modular_multiplication
+fn montgomery_redc(x: u128) -> u64 {
+    // Overflow here is OK because we're modding by a small power of two
+    let m: u64 = (((x as u64) as u128) * (NEG_MODULUS_INV as u128)) as u64;
+    // (x + (m * N)) is 63 bit + 126 bits => 127 bits, then downshift so should all work out
+    let t: u64 = ((x as u128) + ((m as u128) * (MODULUS as u128)) >> (R_LOG2 as u128)) as u64;
+    if t < MODULUS {
+        return t;
+    }
+    return t - MODULUS;
+}
+
+fn montgomery_multiply(x: u64, y: u64) -> u64 {
+    return montgomery_redc((x as u128) * (y as u128));
+}
 
 /// 64-bit modular integer.
 #[derive(Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -23,6 +42,11 @@ impl ModularInteger {
         } else {
             Self { value: n }
         }
+    }
+
+    pub fn new_do_conversion(n: u64) -> Self {
+        let R_mod_MODULUS: u64 = (((1 as u128) << (64 as u128)) % (MODULUS as u128)) as u64;
+        return ModularInteger::new((((R_mod_MODULUS as u128) * (n as u128)) % (MODULUS as u128)) as u64);
     }
 
     pub fn value(&self) -> u64 {
@@ -122,8 +146,7 @@ impl Sub for ModularInteger {
 
 impl MulAssign for ModularInteger {
     fn mul_assign(&mut self, rhs: Self) {
-        let prod: u128 = (self.value as u128) * (rhs.value as u128);
-        self.value = (prod % (MODULUS as u128)) as u64;
+        self.value = montgomery_multiply(self.value, rhs.value);
     }
 }
 
@@ -220,9 +243,10 @@ mod test {
         let x = ModularInteger::new(2);
         let y = ModularInteger::new(1_000);
         let z = ModularInteger::new(4_294_967_289);
-        assert_eq!(x * x.inv(), 1);
-        assert_eq!(y * y.inv(), 1);
-        assert_eq!(z * z.inv(), 1);
+        let one = ModularInteger::new_do_conversion(1);
+        assert_eq!(x * x.inv(), one);
+        assert_eq!(y * y.inv(), one);
+        assert_eq!(z * z.inv(), one);
     }
 
     #[test]
