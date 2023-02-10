@@ -11,6 +11,9 @@ struct Cli {
     // Type of benchmark.
     #[arg(value_enum)]
     benchmark: BenchmarkType,
+    // Quack type.
+    #[arg(value_enum)]
+    quack_ty: QuackType,
     // The threshold number of dropped packets.
     #[arg(short = 't', default_value_t = 20)]
     threshold: usize,
@@ -40,6 +43,7 @@ fn main() {
     match args.benchmark {
         BenchmarkType::Construct => {
             construct::run_benchmark(
+                args.quack_ty,
                 args.use_tables,
                 args.threshold,
                 args.num_packets,
@@ -50,6 +54,7 @@ fn main() {
         }
         BenchmarkType::Decode => {
             decode::run_benchmark(
+                args.quack_ty,
                 args.use_tables,
                 args.threshold,
                 args.num_packets,

@@ -1,11 +1,12 @@
 use crate::common::*;
 
+use std::ops::{Sub, SubAssign};
 use std::time::{Instant, Duration};
 use log::info;
 use rand::Rng;
 use quack::*;
 
-fn benchmark_decode_32(
+fn benchmark_decode_32<T: Quack + Sub + SubAssign>(
     size: usize,
     num_packets: usize,
     num_drop: usize,
@@ -21,9 +22,9 @@ fn benchmark_decode_32(
         let numbers: IdentifierLog =
             (0..num_packets).map(|_| rng.gen()).collect();
 
-        // Construct two empty PowerSumQuacks.
-        let mut acc1 = PowerSumQuack::new(size);
-        let mut acc2 = PowerSumQuack::new(size);
+        // Construct two empty Quacks.
+        let mut acc1 = T::new(size);
+        let mut acc2 = T::new(size);
 
         // Insert all random numbers into the first accumulator.
         for j in 0..num_packets {
@@ -54,6 +55,7 @@ fn benchmark_decode_32(
 }
 
 pub fn run_benchmark(
+    quack_ty: QuackType,
     use_tables: bool,
     threshold: usize,
     num_packets: usize,
@@ -63,5 +65,12 @@ pub fn run_benchmark(
 ) {
     assert!(!use_tables, "ERROR: power tables are not enabled");
     assert_eq!(num_bits_id, 32, "ERROR: <num_bits_id> must be 32");
-    benchmark_decode_32(threshold, num_packets, num_drop, num_trials);
+    match quack_ty {
+        QuackType::Strawman1 => unimplemented!(),
+        QuackType::Strawman2 => unimplemented!(),
+        QuackType::PowerSum => benchmark_decode_32::<PowerSumQuack>(
+            threshold, num_packets, num_drop, num_trials),
+        QuackType::Montgomery => benchmark_decode_32::<MontgomeryQuack>(
+            threshold, num_packets, num_drop, num_trials),
+    }
 }
