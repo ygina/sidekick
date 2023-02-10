@@ -107,7 +107,8 @@ impl Neg for ModularInteger {
 
 impl AddAssign for ModularInteger {
     fn add_assign(&mut self, rhs: Self) {
-        // TODO(masot): why didn't this overflow in the 32-bit prime setting?
+        // NOTE: we didn't need to consider overflow here for 63-bit, but we do for both 32 and
+        // 64-bit.
         let sum: u128 = (self.value as u128) + (rhs.value as u128);
         self.value = if sum >= (MODULUS as u128) {
             (sum - (MODULUS as u128)) as u64
@@ -130,7 +131,6 @@ impl Add for ModularInteger {
 impl SubAssign for ModularInteger {
     fn sub_assign(&mut self, rhs: Self) {
         let neg_rhs: u64 = MODULUS - rhs.value;
-        // TODO(masot): why didn't this overflow with a 32-bit prime?
         let diff: u128 = (self.value as u128) + (neg_rhs as u128);
         self.value = if diff >= (MODULUS as u128) {
             (diff - (MODULUS as u128)) as u64
