@@ -37,7 +37,7 @@ fn benchmark_decode_32(
 
         let t1 = Instant::now();
         acc1 -= acc2;
-        let dropped = DecodedQuack::decode(acc1, numbers);
+        let dropped = acc1.decode(&numbers);
         // do_not_discard(dropped);
         let t2 = Instant::now();
 
@@ -45,7 +45,7 @@ fn benchmark_decode_32(
             let duration = t2 - t1;
             info!("Decode time (u32, threshold = {}, num_packets={}, \
                 false_positives = {}, dropped = {}): {:?}", size, num_packets,
-                dropped.total_num_missing() - num_drop, num_drop, duration);
+                dropped.len() - num_drop, num_drop, duration);
             durations.push(duration);
         }
     }

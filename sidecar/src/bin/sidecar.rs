@@ -6,7 +6,7 @@ use tokio::net::UdpSocket;
 use tokio::time::{self, Duration};
 use tokio::sync::oneshot;
 use log::{debug, info};
-use quack::{Quack, DecodedQuack};
+use quack::Quack;
 
 #[derive(Subcommand, Debug)]
 enum CliSidecarType {
@@ -144,8 +144,8 @@ async fn main() -> Result<(), String> {
                 let quack = rx.recv().await.expect("channel has hung up");
                 let (my_quack, my_log) = sc.lock().unwrap().quack_with_log();
                 let difference_quack = my_quack - quack;
-                let result = DecodedQuack::decode(difference_quack, my_log);
-                debug!("{}", result);
+                let result = difference_quack.decode(&my_log);
+                debug!("{:?}", result);
             }
         }
     }

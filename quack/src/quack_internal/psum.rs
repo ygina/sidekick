@@ -1,8 +1,8 @@
 use std::ops::{Sub, SubAssign};
-use crate::arithmetic::ModularInteger;
-use crate::{Quack, Identifier};
+use crate::arithmetic::{ModularInteger, MonicPolynomialEvaluator};
+use crate::{Quack, Identifier, IdentifierLog};
 use serde::{Serialize, Deserialize};
-use log::{debug, trace};
+use log::{debug, info, trace};
 
 /// The i-th term corresponds to dividing by i+1 in modular arithemtic.
 fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
@@ -63,12 +63,40 @@ impl Quack for PowerSumQuack {
     fn count(&self) -> u16 {
         self.count
     }
+
+    fn decode(&self, log: &IdentifierLog) -> Vec<usize> {
+        let num_packets = log.len();
+        let num_missing = self.count();
+        info!("decoding quACK: num_packets={}, num_missing={}",
+            num_packets, num_missing);
+        if num_missing == 0 {
+            return vec![];
+        }
+        let coeffs = self.to_coeffs();
+        trace!("coeffs = {:?}", coeffs);
+        let indexes: Vec<usize> = (0..num_packets)
+            .filter(|&i| {
+                MonicPolynomialEvaluator::eval(&coeffs, log[i]).is_zero()
+            })
+            .collect();
+        info!("found {}/{} missing packets", indexes.len(), num_missing);
+        debug!("indexes = {:?}", indexes);
+        indexes
+    }
 }
 
 impl PowerSumQuack {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
-    pub(crate) fn to_polynomial_coefficients(
+    pub fn to_coeffs(&self) -> Vec<ModularInteger> {
+        let mut coeffs = (0..self.count())
+            .map(|_| ModularInteger::zero())
+            .collect::<Vec<_>>();
+        self.to_coeffs_preallocated(&mut coeffs);
+        coeffs
+    }
+
+    pub fn to_coeffs_preallocated(
         &self,
         coeffs: &mut Vec<ModularInteger>,
     ) {
@@ -161,7 +189,7 @@ mod test {
         quack.insert(2462729946);
         quack.insert(670144905);
         let mut coeffs = (0..5).map(|_| ModularInteger::zero()).collect();
-        quack.to_polynomial_coefficients(&mut coeffs);
+        quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs.len(), 5);
         assert_eq!(coeffs, vec![
             1567989721, 1613776244, 517289688, 17842621, 3562381446,
@@ -206,7 +234,7 @@ mod test {
         let quack = q1.clone() - q1.clone();
         assert_eq!(quack.count, 0);
         assert_eq!(quack.power_sums, vec![0, 0, 0]);
-        quack.to_polynomial_coefficients(&mut coeffs);
+        quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs, vec![0, 0, 0]);
     }
 
@@ -228,7 +256,7 @@ mod test {
         let quack = q1 - q2;
         assert_eq!(quack.count, 2);
         assert_eq!(quack.power_sums, vec![9, 41, 189]);
-        quack.to_polynomial_coefficients(&mut coeffs);
+        quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs, vec![4294967282, 20, 0]);
     }
 
@@ -268,5 +296,33 @@ mod test {
         let q2: PowerSumQuack = bincode::deserialize(&bytes).unwrap();
         assert_eq!(q1.count, q2.count);
         assert_eq!(q1.power_sums, q2.power_sums);
+    }
+
+    #[test]
+    fn test_decode_empty_quack() {
+        let quack = PowerSumQuack::new(10);
+        let log = vec![1, 2, 3];
+        let result = quack.decode(&log);
+        assert_eq!(result, vec![]);
+    }
+
+    #[test]
+    fn test_quack_decode() {
+        let log = vec![1, 2, 3, 4, 5, 6];
+        let mut q1 = PowerSumQuack::new(3);
+        for x in &log {
+            q1.insert(*x);
+        }
+        let mut q2 = PowerSumQuack::new(3);
+        q2.insert(1);
+        q2.insert(3);
+        q2.insert(4);
+
+        // Check the result
+        let quack = q1 - q2;
+        let mut result = quack.decode(&log);
+        assert_eq!(result.len(), 3);
+        result.sort();
+        assert_eq!(result, vec![1, 4, 5]);
     }
 }
