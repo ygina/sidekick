@@ -86,6 +86,18 @@ $ make
 $ sudo make install
 ```
 
+_(Optional: Install [PARI](http://pari.math.u-bordeaux.fr/download.html) for
+factoring polynomials in finite fields.)_
+
+```
+$ wget https://pari.math.u-bordeaux.fr/pub/pari/unix/pari-2.15.2.tar.gz
+$ tar xvf pari-2.15.2.tar.gz
+$ sudo apt-get install -y texlive
+pari-2.15.2$ ./Configure
+pari-2.15.2$ make all
+pari-2.15.2$ sudo make install
+```
+
 Check that `nginx`, `sidecurl`, and `pepsal` are on your path.
 
 ## Baselines
