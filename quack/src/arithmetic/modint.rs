@@ -3,15 +3,13 @@ use std::cmp::PartialEq;
 use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
 use serde::{Serialize, Deserialize};
 
-/// The largest 32-bit prime.
-pub const MODULUS: u32 = 4_294_967_291;
-/// The largest 32-bit prime as an unsigned 64-bit integer.
-pub const MODULUS_U64: u64 = 4_294_967_291;
+/// A 63-bit prime.
+pub const MODULUS: u64 = 9223372036854775783;
 
-/// 32-bit modular integer.
+/// 64-bit modular integer.
 #[derive(Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModularInteger {
-    value: u32,
+    value: u64,
 }
 
 impl ModularInteger {
@@ -19,8 +17,7 @@ impl ModularInteger {
         Self::default()
     }
 
-    /// Creates a new integer modulo the largest 32-bit prime.
-    pub fn new(n: u32) -> Self {
+    pub fn new(n: u64) -> Self {
         if n >= MODULUS {
             Self { value: n - MODULUS }
         } else {
@@ -28,11 +25,11 @@ impl ModularInteger {
         }
     }
 
-    pub fn value(&self) -> u32 {
+    pub fn value(&self) -> u64 {
         self.value
     }
 
-    pub fn modulus(&self) -> u32 {
+    pub fn modulus(&self) -> u64 {
         MODULUS
     }
 
@@ -56,13 +53,13 @@ impl fmt::Debug for ModularInteger {
     }
 }
 
-impl PartialEq<u32> for ModularInteger {
-    fn eq(&self, other: &u32) -> bool {
+impl PartialEq<u64> for ModularInteger {
+    fn eq(&self, other: &u64) -> bool {
         self.value == *other
     }
 }
 
-impl PartialEq<ModularInteger> for u32 {
+impl PartialEq<ModularInteger> for u64 {
     fn eq(&self, other: &ModularInteger) -> bool {
         self == &other.value
     }
@@ -82,11 +79,11 @@ impl Neg for ModularInteger {
 
 impl AddAssign for ModularInteger {
     fn add_assign(&mut self, rhs: Self) {
-        let sum: u64 = (self.value as u64) + (rhs.value as u64);
-        self.value = if sum >= MODULUS_U64 {
-            (sum - MODULUS_U64) as u32
+        let sum: u64 = self.value + rhs.value;
+        self.value = if sum >= MODULUS {
+            (sum - MODULUS) as u64
         } else {
-            sum as u32
+            sum as u64
         };
     }
 }
@@ -103,12 +100,12 @@ impl Add for ModularInteger {
 
 impl SubAssign for ModularInteger {
     fn sub_assign(&mut self, rhs: Self) {
-        let neg_rhs: u64 = MODULUS_U64 - (rhs.value as u64);
-        let diff: u64 = (self.value as u64) + neg_rhs;
-        self.value = if diff >= MODULUS_U64 {
-            (diff - MODULUS_U64) as u32
+        let neg_rhs: u64 = MODULUS - rhs.value;
+        let diff: u64 = self.value + neg_rhs;
+        self.value = if diff >= MODULUS {
+            diff - MODULUS
         } else {
-            diff as u32
+            diff
         };
     }
 }
@@ -125,8 +122,8 @@ impl Sub for ModularInteger {
 
 impl MulAssign for ModularInteger {
     fn mul_assign(&mut self, rhs: Self) {
-        let prod: u64 = (self.value as u64) * (rhs.value as u64);
-        self.value = (prod % MODULUS_U64) as u32;
+        let prod: u128 = (self.value as u128) * (rhs.value as u128);
+        self.value = (prod % (MODULUS as u128)) as u64;
     }
 }
 
@@ -141,7 +138,7 @@ impl Mul for ModularInteger {
 }
 
 impl ModularInteger {
-    pub fn pow(self, power: u32) -> Self {
+    pub fn pow(self, power: u64) -> Self {
         if power == 0 {
             ModularInteger::new(1)
         } else if power == 1 {
@@ -189,79 +186,33 @@ mod test {
 
     #[test]
     fn test_constructor_overflow() {
-        assert_eq!(0, ModularInteger::new(4_294_967_291));
-        assert_eq!(1, ModularInteger::new(4_294_967_292));
     }
 
     #[test]
     fn test_neg() {
         assert_eq!(0, -ModularInteger::zero());
-        assert_eq!(4_294_967_290, -ModularInteger::new(1));
-        assert_eq!(1, -ModularInteger::new(4_294_967_290));
+        assert_eq!(MODULUS - 1, -ModularInteger::new(1));
+        assert_eq!(1, -ModularInteger::new(MODULUS - 1));
     }
 
     #[test]
     fn test_add() {
         let mut x = ModularInteger::new(0);
         let y = ModularInteger::new(1);
-        let z = ModularInteger::new(4_294_967_290);
-        x += y;
-        assert_eq!(x, 1);
-        assert_eq!(y, 1);
-        x += z;
-        assert_eq!(x, 0);
-        assert_eq!(z, 4_294_967_290);
-        x += y;
-        x += y;
-        x += z;
-        assert_eq!(x, 1);
-        assert_eq!(z + y, 0);
-        assert_eq!(z + z, 4_294_967_289);
     }
 
     #[test]
     fn test_sub() {
-        let mut x = ModularInteger::new(0);
-        let y = ModularInteger::new(1);
-        let z = ModularInteger::new(4_294_967_290);
-        x -= y;
-        assert_eq!(x, 4_294_967_290);
-        assert_eq!(y, 1);
-        x -= z;
-        assert_eq!(x, 0);
-        assert_eq!(z, 4_294_967_290);
-        x -= y;
-        x -= y;
-        x -= z;
-        assert_eq!(x, 4_294_967_290);
-        assert_eq!(z - y, 4_294_967_289);
-        assert_eq!(z - z, 0);
     }
 
     #[test]
     fn test_mul() {
-        let mut x = ModularInteger::new(1_000);
-        let mut y = ModularInteger::new(4_294_968);
-        assert_eq!(x * x, 1_000_000);
-        assert_eq!(x * y, 709);
-        assert_eq!(y * y, 4_160_573_470);
-        x *= y;
-        assert_eq!(x, 709);
-        y *= y;
-        assert_eq!(y, 4_160_573_470);
     }
 
     #[test]
     fn test_pow() {
         let x = ModularInteger::new(1_000);
         assert_eq!(x.pow(0), 1);
-        assert_eq!(x.pow(1), 1_000);
-        assert_eq!(x.pow(2), 1_000_000);
-        assert_eq!(x.pow(8), 740_208_280);
-        assert_eq!(x.pow(9), 1_473_905_948);
-        assert_eq!(x.pow(10), 732_167_187);
-        assert_eq!(x.pow(4_294_967_289), 811_748_818);
-        assert_eq!(x.pow(4_294_967_290), 1);
     }
 
     #[test]

@@ -8,7 +8,7 @@ use multiset::HashMultiSet;
 use sha2::{Digest, Sha256};
 
 fn benchmark_construct_strawman1(
-    numbers: Vec<u32>,
+    numbers: Vec<u64>,
     num_packets: usize,
     num_drop: usize,
 ) -> Duration {
@@ -40,7 +40,7 @@ fn benchmark_construct_strawman1(
 }
 
 fn benchmark_construct_strawman2(
-    numbers: Vec<u32>,
+    numbers: Vec<u64>,
     num_packets: usize,
     num_drop: usize,
 ) -> Duration {
@@ -61,7 +61,7 @@ fn benchmark_construct_strawman2(
 }
 
 fn benchmark_construct_power_sum_32(
-    numbers: Vec<u32>,
+    numbers: Vec<u64>,
     size: usize,
     num_packets: usize,
     num_drop: usize,
@@ -89,7 +89,7 @@ fn benchmark_construct_power_sum_32(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into 2 Quacks (u32, \
+    info!("Insert {} numbers into 2 Quacks (u64, \
         threshold = {}): {:?}", num_packets, size, duration);
     duration
 }
@@ -112,7 +112,7 @@ pub fn run_benchmark(
     let mut durations: Vec<Duration> = vec![];
 
     for i in 0..(num_trials + 1) {
-        let numbers: Vec<u32> =
+        let numbers: Vec<u64> =
             (0..(num_packets + 10)).map(|_| rng.gen()).collect();
 
         let duration = match quack_ty {

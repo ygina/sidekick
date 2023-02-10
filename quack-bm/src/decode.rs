@@ -8,7 +8,7 @@ use multiset::HashMultiSet;
 use sha2::{Digest, Sha256};
 
 fn benchmark_decode_strawman1(
-    numbers: Vec<u32>,
+    numbers: Vec<u64>,
     num_packets: usize,
     num_drop: usize,
 ) -> Duration {
@@ -38,10 +38,10 @@ fn benchmark_decode_strawman1(
     duration
 }
 
-const NUM_SUBSETS_LIMIT: u32 = 1000000;
+const NUM_SUBSETS_LIMIT: u64 = 1000000;
 
 fn benchmark_decode_strawman2(
-    numbers: Vec<u32>,
+    numbers: Vec<u64>,
     num_packets: usize,
     num_drop: usize,
 ) -> Duration {
@@ -54,8 +54,8 @@ fn benchmark_decode_strawman2(
     acc1.finalize();
 
     // Calculate the number of subsets.
-    let n = num_packets as u32;
-    let r = num_drop as u32;
+    let n = num_packets as u64;
+    let r = num_drop as u64;
     // let num_subsets = (n-r+1..=n).product();
 
     let t1 = Instant::now();
@@ -87,7 +87,7 @@ fn benchmark_decode_strawman2(
 }
 
 fn benchmark_decode_power_sum_32(
-    numbers: Vec<u32>,
+    numbers: Vec<u64>,
     factor: bool,
     size: usize,
     num_packets: usize,
@@ -117,7 +117,7 @@ fn benchmark_decode_power_sum_32(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Decode time (u32, threshold = {}, num_packets={}, \
+    info!("Decode time (u64, threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}", size, num_packets,
         dropped.len() - num_drop, num_drop, duration);
     assert_eq!(dropped.len(), num_drop);
