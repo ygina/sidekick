@@ -144,7 +144,7 @@ async fn main() -> Result<(), String> {
                 let quack = rx.recv().await.expect("channel has hung up");
                 let (my_quack, my_log) = sc.lock().unwrap().quack_with_log();
                 let difference_quack = my_quack - quack;
-                let result = difference_quack.decode(&my_log);
+                let result = difference_quack.decode_with_log(&my_log);
                 debug!("{:?}", result);
             }
         }

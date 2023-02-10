@@ -63,8 +63,26 @@ impl Quack for PowerSumQuack {
     fn count(&self) -> u16 {
         self.count
     }
+}
 
-    fn decode(&self, log: &IdentifierLog) -> Vec<usize> {
+impl PowerSumQuack {
+    /// Returns the missing identifiers by factorization of the difference
+    /// quack. Returns None if unable to factor.
+    pub fn decode_by_factorization(&self) -> Option<Vec<Identifier>> {
+        if self.count == 0 {
+            return Some(vec![]);
+        }
+        let coeffs = self.to_coeffs();
+        match MonicPolynomialEvaluator::factor(&coeffs) {
+            Ok(roots) => Some(roots),
+            Err(_) => None,
+        }
+    }
+
+    /// Returns the missing identifiers from the log. Note that if there are
+    /// collisions in the log of multiple identifiers, they will all appear.
+    /// If the log is incomplete, there will be fewer than the number missing.
+    pub fn decode_with_log(&self, log: &IdentifierLog) -> Vec<Identifier> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!("decoding quACK: num_packets={}, num_missing={}",
@@ -74,18 +92,17 @@ impl Quack for PowerSumQuack {
         }
         let coeffs = self.to_coeffs();
         trace!("coeffs = {:?}", coeffs);
-        let indexes: Vec<usize> = (0..num_packets)
-            .filter(|&i| {
-                MonicPolynomialEvaluator::eval(&coeffs, log[i]).is_zero()
+        let missing: Vec<Identifier> = log.iter()
+            .filter(|&&x| {
+                MonicPolynomialEvaluator::eval(&coeffs, x).is_zero()
             })
+            .map(|&x| x)
             .collect();
-        info!("found {}/{} missing packets", indexes.len(), num_missing);
-        debug!("indexes = {:?}", indexes);
-        indexes
+        info!("found {}/{} missing packets", missing.len(), num_missing);
+        debug!("missing = {:?}", missing);
+        missing
     }
-}
 
-impl PowerSumQuack {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
     pub fn to_coeffs(&self) -> Vec<ModularInteger> {
@@ -96,6 +113,9 @@ impl PowerSumQuack {
         coeffs
     }
 
+    /// Convert n power sums to n polynomial coefficients (not including the
+    /// leading 1 coefficient) using Newton's identities. Writes coefficients
+    /// into a pre-allocated buffer.
     pub fn to_coeffs_preallocated(
         &self,
         coeffs: &mut Vec<ModularInteger>,
@@ -299,15 +319,15 @@ mod test {
     }
 
     #[test]
-    fn test_decode_empty_quack() {
+    fn test_decode_log_empty_quack() {
         let quack = PowerSumQuack::new(10);
         let log = vec![1, 2, 3];
-        let result = quack.decode(&log);
-        assert_eq!(result, vec![]);
+        let result = quack.decode_with_log(&log);
+        assert!(result.is_empty());
     }
 
     #[test]
-    fn test_quack_decode() {
+    fn test_quack_decode_log() {
         let log = vec![1, 2, 3, 4, 5, 6];
         let mut q1 = PowerSumQuack::new(3);
         for x in &log {
@@ -320,9 +340,101 @@ mod test {
 
         // Check the result
         let quack = q1 - q2;
-        let mut result = quack.decode(&log);
+        let mut result = quack.decode_with_log(&log);
         assert_eq!(result.len(), 3);
         result.sort();
-        assert_eq!(result, vec![1, 4, 5]);
+        assert_eq!(result, vec![2, 5, 6]);
+    }
+
+    #[test]
+    fn test_quack_decode_log_with_collisions() {
+        let log = vec![1, 2, 2, 3, 4, 5, 6];
+        let mut q1 = PowerSumQuack::new(4);
+        for x in &log {
+            q1.insert(*x);
+        }
+        let mut q2 = PowerSumQuack::new(4);
+        q2.insert(1);
+        q2.insert(3);
+        q2.insert(4);
+
+        // Check the result
+        let quack = q1 - q2;
+        let mut result = quack.decode_with_log(&log);
+        assert_eq!(result.len(), 4);
+        result.sort();
+        assert_eq!(result, vec![2, 2, 5, 6]);
+    }
+
+    #[test]
+    fn test_quack_decode_log_incomplete() {
+        let log = vec![1, 2, 3, 4, 5, 6];
+        let mut q1 = PowerSumQuack::new(3);
+        for x in &log {
+            q1.insert(*x);
+        }
+        let mut q2 = PowerSumQuack::new(3);
+        q2.insert(1);
+        q2.insert(3);
+        q2.insert(4);
+
+        // Check the result
+        let quack = q1 - q2;
+        let mut result = quack.decode_with_log(&log[2..].to_vec());
+        assert_eq!(result.len(), 2);
+        result.sort();
+        assert_eq!(result, vec![5, 6]);
+    }
+
+    #[ignore]
+    #[test]
+    fn test_decode_factor_empty_quack() {
+        let quack = PowerSumQuack::new(10);
+        let result = quack.decode_by_factorization();
+        assert!(result.is_some());
+        assert!(result.unwrap().is_empty());
+    }
+
+    #[ignore]
+    #[test]
+    fn test_quack_decode_factor() {
+        let log = vec![1, 2, 3, 4, 5, 6];
+        let mut q1 = PowerSumQuack::new(3);
+        for x in &log {
+            q1.insert(*x);
+        }
+        let mut q2 = PowerSumQuack::new(3);
+        q2.insert(1);
+        q2.insert(3);
+        q2.insert(4);
+
+        // Check the result
+        let quack = q1 - q2;
+        let result = quack.decode_by_factorization();
+        assert!(result.is_some());
+        let mut result = result.unwrap();
+        assert_eq!(result.len(), 3);
+        result.sort();
+        assert_eq!(result, vec![2, 5, 6]);
+    }
+
+    #[ignore]
+    #[test]
+    fn test_quack_decode_cant_factor() {
+        let log = vec![1, 2, 3, 4, 5, 6];
+        let mut q1 = PowerSumQuack::new(3);
+        for x in &log {
+            q1.insert(*x);
+        }
+        let mut q2 = PowerSumQuack::new(3);
+        q2.insert(1);
+        q2.insert(3);
+        q2.insert(4);
+        q2.power_sums[0] += ModularInteger::new(1);  // mess up the power sums
+
+        // Check the result
+        let quack = q1 - q2;
+        let mut result = quack.decode_by_factorization();
+        assert!(result.is_none());
     }
 }

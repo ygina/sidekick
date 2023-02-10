@@ -18,5 +18,4 @@ pub trait Quack {
     fn remove(&mut self, value: Identifier);
     fn threshold(&self) -> usize;
     fn count(&self) -> u16;
-    fn decode(&self, log: &IdentifierLog) -> Vec<usize>;
 }

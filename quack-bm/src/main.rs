@@ -32,6 +32,9 @@ struct Cli {
     // Whether to use power tables.
     #[arg(long = "use-tables")]
     use_tables: bool,
+    // Whether to factor if using power sum quacks.
+    #[arg(long = "factor")]
+    factor: bool,
 }
 
 
@@ -56,6 +59,7 @@ fn main() {
             decode::run_benchmark(
                 args.quack_ty,
                 args.use_tables,
+                args.factor,
                 args.threshold,
                 args.num_packets,
                 args.num_bits_id,

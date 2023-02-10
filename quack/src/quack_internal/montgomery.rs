@@ -27,10 +27,6 @@ impl Quack for MontgomeryQuack {
     fn count(&self) -> u16 {
         unimplemented!()
     }
-
-    fn decode(&self, log: &crate::IdentifierLog) -> Vec<usize> {
-        unimplemented!()
-    }
 }
 
 impl SubAssign for MontgomeryQuack {
