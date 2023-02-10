@@ -5,6 +5,7 @@ use log::info;
 use rand::Rng;
 use quack::*;
 use multiset::HashMultiSet;
+use sha2::{Digest, Sha256};
 
 fn benchmark_construct_strawman1(
     numbers: Vec<u32>,
@@ -34,6 +35,27 @@ fn benchmark_construct_strawman1(
 
     let duration = t2 - t1;
     info!("Insert {} numbers into 2 multisets: {:?}",
+        num_packets, duration);
+    duration
+}
+
+fn benchmark_construct_strawman2(
+    numbers: Vec<u32>,
+    num_packets: usize,
+    num_drop: usize,
+) -> Duration {
+    let mut acc = Sha256::new();
+
+    // Insert a bunch of random numbers into the accumulator.
+    let t1 = Instant::now();
+    for i in 0..(num_packets - num_drop) {
+        acc.update(numbers[i].to_be_bytes());
+    }
+    acc.finalize();
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Insert {} numbers into a sha256 digest: {:?}",
         num_packets, duration);
     duration
 }
@@ -96,7 +118,8 @@ pub fn run_benchmark(
         let duration = match quack_ty {
             QuackType::Strawman1 => benchmark_construct_strawman1(
                 numbers, num_packets, num_drop),
-            QuackType::Strawman2 => unimplemented!(),
+            QuackType::Strawman2 => benchmark_construct_strawman2(
+                numbers, num_packets, num_drop),
             QuackType::PowerSum => benchmark_construct_power_sum_32(
                 numbers, threshold, num_packets, num_drop),
             QuackType::Montgomery => unimplemented!(),
