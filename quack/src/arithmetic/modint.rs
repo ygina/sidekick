@@ -4,17 +4,21 @@ use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
 use serde::{Serialize, Deserialize};
 
 /// A 63-bit prime.
-pub const MODULUS: u64 = 9223372036854775783;
-pub const R_INV: u64 = 553402322211286547;
+pub const MODULUS: u64 = 18446744073709551557;
+pub const R_INV: u64 = 14694863923124558020;
 pub const R_LOG2: u64 = 64;
-pub const NEG_MODULUS_INV: u64 = 1106804644422573097;
+pub const NEG_MODULUS_INV: u64 = 14694863923124558067;
 
 // from wiki https://en.wikipedia.org/wiki/Montgomery_modular_multiplication
 fn montgomery_redc(x: u128) -> u64 {
     // Overflow here is OK because we're modding by a small power of two
     let m: u64 = (((x as u64) as u128) * (NEG_MODULUS_INV as u128)) as u64;
-    // (x + (m * N)) is 63 bit + 126 bits => 127 bits, then downshift so should all work out
-    let t: u64 = ((x as u128) + ((m as u128) * (MODULUS as u128)) >> (R_LOG2 as u128)) as u64;
+    let extra_bit = x.overflowing_add((m as u128) * (MODULUS as u128)).1;
+    let sum: u128 = x.overflowing_add((m as u128) * (MODULUS as u128)).0;
+    let t: u64 = (sum >> (R_LOG2 as u128)) as u64;
+    if extra_bit {
+        return t.overflowing_sub(MODULUS).0;
+    }
     if t < MODULUS {
         return t;
     }
@@ -103,9 +107,10 @@ impl Neg for ModularInteger {
 
 impl AddAssign for ModularInteger {
     fn add_assign(&mut self, rhs: Self) {
-        let sum: u64 = self.value + rhs.value;
-        self.value = if sum >= MODULUS {
-            (sum - MODULUS) as u64
+        // TODO(masot): why didn't this overflow in the 32-bit prime setting?
+        let sum: u128 = (self.value as u128) + (rhs.value as u128);
+        self.value = if sum >= (MODULUS as u128) {
+            (sum - (MODULUS as u128)) as u64
         } else {
             sum as u64
         };
@@ -125,11 +130,12 @@ impl Add for ModularInteger {
 impl SubAssign for ModularInteger {
     fn sub_assign(&mut self, rhs: Self) {
         let neg_rhs: u64 = MODULUS - rhs.value;
-        let diff: u64 = self.value + neg_rhs;
-        self.value = if diff >= MODULUS {
-            diff - MODULUS
+        // TODO(masot): why didn't this overflow with a 32-bit prime?
+        let diff: u128 = (self.value as u128) + (neg_rhs as u128);
+        self.value = if diff >= (MODULUS as u128) {
+            (diff - (MODULUS as u128)) as u64
         } else {
-            diff
+            diff as u64
         };
     }
 }
