@@ -25,37 +25,11 @@ fn montgomery_multiply(x: u16, y: u16) -> u16 {
     return montgomery_redc((x as u32) * (y as u32));
 }
 
-// https://stackoverflow.com/questions/13212212/creating-two-dimensional-arrays-in-rust
-pub const MEMOIZED_POWER: usize = 32;
-pub const N_U16S: usize = 1 << 16;
-pub static mut POWER_TABLE: [[ModularInteger; MEMOIZED_POWER]; N_U16S]
-    = [[ZERO_MOD; MEMOIZED_POWER]; N_U16S];
-
-pub fn init_pow_table() {
-    unsafe {
-        if POWER_TABLE[0][0] != ZERO_MOD {
-            return;
-        }
-    }
-    for x in 0..N_U16S {
-        let x_mi = ModularInteger::new(x as u16);
-        let mut xpow = ModularInteger::new_do_conversion(1);
-        for pow in 0..MEMOIZED_POWER {
-            unsafe {
-                POWER_TABLE[x][pow] = xpow;
-            }
-            xpow = xpow * x_mi;
-        }
-    }
-}
-
 /// 64-bit modular integer.
 #[derive(Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModularInteger {
     value: u16,
 }
-
-const ZERO_MOD: ModularInteger = ModularInteger { value: 0 };
 
 impl ModularInteger {
     pub fn zero() -> Self {
@@ -199,13 +173,6 @@ impl ModularInteger {
                 result *= self;
             }
             result
-        }
-    }
-
-    pub fn pow_table(self, power: usize) -> Self {
-        assert!(power < MEMOIZED_POWER);
-        unsafe {
-            return POWER_TABLE[self.value as usize][power as usize];
         }
     }
 

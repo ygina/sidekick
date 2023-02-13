@@ -1,5 +1,5 @@
 use std::ops::{Sub, SubAssign};
-use crate::arithmetic::{ModularInteger, MonicPolynomialEvaluator, init_pow_table};
+use crate::arithmetic::{ModularInteger, MonicPolynomialEvaluator};
 use crate::{Quack, Identifier, IdentifierLog};
 use serde::{Serialize, Deserialize};
 use log::{debug, info, trace};
@@ -32,9 +32,12 @@ impl Quack for PowerSumQuack {
         trace!("insert {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::new(value);
-        for i in 0..size {
-            self.power_sums[i] += x.pow_table(i + 1);
+        let mut y = x;
+        for i in 0..(size - 1) {
+            self.power_sums[i] += y;
+            y *= x;
         }
+        self.power_sums[size - 1] += y;
         // TODO: handle count overflow
         self.count += 1;
     }
@@ -43,9 +46,12 @@ impl Quack for PowerSumQuack {
         trace!("remove {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::new(value);
+        let mut y = x;
         for i in 0..size {
-            self.power_sums[i] -= x.pow_table(i + 1);
+            self.power_sums[i] -= y;
+            y *= x;
         }
+        self.power_sums[size - 1] -= y;
         // TODO: handle count overflow
         self.count -= 1;
     }
@@ -168,7 +174,6 @@ mod test {
 
     #[test]
     fn test_quack_insert_no_modulus() {
-        init_pow_table();
         let mut quack = PowerSumQuack::new(3);
         quack.insert(1);
         assert_eq!(quack.count, 1);
@@ -255,7 +260,6 @@ mod test {
 
     #[test]
     fn test_quack_sub_num_missing_lt_threshold() {
-        init_pow_table();
         let mut coeffs = (0..3).map(|_| ModularInteger::zero()).collect();
         let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
@@ -324,7 +328,6 @@ mod test {
 
     #[test]
     fn test_quack_decode_log() {
-        init_pow_table();
         let log = vec![1, 2, 3, 4, 5, 6];
         let mut q1 = PowerSumQuack::new(3);
         for x in &log {
@@ -345,7 +348,6 @@ mod test {
 
     #[test]
     fn test_quack_decode_log_with_collisions() {
-        init_pow_table();
         let log = vec![1, 2, 2, 3, 4, 5, 6];
         let mut q1 = PowerSumQuack::new(4);
         for x in &log {
@@ -366,7 +368,6 @@ mod test {
 
     #[test]
     fn test_quack_decode_log_incomplete() {
-        init_pow_table();
         let log = vec![1, 2, 3, 4, 5, 6];
         let mut q1 = PowerSumQuack::new(3);
         for x in &log {
