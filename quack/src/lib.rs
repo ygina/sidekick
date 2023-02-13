@@ -3,6 +3,8 @@ pub mod arithmetic {
     mod evaluator;
 
     pub use modint::ModularInteger;
+    pub use modint::init_pow_table;
+    pub use modint::MEMOIZED_POWER;
     pub use evaluator::MonicPolynomialEvaluator;
 }
 

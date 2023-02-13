@@ -2,6 +2,7 @@ mod common;
 mod construct;
 mod decode;
 
+use quack::arithmetic::init_pow_table;
 use common::*;
 use clap::Parser;
 use log::debug;
@@ -40,6 +41,7 @@ struct Cli {
 
 fn main() {
     env_logger::init();
+    init_pow_table();
 
     let args = Cli::parse();
     debug!("args = {:?}", args);
