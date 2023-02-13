@@ -1,4 +1,5 @@
 use crate::arithmetic::ModularInteger;
+use crate::arithmetic::init_pow_table;
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
@@ -23,15 +24,13 @@ impl MonicPolynomialEvaluator {
     /// included in the vector.
     pub fn eval(coeffs: &Vec<ModularInteger>, x: u16) -> ModularInteger {
         let size = coeffs.len();
-        let x_mod = ModularInteger::new(x);
-        let mut result = x_mod;
-        // result = x(...(x(x(x+a0)+a1)+...))
-        // e.g., result = x(x+a0)+a1
+        let x_modint = ModularInteger::new(x);
+        let mut result: u64 = x_modint.pow_table(size).value() as u64;
         for i in 0..(size - 1) {
-            result += coeffs[i];
-            result *= x_mod;
+            result += (coeffs[i].value() as u64) * (x_modint.pow_table(size - i - 1).value() as u64);
         }
-        result + coeffs[size - 1]
+        result += coeffs[size - 1].value() as u64;
+        return ModularInteger::new((result % (coeffs[0].modulus() as u64)) as u16);
     }
 
     /// Factors the given polynomial using modular arithmetic, assuming all
@@ -69,6 +68,7 @@ mod test {
 
     #[test]
     fn test_eval_no_modulus() {
+        init_pow_table();
         // f(x) = x^2 + 2*x - 3
         // f(0) = -3
         // f(1) = 0
