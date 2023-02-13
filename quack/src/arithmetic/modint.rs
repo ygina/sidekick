@@ -5,6 +5,25 @@ use serde::{Serialize, Deserialize};
 
 /// A 63-bit prime.
 pub const MODULUS: u16 = 65521;
+pub const R_INV: u16 = 61153;
+pub const R_LOG2: u16 = 16;
+pub const NEG_MODULUS_INV: u16 = 61167;
+
+// from wiki https://en.wikipedia.org/wiki/Montgomery_modular_multiplication
+fn montgomery_redc(x: u32) -> u16 {
+    // Overflow here is OK because we're modding by a small power of two
+    let m: u16 = (((x as u16) as u32) * (NEG_MODULUS_INV as u32)) as u16;
+    let sum: u64 = (x as u64) + ((m as u64) * (MODULUS as u64));
+    let t: u32 = (sum >> (R_LOG2 as u64)) as u32;
+    if t < (MODULUS as u32) {
+        return t as u16;
+    }
+    return (t - (MODULUS as u32)) as u16;
+}
+
+fn montgomery_multiply(x: u16, y: u16) -> u16 {
+    return montgomery_redc((x as u32) * (y as u32));
+}
 
 // https://stackoverflow.com/questions/13212212/creating-two-dimensional-arrays-in-rust
 pub const MEMOIZED_POWER: usize = 32;
@@ -20,7 +39,7 @@ pub fn init_pow_table() {
     }
     for x in 0..N_U16S {
         let x_mi = ModularInteger::new(x as u16);
-        let mut xpow = ModularInteger::new(1);
+        let mut xpow = ModularInteger::new_do_conversion(1);
         for pow in 0..MEMOIZED_POWER {
             unsafe {
                 POWER_TABLE[x][pow] = xpow;
@@ -49,6 +68,11 @@ impl ModularInteger {
         } else {
             Self { value: n }
         }
+    }
+
+    pub fn new_do_conversion(n: u16) -> Self {
+        let R_mod_MODULUS: u16 = (((1 as u32) << (R_LOG2 as u32)) % (MODULUS as u32)) as u16;
+        return ModularInteger::new((((R_mod_MODULUS as u32) * (n as u32)) % (MODULUS as u32)) as u16);
     }
 
     pub fn value(&self) -> u16 {
@@ -148,8 +172,7 @@ impl Sub for ModularInteger {
 
 impl MulAssign for ModularInteger {
     fn mul_assign(&mut self, rhs: Self) {
-        let prod: u32 = (self.value as u32) * (rhs.value as u32);
-        self.value = (prod % (MODULUS as u32)) as u16;
+        self.value = montgomery_multiply(self.value, rhs.value);
     }
 }
 
@@ -166,7 +189,7 @@ impl Mul for ModularInteger {
 impl ModularInteger {
     pub fn pow(self, power: u16) -> Self {
         if power == 0 {
-            ModularInteger::new(1)
+            ModularInteger::new_do_conversion(1)
         } else if power == 1 {
             self
         } else {
@@ -245,7 +268,7 @@ mod test {
     #[test]
     fn test_pow() {
         let x = ModularInteger::new(1_000);
-        assert_eq!(x.pow(0), 1);
+        assert_eq!(x.pow(0), ModularInteger::new_do_conversion(1));
     }
 
     #[test]
@@ -253,8 +276,9 @@ mod test {
         let x = ModularInteger::new(2);
         let y = ModularInteger::new(1_000);
         // let z = ModularInteger::new(4_294_967_289);
-        assert_eq!(x * x.inv(), 1);
-        assert_eq!(y * y.inv(), 1);
+        let one = ModularInteger::new_do_conversion(1);
+        assert_eq!(x * x.inv(), one);
+        assert_eq!(y * y.inv(), one);
         // assert_eq!(z * z.inv(), 1);
     }
 
