@@ -7,7 +7,7 @@ use serde::{Serialize, Deserialize};
 pub const MODULUS: u16 = 65521;
 
 // https://stackoverflow.com/questions/13212212/creating-two-dimensional-arrays-in-rust
-pub const MEMOIZED_POWER: usize = 32;
+pub const MEMOIZED_POWER: usize = 51;
 pub const N_U16S: usize = 1 << 16;
 pub static mut POWER_TABLE: [[ModularInteger; MEMOIZED_POWER]; N_U16S]
     = [[ZERO_MOD; MEMOIZED_POWER]; N_U16S];
@@ -180,7 +180,7 @@ impl ModularInteger {
     }
 
     pub fn pow_table(self, power: usize) -> Self {
-        assert!(power < MEMOIZED_POWER);
+        assert!(power < MEMOIZED_POWER, "{} !< {}", power, MEMOIZED_POWER);
         unsafe {
             return POWER_TABLE[self.value as usize][power as usize];
         }
