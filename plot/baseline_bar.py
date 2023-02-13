@@ -10,7 +10,7 @@ from common import *
 
 DATA_SIZES = [1000, 10000, 50000]
 LOSSES = [0, 1]
-HTTP_VERSIONS = ['pep', 'quack-2ms-r', 'quic', 'tcp']
+HTTP_VERSIONS = ['quack-2ms-r', 'pep', 'quic', 'tcp']
 
 def get_filename(loss, bm):
     return f'../results/loss{loss}p/cubic/{bm}.txt'
@@ -108,7 +108,6 @@ def collect_parsed_data(data, n):
     return (mean, stdev)
 
 def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
-    fontsize = 15
     data = {}
     for bm in HTTP_VERSIONS:
         filename = get_filename(loss, bm)
@@ -130,25 +129,27 @@ def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
             yerrs = [0 for _ in data_sizes]
         else:
             yerrs = [data[bm][n][1] for n in data_sizes]
-        bars = ax.bar(xs, ys, width, label=bm, yerr=yerrs)
+        bars = ax.bar(xs, ys, width, label=LABEL_MAP[bm], yerr=yerrs)
         if statistics.mean(ys) < 0.25:
             ax.bar_label(bars, padding=6, fmt='%1.3f', rotation=90,
-                         fontsize=fontsize, color='black')
+                         fontsize=FONTSIZE, color='black')
         else:
             ax.bar_label(bars, label_type='center', fmt='%1.3f', rotation=90,
-                         fontsize=fontsize, color='white')
+                         fontsize=FONTSIZE, color='white')
 
     for n in data_sizes:
         for bm in HTTP_VERSIONS:
             (y, yerr) = data[bm][n]
 
-    ax.set_xlabel('Data Size', fontsize=fontsize)
+    ax.set_xlabel('Data Size', fontsize=FONTSIZE)
     ax.set_xticks(original_xs, [f'{int(x / 1000)}MB' for x in data_sizes],
-        fontsize=fontsize)
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=4,
-        fontsize=fontsize)
-    ax.set_ylabel('Goodput (Mbyte/s)', fontsize=fontsize)
-    ax.set_title(f'{loss}% loss on near subpath', fontsize=fontsize+5)
+        fontsize=FONTSIZE)
+    ax.tick_params(axis='both', which='major', labelsize=FONTSIZE)
+    ax.tick_params(axis='both', which='minor', labelsize=FONTSIZE)
+    # ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2,
+    #     fontsize=FONTSIZE)
+    ax.set_ylabel('Goodput (MBytes/s)', fontsize=FONTSIZE)
+    # ax.set_title(f'{loss}% loss on near subpath', fontsize=FONTSIZE+5)
     ax.set_ylim(0, 1.2)
     if pdf is not None:
         print(pdf)

@@ -9,7 +9,7 @@ from os import path
 from collections import defaultdict
 from common import *
 
-KEYS = ['pep', 'quack', 'tcp', 'quic']
+KEYS = ['quack', 'pep', 'quic', 'tcp']
 TARGET_XS = {}
 # [x for x in range(0, 30, 2)] + \
 # TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
@@ -154,21 +154,28 @@ def maybe_collect_missing_data(filename, key, args):
                 sys.stdout.buffer.write(line)
                 sys.stdout.buffer.flush()
 
-def plot_graph(data, pdf):
+def plot_graph(data, pdf=None):
     max_x = 0
     plt.figure(figsize=(15, 5))
     for (i, key) in enumerate(KEYS):
         (xs, ys, yerr) = data[key]
-        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=key)
+        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=LABEL_MAP[key])
         max_x = max(max_x, max(xs))
     plt.xlabel('Loss (%)')
     plt.ylabel('Goodput (MBytes/s)')
     plt.xlim(0, max_x)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=4)
-    plt.title(pdf)
+    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4)
+    # plt.title(pdf)
+    if pdf:
+        print(pdf)
+        save_pdf(pdf)
+
+def plot_legend(data, pdf):
+    plot_graph(data)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4, frameon=True)
+    bbox = Bbox.from_bounds(0.5, 4.55, 14.35, 0.95)
+    save_pdf(pdf, bbox_inches=bbox)
     print(pdf)
-    save_pdf(pdf)
-    plt.clf()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -224,3 +231,4 @@ if __name__ == '__main__':
     # Plot data.
     pdf = f'loss_bw{args.bw}_{args.n}.pdf'
     plot_graph(data, pdf=pdf)
+    plot_legend(data, pdf='legend.pdf')

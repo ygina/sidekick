@@ -10,7 +10,8 @@ from common import *
 
 LOSSES = ['0', '0.25', '1', '2', '5']
 KEYS = ['cwnd']
-bms = ['quic', 'quack', 'tcp', 'pep_h2', 'pep_r1']
+bms = ['quack', 'pep_r1', 'quic', 'tcp']
+# bms = ['quic', 'quack', 'tcp', 'pep_h2', 'pep_r1']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
@@ -103,16 +104,16 @@ def plot_graph(data, iperf, max_x_arg, loss):
             plot_data.append((xs, ys, bm))
     for (xs, ys, label) in plot_data:
         ys = [y / 1.5 for y in ys]
-        plt.plot(xs, ys, label=label)
+        plt.plot(xs, ys, label=LABEL_MAP[label])
 
     plt.xlabel('Time (s)')
     plt.ylabel('cwnd (packets)')
     if max_x_arg is not None:
         plt.xlim(0, max_x_arg)
     plt.ylim(0, 240)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
+    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
     pdf = 'cwnd_{}s_loss{}p.pdf'.format(max_x_arg, loss)
-    plt.title(pdf)
+    # plt.title(pdf)
     print(pdf)
     save_pdf(pdf)
     plt.clf()

@@ -18,8 +18,8 @@ X_MAX = None
 
 def plot_graph(filename, xs, ys0, ys1, f1, f2, pdf):
     plt.figure(figsize=(9, 6))
-    plt.plot(xs, ys0, label=f1)
-    plt.plot(xs, ys1, label=f2)
+    plt.plot(xs, ys0, label=LABEL_MAP[f1], color=COLOR_MAP[f1])
+    plt.plot(xs, ys1, label=LABEL_MAP[f2], color=COLOR_MAP[f2])
     plt.xlabel('Time (s)')
     plt.ylabel('Throughput (MBytes/s)')
     if X_MAX is not None:
@@ -27,8 +27,8 @@ def plot_graph(filename, xs, ys0, ys1, f1, f2, pdf):
     else:
         plt.xlim(0, max(xs))
     plt.ylim(0, 1.4)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
-    plt.title(pdf)
+    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
+    # plt.title(pdf)
     print(pdf)
     save_pdf(pdf)
     plt.clf()

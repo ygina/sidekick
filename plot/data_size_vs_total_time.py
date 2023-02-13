@@ -23,8 +23,8 @@ TARGET_XS = [x for x in range(200, 1000, 200)] + \
             [100000]
 LOSSES = [0, 1]
 HTTP_VERSIONS = [
-    'pep',
     'quack-2ms-r',
+    'pep',
     'quic',
     'tcp',
     # 'quic-m',
@@ -245,19 +245,19 @@ def plot_graph(loss, cc, bw2, pdf,
             yerr_lower = [y.p50 - y.p25 for y in ys_raw]
             yerr_upper = [y.p75 - y.p50 for y in ys_raw]
             plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
-                label=label, marker=MARKERS[i])
+                label=LABEL_MAP[label], marker=MARKERS[i])
         else:
             ys = [y.avg for y in ys_raw]
             yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
-            plt.errorbar(xs, ys, yerr=yerr, label=label, marker=MARKERS[i])
+            plt.errorbar(xs, ys, yerr=yerr, label=LABEL_MAP[label], marker=MARKERS[i])
     plt.xlabel('Data Size (MB)')
     if normalize:
-        plt.ylabel('Goodput (MB/s)')
+        plt.ylabel('Goodput (MBytes/s)')
     else:
         plt.ylabel('{} (s)'.format(data_key))
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.55), ncol=2)
+    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONTSIZE)
     statistic = 'median' if use_median else 'mean'
-    plt.title(f'{statistic} {cc} {loss}% loss bw{bw2}')
+    # plt.title(f'{statistic} {cc} {loss}% loss bw{bw2}')
     if pdf is not None:
         print(pdf)
         save_pdf(pdf)
