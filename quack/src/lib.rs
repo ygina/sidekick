@@ -9,7 +9,7 @@ pub mod arithmetic {
 mod quack_internal;
 pub use quack_internal::*;
 
-pub type Identifier = u64;
+pub type Identifier = u16;
 pub type IdentifierLog = Vec<Identifier>;
 
 pub trait Quack {

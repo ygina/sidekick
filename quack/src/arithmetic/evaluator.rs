@@ -4,9 +4,9 @@ use crate::arithmetic::ModularInteger;
 #[link(name = "pari", kind = "dylib")]
 extern "C" {
     fn factor_libpari(
-        roots: *mut u64,
-        coeffs: *const u64,
-        field: u64,
+        roots: *mut u16,
+        coeffs: *const u16,
+        field: u16,
         degree: usize,
     ) -> i32;
 }
@@ -21,7 +21,7 @@ impl MonicPolynomialEvaluator {
     /// constant term in the polynomial. The number of coefficients is the
     /// degree of the polynomial. The leading coefficient is 1, and is not
     /// included in the vector.
-    pub fn eval(coeffs: &Vec<ModularInteger>, x: u64) -> ModularInteger {
+    pub fn eval(coeffs: &Vec<ModularInteger>, x: u16) -> ModularInteger {
         let size = coeffs.len();
         let x_mod = ModularInteger::new(x);
         let mut result = x_mod;
@@ -42,12 +42,12 @@ impl MonicPolynomialEvaluator {
     /// degree of the polynomial. The leading coefficient is 1, and is not
     /// included in the vector.
     #[cfg(feature = "libpari")]
-    pub fn factor(coeffs: &Vec<ModularInteger>) -> Result<Vec<u64>, String> {
+    pub fn factor(coeffs: &Vec<ModularInteger>) -> Result<Vec<u16>, String> {
         assert_ne!(coeffs.len(), 0);
         let modulus = coeffs[0].modulus();
         let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();
         coeffs.insert(0, 1);
-        let mut roots: Vec<u64> = vec![0; coeffs.len() - 1];
+        let mut roots: Vec<u16> = vec![0; coeffs.len() - 1];
         if unsafe {
             factor_libpari(
                 roots.as_mut_ptr(),

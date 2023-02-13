@@ -6,7 +6,7 @@ use log::{debug, info, trace};
 
 /// The i-th term corresponds to dividing by i+1 in modular arithemtic.
 fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
-    (0..(size as u64)).map(|i| ModularInteger::new(i+1).inv()).collect()
+    (0..(size as u16)).map(|i| ModularInteger::new(i+1).inv()).collect()
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -189,11 +189,11 @@ mod test {
     #[test]
     fn test_quack_insert_with_modulus() {
         let mut quack = PowerSumQuack::new(5);
-        quack.insert(1143971604);
-        quack.insert(734067013);
-        quack.insert(130412990);
-        quack.insert(2072080394);
-        quack.insert(748120679);
+        quack.insert(04);
+        quack.insert(3);
+        quack.insert(0);
+        quack.insert(94);
+        quack.insert(9);
         assert_eq!(quack.count, 5);
         // assert_eq!(quack.power_sums, vec![
         //     533685389, 1847039354, 2727275532, 1272499396, 2347942976,
@@ -203,11 +203,11 @@ mod test {
     #[test]
     fn test_quack_to_polynomial_coefficients() {
         let mut quack = PowerSumQuack::new(5);
-        quack.insert(3616712547);
-        quack.insert(2333013068);
-        quack.insert(2234311686);
-        quack.insert(2462729946);
-        quack.insert(670144905);
+        quack.insert(547);
+        quack.insert(068);
+        quack.insert(686);
+        quack.insert(946);
+        quack.insert(05);
         let mut coeffs = (0..5).map(|_| ModularInteger::zero()).collect();
         quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs.len(), 5);
