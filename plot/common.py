@@ -29,6 +29,9 @@ COLOR_MAP['quack'] = colors[0]
 COLOR_MAP['pep'] = colors[1]
 COLOR_MAP['quic'] = colors[2]
 COLOR_MAP['tcp'] = colors[3]
+COLOR_MAP[16] = colors[4]
+COLOR_MAP[32] = COLOR_MAP['quack']
+COLOR_MAP[63] = colors[5]
 
 styles = [
 'Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid',
