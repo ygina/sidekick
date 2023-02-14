@@ -108,8 +108,8 @@ class SidecarNetwork():
 
         self.r1.cmd(f'kill $(pidof sidecar)')
         self.r1.cmd(f'RUST_BACKTRACE=1 RUST_LOG={self.log_level} ' \
-            f'./target/release/sidecar -i r1-eth1 -t {self.threshold} ' + \
-            f'quack-sender --target-addr 10.0.2.10:5103 ' + \
+            f'./target/release/sender -i r1-eth1 -t {self.threshold} ' + \
+            f'--target-addr 10.0.2.10:5103 ' + \
             f'{frequency} >> r1.log 2>&1 &')
 
     def start_and_configure(self):
@@ -306,7 +306,7 @@ class SidecarNetwork():
                    '--stdout', args.stdout, '--stderr', args.stderr,
                    '-cc', self.cc, '--loss', str(self.loss2), '-t', '1']
             if bm == 'quack':
-                cmd += ['-s', 'h2-eth0', str(self.threshold), '--quack-reset']
+                cmd += ['-s', str(self.threshold), '--quack-reset']
             return cmd
 
         f1_cmd = make_cmd(f1)
