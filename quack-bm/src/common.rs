@@ -13,7 +13,6 @@ pub enum QuackType {
     Strawman1,
     Strawman2,
     PowerSum,
-    Montgomery,
 }
 
 pub fn print_summary(d: Vec<Duration>) {
