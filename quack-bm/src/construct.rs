@@ -122,7 +122,6 @@ pub fn run_benchmark(
                 numbers, num_packets, num_drop),
             QuackType::PowerSum => benchmark_construct_power_sum_32(
                 numbers, threshold, num_packets, num_drop),
-            QuackType::Montgomery => unimplemented!(),
         };
         if i > 0 {
             durations.push(duration);

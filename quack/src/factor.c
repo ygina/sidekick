@@ -6,7 +6,6 @@
 int32_t factor_libpari(
     uint32_t *roots, const uint32_t *coeffs, long field, size_t degree
 ) {
-    size_t i;
     uint32_t j, m;
     GEN vec, p, res, f;
     pari_init(1000000, 0);
@@ -14,7 +13,7 @@ int32_t factor_libpari(
 
     // Initialize mod polynomial and factor
     vec = const_vecsmall(degree + 1, 0);
-    for (i = 0; i < degree+1; i++) {
+    for (size_t i = 0; i < degree+1; i++) {
         vec[i+1] = coeffs[i];
     }
     p = gtopoly(vec, 0);
@@ -22,7 +21,7 @@ int32_t factor_libpari(
 
     // Copy results to roots vector
     int n = 0;
-    for (i = 0; i < nbrows(res); i++) {
+    for (int i = 0; i < nbrows(res); i++) {
         f = gcoeff(res, i+1, 1);
         m = itou(gcoeff(res, i+1, 2));
         if (degpol(f) != 1) {

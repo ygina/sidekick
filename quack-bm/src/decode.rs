@@ -54,8 +54,8 @@ fn benchmark_decode_strawman2(
     acc1.finalize();
 
     // Calculate the number of subsets.
-    let n = num_packets as u32;
-    let r = num_drop as u32;
+    let _n = num_packets as u32;
+    let _r = num_drop as u32;
     // let num_subsets = (n-r+1..=n).product();
 
     let t1 = Instant::now();
@@ -154,7 +154,6 @@ pub fn run_benchmark(
                 numbers, num_packets, num_drop),
             QuackType::PowerSum => benchmark_decode_power_sum_32(
                 numbers, factor, threshold, num_packets, num_drop),
-            QuackType::Montgomery => unimplemented!(),
         };
         if i > 0 {
             durations.push(duration);
