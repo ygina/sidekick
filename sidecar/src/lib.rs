@@ -26,7 +26,6 @@ pub struct Sidecar {
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
-    // TODO: is there a better way to do synchronization?
     quack: PowerSumQuack,
     log: IdentifierLog,
 }
@@ -169,6 +168,7 @@ impl Sidecar {
         assert_eq!(self.ty, SidecarType::QuackSender);
         let mut mod_count = 0;
         loop {
+            // TODO: resets, dont' duplicate code from start()
             let n = recvsock.recvfrom(&mut addr, &mut buf).unwrap();
             trace!("received {} bytes: {:?}", n, buf);
             if n != (BUFFER_SIZE as _) {
