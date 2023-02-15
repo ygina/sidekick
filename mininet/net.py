@@ -360,7 +360,7 @@ class SidecarNetwork():
                  f'-cc {self.cc} --loss {self.loss2} ' \
                  f'--log-level {self.log_level} '
         if self.sidecar is not None:
-            h2_cmd += f'--sidecar h2-eth0 {self.threshold} '
+            h2_cmd += f'--sidecar {self.threshold} '
         if args.trials is None:
             trials = 1
         else:

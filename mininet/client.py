@@ -30,7 +30,7 @@ def build_base_command(args, filename):
     # cmd += 'curl-exp '
     cmd += 'sidecurl '
     if args.sidecar is not None:
-        cmd += f'--sidecar {args.sidecar[0]} --threshold {args.sidecar[1]} '
+        cmd += f'--threshold {args.sidecar} '
     if args.quack_reset:
         cmd += '--quack-reset '
     if args.sidecar_mtu:
@@ -114,10 +114,8 @@ if __name__ == '__main__':
                         help='Number of trials',
                         type=check_trials)
     parser.add_argument('-s', '--sidecar',
-                        metavar=('IFACE', 'THRESHOLD'),
-                        nargs=2,
-                        help='Sidecar interface that packets are being sent on '
-                             'and the quACK threshold.')
+                        type=int,
+                        help='The quACK threshold.')
     parser.add_argument('--sidecar-mtu', action='store_true',
                         help='Send packets only if cwnd > mtu')
     parser.add_argument('--quack-reset', action='store_true',
