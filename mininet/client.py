@@ -12,13 +12,13 @@ def estimate_timeout(args, n, http, loss):
             kb = int(n[:-1])
         elif 'M' in n:
             kb = int(n[:-1]) * 1000
-        scale = 0.008
-        if '1.1' in http:
+        scale = 0.015
+        if '3' in http:
             scale *= 2
         if float(loss) > 1:
             scale *= float(loss) / 1.5
         if args.sidecar is not None:
-            scale *= 0.4
+            scale *= 0.1
         return max(int(scale * kb), 15)
     except:
         return 3000
