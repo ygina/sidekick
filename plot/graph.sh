@@ -10,4 +10,4 @@ python3 time_vs_cwnd.py --max-x 30 --quic-n 35M --quack-n 35M --tcp 35 --loss 0 
 python3 time_vs_cwnd.py --max-x 30 --quic-n 5M --quack-n 35M --tcp 35 --loss 1 $execute
 #python3 multiflow.py -n 60M --max-x 60 $execute loss1p
 #python3 multiflow.py -n 60M --max-x 60 $execute loss0p
-
+python3 bit_widths.py
