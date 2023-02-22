@@ -1,0 +1,6 @@
+[submodule "curl"]
+	path = curl
+	url = git@github.com:ygina/curl.git
+[submodule "quiche"]
+	path = quiche
+	url = git@github.com:ygina/quiche.git
