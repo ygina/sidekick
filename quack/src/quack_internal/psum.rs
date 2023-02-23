@@ -68,6 +68,7 @@ impl Quack for PowerSumQuack {
 impl PowerSumQuack {
     /// Returns the missing identifiers by factorization of the difference
     /// quack. Returns None if unable to factor.
+    #[cfg(feature = "libpari")]
     pub fn decode_by_factorization(&self) -> Option<Vec<Identifier>> {
         if self.count == 0 {
             return Some(vec![]);
