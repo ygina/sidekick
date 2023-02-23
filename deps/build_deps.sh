@@ -1,34 +1,17 @@
 #!/bin/bash
-export SIDECAR_HOME=$HOME/sidecar
+if [ $# -ne 1 ]; then
+	echo "USAGE: $0 [all|0|1|2|3|4|5|6]"
+	echo "0 = nginx"
+	echo "1 = pari"
+	echo "2 = quiche"
+	echo "3 = curl"
+	echo "4 = sidecurl"
+	echo "5 = pepsal"
+	echo "6 = sidecar"	
+	exit 1
+fi
 
-# exit if any errors
-set -e
-
-# Linux dependencies
-sudo apt-get update -y
-sudo apt-get install -y texlive # pari
-sudo apt-get install -y autoconf libtool  # curl
-sudo apt-get install -y cmake libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev  # nginx
-sudo apt-get install -y libnfnetlink-dev  # pepsal
-sudo apt-get install -y mininet python3-pip  # mininet
-
-# rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # hit 1
-source "$HOME/.cargo/env"
-
-# mininet
-pip3 install mininet
-
-# Download external dependencies
-cd $SIDECAR_HOME/deps
-curl -O https://nginx.org/download/nginx-1.16.1.tar.gz
-tar xvzf nginx-1.16.1.tar.gz
-wget https://pari.math.u-bordeaux.fr/pub/pari/unix/pari-2.15.2.tar.gz
-tar xvzf pari-2.15.2.tar.gz
-git clone git@github.com:viveris/pepsal.git
-rm nginx-1.16.1.tar.gz pari-2.15.2.tar.gz
-
-# nginx
+build_nginx () {
 cd $SIDECAR_HOME/deps/nginx-1.16.1
 mkdir logs
 patch -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
@@ -42,33 +25,38 @@ patch -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
    --with-quiche=$SIDECAR_HOME/quiche
 make -j$(nproc)
 sudo ln -s $(pwd)/objs/nginx /usr/bin/nginx
+}
 
-# pari
+build_pari () {
 cd $SIDECAR_HOME/deps/pari-2.15.2
 ./Configure
 make -j$(nproc) all
 sudo make install
+}
 
-# quiche
+build_quiche () {
 cd $SIDECAR_HOME/quiche
 make sidecar
 mkdir quiche/deps/boringssl/src/lib
 ln -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
+}
 
-# curl
+build_curl () {
 cd $SIDECAR_HOME/curl
 autoreconf -fi
 ./configure LDFLAGS="-Wl,-rpath,$SIDECAR_HOME/quiche/target/release" \
-	--with-openssl=$SIDECAR_HOME/quiche/quiche/deps/boringssl/src \
-	--with-quiche=$SIDECAR_HOME/quiche/target/release
+        --with-openssl=$SIDECAR_HOME/quiche/quiche/deps/boringssl/src \
+        --with-quiche=$SIDECAR_HOME/quiche/target/release
 make -j$(nproc)
+}
 
-# sidecurl
+build_sidecurl () {
 cd $SIDECAR_HOME/curl/sidecurl
 make
 sudo ln -s $SIDECAR_HOME/curl/sidecurl/sidecurl /usr/bin/sidecurl
+}
 
-# pepsal
+build_pepsal () {
 cd $SIDECAR_HOME/deps/pepsal
 autoupdate
 autoreconf --install
@@ -76,8 +64,43 @@ autoconf
 ./configure
 make
 sudo make install
+}
 
-# sidecar
+build_sidecar () {
 cd $SIDECAR_HOME
 cargo build --release --features libpari
+}
+
+if [ $1 == "all" ]; then
+	build_nginx
+	build_pari
+	build_quiche
+	build_curl
+	build_sidecurl
+	build_pepsal
+	build_sidecar
+elif [ $1 -eq 0 ]; then
+	build_nginx
+elif [ $1 -eq 1 ]; then
+	build_pari
+elif [ $1 -eq 2 ]; then
+	build_quiche
+elif [ $1 -eq 3 ]; then
+	build_curl
+elif [ $1 -eq 4 ]; then
+	build_sidecurl
+elif [ $1 -eq 5 ]; then
+	build_pepsal
+elif [ $1 -eq 6 ]; then
+	build_sidecar
+else
+	echo "USAGE: $0 [all|0|1|2|3|4|5|6]"
+	echo "0 = nginx"
+	echo "1 = pari"
+	echo "2 = quiche"
+	echo "3 = curl"
+	echo "4 = sidecurl"
+	echo "5 = pepsal"
+	echo "6 = sidecar"	
+fi
 
