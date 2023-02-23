@@ -79,17 +79,17 @@ class SidecarNetwork():
         # TODO: not user-dependent path
         sclog('Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("kill $(pidof nginx)")
-        self.h1.cmd("nginx -c /home/gina/sidecar/webserver/nginx.conf")
+        popen(self.h1, "nginx -c /home/gina/sidecar/webserver/nginx.conf")
         self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
 
     def start_tcp_pep(self):
         # Start the TCP PEP on r1
         sclog('Starting the TCP PEP on r1...')
-        self.r1.cmd('ip rule add fwmark 1 lookup 100')
-        self.r1.cmd('ip route add local 0.0.0.0/0 dev lo table 100')
-        self.r1.cmd('iptables -t mangle -F')
-        self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
-        self.r1.cmd('iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
+        popen(self.r1, 'ip rule add fwmark 1 lookup 100')
+        popen(self.r1, 'ip route add local 0.0.0.0/0 dev lo table 100')
+        popen(self.r1, 'iptables -t mangle -F')
+        popen(self.r1, 'iptables -t mangle -A PREROUTING -i r1-eth1 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
+        popen(self.r1, 'iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
         self.r1.cmd('pepsal -v >> r1.log 2>&1 &')
 
     def start_quack_sender(self):
@@ -128,15 +128,15 @@ class SidecarNetwork():
         self.net.build()
 
         # Configure interfaces
-        self.r1.cmd("ifconfig r1-eth0 0")
-        self.r1.cmd("ifconfig r1-eth1 0")
-        self.r1.cmd("ifconfig r1-eth0 hw ether 00:00:00:00:01:01")
-        self.r1.cmd("ifconfig r1-eth1 hw ether 00:00:00:00:01:02")
-        self.r1.cmd("ip addr add 10.0.1.1/24 brd + dev r1-eth0")
-        self.r1.cmd("ip addr add 10.0.2.1/24 brd + dev r1-eth1")
+        popen(self.r1, "ifconfig r1-eth0 0")
+        popen(self.r1, "ifconfig r1-eth1 0")
+        popen(self.r1, "ifconfig r1-eth0 hw ether 00:00:00:00:01:01")
+        popen(self.r1, "ifconfig r1-eth1 hw ether 00:00:00:00:01:02")
+        popen(self.r1, "ip addr add 10.0.1.1/24 brd + dev r1-eth0")
+        popen(self.r1, "ip addr add 10.0.2.1/24 brd + dev r1-eth1")
         self.r1.cmd("echo 1 > /proc/sys/net/ipv4/ip_forward")
-        self.h1.cmd("ip route add default via 10.0.1.1")
-        self.h2.cmd("ip route add default via 10.0.2.1")
+        popen(self.h1, "ip route add default via 10.0.1.1")
+        popen(self.h2, "ip route add default via 10.0.2.1")
 
         # Configure link latency, delay, bandwidth, and queue size
         # https://unix.stackexchange.com/questions/100785/bucket-size-in-tbf
@@ -206,23 +206,23 @@ class SidecarNetwork():
         # Set the TCP congestion control algorithm
         sclog(f'Setting congestion control to {self.cc}')
         cc_cmd = f'sysctl -w net.ipv4.tcp_congestion_control={self.cc}'
-        self.h1.cmd(cc_cmd)
-        self.r1.cmd(cc_cmd)
-        self.h2.cmd(cc_cmd)
+        popen(self.h1, cc_cmd)
+        popen(self.r1, cc_cmd)
+        popen(self.h2, cc_cmd)
 
         # Don't cache TCP metrics
         tcp_metrics_cmd = 'echo 1 > /proc/sys/net/ipv4/tcp_no_metrics_save'
-        self.h1.cmd(tcp_metrics_cmd)
-        self.r1.cmd(tcp_metrics_cmd)
-        self.h2.cmd(tcp_metrics_cmd)
+        popen(self.h1, tcp_metrics_cmd)
+        popen(self.r1, tcp_metrics_cmd)
+        popen(self.h2, tcp_metrics_cmd)
 
         # Turn off tso and gso to send MTU-sized packets
         sclog('tso and gso are {}'.format('ON' if self.tso else 'OFF'))
         if not self.tso:
-            self.h1.cmd('ethtool -K h1-eth0 gso off tso off')
-            self.h2.cmd('ethtool -K h2-eth0 gso off tso off')
-            self.r1.cmd('ethtool -K r1-eth0 gso off tso off')
-            self.r1.cmd('ethtool -K r1-eth1 gso off tso off')
+            popen(self.h1, 'ethtool -K h1-eth0 gso off tso off')
+            popen(self.h2, 'ethtool -K h2-eth0 gso off tso off')
+            popen(self.r1, 'ethtool -K r1-eth0 gso off tso off')
+            popen(self.r1, 'ethtool -K r1-eth1 gso off tso off')
 
         self.start_webserver()
         if self.pep:
