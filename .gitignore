@@ -16,3 +16,7 @@ qlog/
 ._.
 
 results/
+*.log
+deps/nginx*
+deps/pari*
+deps/pepsal*
