@@ -26,85 +26,84 @@ webserver. Run an HTTP/1.1 or HTTP/3 (QUIC) client on h2 from the mininet CLI:
 
 ## Dependencies
 
-This assumes you have the following repositories in your home directory and
-are on the correct branches:
+Clone the repository:
 
 ```
 $ git clone git@github.com:ygina/sidecar.git
-$ git clone --recursive git@github.com:ygina/quiche.git
-$ git clone https://github.com/curl/curl
-$ curl -O https://nginx.org/download/nginx-1.16.1.tar.gz
-$ tar xvzf nginx-1.16.1.tar.gz
-quiche$ git checkout sidecar-v2
-curl$ git checkout 2masot-sidecar
+$ cd sidecar
+$ git checkout experiments
 ```
 
-Build the nginx webserver with the HTTP/3 patch.
-([source](https://github.com/ygina/quiche/tree/master/nginx))
+Download, build, and install dependencies:
 
 ```
-$ sudo apt-get install libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev -y
-nginx-1.16.1$ patch -p01 < ../quiche/nginx/nginx-1.16.patch
-nginx-1.16.1$ ./configure                                 \
-       --prefix=$PWD                           \
-       --build="quiche-$(git --git-dir=$HOME/quiche/.git rev-parse --short HEAD)" \
-       --with-http_ssl_module                  \
-       --with-http_v2_module                   \
-       --with-http_v3_module                   \
-       --with-openssl=$HOME/quiche/quiche/deps/boringssl \
-       --with-quiche=$HOME/quiche
-nginx-1.16.1$ make
-$ sudo ln -s $HOME/nginx-1.16.1/objs/nginx /usr/bin/nginx
-```
-
-Build and install curl (and sidecurl) with the HTTP/3 patch.
-
-```
-$ sudo apt install autoconf libtool
-quiche$ make sidecar
-quiche$ mkdir quiche/deps/boringssl/src/lib
-quiche$ ln -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
-curl$ autoreconf -fi
-curl$ ./configure LDFLAGS="-Wl,-rpath,$HOME/quiche/target/release" --with-openssl=$HOME/quiche/quiche/deps/boringssl/src --with-quiche=$HOME/quiche/target/release
-curl$ make -j4
-curl$ cd sidecurl
-sidecurl$ make
-$ sudo ln -s $HOME/curl/sidecurl/sidecurl /usr/bin/sidecurl
-```
-
-Install the TCP performance-enhancing proxy,
-[pepsal](https://github.com/viveris/pepsal).
-
-```
-$ git clone git@github.com:viveris/pepsal.git
-$ sudo apt-get install -y libnfnetlink-dev
-$ autoupdate
-$ autoreconf --install
-$ autoconf
-$ ./configure
-$ make
-$ sudo make install
-```
-
-_(Optional: Install [PARI](http://pari.math.u-bordeaux.fr/download.html) for
-factoring polynomials in finite fields.)_
-
-```
-$ wget https://pari.math.u-bordeaux.fr/pub/pari/unix/pari-2.15.2.tar.gz
-$ tar xvf pari-2.15.2.tar.gz
-$ sudo apt-get install -y texlive
-pari-2.15.2$ ./Configure
-pari-2.15.2$ make all
-pari-2.15.2$ sudo make install
+$ ./deps/install_deps.sh
+$ source "$HOME/.cargo/env"
+$ ./deps/build_deps.sh all
 ```
 
 Check that `nginx`, `sidecurl`, and `pepsal` are on your path.
 
-## Baselines
+## Experiments
+
+### Figure 4 Baseline Bar Graphs
 
 Check the baseline experiment, using a data size such as `10M`:
 
-* pep: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp --pep -n <DATA_SIZE>`
-* quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -s 2ms --quack-reset -n <DATA_SIZE>`
-* tcp: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp -n <DATA_SIZE>`
-* quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -n <DATA_SIZE>`
+* pep: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp --pep -n 10M' 
+* quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -s 2ms --quack-reset -n 10M`
+* tcp: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp -n 10M`
+* quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -n 10M`
+
+The goodput is 10MB divided by the total time of the request. To change
+the loss percentage on the near subpath, use the `--loss2` parameter.
+To plot the graph (and execute the data points), run `python3 baseline_bar.py -t 1 --execute`.
+
+### Figure 5 Baseline Line Graphs
+
+```
+python3 data_size_vs_total_time.py --mean --median -t 1 --execute
+```
+
+### Figure 6 Congestion Control Behavior
+
+We have to recompile `quiche` to log congestion window updates because
+that is how we gather data points for QUIC. This just adds the `cwnd_log`
+feature to the compilation command. For TCP, we use `ss`.
+
+```
+$ cd $SIDECAR_HOME/quiche
+$ cargo build --package quiche --release --features ffi,pkg-config-meta,qlog,cwnd_log
+```
+
+Run a single instance of each category that lasts at least 30 seconds, and plot.
+
+```
+python3 time_vs_cwnd.py --max-x 30 --quic-n 35M --quack-n 35M --tcp 35 --loss 0 --execute
+python3 time_vs_cwnd.py --max-x 30 --quic-n 5M --quack-n 35M --tcp 35 --loss 1 --execute
+```
+
+Make sure to recompile `quiche` for other experiments so you don't
+log like crazy:
+
+```
+$ cd $SIDECAR_HOME/quiche
+$ make sidecar
+```
+
+### Figure 7 Retransmission Behavior
+
+```
+python3 loss_vs_tput.py --max-x 800 -n 25M -t 1 --execute
+```
+
+### Figure 8 Multiflow Fairness
+
+```
+python3 multiflow.py -n 60M --max-x 60 --execute loss1p
+python3 multiflow.py -n 60M --max-x 60 --execute loss0p
+```
+
+### Table 3 Analyzing Different Bit Widths
+
+
