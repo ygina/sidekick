@@ -76,12 +76,16 @@ class SidecarNetwork():
 
     def start_webserver(self):
         # Start the webserver on h1
-        # TODO: not user-dependent path
         sclog('Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("kill $(pidof nginx)")
         home_dir = os.environ['HOME']
         popen(self.h1, f'nginx -c {home_dir}/sidecar/webserver/nginx.conf')
         self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
+        while True:
+            with open('h1.log', 'r') as f:
+                if 'Starting httpd' in f.read():
+                    return
+            time.sleep(0.1)
 
     def start_tcp_pep(self):
         # Start the TCP PEP on r1
@@ -225,11 +229,11 @@ class SidecarNetwork():
             popen(self.r1, 'ethtool -K r1-eth0 gso off tso off')
             popen(self.r1, 'ethtool -K r1-eth1 gso off tso off')
 
-        self.start_webserver()
         if self.pep:
             self.start_tcp_pep()
         if self.sidecar is not None:
             self.start_quack_sender()
+        self.start_webserver()
 
     def ping(self, num_pings):
         self.start_and_configure()
@@ -377,7 +381,6 @@ class SidecarNetwork():
             h2_cmd += ' > h2.log'
 
         self.start_and_configure()
-        time.sleep(SLEEP_S)
 
         if self.sidecar is not None:
             self.h2.cmdPrint(h2_cmd)
