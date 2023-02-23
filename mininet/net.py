@@ -79,7 +79,8 @@ class SidecarNetwork():
         # TODO: not user-dependent path
         sclog('Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("kill $(pidof nginx)")
-        popen(self.h1, "nginx -c /home/gina/sidecar/webserver/nginx.conf")
+        home_dir = os.environ['HOME']
+        popen(self.h1, f'nginx -c {home_dir}/sidecar/webserver/nginx.conf')
         self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
 
     def start_tcp_pep(self):
