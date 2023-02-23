@@ -34,6 +34,7 @@ cd $SIDECAR_HOME/deps/pari-2.15.2
 ./Configure
 make -j$(nproc) all
 sudo make install
+sudo ldconfig
 }
 
 build_quiche () {
