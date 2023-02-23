@@ -15,14 +15,14 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        logging.info("GET request,\nPath: %s\nHeaders:\n%s", str(self.path), str(self.headers).strip())
+        logging.debug("GET request,\nPath: %s\nHeaders:\n%s", str(self.path), str(self.headers).strip())
         self._set_response()
         self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
-        logging.info("POST request,\nPath: %s\nHeaders:\n%s\nBody: (%d bytes)",
+        logging.debug("POST request,\nPath: %s\nHeaders:\n%s\nBody: (%d bytes)",
                 str(self.path), str(self.headers).strip(), len(post_data))
 
         self._set_response()
