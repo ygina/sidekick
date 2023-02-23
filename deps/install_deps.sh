@@ -4,6 +4,14 @@ export SIDECAR_HOME=$HOME/sidecar
 # exit if any errors
 set -e
 
+# git submodules
+cd $SIDECAR_HOME
+git submodule init
+git submodule update
+cd $SIDECAR_HOME/quiche
+git submodule init
+git submodule update
+
 # Linux dependencies
 sudo apt-get update -y
 sudo apt-get install -y texlive # pari
