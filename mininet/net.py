@@ -73,6 +73,7 @@ class SidecarNetwork():
 
     def clean_logs(self):
         os.system('rm -f r1.log h1.log h2.log f1.log f2.log')
+        os.system('touch r1.log h1.log h2.log f1.log f2.log')
 
     def start_webserver(self):
         # Start the webserver on h1
