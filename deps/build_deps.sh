@@ -11,10 +11,12 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
+export SIDECAR_HOME=$HOME/sidecar
+
 build_nginx () {
 cd $SIDECAR_HOME/deps/nginx-1.16.1
-mkdir logs
-patch -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
+mkdir -p logs
+patch -N -r- -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
 ./configure                                 \
    --prefix=$PWD                           \
    --build="quiche-$(git --git-dir=$SIDECAR_HOME/quiche/.git rev-parse --short HEAD)" \
@@ -24,7 +26,7 @@ patch -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
    --with-openssl=$SIDECAR_HOME/quiche/quiche/deps/boringssl \
    --with-quiche=$SIDECAR_HOME/quiche
 make -j$(nproc)
-sudo ln -s $(pwd)/objs/nginx /usr/bin/nginx
+sudo ln -f -s $(pwd)/objs/nginx /usr/bin/nginx
 }
 
 build_pari () {
@@ -37,8 +39,8 @@ sudo make install
 build_quiche () {
 cd $SIDECAR_HOME/quiche
 make sidecar
-mkdir quiche/deps/boringssl/src/lib
-ln -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
+mkdir -p quiche/deps/boringssl/src/lib
+ln -f -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
 }
 
 build_curl () {
@@ -53,7 +55,7 @@ make -j$(nproc)
 build_sidecurl () {
 cd $SIDECAR_HOME/curl/sidecurl
 make
-sudo ln -s $SIDECAR_HOME/curl/sidecurl/sidecurl /usr/bin/sidecurl
+sudo ln -f -s $SIDECAR_HOME/curl/sidecurl/sidecurl /usr/bin/sidecurl
 }
 
 build_pepsal () {
