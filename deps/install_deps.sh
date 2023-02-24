@@ -19,6 +19,7 @@ sudo apt-get install -y autoconf libtool  # curl
 sudo apt-get install -y cmake libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev  # nginx
 sudo apt-get install -y libnfnetlink-dev  # pepsal
 sudo apt-get install -y mininet python3-pip  # mininet
+sudo apt-get install -y python3-virtualenv  # plotting
 
 # mininet
 pip3 install mininet
