@@ -46,11 +46,20 @@ Check that `nginx`, `sidecurl`, and `pepsal` are on your path.
 
 ## Experiments
 
+Setup the Python virtual environment for plotting data:
+
+```
+$ cd $SIDECAR_HOME/plot
+$ virtualenv env
+$ source env/bin/activate
+$ pip3 install -r requirements.txt
+```
+
 ### Figure 4 Baseline Bar Graphs
 
 Check the baseline experiment, using a data size such as `10M`:
 
-* pep: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp --pep -n 10M' 
+* pep: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp --pep -n 10M`
 * quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -s 2ms --quack-reset -n 10M`
 * tcp: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp -n 10M`
 * quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -n 10M`
