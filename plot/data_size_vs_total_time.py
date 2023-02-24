@@ -106,7 +106,7 @@ def execute_cmd(loss, http_version, cc, trials, data_size, bw2):
     subprocess.Popen(['mkdir', '-p', f'results/{suffix}'], cwd=WORKDIR).wait()
     cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', str(loss),
         '--benchmark'] + bm + ['-cc', cc, '-t', str(trials), '--bw2', str(bw2),
-        '-n', f'{data_size}k', '--stderr', '/home/gina/sidecar/error.log']
+        '-n', f'{data_size}k', '--stderr', os.environ['HOME'] + '/sidecar/error.log']
     print(cmd)
     p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
