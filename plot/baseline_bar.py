@@ -19,6 +19,8 @@ def parse_data(args, filename, bm, data_sizes, data_key='time_total'):
     data = {}
     for n in data_sizes:
         data[n] = []
+    if not path.exists(filename):
+        return data
     with open(filename) as f:
         lines = f.read().split('\n')
 
