@@ -12,6 +12,7 @@ Cargo.lock
 __pycache__/
 env/
 plot/*.pdf
+plot/graphs/*.pdf
 qlog/
 ._.
 

@@ -313,6 +313,8 @@ class SidecarNetwork():
                    '-cc', self.cc, '--loss', str(self.loss2), '-t', '1']
             if bm == 'quack':
                 cmd += ['-s', str(self.threshold), '--quack-reset']
+            if args.sidecar_mtu:
+                cmd += ['--sidecar-mtu']
             return cmd
 
         f1_cmd = make_cmd(f1)
@@ -320,7 +322,7 @@ class SidecarNetwork():
 
         home_dir = os.environ['HOME']
         prefix = f'{home_dir}/sidecar/results/multiflow/loss{self.loss2}p'
-        pcap_file = f'{prefix}/{f1}_{f2}_{args.nbytes}_delay{args.delay}s.pcap'
+        pcap_file = f'{prefix}/{f1}_{f2}_{args.nbytes}_delay{args.delay}s_bw{args.bw2}.pcap'
         os.system(f'mkdir -p {prefix}')
         os.system(f'rm -f {pcap_file}')
         self.h1.cmd(f"tcpdump -w {pcap_file} -i h1-eth0 'ip src 10.0.2.10 and (tcp or udp)' &")

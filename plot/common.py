@@ -53,7 +53,9 @@ LABEL_MAP['quic'] = 'QUIC e2e'
 LABEL_MAP['quack'] = 'QUIC+sidecar'
 LABEL_MAP['tcp'] = 'TCP e2e'
 LABEL_MAP['pep'] = 'TCP+PEP'
-LABEL_MAP['pep_r1'] = LABEL_MAP['pep']
+LABEL_MAP['pep_r1'] = 'TCP+PEP(r1)'
+LABEL_MAP['pep_h2'] = 'TCP+PEP(h2)'
 LABEL_MAP['quack-2ms-r'] = LABEL_MAP['quack']
+LABEL_MAP['quack-2ms-rm'] = LABEL_MAP['quack']
 
 FONTSIZE = 18

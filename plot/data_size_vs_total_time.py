@@ -16,17 +16,18 @@ WORKDIR = None
 #             [x for x in range(1000, 20000, 1000)] + \
 #             [x for x in range(20000, 40000, 2000)] + \
 #             [x for x in range(40000, 100000, 10000)]
-TARGET_XS = [x for x in range(200, 1000, 200)] + \
-            [x for x in range(1000, 10000, 1000)] + \
-            [x for x in range(10000, 20000, 2000)] + \
-            [x for x in range(20000, 100000, 5000)] + \
-            [100000]
-LOSSES = [0, 1]
+# TARGET_XS = [x for x in range(200, 1000, 200)] + \
+#             [x for x in range(1000, 10000, 1000)] + \
+#             [x for x in range(10000, 20000, 2000)] + \
+#             [x for x in range(20000, 100000, 5000)] + \
+#             [100000]
+TARGET_XS = [35000]
+LOSSES = [0, 1, 2, 4, 8]
 HTTP_VERSIONS = [
-    'quack-2ms-r',
+    'quack-2ms-rm',
     'pep',
-    'quic',
-    'tcp',
+    # 'quic',
+    # 'tcp',
     # 'quic-m',
     # 'quack-2ms',
     # 'quack-2ms-m',
@@ -250,6 +251,9 @@ def plot_graph(loss, cc, bw2, pdf,
             ys = [y.avg for y in ys_raw]
             yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
             plt.errorbar(xs, ys, yerr=yerr, label=LABEL_MAP[label], marker=MARKERS[i])
+        print(label)
+        print(xs)
+        print(ys)
     plt.xlabel('Data Size (MB)')
     if normalize:
         plt.ylabel('Goodput (MBytes/s)')

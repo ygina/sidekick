@@ -9,7 +9,9 @@ from os import path
 from collections import defaultdict
 from common import *
 
-KEYS = ['quack', 'pep', 'quic', 'tcp']
+# KEYS = ['quack', 'pep', 'quic', 'tcp']
+# KEYS = ['quack', 'pep', 'tcp']
+KEYS = ['pep', 'quack']
 TARGET_XS = {}
 # [x for x in range(0, 30, 2)] + \
 # TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
@@ -26,10 +28,15 @@ TARGET_XS = {}
 # TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
 # TARGET_XS['pep'] = TARGET_XS['quack']
 TARGET_XS['pep'] = [x for x in range(0, 1000, 100)]
-TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
-TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
-TARGET_XS['quic'] += [200, 400, 800]
-TARGET_XS['tcp'] = TARGET_XS['quic']
+TARGET_XS['quack'] = [x for x in range(0, 1000, 50)]
+TARGET_XS['quack_b1_c1'] = TARGET_XS['quack']
+TARGET_XS['quack_b2_c1'] = TARGET_XS['quack']
+TARGET_XS['quack_b1_c2'] = TARGET_XS['quack']
+TARGET_XS['quack_b2_c2'] = TARGET_XS['quack']
+# TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
+# TARGET_XS['quic'] += [200, 400, 800]
+# TARGET_XS['tcp'] = TARGET_XS['quic']
+# TARGET_XS['tcp'] = [0, 100, 200]
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
@@ -141,7 +148,7 @@ def maybe_collect_missing_data(filename, key, args):
             print('unknown key:', key)
             exit()
         cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.n,
-               '--loss2', loss, '-t', str(missing),
+               '--loss2', loss, '-t', str(missing), '--bw2', str(args.bw),
                '--stderr', 'loss_tput.error']
         cmd += extra_args
         cmd += args.args
@@ -159,13 +166,18 @@ def plot_graph(data, pdf=None):
     plt.figure(figsize=(15, 5))
     for (i, key) in enumerate(KEYS):
         (xs, ys, yerr) = data[key]
-        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=LABEL_MAP[key])
+        if key in LABEL_MAP:
+            label = LABEL_MAP[key]
+        else:
+            label = key
+        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=label)
         max_x = max(max_x, max(xs))
     plt.xlabel('Loss (%)')
     plt.ylabel('Goodput (MBytes/s)')
     plt.xlim(0, max_x)
-    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4)
-    # plt.title(pdf)
+    plt.ylim(0)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4)
+    plt.title(pdf)
     if pdf:
         print(pdf)
         save_pdf(pdf)
