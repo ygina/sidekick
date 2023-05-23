@@ -1,5 +1,9 @@
 use std::ops::{Sub, SubAssign};
-use crate::arithmetic::{ModularInteger, MonicPolynomialEvaluator};
+use crate::arithmetic::{
+    ModularArithmetic,
+    ModularInteger,
+    MonicPolynomialEvaluator,
+};
 use crate::{Quack, Identifier, IdentifierLog};
 use serde::{Serialize, Deserialize};
 use log::{debug, info, trace};

@@ -2,7 +2,7 @@ pub mod arithmetic {
     mod modint;
     mod evaluator;
 
-    pub use modint::ModularInteger;
+    pub use modint::{ModularInteger, ModularArithmetic};
     pub use evaluator::MonicPolynomialEvaluator;
 }
 

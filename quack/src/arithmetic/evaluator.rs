@@ -1,4 +1,4 @@
-use crate::arithmetic::ModularInteger;
+use crate::arithmetic::{ModularArithmetic, ModularInteger};
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
@@ -44,7 +44,7 @@ impl MonicPolynomialEvaluator {
     #[cfg(feature = "libpari")]
     pub fn factor(coeffs: &Vec<ModularInteger<u32>>) -> Result<Vec<u32>, String> {
         assert_ne!(coeffs.len(), 0);
-        let modulus = coeffs[0].modulus();
+        let modulus = ModularInteger::<u32>::modulus();
         let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();
         coeffs.insert(0, 1);
         let mut roots: Vec<u32> = vec![0; coeffs.len() - 1];
@@ -105,10 +105,11 @@ mod test {
     fn test_factor() {
         // f(x) = x^2 + 2*x - 3
         // f(x) = 0 when x = -3, 1
-        let coeffs = vec![ModularInteger::new(2), -ModularInteger::new(3)];
+        let coeffs = vec![ModularInteger::<u32>::new(2), -ModularInteger::<u32>::new(3)];
         let mut roots = MonicPolynomialEvaluator::factor(&coeffs).unwrap();
         assert_eq!(roots.len(), 2);
         roots.sort();
-        assert_eq!(roots, vec![1, ModularInteger::new(0).modulus() - 3]);
+        let modulus = ModularInteger::<u32>::modulus();
+        assert_eq!(roots, vec![1, modulus - 3]);
     }
 }
