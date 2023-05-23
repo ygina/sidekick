@@ -21,7 +21,7 @@ impl MonicPolynomialEvaluator {
     /// constant term in the polynomial. The number of coefficients is the
     /// degree of the polynomial. The leading coefficient is 1, and is not
     /// included in the vector.
-    pub fn eval(coeffs: &Vec<ModularInteger>, x: u32) -> ModularInteger {
+    pub fn eval(coeffs: &Vec<ModularInteger<u32>>, x: u32) -> ModularInteger<u32> {
         let size = coeffs.len();
         let x_mod = ModularInteger::new(x);
         let mut result = x_mod;
@@ -42,7 +42,7 @@ impl MonicPolynomialEvaluator {
     /// degree of the polynomial. The leading coefficient is 1, and is not
     /// included in the vector.
     #[cfg(feature = "libpari")]
-    pub fn factor(coeffs: &Vec<ModularInteger>) -> Result<Vec<u32>, String> {
+    pub fn factor(coeffs: &Vec<ModularInteger<u32>>) -> Result<Vec<u32>, String> {
         assert_ne!(coeffs.len(), 0);
         let modulus = coeffs[0].modulus();
         let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();

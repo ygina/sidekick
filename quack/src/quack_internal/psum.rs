@@ -5,16 +5,16 @@ use serde::{Serialize, Deserialize};
 use log::{debug, info, trace};
 
 /// The i-th term corresponds to dividing by i+1 in modular arithemtic.
-fn modular_inverse_table(size: usize) -> Vec<ModularInteger> {
-    (0..(size as u32)).map(|i| ModularInteger::new(i+1).inv()).collect()
+fn modular_inverse_table(size: usize) -> Vec<ModularInteger<u32>> {
+    (0..(size as u32)).map(|i| ModularInteger::<u32>::new(i+1).inv()).collect()
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PowerSumQuack {
     // https://serde.rs/attr-skip-serializing.html
     #[serde(skip)]
-    inverse_table: Vec<ModularInteger>,
-    power_sums: Vec<ModularInteger>,
+    inverse_table: Vec<ModularInteger<u32>>,
+    power_sums: Vec<ModularInteger<u32>>,
     count: u16,
 }
 
@@ -23,7 +23,7 @@ impl Quack for PowerSumQuack {
         debug!("new quACK of size {}", size);
         Self {
             inverse_table: modular_inverse_table(size),
-            power_sums: (0..size).map(|_| ModularInteger::zero()).collect(),
+            power_sums: (0..size).map(|_| ModularInteger::<u32>::zero()).collect(),
             count: 0,
         }
     }
@@ -31,7 +31,7 @@ impl Quack for PowerSumQuack {
     fn insert(&mut self, value: Identifier) {
         trace!("insert {}", value);
         let size = self.power_sums.len();
-        let x = ModularInteger::new(value);
+        let x = ModularInteger::<u32>::new(value);
         let mut y = x;
         for i in 0..(size-1) {
             self.power_sums[i] += y;
@@ -45,7 +45,7 @@ impl Quack for PowerSumQuack {
     fn remove(&mut self, value: Identifier) {
         trace!("remove {}", value);
         let size = self.power_sums.len();
-        let x = ModularInteger::new(value);
+        let x = ModularInteger::<u32>::new(value);
         let mut y = x;
         for i in 0..(size-1) {
             self.power_sums[i] -= y;
@@ -105,9 +105,9 @@ impl PowerSumQuack {
 
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
-    pub fn to_coeffs(&self) -> Vec<ModularInteger> {
+    pub fn to_coeffs(&self) -> Vec<ModularInteger<u32>> {
         let mut coeffs = (0..self.count())
-            .map(|_| ModularInteger::zero())
+            .map(|_| ModularInteger::<u32>::zero())
             .collect::<Vec<_>>();
         self.to_coeffs_preallocated(&mut coeffs);
         coeffs
@@ -118,7 +118,7 @@ impl PowerSumQuack {
     /// into a pre-allocated buffer.
     pub fn to_coeffs_preallocated(
         &self,
-        coeffs: &mut Vec<ModularInteger>,
+        coeffs: &mut Vec<ModularInteger<u32>>,
     ) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
@@ -208,7 +208,7 @@ mod test {
         quack.insert(2234311686);
         quack.insert(2462729946);
         quack.insert(670144905);
-        let mut coeffs = (0..5).map(|_| ModularInteger::zero()).collect();
+        let mut coeffs = (0..5).map(|_| ModularInteger::<u32>::zero()).collect();
         quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs.len(), 5);
         assert_eq!(coeffs, vec![
@@ -243,7 +243,7 @@ mod test {
 
     #[test]
     fn test_quack_sub_num_missing_eq_threshold() {
-        let mut coeffs = (0..3).map(|_| ModularInteger::zero()).collect();
+        let mut coeffs = (0..3).map(|_| ModularInteger::<u32>::zero()).collect();
         let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
         q1.insert(2);
@@ -260,7 +260,7 @@ mod test {
 
     #[test]
     fn test_quack_sub_num_missing_lt_threshold() {
-        let mut coeffs = (0..3).map(|_| ModularInteger::zero()).collect();
+        let mut coeffs = (0..3).map(|_| ModularInteger::<u32>::zero()).collect();
         let mut q1 = PowerSumQuack::new(3);
         q1.insert(1);
         q1.insert(2);
@@ -430,7 +430,7 @@ mod test {
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
-        q2.power_sums[0] += ModularInteger::new(1);  // mess up the power sums
+        q2.power_sums[0] += ModularInteger::<u32>::new(1);  // mess up the power sums
 
         // Check the result
         let quack = q1 - q2;
