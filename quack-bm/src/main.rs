@@ -7,34 +7,44 @@ use clap::Parser;
 use log::debug;
 
 #[derive(Parser, Debug)]
+pub struct QuackParams {
+    /// The threshold number of dropped packets.
+    #[arg(long, short = 't', default_value_t = 20)]
+    threshold: usize,
+    /// Number of identifier bits.
+    #[arg(long = "bits", short = 'b', default_value_t = 32)]
+    num_bits_id: usize,
+    /// Enable pre-computation optimization
+    #[arg(long)]
+    precompute: bool,
+    /// Disable not-factoring optimization
+    #[arg(long)]
+    factor: bool,
+    /// Enable Montgomery multiplication optimization
+    #[arg(long)]
+    montgomery: bool,
+}
+
+#[derive(Parser, Debug)]
 struct Cli {
-    // Type of benchmark.
+    /// Type of benchmark.
     #[arg(value_enum)]
     benchmark: BenchmarkType,
-    // Quack type.
+    /// Quack type.
     #[arg(value_enum)]
     quack_ty: QuackType,
-    // The threshold number of dropped packets.
-    #[arg(short = 't', default_value_t = 20)]
-    threshold: usize,
-    // Number of sent packets.
-    #[arg(short = 'n', default_value_t = 1000)]
-    num_packets: usize,
-    // Number of identifier bits.
-    #[arg(short = 'b', default_value_t = 32)]
-    num_bits_id: usize,
-    // Number of dropped packets.
-    #[arg(long = "dropped", default_value_t = 20)]
-    num_drop: usize,
-    // Number of trials.
+    /// Number of trials.
     #[arg(long = "trials", default_value_t = 10)]
     num_trials: usize,
-    // Whether to use power tables.
-    #[arg(long = "use-tables")]
-    use_tables: bool,
-    // Whether to factor if using power sum quacks.
-    #[arg(long = "factor")]
-    factor: bool,
+    /// Number of sent packets.
+    #[arg(short = 'n', default_value_t = 1000)]
+    num_packets: usize,
+    /// Number of dropped packets.
+    #[arg(short = 'd', long = "dropped", default_value_t = 20)]
+    num_drop: usize,
+    /// Quack parameters.
+    #[command(flatten)]
+    quack: QuackParams,
 }
 
 
@@ -47,24 +57,19 @@ fn main() {
         BenchmarkType::Construct => {
             construct::run_benchmark(
                 args.quack_ty,
-                args.use_tables,
-                args.threshold,
-                args.num_packets,
-                args.num_bits_id,
-                args.num_drop,
                 args.num_trials,
+                args.num_packets,
+                args.num_drop,
+                args.quack,
             )
         }
         BenchmarkType::Decode => {
             decode::run_benchmark(
                 args.quack_ty,
-                args.use_tables,
-                args.factor,
-                args.threshold,
-                args.num_packets,
-                args.num_bits_id,
-                args.num_drop,
                 args.num_trials,
+                args.num_packets,
+                args.num_drop,
+                args.quack,
             )
         }
     }

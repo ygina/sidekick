@@ -1,3 +1,4 @@
+use crate::QuackParams;
 use crate::common::*;
 
 use std::time::{Instant, Duration};
@@ -126,16 +127,13 @@ fn benchmark_decode_power_sum_32(
 
 pub fn run_benchmark(
     quack_ty: QuackType,
-    use_tables: bool,
-    factor: bool,
-    threshold: usize,
-    num_packets: usize,
-    num_bits_id: usize,
-    num_drop: usize,
     num_trials: usize,
+    num_packets: usize,
+    num_drop: usize,
+    params: QuackParams,
 ) {
-    assert!(!use_tables, "ERROR: power tables are not enabled");
-    assert_eq!(num_bits_id, 32, "ERROR: <num_bits_id> must be 32");
+    assert!(!params.precompute, "ERROR: power tables are not enabled");
+    assert_eq!(params.num_bits_id, 32, "ERROR: <num_bits_id> must be 32");
 
     let mut rng = rand::thread_rng();
 
@@ -153,7 +151,7 @@ pub fn run_benchmark(
             QuackType::Strawman2 => benchmark_decode_strawman2(
                 numbers, num_packets, num_drop),
             QuackType::PowerSum => benchmark_decode_power_sum_32(
-                numbers, factor, threshold, num_packets, num_drop),
+                numbers, params.factor, params.threshold, num_packets, num_drop),
         };
         if i > 0 {
             durations.push(duration);
