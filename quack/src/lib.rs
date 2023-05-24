@@ -9,13 +9,14 @@ pub mod arithmetic {
 mod quack_internal;
 pub use quack_internal::*;
 
-pub type Identifier = u32;
-pub type IdentifierLog = Vec<Identifier>;
-
-pub trait Quack {
+pub trait Quack<T> {
     fn new(threshold: usize) -> Self;
-    fn insert(&mut self, value: Identifier);
-    fn remove(&mut self, value: Identifier);
+    fn insert(&mut self, value: T);
+    fn remove(&mut self, value: T);
     fn threshold(&self) -> usize;
     fn count(&self) -> u16;
+
+    fn decode_with_log(&self, log: &Vec<T>) -> Vec<T>;
+    fn to_coeffs(&self) -> Vec<arithmetic::ModularInteger<T>>;
+    fn to_coeffs_preallocated(&self, coeffs: &mut Vec<arithmetic::ModularInteger<T>>);
 }

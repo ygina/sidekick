@@ -1,41 +1,48 @@
-use std::ops::{Sub, SubAssign};
+use std::ops::{Sub, SubAssign, MulAssign, AddAssign};
+use std::fmt::{Debug, Display};
 use crate::arithmetic::{
     ModularArithmetic,
     ModularInteger,
     MonicPolynomialEvaluator,
 };
-use crate::{Quack, Identifier, IdentifierLog};
+use crate::Quack;
 use serde::{Serialize, Deserialize};
 use log::{debug, info, trace};
 
-/// The i-th term corresponds to dividing by i+1 in modular arithemtic.
-fn modular_inverse_table(size: usize) -> Vec<ModularInteger<u32>> {
-    (0..(size as u32)).map(|i| ModularInteger::<u32>::new(i+1).inv()).collect()
-}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct PowerSumQuack {
+pub struct PowerSumQuack<T> where ModularInteger<T>: ModularArithmetic<T> {
     // https://serde.rs/attr-skip-serializing.html
     #[serde(skip)]
-    inverse_table: Vec<ModularInteger<u32>>,
-    power_sums: Vec<ModularInteger<u32>>,
+    inverse_table: Vec<ModularInteger<T>>,
+    power_sums: Vec<ModularInteger<T>>,
     count: u16,
 }
 
-impl Quack for PowerSumQuack {
+impl<T> Quack<T> for PowerSumQuack<T>
+where T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
+ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
+
+        // The i-th term corresponds to dividing by i+1 in modular arithemtic.
+        let mut inverse_table = Vec::new();
+        let mut index = ModularInteger::one();
+        for _ in 0..size {
+            inverse_table.push(index.inv());
+            index += ModularInteger::one();
+        }
         Self {
-            inverse_table: modular_inverse_table(size),
-            power_sums: (0..size).map(|_| ModularInteger::<u32>::zero()).collect(),
+            inverse_table,
+            power_sums: (0..size).map(|_| ModularInteger::zero()).collect(),
             count: 0,
         }
     }
 
-    fn insert(&mut self, value: Identifier) {
+    fn insert(&mut self, value: T) {
         trace!("insert {}", value);
         let size = self.power_sums.len();
-        let x = ModularInteger::<u32>::new(value);
+        let x = ModularInteger::<T>::new(value);
         let mut y = x;
         for i in 0..(size-1) {
             self.power_sums[i] += y;
@@ -46,10 +53,10 @@ impl Quack for PowerSumQuack {
         self.count += 1;
     }
 
-    fn remove(&mut self, value: Identifier) {
+    fn remove(&mut self, value: T) {
         trace!("remove {}", value);
         let size = self.power_sums.len();
-        let x = ModularInteger::<u32>::new(value);
+        let x = ModularInteger::<T>::new(value);
         let mut y = x;
         for i in 0..(size-1) {
             self.power_sums[i] -= y;
@@ -67,26 +74,11 @@ impl Quack for PowerSumQuack {
     fn count(&self) -> u16 {
         self.count
     }
-}
-
-impl PowerSumQuack {
-    /// Returns the missing identifiers by factorization of the difference
-    /// quack. Returns None if unable to factor.
-    pub fn decode_by_factorization(&self) -> Option<Vec<Identifier>> {
-        if self.count == 0 {
-            return Some(vec![]);
-        }
-        let coeffs = self.to_coeffs();
-        match MonicPolynomialEvaluator::<u32>::factor(&coeffs) {
-            Ok(roots) => Some(roots),
-            Err(_) => None,
-        }
-    }
 
     /// Returns the missing identifiers from the log. Note that if there are
     /// collisions in the log of multiple identifiers, they will all appear.
     /// If the log is incomplete, there will be fewer than the number missing.
-    pub fn decode_with_log(&self, log: &IdentifierLog) -> Vec<Identifier> {
+    fn decode_with_log(&self, log: &Vec<T>) -> Vec<T> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!("decoding quACK: num_packets={}, num_missing={}",
@@ -96,7 +88,7 @@ impl PowerSumQuack {
         }
         let coeffs = self.to_coeffs();
         trace!("coeffs = {:?}", coeffs);
-        let missing: Vec<Identifier> = log.iter()
+        let missing: Vec<T> = log.iter()
             .filter(|&&x| {
                 MonicPolynomialEvaluator::eval(&coeffs, x).is_zero()
             })
@@ -109,9 +101,9 @@ impl PowerSumQuack {
 
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
-    pub fn to_coeffs(&self) -> Vec<ModularInteger<u32>> {
+    fn to_coeffs(&self) -> Vec<ModularInteger<T>> {
         let mut coeffs = (0..self.count())
-            .map(|_| ModularInteger::<u32>::zero())
+            .map(|_| ModularInteger::zero())
             .collect::<Vec<_>>();
         self.to_coeffs_preallocated(&mut coeffs);
         coeffs
@@ -120,9 +112,9 @@ impl PowerSumQuack {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities. Writes coefficients
     /// into a pre-allocated buffer.
-    pub fn to_coeffs_preallocated(
+    fn to_coeffs_preallocated(
         &self,
-        coeffs: &mut Vec<ModularInteger<u32>>,
+        coeffs: &mut Vec<ModularInteger<T>>,
     ) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
@@ -136,7 +128,8 @@ impl PowerSumQuack {
     }
 }
 
-impl SubAssign for PowerSumQuack {
+impl<T> SubAssign for PowerSumQuack<T> where
+ModularInteger<T>: ModularArithmetic<T> + SubAssign + Copy {
     fn sub_assign(&mut self, rhs: Self) {
         assert_eq!(self.power_sums.len(), rhs.power_sums.len(),
             "expected subtracted quacks to have the same number of sums");
@@ -151,13 +144,29 @@ impl SubAssign for PowerSumQuack {
     }
 }
 
-impl Sub for PowerSumQuack {
+impl<T> Sub for PowerSumQuack<T> where
+PowerSumQuack<T>: SubAssign, ModularInteger<T>: ModularArithmetic<T> {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
         let mut result = self;
         result -= rhs;
         result
+    }
+}
+
+impl PowerSumQuack<u32> {
+    /// Returns the missing identifiers by factorization of the difference
+    /// quack. Returns None if unable to factor.
+    pub fn decode_by_factorization(&self) -> Option<Vec<u32>> {
+        if self.count == 0 {
+            return Some(vec![]);
+        }
+        let coeffs = self.to_coeffs();
+        match MonicPolynomialEvaluator::factor(&coeffs) {
+            Ok(roots) => Some(roots),
+            Err(_) => None,
+        }
     }
 }
 
@@ -168,7 +177,7 @@ mod test {
     #[test]
     fn test_quack_constructor() {
         let size = 3;
-        let quack = PowerSumQuack::new(size);
+        let quack = PowerSumQuack::<u32>::new(size);
         assert_eq!(quack.count, 0);
         assert_eq!(quack.power_sums.len(), size);
         for i in 0..size {
@@ -178,7 +187,7 @@ mod test {
 
     #[test]
     fn test_quack_insert_no_modulus() {
-        let mut quack = PowerSumQuack::new(3);
+        let mut quack = PowerSumQuack::<u32>::new(3);
         quack.insert(1);
         assert_eq!(quack.count, 1);
         assert_eq!(quack.power_sums, vec![1, 1, 1]);
@@ -192,7 +201,7 @@ mod test {
 
     #[test]
     fn test_quack_insert_with_modulus() {
-        let mut quack = PowerSumQuack::new(5);
+        let mut quack = PowerSumQuack::<u32>::new(5);
         quack.insert(1143971604);
         quack.insert(734067013);
         quack.insert(130412990);
@@ -206,7 +215,7 @@ mod test {
 
     #[test]
     fn test_quack_to_polynomial_coefficients() {
-        let mut quack = PowerSumQuack::new(5);
+        let mut quack = PowerSumQuack::<u32>::new(5);
         quack.insert(3616712547);
         quack.insert(2333013068);
         quack.insert(2234311686);
@@ -223,10 +232,10 @@ mod test {
     #[test]
     #[should_panic]
     fn test_quack_sub_with_underflow() {
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         q1.insert(1);
         q1.insert(2);
-        let mut q2 = PowerSumQuack::new(3);
+        let mut q2 = PowerSumQuack::<u32>::new(3);
         q2.insert(1);
         q2.insert(2);
         q2.insert(3);
@@ -236,10 +245,10 @@ mod test {
     #[test]
     #[should_panic]
     fn test_quack_sub_with_diff_thresholds() {
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         q1.insert(1);
         q1.insert(2);
-        let mut q2 = PowerSumQuack::new(2);
+        let mut q2 = PowerSumQuack::<u32>::new(2);
         q2.insert(1);
         q2.insert(2);
         let _ = q1 - q2;
@@ -248,7 +257,7 @@ mod test {
     #[test]
     fn test_quack_sub_num_missing_eq_threshold() {
         let mut coeffs = (0..3).map(|_| ModularInteger::<u32>::zero()).collect();
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
@@ -265,13 +274,13 @@ mod test {
     #[test]
     fn test_quack_sub_num_missing_lt_threshold() {
         let mut coeffs = (0..3).map(|_| ModularInteger::<u32>::zero()).collect();
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
         q1.insert(4);
         q1.insert(5);
-        let mut q2 = PowerSumQuack::new(3);
+        let mut q2 = PowerSumQuack::<u32>::new(3);
         q2.insert(1);
         q2.insert(2);
         q2.insert(3);
@@ -287,7 +296,7 @@ mod test {
     #[test]
     #[ignore]
     fn test_quack_serialize() {
-        let mut quack = PowerSumQuack::new(10);
+        let mut quack = PowerSumQuack::<u32>::new(10);
         let bytes = bincode::serialize(&quack).unwrap();
         // expected length is 4*10+2 = 42 bytes (ten u32 sums and a u16 count)
         // TODO: extra 8 bytes from bincode
@@ -303,28 +312,28 @@ mod test {
 
     #[test]
     fn test_quack_deserialize_empty() {
-        let q1 = PowerSumQuack::new(10);
+        let q1 = PowerSumQuack::<u32>::new(10);
         let bytes = bincode::serialize(&q1).unwrap();
-        let q2: PowerSumQuack = bincode::deserialize(&bytes).unwrap();
+        let q2: PowerSumQuack<u32> = bincode::deserialize(&bytes).unwrap();
         assert_eq!(q1.count, q2.count);
         assert_eq!(q1.power_sums, q2.power_sums);
     }
 
     #[test]
     fn test_quack_deserialize_with_data() {
-        let mut q1 = PowerSumQuack::new(10);
+        let mut q1 = PowerSumQuack::<u32>::new(10);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
         let bytes = bincode::serialize(&q1).unwrap();
-        let q2: PowerSumQuack = bincode::deserialize(&bytes).unwrap();
+        let q2: PowerSumQuack<u32> = bincode::deserialize(&bytes).unwrap();
         assert_eq!(q1.count, q2.count);
         assert_eq!(q1.power_sums, q2.power_sums);
     }
 
     #[test]
     fn test_decode_log_empty_quack() {
-        let quack = PowerSumQuack::new(10);
+        let quack = PowerSumQuack::<u32>::new(10);
         let log = vec![1, 2, 3];
         let result = quack.decode_with_log(&log);
         assert!(result.is_empty());
@@ -333,11 +342,11 @@ mod test {
     #[test]
     fn test_quack_decode_log() {
         let log = vec![1, 2, 3, 4, 5, 6];
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         for x in &log {
             q1.insert(*x);
         }
-        let mut q2 = PowerSumQuack::new(3);
+        let mut q2 = PowerSumQuack::<u32>::new(3);
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
@@ -353,11 +362,11 @@ mod test {
     #[test]
     fn test_quack_decode_log_with_collisions() {
         let log = vec![1, 2, 2, 3, 4, 5, 6];
-        let mut q1 = PowerSumQuack::new(4);
+        let mut q1 = PowerSumQuack::<u32>::new(4);
         for x in &log {
             q1.insert(*x);
         }
-        let mut q2 = PowerSumQuack::new(4);
+        let mut q2 = PowerSumQuack::<u32>::new(4);
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
@@ -373,11 +382,11 @@ mod test {
     #[test]
     fn test_quack_decode_log_incomplete() {
         let log = vec![1, 2, 3, 4, 5, 6];
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         for x in &log {
             q1.insert(*x);
         }
-        let mut q2 = PowerSumQuack::new(3);
+        let mut q2 = PowerSumQuack::<u32>::new(3);
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
@@ -393,7 +402,7 @@ mod test {
     #[ignore]
     #[test]
     fn test_decode_factor_empty_quack() {
-        let quack = PowerSumQuack::new(10);
+        let quack = PowerSumQuack::<u32>::new(10);
         let result = quack.decode_by_factorization();
         assert!(result.is_some());
         assert!(result.unwrap().is_empty());
@@ -403,11 +412,11 @@ mod test {
     #[test]
     fn test_quack_decode_factor() {
         let log = vec![1, 2, 3, 4, 5, 6];
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         for x in &log {
             q1.insert(*x);
         }
-        let mut q2 = PowerSumQuack::new(3);
+        let mut q2 = PowerSumQuack::<u32>::new(3);
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
@@ -426,15 +435,15 @@ mod test {
     #[test]
     fn test_quack_decode_cant_factor() {
         let log = vec![1, 2, 3, 4, 5, 6];
-        let mut q1 = PowerSumQuack::new(3);
+        let mut q1 = PowerSumQuack::<u32>::new(3);
         for x in &log {
             q1.insert(*x);
         }
-        let mut q2 = PowerSumQuack::new(3);
+        let mut q2 = PowerSumQuack::<u32>::new(3);
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
-        q2.power_sums[0] += ModularInteger::<u32>::new(1);  // mess up the power sums
+        q2.power_sums[0] += ModularInteger::new(1);  // mess up the power sums
 
         // Check the result
         let quack = q1 - q2;

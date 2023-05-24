@@ -142,7 +142,7 @@ pub fn run_benchmark(
 
     for i in 0..(num_trials + 1) {
         // Generate 1000 random numbers.
-        let numbers: IdentifierLog =
+        let numbers: Vec<u32> =
             (0..num_packets).map(|_| rng.gen()).collect();
 
         let duration = match quack_ty {

@@ -88,11 +88,13 @@ ModularInteger<T>: ModularArithmetic<T>, T: Sub<Output = T> {
     }
 }
 
-impl<T: Default + Copy> ModularInteger<T> {
+impl<T: Default> ModularInteger<T> {
     pub fn zero() -> Self {
         Self::default()
     }
+}
 
+impl<T: Copy> ModularInteger<T> {
     pub fn value(&self) -> T {
         self.value
     }

@@ -4,7 +4,7 @@ use bincode;
 use quack::{Quack, PowerSumQuack};
 
 fn main() {
-    let mut q = PowerSumQuack::new(20);
+    let mut q = PowerSumQuack::<u32>::new(20);
     for id in [1, 2, 3] {
         q.insert(id);
     }
