@@ -79,8 +79,8 @@ mod test {
         // f(1) = 0
         // f(2) = 5
         // f(3) = 12
-        let coeffs = vec![ModularInteger::new(2), -ModularInteger::new(3)];
-        assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 0), -ModularInteger::new(3));
+        let coeffs = vec![ModularInteger::<u32>::new(2_), -ModularInteger::<u32>::new(3)];
+        assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 0), -ModularInteger::<u32>::new(3));
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 1), 0);
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 2), 5);
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 3), 12);
@@ -89,9 +89,9 @@ mod test {
     #[test]
     fn test_eval_with_modulus() {
         let coeffs = vec![
-            ModularInteger::new(2539233112),
-            ModularInteger::new(2884903207),
-            ModularInteger::new(3439674878),
+            ModularInteger::<u32>::new(2539233112),
+            ModularInteger::<u32>::new(2884903207),
+            ModularInteger::<u32>::new(3439674878),
         ];
 
         // Test zeros.
