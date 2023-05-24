@@ -138,7 +138,6 @@ impl Quack<u16> for PowerTableQuack {
     ) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
-        println!("first coeff {}", coeffs[0]);
         for i in 1..size {
             for j in 0..i {
                 coeffs[i] = coeffs[i] - self.power_sums[j] * coeffs[i - j - 1];

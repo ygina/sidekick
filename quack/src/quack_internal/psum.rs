@@ -155,6 +155,7 @@ PowerSumQuack<T>: SubAssign, ModularInteger<T>: ModularArithmetic<T> {
     }
 }
 
+#[cfg(feature = "libpari")]
 impl PowerSumQuack<u32> {
     /// Returns the missing identifiers by factorization of the difference
     /// quack. Returns None if unable to factor.
@@ -400,6 +401,7 @@ mod test {
     }
 
     #[ignore]
+    #[cfg(feature = "libpari")]
     #[test]
     fn test_decode_factor_empty_quack() {
         let quack = PowerSumQuack::<u32>::new(10);
@@ -409,6 +411,7 @@ mod test {
     }
 
     #[ignore]
+    #[cfg(feature = "libpari")]
     #[test]
     fn test_quack_decode_factor() {
         let log = vec![1, 2, 3, 4, 5, 6];
@@ -432,6 +435,7 @@ mod test {
     }
 
     #[ignore]
+    #[cfg(feature = "libpari")]
     #[test]
     fn test_quack_decode_cant_factor() {
         let log = vec![1, 2, 3, 4, 5, 6];

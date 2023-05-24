@@ -1,6 +1,5 @@
 use std::ops::{Sub, AddAssign, MulAssign};
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
-use crate::POWER_TABLE;
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
@@ -46,16 +45,15 @@ impl MonicPolynomialEvaluator<u16> {
         x: u16,
     ) -> ModularInteger<u16> {
         let size = coeffs.len();
-        // let x_mod = ModularInteger::new(x);
-        // let mut result = x_mod;
         let x_modint = ModularInteger::<u16>::new(x);
-        let mut result: u64 = unsafe {POWER_TABLE[x_modint.value as usize][size]}.value() as u64;
+        let mut result: u64 = unsafe {
+            crate::POWER_TABLE[x_modint.value as usize][size]
+        }.value() as u64;
         for i in 0..(size - 1) {
-            // result += coeffs[i];
-            // result *= x_mod;
-            result += (coeffs[i].value() as u64) * (unsafe {POWER_TABLE[x_modint.value as usize][size - i - 1]}.value() as u64);
+            result += (coeffs[i].value() as u64) * (unsafe {
+                crate::POWER_TABLE[x_modint.value as usize][size - i - 1]
+            }.value() as u64);
         }
-        // result + coeffs[size - 1]
         result += coeffs[size - 1].value() as u64;
         return ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16);
      }
