@@ -121,7 +121,8 @@ pub fn run_benchmark(
             QuackType::Strawman1 => benchmark_construct_strawman1(num_packets, num_drop),
             QuackType::Strawman2 => benchmark_construct_strawman2(num_packets, num_drop),
             QuackType::PowerSum => match params.num_bits_id {
-                16 => todo!(),
+                16 => benchmark_construct_power_sum::<u16>(
+                    params.threshold, params.num_bits_id, num_packets, num_drop),
                 32 => benchmark_construct_power_sum::<u32>(
                     params.threshold, params.num_bits_id, num_packets, num_drop),
                 64 => benchmark_construct_power_sum::<u64>(

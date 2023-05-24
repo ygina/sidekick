@@ -268,6 +268,80 @@ ModularInteger<u64>: ModularArithmetic<u64> {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+impl ModularArithmetic<u16> for ModularInteger<u16> {
+    type ModulusBig = u32;
+
+    fn is_zero(&self) -> bool {
+        self.value == 0
+    }
+
+    fn one() -> Self {
+        Self { value: 1 }
+    }
+
+    fn two() -> Self {
+        Self { value: 2 }
+    }
+
+    fn modulus() -> u16 {
+        65521
+    }
+
+    fn modulus_big() -> Self::ModulusBig {
+        65521
+    }
+
+    fn pow(self, power: u16) -> Self {
+        if power == 0 {
+            Self::one()
+        } else if power == 1 {
+            self
+        } else {
+            let mut result = self.pow(power >> 1);
+            result *= result;
+            if power & 1 == 1 {
+                result *= self;
+            }
+            result
+        }
+    }
+}
+
+impl AddAssign for ModularInteger<u16> where
+ModularInteger<u16>: ModularArithmetic<u16> {
+    fn add_assign(&mut self, rhs: Self) {
+        let sum: u32 = (self.value as u32) + (rhs.value as u32);
+        self.value = if sum >= Self::modulus_big() {
+            (sum - Self::modulus_big()) as u16
+        } else {
+            sum as u16
+        };
+    }
+}
+
+impl SubAssign for ModularInteger<u16> where
+ModularInteger<u16>: ModularArithmetic<u16> {
+    fn sub_assign(&mut self, rhs: Self) {
+        let neg_rhs: u32 = Self::modulus_big() - (rhs.value as u32);
+        let diff: u32 = (self.value as u32) + neg_rhs;
+        self.value = if diff >= Self::modulus_big() {
+            (diff - Self::modulus_big()) as u16
+        } else {
+            diff as u16
+        };
+    }
+}
+
+impl MulAssign for ModularInteger<u16> where
+ModularInteger<u16>: ModularArithmetic<u16> {
+    fn mul_assign(&mut self, rhs: Self) {
+        let prod: u32 = (self.value as u32) * (rhs.value as u32);
+        self.value = (prod % Self::modulus_big()) as u16;
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -291,6 +365,15 @@ mod test {
     }
 
     #[test]
+    fn test_constructor_u16() {
+        assert_eq!(ModularInteger::<u16>::zero(), 0);
+        assert_eq!(ModularInteger::<u16>::one(), 1);
+        assert_eq!(ModularInteger::<u16>::two(), 2);
+        assert_eq!(ModularInteger::<u16>::new(65521), 0);
+        assert_eq!(ModularInteger::<u16>::new(65522), 1);
+    }
+
+    #[test]
     fn test_field_getters() {
         let x = ModularInteger::<u32>::new(12345);
         assert_eq!(x.value(), 12345);
@@ -300,12 +383,17 @@ mod test {
         assert_eq!(x.value(), 12345);
         assert_eq!(ModularInteger::<u64>::modulus(), 9223372036854775783);
         assert_eq!(ModularInteger::<u64>::modulus_big(), 9223372036854775783);
+        let x = ModularInteger::<u16>::new(12345);
+        assert_eq!(x.value(), 12345);
+        assert_eq!(ModularInteger::<u16>::modulus(), 65521);
+        assert_eq!(ModularInteger::<u16>::modulus_big(), 65521);
     }
 
     #[test]
     fn test_zero_constructor() {
         assert!(ModularInteger::<u32>::zero().is_zero());
         assert!(ModularInteger::<u64>::zero().is_zero());
+        assert!(ModularInteger::<u16>::zero().is_zero());
     }
 
     #[test]
@@ -316,6 +404,9 @@ mod test {
         assert_eq!(-ModularInteger::<u64>::zero(), 0);
         assert_eq!(-ModularInteger::<u64>::new(1), 9223372036854775782);
         assert_eq!(-ModularInteger::<u64>::new(9223372036854775782), 1);
+        assert_eq!(-ModularInteger::<u16>::zero(), 0);
+        assert_eq!(-ModularInteger::<u16>::new(1), 65520);
+        assert_eq!(-ModularInteger::<u16>::new(65520), 1);
     }
 
     #[test]
@@ -357,6 +448,25 @@ mod test {
     }
 
     #[test]
+    fn test_add_u16() {
+        let mut x = ModularInteger::<u16>::new(0);
+        let y = ModularInteger::<u16>::new(1);
+        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus()-1);
+        x += y;
+        assert_eq!(x, 1);
+        assert_eq!(y, 1);
+        x += z;
+        assert_eq!(x, 0);
+        assert_eq!(z, ModularInteger::<u16>::modulus()-1);
+        x += y;
+        x += y;
+        x += z;
+        assert_eq!(x, 1);
+        assert_eq!(z + y, 0);
+        assert_eq!(z + z, ModularInteger::<u16>::modulus()-2);
+    }
+
+    #[test]
     fn test_sub_u32() {
         let mut x = ModularInteger::<u32>::new(0);
         let y = ModularInteger::<u32>::new(1);
@@ -395,6 +505,25 @@ mod test {
     }
 
     #[test]
+    fn test_sub_u16() {
+        let mut x = ModularInteger::<u16>::new(0);
+        let y = ModularInteger::<u16>::new(1);
+        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus()-1);
+        x -= y;
+        assert_eq!(x, ModularInteger::<u16>::modulus()-1);
+        assert_eq!(y, 1);
+        x -= z;
+        assert_eq!(x, 0);
+        assert_eq!(z, ModularInteger::<u16>::modulus()-1);
+        x -= y;
+        x -= y;
+        x -= z;
+        assert_eq!(x, ModularInteger::<u16>::modulus()-1);
+        assert_eq!(z - y, ModularInteger::<u16>::modulus()-2);
+        assert_eq!(z - z, 0);
+    }
+
+    #[test]
     fn test_mul_u32() {
         let mut x = ModularInteger::<u32>::new(1_000);
         let mut y = ModularInteger::<u32>::new(4_294_968);
@@ -421,6 +550,19 @@ mod test {
     }
 
     #[test]
+    fn test_mul_u16() {
+        let mut x = ModularInteger::<u16>::new(10);
+        let mut y = ModularInteger::<u16>::new(6553);
+        assert_eq!(x * x, 100);
+        assert_eq!(x * y, 9);
+        assert_eq!(y * y, 25554);
+        x *= y;
+        assert_eq!(x, 9);
+        y *= y;
+        assert_eq!(y, 25554);
+    }
+
+    #[test]
     fn test_pow_u32() {
         let x = ModularInteger::<u32>::new(1_000);
         assert_eq!(x.pow(0), 1);
@@ -444,6 +586,16 @@ mod test {
     }
 
     #[test]
+    fn test_pow_u16() {
+        let x = ModularInteger::<u16>::new(1_000);
+        assert_eq!(x.pow(0), 1);
+        assert_eq!(x.pow(1), 1000);
+        assert_eq!(x.pow(2), 17185);
+        assert_eq!(x.pow(3), 18498);
+        assert_eq!(x.pow(ModularInteger::<u16>::modulus()-1), 1);
+    }
+
+    #[test]
     fn test_inv() {
         let x = ModularInteger::<u32>::new(2);
         let y = ModularInteger::<u32>::new(1_000);
@@ -455,6 +607,13 @@ mod test {
         let x = ModularInteger::<u64>::new(2);
         let y = ModularInteger::<u64>::new(1_000);
         let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus()-2);
+        assert_eq!(x * x.inv(), 1);
+        assert_eq!(y * y.inv(), 1);
+        assert_eq!(z * z.inv(), 1);
+
+        let x = ModularInteger::<u16>::new(2);
+        let y = ModularInteger::<u16>::new(1_000);
+        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus()-2);
         assert_eq!(x * x.inv(), 1);
         assert_eq!(y * y.inv(), 1);
         assert_eq!(z * z.inv(), 1);
@@ -474,7 +633,13 @@ mod test {
         let debug = format!("{:?}", x);
         assert_eq!(display, "12345".to_string());
         assert!(debug.contains("value: 12345"));
-        println!("{}", debug);
         assert!(debug.contains("modulus: 9223372036854775783"));
+
+        let x = ModularInteger::<u16>::new(12345);
+        let display = format!("{}", x);
+        let debug = format!("{:?}", x);
+        assert_eq!(display, "12345".to_string());
+        assert!(debug.contains("value: 12345"));
+        assert!(debug.contains("modulus: 65521"));
     }
 }

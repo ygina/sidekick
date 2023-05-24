@@ -158,7 +158,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     info!("Decode time (bits = {}, threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}", num_bits_id, size,
         num_packets, dropped.len() - num_drop, num_drop, duration);
-    assert_eq!(dropped.len(), num_drop);
+    assert!(dropped.len() >= num_drop);
     duration
 }
 
@@ -187,7 +187,7 @@ pub fn run_benchmark(
                 }
             } else {
                 match params.num_bits_id {
-                16 => todo!(),
+                16 => benchmark_decode_power_sum::<u16>(params.threshold, params.num_bits_id, num_packets, num_drop),
                 32 => benchmark_decode_power_sum::<u32>(params.threshold, params.num_bits_id, num_packets, num_drop),
                 64 => benchmark_decode_power_sum::<u64>(params.threshold, params.num_bits_id, num_packets, num_drop),
                 _ => unimplemented!(),
