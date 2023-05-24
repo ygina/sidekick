@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 use clap::Parser;
+use quack::Quack;
 use sidecar::{Sidecar, SidecarType};
 use log::debug;
 
