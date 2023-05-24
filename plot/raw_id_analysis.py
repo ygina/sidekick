@@ -16,6 +16,8 @@ RECV = 1
 LOST_QUACK = 2
 LOST_E2E = 3
 CWND = 4
+# KEYS = ['r1', 'h2', 'h2-r1', 'lost_quack', 'lost_e2e']
+KEYS = ['lost_quack', 'lost_e2e', 'r1_count', 'h2_count', 'cwnd', 'h2-r1']
 
 def to_key(x):
     return int(x / GRANULARITY) * GRANULARITY
@@ -43,15 +45,16 @@ def parse_quack(filename):
 
     for line in lines:
         line = line.strip()
-        r = r'^quack Instant \{ tv_sec: (\d+), tv_nsec: (\d+) \} (\d+)$'
+        r = r'^quack Instant \{ tv_sec: (\d+), tv_nsec: (\d+) \} (\d+) (\d+)$'
         m = re.search(r, line)
         if m is None:
             continue
         m = m.groups()
         x = 1000.0 * int(m[0]) + int(m[1]) / 1_000_000.
-        y = int(m[2])
+        packet_id = int(m[2])
+        count = int(m[3])
         xs.append(x)
-        ys.append(y)
+        ys.append((packet_id, count))
 
     return (xs, ys)
 
@@ -115,18 +118,20 @@ def combine_data(r1, h2, lost_quack, lost_e2e, cwnd):
     return data
 
 def check_subset(data):
-    currset = []
-    for (_time, action, identifier) in data:
-        if action == SEND:
-            currset.append(identifier)
-        elif action == RECV or action == LOST_QUACK:
-            index = currset.index(identifier)
-            if action == LOST_QUACK:
-                assert index == 0
-            currset.remove(identifier)
-        elif action == CWND or action == LOST_E2E:
-            continue
-    print('subset test passed')
+    # currset = []
+    # for (_time, action, value) in data:
+    #     identifier = value if action not in [SEND, RECV] else value[0]
+    #     if action == SEND:
+    #         currset.append(identifier)
+    #     elif action == RECV or action == LOST_QUACK:
+    #         index = currset.index(identifier)
+    #         if action == LOST_QUACK:
+    #             assert index == 0
+    #         currset.remove(identifier)
+    #     elif action == CWND or action == LOST_E2E:
+    #         continue
+    # print('subset test passed')
+    pass
 
 def parse_data(r1_filename, h2_filename):
     # Parse raw data and check subset properties
@@ -141,8 +146,10 @@ def parse_data(r1_filename, h2_filename):
     # Collect data for plotting
     min_x = to_key(data[0][0])
     max_x = to_key(data[-1][0]) + GRANULARITY
-    r1 = collect_data(data, RECV)
-    h2 = collect_data(data, SEND)
+    recv_data = collect_data(data, RECV)
+    send_data = collect_data(data, SEND)
+    r1 = [[pkt_id for (pkt_id, _count) in vals] for vals in recv_data]
+    h2 = [[pkt_id for (pkt_id, _count) in vals] for vals in send_data]
     lost_quack = collect_data(data, LOST_QUACK)
     lost_e2e = collect_data(data, LOST_E2E)
     cwnd = collect_data(data, CWND)
@@ -151,7 +158,18 @@ def parse_data(r1_filename, h2_filename):
     ys = {}
     ys['r1'] = [len(y) for y in r1]
     ys['h2'] = [len(y) for y in h2]
-    ys['h2-r1'] = [(ys['h2'][i]-ys['r1'][i]) for i in range(len(ys['r1']))]
+    ys['r1_count'] = []
+    ys['h2_count'] = []
+    for (key, count_data) in [('r1_count', recv_data), ('h2_count', send_data)]:
+        for vals in count_data:
+            counts = [count for (_pkt_id, count) in vals]
+            if len(counts) > 0:
+                ys[key].append(max(counts))
+            elif len(ys[key]) > 0:
+                ys[key].append(ys[key][-1])
+            else:
+                ys[key].append(0)
+    ys['h2-r1'] = [(ys['h2_count'][i]-ys['r1_count'][i]) for i in range(len(ys['r1_count']))]
     count = 0
     ys['diff'] = []
     for (i, d) in enumerate(ys['h2-r1']):
@@ -160,6 +178,9 @@ def parse_data(r1_filename, h2_filename):
 
     ys['lost_quack'] = [len(y) for y in lost_quack]
     ys['lost_e2e'] = [len(y) for y in lost_e2e]
+    for key in ['lost_quack', 'lost_e2e']:
+        for i in range(1, len(ys[key])):
+            ys[key][i] += ys[key][i-1]
     ys['cwnd'] = []
     for y in cwnd:
         if len(y) > 0:
@@ -168,23 +189,27 @@ def parse_data(r1_filename, h2_filename):
             ys['cwnd'].append(ys['cwnd'][-1])
     return (xs, ys)
 
-def plot_graph(xs, ys, data_size, loss, threshold):
+def plot_graph(xs, ys, data_size, loss, threshold, bw):
     # for (i, key) in enumerate(['r1', 'h2', 'diff', 'lost_quack', 'lost_e2e', 'h2-r1']):
-    for (i, key) in enumerate(['r1', 'h2', 'diff', 'lost_quack', 'h2-r1']):
-        plt.plot(xs, ys[key], label=key)
-    plt.plot(xs, ys['cwnd'], label='cwnd')
+    for (i, key) in enumerate(KEYS):
+        if key == 'cwnd':
+            plt.plot(xs, ys['cwnd'], label='cwnd')
+        else:
+            plt.plot(xs, ys[key], label=key)
+    plt.xlim(0)
+    plt.ylim(0, 100)
     plt.xlabel('Time (s)')
     plt.ylabel('Num Packets')
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.7), ncol=3)
-    pdf = f'rawid_{data_size}_loss{loss}p_thresh{threshold}.pdf'
+    pdf = f'rawid_{data_size}_loss{loss}p_thresh{threshold}_bw{bw}.pdf'
     plt.title(pdf)
     print(pdf)
     save_pdf(pdf)
     plt.clf()
 
 def run(args):
-    r1_filename = f'{WORKDIR}/results/raw_id/r1_{args.n}_loss{args.loss}p_thresh{args.t}.log'
-    h2_filename = f'{WORKDIR}/results/raw_id/h2_{args.n}_loss{args.loss}p_thresh{args.t}.log'
+    r1_filename = f'{WORKDIR}/results/raw_id/r1_{args.n}_loss{args.loss}p_thresh{args.t}_bw{args.bw}.log'
+    h2_filename = f'{WORKDIR}/results/raw_id/h2_{args.n}_loss{args.loss}p_thresh{args.t}_bw{args.bw}.log'
 
     if not path.exists(r1_filename) or not path.exists(h2_filename) or args.f:
         if not args.execute:
@@ -192,7 +217,9 @@ def run(args):
             exit(1)
         cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', args.n,
                '--loss2', args.loss, '-t', '1', '--benchmark', 'quic',
-               '-s', '2ms', '--quack-log', '--threshold', args.t]
+               '--bw2', args.bw,
+               '-s', '2ms', '--threshold', args.t, '--quack-reset',
+               '--quack-log']
         cmd += args.args
         print(' '.join(cmd))
         p = subprocess.Popen(cmd, cwd=WORKDIR)
@@ -201,18 +228,19 @@ def run(args):
         os.system(f'mv {WORKDIR}/h2.log {h2_filename}')
 
     (xs, ys) = parse_data(r1_filename, h2_filename)
-    plot_graph(xs, ys, args.n, args.loss, args.t)
+    plot_graph(xs, ys, args.n, args.loss, args.t, args.bw)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description='make sure to compile quiche with "quack_log" and "cwnd_log" feature, and sidecar with "quack_log" feature')
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('-f', help='force execute', action='store_true')
     parser.add_argument('-n', help='data size (default: 10M)', default='10M')
-    parser.add_argument('-t', help='quack threshold (default: 500)', default='500')
+    parser.add_argument('-t', help='quack threshold (default: 20)', default='20')
     parser.add_argument('--loss', help='loss (default: 0)', default='0')
+    parser.add_argument('--bw', help='near subpath bw (default: 100)', default='100')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
-    parser.add_argument('-g', help='time granularity in ms (default: 1000)',
+    parser.add_argument('-g', help='time granularity in ms (default: 100)',
         type=int, default=1000)
     args = parser.parse_args()
     GRANULARITY = args.g

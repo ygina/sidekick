@@ -12,7 +12,13 @@ Cargo.lock
 __pycache__/
 env/
 plot/*.pdf
+plot/graphs/*.pdf
 qlog/
+results/
 ._.
 
 results/
+*.log
+deps/nginx*
+deps/pari*
+deps/pepsal*
