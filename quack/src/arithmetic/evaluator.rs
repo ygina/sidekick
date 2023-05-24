@@ -1,3 +1,4 @@
+use std::ops::{Sub, AddAssign, MulAssign};
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
 
 #[cfg(feature = "libpari")]
@@ -11,17 +12,19 @@ extern "C" {
     ) -> i32;
 }
 
-pub struct MonicPolynomialEvaluator {
+pub struct MonicPolynomialEvaluator<T> {
+    _phantom: std::marker::PhantomData<T>
 }
 
-impl MonicPolynomialEvaluator {
+impl<T: PartialOrd + Sub<Output = T>> MonicPolynomialEvaluator<T> where
+ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + Copy {
     /// Evaluate the univariate polynomial with the given coefficients using
     /// modular arithmetic, assuming all coefficients are modulo the same
     /// 32-bit prime. In the coefficient vector, the last element is the
     /// constant term in the polynomial. The number of coefficients is the
     /// degree of the polynomial. The leading coefficient is 1, and is not
     /// included in the vector.
-    pub fn eval(coeffs: &Vec<ModularInteger<u32>>, x: u32) -> ModularInteger<u32> {
+    pub fn eval(coeffs: &Vec<ModularInteger<T>>, x: T) -> ModularInteger<T> {
         let size = coeffs.len();
         let x_mod = ModularInteger::new(x);
         let mut result = x_mod;
@@ -33,7 +36,9 @@ impl MonicPolynomialEvaluator {
         }
         result + coeffs[size - 1]
     }
+}
 
+impl MonicPolynomialEvaluator<u32> {
     /// Factors the given polynomial using modular arithmetic, assuming all
     /// coefficients are modulo the same 32-bit prime.
     ///

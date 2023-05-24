@@ -77,7 +77,7 @@ impl PowerSumQuack {
             return Some(vec![]);
         }
         let coeffs = self.to_coeffs();
-        match MonicPolynomialEvaluator::factor(&coeffs) {
+        match MonicPolynomialEvaluator::<u32>::factor(&coeffs) {
             Ok(roots) => Some(roots),
             Err(_) => None,
         }
