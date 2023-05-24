@@ -1,6 +1,7 @@
 use clap::ValueEnum;
 use std::time::Duration;
 use log::info;
+use rand::{distributions::{Standard, Distribution}, Rng};
 
 #[derive(Clone, ValueEnum, Debug)]
 pub enum BenchmarkType {
@@ -23,4 +24,8 @@ pub fn print_summary(d: Vec<Duration>) {
         d.into_iter().sum::<Duration>() / size
     };
     info!("SUMMARY: num_trials = {}, avg = {:?}", size, avg);
+}
+
+pub fn gen_numbers<T>(num_packets: usize) -> Vec<T> where Standard: Distribution<T> {
+    (0..num_packets).map(|_| rand::thread_rng().gen()).collect()
 }
