@@ -16,5 +16,6 @@ bincode = "1.3.3"
 cc = "1.0.33"
 
 [features]
-default = ["libpari"]
+default = ["libpari", "power_table"]
 libpari = []
+power_table = []

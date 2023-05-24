@@ -1,5 +1,6 @@
 use std::ops::{Sub, AddAssign, MulAssign};
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
+use crate::POWER_TABLE;
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
@@ -36,6 +37,28 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + Copy {
         }
         result + coeffs[size - 1]
     }
+}
+
+#[cfg(feature = "power_table")]
+impl MonicPolynomialEvaluator<u16> {
+    pub fn eval_precompute(
+        coeffs: &Vec<ModularInteger<u16>>,
+        x: u16,
+    ) -> ModularInteger<u16> {
+        let size = coeffs.len();
+        // let x_mod = ModularInteger::new(x);
+        // let mut result = x_mod;
+        let x_modint = ModularInteger::<u16>::new(x);
+        let mut result: u64 = unsafe {POWER_TABLE[x_modint.value as usize][size]}.value() as u64;
+        for i in 0..(size - 1) {
+            // result += coeffs[i];
+            // result *= x_mod;
+            result += (coeffs[i].value() as u64) * (unsafe {POWER_TABLE[x_modint.value as usize][size - i - 1]}.value() as u64);
+        }
+        // result + coeffs[size - 1]
+        result += coeffs[size - 1].value() as u64;
+        return ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16);
+     }
 }
 
 impl MonicPolynomialEvaluator<u32> {
@@ -84,6 +107,22 @@ mod test {
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 1), 0);
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 2), 5);
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 3), 12);
+    }
+
+    #[cfg(feature = "power_table")]
+    #[test]
+    fn test_eval_no_modulus_precompute() {
+        // f(x) = x^2 + 2*x - 3
+        // f(0) = -3
+        // f(1) = 0
+        // f(2) = 5
+        // f(3) = 12
+        crate::quack_internal::init_pow_table();
+        let coeffs = vec![ModularInteger::<u16>::new(2_), -ModularInteger::<u16>::new(3)];
+        assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 0), -ModularInteger::<u16>::new(3));
+        assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 1), 0);
+        assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 2), 5);
+        assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 3), 12);
     }
 
     #[test]

@@ -64,6 +64,42 @@ fn benchmark_construct_strawman2(
     duration
 }
 
+fn benchmark_construct_power_sum_precompute_u16(
+    size: usize,
+    num_packets: usize,
+    num_drop: usize,
+) -> Duration {
+    const WARMUP_PACKETS: usize = 10;
+    let numbers = gen_numbers::<u16>(num_packets + WARMUP_PACKETS);
+
+    // Construct two empty Quacks.
+    let mut acc1 = PowerTableQuack::new(size);
+    let mut acc2 = PowerTableQuack::new(size);
+
+    // Warm up the instruction cache by inserting a few numbers.
+    for i in num_packets..(num_packets + WARMUP_PACKETS) {
+        acc1.insert(numbers[i]);
+    }
+    for i in num_packets..(num_packets + WARMUP_PACKETS) {
+        acc2.insert(numbers[i]);
+    }
+
+    // Insert a bunch of random numbers into the accumulator.
+    let t1 = Instant::now();
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
+    for j in 0..(num_packets - num_drop) {
+        acc2.insert(numbers[j]);
+    }
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Insert {} numbers into 2 Quacks (bits = 16, \
+        threshold = {}): {:?}", num_packets, size, duration);
+    duration
+}
+
 fn benchmark_construct_power_sum<T>(
     size: usize,
     num_bits_id: usize,
@@ -111,8 +147,6 @@ pub fn run_benchmark(
     num_drop: usize,
     params: QuackParams,
 ) {
-    assert!(!params.precompute, "ERROR: power tables are not enabled");
-
     // Allocate buffer for benchmark durations.
     let mut durations: Vec<Duration> = vec![];
 
@@ -120,7 +154,15 @@ pub fn run_benchmark(
         let duration = match quack_ty {
             QuackType::Strawman1 => benchmark_construct_strawman1(num_packets, num_drop),
             QuackType::Strawman2 => benchmark_construct_strawman2(num_packets, num_drop),
-            QuackType::PowerSum => match params.num_bits_id {
+            QuackType::PowerSum =>  if params.precompute {
+                match params.num_bits_id {
+                16 => benchmark_construct_power_sum_precompute_u16(params.threshold, num_packets, num_drop),
+                32 => todo!(),
+                64 => todo!(),
+                _ => unimplemented!(),
+                }
+            } else {
+                match params.num_bits_id {
                 16 => benchmark_construct_power_sum::<u16>(
                     params.threshold, params.num_bits_id, num_packets, num_drop),
                 32 => benchmark_construct_power_sum::<u32>(
@@ -128,6 +170,7 @@ pub fn run_benchmark(
                 64 => benchmark_construct_power_sum::<u64>(
                     params.threshold, params.num_bits_id, num_packets, num_drop),
                 _ => unimplemented!(),
+                }
             },
         };
         if i > 0 {

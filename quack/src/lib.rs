@@ -7,7 +7,9 @@ pub mod arithmetic {
 }
 
 mod quack_internal;
-pub use quack_internal::*;
+pub use quack_internal::{PowerSumQuack, PowerTableQuack};
+#[cfg(feature = "power_table")]
+pub(crate) use quack_internal::{init_pow_table, POWER_TABLE};
 
 pub trait Quack<T> {
     fn new(threshold: usize) -> Self;

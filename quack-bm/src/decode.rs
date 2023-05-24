@@ -124,6 +124,40 @@ fn benchmark_decode_power_sum_factor_u32(
     duration
 }
 
+fn benchmark_decode_power_sum_precompute_u16(
+    size: usize,
+    num_packets: usize,
+    num_drop: usize,
+) -> Duration {
+    let numbers = gen_numbers::<u16>(num_packets);
+
+    // Construct two empty Quacks.
+    let mut acc1 = PowerTableQuack::new(size);
+    let mut acc2 = PowerTableQuack::new(size);
+
+    // Insert all random numbers into the first accumulator.
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
+
+    // Insert all but num_drop random numbers into the second accumulator.
+    for j in 0..(num_packets - num_drop) {
+        acc2.insert(numbers[j]);
+    }
+
+    let t1 = Instant::now();
+    acc1 -= acc2;
+    let dropped = acc1.decode_with_log(&numbers);
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Decode time (bits = 32, threshold = {}, num_packets={}, \
+        false_positives = {}, dropped = {}): {:?}", size,
+        num_packets, dropped.len() - num_drop, num_drop, duration);
+    assert!(dropped.len() >= num_drop);
+    duration
+}
+
 fn benchmark_decode_power_sum<T>(
     size: usize,
     num_bits_id: usize,
@@ -169,8 +203,6 @@ pub fn run_benchmark(
     num_drop: usize,
     params: QuackParams,
 ) {
-    assert!(!params.precompute, "ERROR: power tables are not enabled");
-
     // Allocate buffer for benchmark durations.
     let mut durations: Vec<Duration> = vec![];
 
@@ -182,6 +214,13 @@ pub fn run_benchmark(
                 match params.num_bits_id {
                 16 => todo!(),
                 32 => benchmark_decode_power_sum_factor_u32(params.threshold, num_packets, num_drop),
+                64 => todo!(),
+                _ => unimplemented!(),
+                }
+            } else if params.precompute {
+                match params.num_bits_id {
+                16 => benchmark_decode_power_sum_precompute_u16(params.threshold, num_packets, num_drop),
+                32 => todo!(),
                 64 => todo!(),
                 _ => unimplemented!(),
                 }

@@ -7,7 +7,7 @@ use serde::{Serialize, Deserialize};
 /// Modular integer.
 #[derive(Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModularInteger<T> {
-    value: T,
+    pub(crate) value: T,
 }
 
 pub trait ModularArithmetic<T> {
