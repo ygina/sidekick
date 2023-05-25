@@ -6,58 +6,23 @@ def print_and_run_cmd(cmd):
     print(cmd)
     return os.system(cmd)
 
-def estimate_timeout(args, n, http, loss):
-    try:
-        if 'k' in n:
-            kb = int(n[:-1])
-        elif 'M' in n:
-            kb = int(n[:-1]) * 1000
-        scale = 0.015
-        if '3' in http:
-            scale *= 2
-        if float(loss) > 1:
-            scale *= float(loss) / 1.5
-        if args.sidecar is not None:
-            scale *= 0.1
-        return max(int(scale * kb), 15)
-    except:
-        return 3000
-
-def build_base_command(args, filename):
-    cmd = f'RUST_LOG={args.log_level} '
-    if args.qlog:
-        cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
-    # cmd += 'curl-exp '
-    cmd += 'sidecurl '
-    if args.sidecar is not None:
-        cmd += f'--threshold {args.sidecar} '
-    if args.quack_reset:
-        cmd += '--quack-reset '
-    if args.sidecar_mtu:
-        cmd += '--sidecar-mtu '
-    cmd += f'{args.http} {args.cc} --data-binary @{filename} --insecure '
-    cmd += f'https://{args.addr}/ '
-    return cmd
-
-def run_client(args):
+def run_client(args, base_command, http_flag):
     f = tempfile.NamedTemporaryFile()
     print_and_run_cmd(f'head -c {args.n} /dev/urandom > {f.name}')
     print(f'Data Size: {args.n}')
-    print(f'HTTP: {args.http}')
-    # curl = 'curl-exp'
-    curl = 'sidecurl'
+    print(f'HTTP: {http_flag}')
 
-    cmd = build_base_command(args, f.name)
-
+    cmd =  f'{base_command} {http_flag} --insecure '
+    cmd += f'--data-binary @{f.name} '
+    cmd += f'https://{args.addr}/ '
     if args.trials is None:
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
         cmd += f'-w \"{fmt}\" '
-        print_and_run_cmd(f'eval \'{cmd}\'')
+        os.system(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
-        timeout = estimate_timeout(args, args.n, args.http, args.loss)
         cmd += f'-w \"{fmt}\" '
-        cmd += f'--max-time {timeout} '
+        cmd += f'--max-time {args.timeout} '
         cmd += f'-o {args.stdout} 2>>{args.stderr} '
         # cmd = f"/usr/bin/time -f\"0\t\t0\t\t0\t\t\t%e\t0\t200\" "+\
         #       f"/home/gina/quiche-sidecar/target/release/quiche-client "+\
@@ -69,63 +34,30 @@ def run_client(args):
         for _ in range(args.trials):
             os.system(f'eval \'{cmd}\'')
 
-def check_trials(value):
-    try:
-        value = int(value)
-        if value > 0:
-            return value
-    except:
-        pass
-    err = f'trials is not a positive integer: {value}'
-    raise argparse.ArgumentTypeError(err)
+def run_tcp_client(args):
+    cmd = 'RUST_LOG=debug sidecurl '
+    run_client(args, cmd, '--http1.1')
 
-def check_http(value):
-    try:
-        value = int(value)
-        if value == 1:
-            return '--http1.1'
-        elif value == 2:
-            return '--http2'
-        elif value == 3:
-            return '--http3'
-    except:
-        pass
-    err = f'http version must be 1, 2, or 3: {value}'
-    raise argparse.ArgumentTypeError(err)
+def run_quic_client(args):
+    cmd = 'RUST_LOG=debug '
+    if args.qlog:
+        cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
+    cmd += 'sidecurl '
+    cmd += f'--threshold {args.threshold} '
+    if args.quack_reset:
+        cmd += '--quack-reset '
+    if args.sidecar_mtu:
+        cmd += '--sidecar-mtu '
+    run_client(args, cmd, '--http3')
 
-def check_cc(value):
-    if value == '':
-        return ''
-    if value not in ['reno', 'cubic']:
-        err = f'tcp congestion control algorithm must be reno or cubic: {value}'
-        raise argparse.ArgumentTypeError(err)
-    return f'--quiche-cc {value}'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog='Sidecar Client')
     parser.add_argument('-n',
                         required=True,
                         help='Number of bytes to send e.g. 1M')
-    parser.add_argument('--http',
-                        required=True,
-                        help='HTTP version to use [tcp|quic]',
-                        type=check_http)
-    parser.add_argument('-t', '--trials',
-                        help='Number of trials',
-                        type=check_trials)
-    parser.add_argument('-s', '--sidecar',
-                        type=int,
-                        help='The quACK threshold.')
-    parser.add_argument('--sidecar-mtu', action='store_true',
-                        help='Send packets only if cwnd > mtu')
-    parser.add_argument('--quack-reset', action='store_true',
-                        help='Whether to send quack reset messages')
-    parser.add_argument('--qlog', action='store_true',
-                        help='Store qlogs at $HOME/sidecar/qlog')
-    parser.add_argument('--log-level',
-                        default='error',
-                        help='Sets the RUST_LOG level in the quiche client. '
-                             '[error|warn|info|debug|trace] (default: error)')
+    parser.add_argument('-t', '--trials', type=int,
+                        help='Number of trials')
     parser.add_argument('--stdout',
                         default='/dev/null',
                         metavar='FILE',
@@ -134,17 +66,25 @@ if __name__ == '__main__':
                         default='/dev/null',
                         metavar='FILE',
                         help='File to write stderr to (default: /dev/null)')
-    parser.add_argument('-cc',
-                        default='',
-                        metavar='TCP_CC_ALG',
-                        type=check_cc,
-                        help='Sets the TCP and QUIC congestion control '
-                             'mechanism [reno|cubic] (default: cubic)')
     parser.add_argument('--addr',
                         default='10.0.1.10:443',
                         help='Server address (default: 10.0.1.10:443)')
-    parser.add_argument('--loss',
-                        help='Loss percentage, used to estimate timeout')
+    parser.add_argument('--timeout', type=int,
+                        help='Timeout, in seconds (default: None).')
+
+    subparsers = parser.add_subparsers(required=True)
+    tcp = subparsers.add_parser('tcp')
+    tcp.set_defaults(func=run_tcp_client)
+    quic = subparsers.add_parser('quic')
+    quic.add_argument('--threshold', type=int, default=20,
+                      help='The quACK threshold. (default: 20)')
+    quic.add_argument('--sidecar-mtu', type=bool, default=True,
+                      help='Send packets only if cwnd > mtu [0|1] (default: 1)')
+    quic.add_argument('--quack-reset', type=bool, default=True,
+                      help='Whether to send quack reset messages [0|1] (default: 1)')
+    quic.add_argument('--qlog', action='store_true',
+                      help='Store qlogs at $HOME/sidecar/qlog')
+    quic.set_defaults(func=run_quic_client)
     args = parser.parse_args()
 
-    run_client(args)
+    args.func(args)
