@@ -8,12 +8,9 @@ import numpy as np
 from os import path
 from common import *
 
-DATA_SIZES = [1000, 10000, 50000]
-LOSSES = [0, 1]
-HTTP_VERSIONS = ['quack-2ms-r', 'pep', 'quic', 'tcp']
 
 def get_filename(loss, bm):
-    return f'../results/loss{loss}p/cubic/{bm}.txt'
+    return f'../results/loss{loss}p/{bm}.txt'
 
 def parse_data(args, filename, bm, data_sizes, data_key='time_total'):
     data = {}
@@ -72,22 +69,11 @@ def maybe_collect_missing_data(args, filename, bm, data_sizes,
             print(f'{n}k\t{len(y)}/{args.trials} points')
             continue
 
-        suffix = f'loss{loss}p/cubic'
-        results_file = f'{args.workdir}/results/{suffix}/{bm}.txt'
-        if bm == 'pep':
-            bm_args = ['tcp', '--pep']
-        elif 'quack' in bm:
-            bm_args = ['quic', '--sidecar', '2ms', '--quack-reset']
-        elif 'quic' in bm:
-            bm_args = ['quic']
-        elif 'tcp' in bm:
-            bm_args = ['tcp']
-        else:
-            bm_args = [bm]
-        subprocess.Popen(['mkdir', '-p', f'results/{suffix}'],
+        results_file = f'{args.workdir}/results/loss{loss}p/{bm}.txt'
+        subprocess.Popen(['mkdir', '-p', f'results/loss{loss}p'],
                          cwd=args.workdir).wait()
-        cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', str(loss),
-            '--benchmark'] + bm_args + ['-t', str(missing), '-n', f'{n}k']
+        cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '--loss2', str(loss),
+            '-t', str(missing), '-n', f'{n}k', bm]
         print(cmd)
         p = subprocess.Popen(cmd, cwd=args.workdir, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
@@ -109,9 +95,9 @@ def collect_parsed_data(data, n):
         stdev = 0
     return (mean, stdev)
 
-def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
+def plot_graph(args, loss, data_sizes, https, legend, pdf=None):
     data = {}
-    for bm in HTTP_VERSIONS:
+    for bm in https:
         filename = get_filename(loss, bm)
         print(filename)
         maybe_collect_missing_data(args, filename, bm, data_sizes)
@@ -124,7 +110,7 @@ def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
     width = 0.2
 
     fig, ax = plt.subplots()
-    for (i, bm) in enumerate(HTTP_VERSIONS):
+    for (i, bm) in enumerate(https):
         xs = original_xs - 3.*width/2 + width * i
         ys = [data[bm][n][0] for n in data_sizes]
         if args.trials == 1:
@@ -140,7 +126,7 @@ def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
                          fontsize=FONTSIZE, color='white')
 
     for n in data_sizes:
-        for bm in HTTP_VERSIONS:
+        for bm in https:
             (y, yerr) = data[bm][n]
 
     ax.set_xlabel('Data Size', fontsize=FONTSIZE)
@@ -148,38 +134,44 @@ def plot_graph(args, loss, data_sizes=DATA_SIZES, pdf=None):
         fontsize=FONTSIZE)
     ax.tick_params(axis='both', which='major', labelsize=FONTSIZE)
     ax.tick_params(axis='both', which='minor', labelsize=FONTSIZE)
-    # ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2,
-    #     fontsize=FONTSIZE)
+    if legend:
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2,
+            fontsize=FONTSIZE)
     ax.set_ylabel('Goodput (MBytes/s)', fontsize=FONTSIZE)
-    # ax.set_title(f'{loss}% loss on near subpath', fontsize=FONTSIZE+5)
     ax.set_ylim(0, 1.2)
     if pdf is not None:
-        print(pdf)
         save_pdf(pdf)
 
 if __name__ == '__main__':
+    DEFAULT_LOSSES = [0, 1]
+    DEFAULT_DATA_SIZES = [1000, 10000, 50000]
+    DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
                         help='Execute benchmarks for missing data points')
+    parser.add_argument('--legend', type=bool, default=True,
+                        help='Whether to plot a legend [0|1]. (default: 1)')
     parser.add_argument('-t', '--trials', default=10, type=int,
                         help='Number of trials to plot (default: 10)')
     parser.add_argument('--loss', action='extend', nargs='+', default=[],
                         type=int,
-                        help='Loss percentages to plot [0|1|2|5]. Multiple '
-                             'arguments can be provided. If no argument is '
-                             'provided, plots 0 and 5.')
+                        help=f'Loss percentages to plot. '
+                             f'(default: {DEFAULT_LOSSES})')
     parser.add_argument('-n', action='extend', nargs='+', default=[],
                         type=int,
-                        help='Data sizes to plot, in kBytes. Multiple '
-                             'arguments can be provided. If no argument is '
-                             'provided, plots 1000, 10000, 100000.')
+                        help=f'Data sizes to plot, in kBytes. '
+                             f'(default: {DEFAULT_DATA_SIZES})')
+    parser.add_argument('--http', action='extend', nargs='+', default=[],
+                        help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
     parser.add_argument('--workdir',
                         default=os.environ['HOME'] + '/sidecar',
                         help='Working directory (default: $HOME/sidecar)')
     args = parser.parse_args()
 
-    losses = LOSSES if len(args.loss) == 0 else args.loss
-    data_sizes = DATA_SIZES if len(args.n) == 0 else args.n
+    losses = DEFAULT_LOSSES if len(args.loss) == 0 else args.loss
+    data_sizes = DEFAULT_DATA_SIZES if len(args.n) == 0 else args.n
+    https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
     for loss in losses:
         pdf = f'baseline_loss{loss}p.pdf'
-        plot_graph(args, loss=loss, data_sizes=data_sizes, pdf=pdf)
+        plot_graph(args, loss, data_sizes, https, args.legend, pdf=pdf)

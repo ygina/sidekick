@@ -47,6 +47,7 @@ def save_pdf(output_filename, bbox_inches='tight'):
     if output_filename is not None:
         with PdfPages(output_filename) as pdf:
             pdf.savefig(bbox_inches=bbox_inches)
+    print(output_filename)
 
 LABEL_MAP = {}
 LABEL_MAP['quic'] = 'QUIC e2e'
