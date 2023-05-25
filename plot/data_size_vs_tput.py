@@ -7,48 +7,15 @@ import statistics
 from os import path
 from common import *
 
-DATE = None
-NUM_TRIALS = None
-MAX_X = None
-EXECUTE = None
-WORKDIR = None
-# TARGET_XS = [x for x in range(100, 1000, 100)] + \
-#             [x for x in range(1000, 20000, 1000)] + \
-#             [x for x in range(20000, 40000, 2000)] + \
+TARGET_XS = [x for x in range(100, 1000, 100)] + \
+            [x for x in range(1000, 20000, 1000)] + \
+            [x for x in range(20000, 40000, 2000)]
 #             [x for x in range(40000, 100000, 10000)]
 # TARGET_XS = [x for x in range(200, 1000, 200)] + \
 #             [x for x in range(1000, 10000, 1000)] + \
 #             [x for x in range(10000, 20000, 2000)] + \
 #             [x for x in range(20000, 100000, 5000)] + \
 #             [100000]
-TARGET_XS = [35000]
-LOSSES = [0, 1, 2, 4, 8]
-HTTP_VERSIONS = [
-    'quack-2ms-rm',
-    'pep',
-    # 'quic',
-    # 'tcp',
-    # 'quic-m',
-    # 'quack-2ms',
-    # 'quack-2ms-m',
-    # 'quack-2ms-rm',
-    # 'quack-2ms-20-reset',
-    # 'quack-2ms-20',
-    # 'quic',
-
-    # 'quic-quiche-5a753c25',
-    # 'quic-bw10',
-    # 'quic-1460',
-    # 'quic-quiche-max-data',
-    # 'quic-curl-100m',
-    # 'quic-1200',
-    # 'quic',
-    # 'quic-curl-mtu',
-    # 'quic-curl-1000m',
-    # 'quic-quiche-mtu',
-    # 'quic-quiche-1000m-1000m',
-    # 'quic-quiche-1000m-1m',
-]
 
 class DataPoint:
     def __init__(self, arr, normalize=None):
@@ -67,49 +34,14 @@ class DataPoint:
         self.avg = statistics.mean(arr)
         self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
 
-def execute_cmd(loss, http_version, cc, trials, data_size, bw2):
-    suffix = f'loss{loss}p/{cc}'
-    results_file = f'{WORKDIR}/results/{suffix}/{http_version}.txt'
-    if http_version == 'pep':
-        bm = ['tcp', '--pep']
-    elif http_version == 'tcp-tso':
-        bm = ['tcp', '--tso']
-    elif http_version == 'pep-tso':
-        bm = ['tcp', '--tso', '--pep']
-    # elif http_version == 'quack':
-    elif 'quack-' in http_version:
-        # quack-<frequency_ms>[-<threshold>]?
-        # quack-<frequency_ms>[-<flags>]?
-        # r = --quack-reset
-        # m = --sidecar-mtu
-        split = http_version.split('-')
-        bm = ['quic', '--sidecar', split[1]]
-        # if len(split) > 2:
-        #     bm.append('--threshold')
-        #     bm.append(split[2])
-        if len(split) > 2:
-            if 'r' in split[-1]:
-                bm.append('--quack-reset')
-            if 'm' in split[-1]:
-                bm.append('--sidecar-mtu')
-    elif 'quic-' in http_version:
-        # quic[-<flags>]?
-        # m = --sidecar-mtu
-        split = http_version.split('-')
-        bm = ['quic']
-        if len(split) > 1:
-            if 'm' in split[-1]:
-                bm.append('--sidecar-mtu')
-    elif 'tcp-' in http_version:
-        bm = ['tcp']
-    else:
-        bm = [http_version]
-    subprocess.Popen(['mkdir', '-p', f'results/{suffix}'], cwd=WORKDIR).wait()
-    cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', str(loss),
-        '--benchmark'] + bm + ['-cc', cc, '-t', str(trials), '--bw2', str(bw2),
-        '-n', f'{data_size}k', '--stderr', os.environ['HOME'] + '/sidecar/error.log']
+def execute_cmd(workdir, loss, http_version, trials, data_size, bw2):
+    results_file = f'{workdir}/results/loss{loss}p/{http_version}.txt'
+    subprocess.Popen(['mkdir', '-p', f'results/loss{loss}p'], cwd=workdir).wait()
+    cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '--loss2', str(loss),
+        '-t', str(trials), '--bw2', str(bw2), '-n', f'{data_size}k',
+        '--stderr', os.environ['HOME'] + '/sidecar/error.log', http_version]
     print(cmd)
-    p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
+    p = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
     with open(results_file, 'ab') as f:
         for line in p.stdout:
@@ -118,13 +50,13 @@ def execute_cmd(loss, http_version, cc, trials, data_size, bw2):
             f.write(line)
     p.wait()
 
-def parse_data(loss, http_version, bw2=100, normalize=True, cc='cubic',
+def parse_data(args, loss, http_version, normalize=True,
                data_key='time_total'):
     """
     Parses the median keyed time and the data size.
     ([data_size], [time_total])
     """
-    filename = get_filename(loss, cc, http_version)
+    filename = get_filename(loss, http_version)
     with open(filename) as f:
         lines = f.read().split('\n')
     xy_map = {}
@@ -156,10 +88,10 @@ def parse_data(loss, http_version, bw2=100, normalize=True, cc='cubic',
                 if data_size not in xy_map:
                     xy_map[data_size] = []
                 xy_map[data_size].extend(data)
-                if len(xy_map[data_size]) > NUM_TRIALS:
-                    # truncated = len(xy_map[data_size]) - NUM_TRIALS
+                if len(xy_map[data_size]) > args.trials:
+                    # truncated = len(xy_map[data_size]) - args.trials
                     # print(f'{data_size}k truncating {truncated} points')
-                    xy_map[data_size] = xy_map[data_size][:NUM_TRIALS]
+                    xy_map[data_size] = xy_map[data_size][:args.trials]
             data_size = None
             key_index = None
             data = None
@@ -174,30 +106,30 @@ def parse_data(loss, http_version, bw2=100, normalize=True, cc='cubic',
     xs = []
     ys = []
     for data_size in xy_map:
-        if data_size in TARGET_XS and data_size <= MAX_X:
+        if data_size in TARGET_XS and data_size <= args.max_x:
             xs.append(data_size)
     xs.sort()
     if len(xs) != len(TARGET_XS):
         missing_xs = []
         for x in TARGET_XS:
-            if x in xs or x > MAX_X:
+            if x in xs or x > args.max_x:
                 continue
             missing_xs.append(x)
-        if EXECUTE:
+        if args.execute:
             for x in missing_xs:
-                execute_cmd(loss, http_version, cc, NUM_TRIALS, x, bw2)
+                execute_cmd(args.workdir, loss, http_version, args.trials, x, args.bw2)
         elif len(missing_xs) > 0:
             print(f'missing {len(missing_xs)} xs: {missing_xs}')
     try:
         for i in range(len(xs)):
             x = xs[i]
             y = xy_map[x]
-            if len(y) < NUM_TRIALS:
-                missing = NUM_TRIALS - len(y)
-                if EXECUTE:
-                    execute_cmd(loss, http_version, cc, missing, x, bw2)
+            if len(y) < args.trials:
+                missing = args.trials - len(y)
+                if args.execute:
+                    execute_cmd(args.workdir, loss, http_version, missing, x, args.bw2)
                 else:
-                    print(f'{x}k missing {missing}/{NUM_TRIALS}')
+                    print(f'{x}k missing {missing}/{args.trials}')
             xs[i] /= 1000.
             y = DataPoint(y, normalize=xs[i] if normalize else None)
             # if 'quic' in filename or 'quack' in filename:
@@ -209,30 +141,28 @@ def parse_data(loss, http_version, bw2=100, normalize=True, cc='cubic',
         raise e
     return (xs, ys)
 
-def get_filename(loss, cc, http):
+def get_filename(loss, http):
     """
     Args:
     - loss: <number>
-    - cc: reno, cubic
-    - http: tcp, quic, pep
+    - http: tcp, quic, pep, quack
     """
-    return '../results/{}/loss{}p/{}/{}.txt'.format(DATE, loss, cc, http)
+    return '../results/loss{}p/{}.txt'.format(loss, http)
 
-def plot_graph(loss, cc, bw2, pdf,
+def plot_graph(args, loss, pdf, http_versions,
                data_key='time_total',
-               http_versions=HTTP_VERSIONS,
                use_median=True,
                normalize=True):
     data = {}
     for http_version in http_versions:
-        filename = get_filename(loss, cc, http_version)
+        filename = get_filename(loss, http_version)
         if not path.exists(filename):
             print('Path does not exist: {}'.format(filename))
             open(filename, 'w')
             continue
         try:
-            data[http_version] = parse_data(loss, http_version, bw2, normalize,
-                                            cc=cc, data_key=data_key)
+            data[http_version] = parse_data(args, loss, http_version,
+                                            normalize, data_key=data_key)
         except Exception as e:
             print('Error parsing: {}'.format(filename))
             print(e)
@@ -251,76 +181,55 @@ def plot_graph(loss, cc, bw2, pdf,
             ys = [y.avg for y in ys_raw]
             yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
             plt.errorbar(xs, ys, yerr=yerr, label=LABEL_MAP[label], marker=MARKERS[i])
-        print(label)
-        print(xs)
-        print(ys)
+        # print(label)
+        # print(xs)
+        # print(ys)
     plt.xlabel('Data Size (MB)')
     if normalize:
         plt.ylabel('Goodput (MBytes/s)')
     else:
         plt.ylabel('{} (s)'.format(data_key))
-    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONTSIZE)
+    if args.legend:
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONTSIZE)
     statistic = 'median' if use_median else 'mean'
-    # plt.title(f'{statistic} {cc} {loss}% loss bw{bw2}')
     if pdf is not None:
-        print(pdf)
         save_pdf(pdf)
 
 if __name__ == '__main__':
+    DEFAULT_LOSSES = [0, 1]
+    DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--execute',
-                        action='store_true',
+    parser.add_argument('--execute', action='store_true',
                         help='Execute benchmarks for missing data points')
-    parser.add_argument('-t', '--trials',
-                        default=20,
-                        type=int,
+    parser.add_argument('--legend', type=bool, default=True,
+                        help='Whether to plot a legend [0|1]. (default: 1)')
+    parser.add_argument('-t', '--trials', default=20, type=int,
                         help='Number of trials to plot (default: 20)')
-    parser.add_argument('--max-x',
-                        default='50000',
-                        type=int,
-                        help='Maximum x to plot, in kB (default: 40000)')
-    parser.add_argument('--mean',
-                        action='store_true',
+    parser.add_argument('--max-x', default='50000', type=int,
+                        help='Maximum x to plot, in kB (default: 50000)')
+    parser.add_argument('--mean', action='store_true',
                         help='Plot mean graphs')
-    parser.add_argument('--median',
-                        action='store_true',
+    parser.add_argument('--median', action='store_true',
                         help='Plot median graphs')
-    parser.add_argument('--loss',
+    parser.add_argument('--loss', action='extend', nargs='+', default=[],
                         type=int,
-                        help='Loss percentages to plot [0|1|2|5]. If no '
-                             'argument is provided, plots 1, 2, and 5.')
-    parser.add_argument('--bw2',
-                        type=int,
-                        default=100,
+                        help=f'Loss percentages to plot. '
+                             f'(default: {DEFAULT_LOSSES})')
+    parser.add_argument('--http', action='extend', nargs='+', default=[],
+                        help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
+    parser.add_argument('--bw2', type=int, default=100,
                         help='Bandwidth of link 2 (default: 100).')
-    parser.add_argument('--cc',
-                        default='cubic',
-                        help='TCP congestion control algorithm to plot '
-                             '[reno|cubic] (default: cubic)')
     parser.add_argument('--workdir',
                         default=os.environ['HOME'] + '/sidecar',
                         help='Working directory (default: $HOME/sidecar)')
-    parser.add_argument('--date',
-                        default='',
-                        help='Find results at '
-                             '../results/<DATE>/loss<LOSS>p/<CC>/<HTTP>.txt, '
-                             'usually something like 010922 if archived '
-                             '(default: \'\')')
     args = parser.parse_args()
 
-    if args.loss is None:
-        losses = LOSSES
-    else:
-        losses = [args.loss]
-    cc = args.cc
-    bw2 = args.bw2
-    NUM_TRIALS = args.trials
-    DATE = args.date
-    MAX_X = args.max_x
-    EXECUTE = args.execute
-    WORKDIR = args.workdir
+    losses = DEFAULT_LOSSES if len(args.loss) == 0 else args.loss
+    https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
+
     for loss in losses:
         if args.median:
-            plot_graph(loss=loss, cc=cc, bw2=bw2, pdf=f'median_{cc}_loss{loss}p_bw{bw2}.pdf', use_median=True)
+            plot_graph(args, loss=loss, pdf=f'median_loss{loss}p.pdf', http_versions=https, use_median=True)
         if args.mean:
-            plot_graph(loss=loss, cc=cc, bw2=bw2, pdf=f'mean_{cc}_loss{loss}p_bw{bw2}.pdf', use_median=False)
+            plot_graph(args, loss=loss, pdf=f'mean_loss{loss}p.pdf', http_versions=https, use_median=False)
