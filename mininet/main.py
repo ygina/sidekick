@@ -1,4 +1,5 @@
 import argparse
+import sys
 import time
 from common import *
 from network import *
@@ -177,6 +178,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
                          args.bw1, args.bw2, args.qdisc)
+    sys.stderr.buffer.write(bytes(f'Link1 delay={args.delay1} loss={args.loss1} bw={args.bw1}\n', 'utf-8'))
+    sys.stderr.buffer.write(bytes(f'Link2 delay={args.delay2} loss={args.loss2} bw={args.bw2}\n', 'utf-8'))
+    sys.stderr.buffer.flush()
     if args.pep:
         net.start_tcp_pep()
     if args.sidecar:
