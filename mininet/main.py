@@ -58,67 +58,54 @@ if __name__ == '__main__':
 
     ############################################################################
     # Network Configurations
-    parser.add_argument('--delay1',
-                        type=int,
-                        default=75,
-                        metavar='MS',
-                        help='1/2 RTT between h1 and r1 (default: 75)')
-    parser.add_argument('--delay2',
-                        type=int,
-                        default=1,
-                        metavar='MS',
-                        help='1/2 RTT between r1 and h2 (default: 1)')
-    parser.add_argument('--loss1',
-                        type=int,
-                        default=0,
-                        metavar='num',
-                        help='loss (in %%) between h1 and r1 (default: 0)')
-    parser.add_argument('--loss2',
-                        type=str,
-                        default='1',
-                        metavar='num',
-                        help='loss (in %%) between r1 and h2 (default: 1)')
-    parser.add_argument('--bw1',
-                        type=int,
-                        default=10,
-                        help='link bandwidth (in Mbps) between h1 and r1 '
-                             '(default: 10)')
-    parser.add_argument('--bw2',
-                        type=int,
-                        default=100,
-                        help='link bandwidth (in Mbps) between r1 and h2 '
-                             '(default: 100)')
-    parser.add_argument('--qdisc', default='grenville',
-                        help='queuing discipline [tbf|cake|codel|red|grenville|none]')
+    net_config = parser.add_argument_group('net_config')
+    net_config.add_argument('--delay1', type=int, default=75, metavar='MS',
+        help='1/2 RTT between h1 and r1 (default: 75)')
+    net_config.add_argument('--delay2', type=int, default=1, metavar='MS',
+        help='1/2 RTT between r1 and h2 (default: 1)')
+    net_config.add_argument('--loss1', type=int, default=0, metavar='PERCENT',
+        help='loss (in %%) between h1 and r1 (default: 0)')
+    net_config.add_argument('--loss2', type=str, default='1', metavar='PERCENT',
+        help='loss (in %%) between r1 and h2 (default: 1)')
+    net_config.add_argument('--bw1', type=int, default=10, metavar='MBPS',
+        help='link bandwidth (in Mbps) between h1 and r1 (default: 10)')
+    net_config.add_argument('--bw2', type=int, default=100, metavar='MBPS',
+        help='link bandwidth (in Mbps) between r1 and h2 (default: 100)')
+    net_config.add_argument('--qdisc', default='grenville',
+        help='queuing discipline [tbf|cake|codel|red|grenville|none]')
 
     ############################################################################
     # TCP/QUIC-Specific Network Configurations
-    parser.add_argument('-p', '--pep', action='store_true',
-                        help='Start a TCP pep on r1')
-    parser.add_argument('--tso', type=bool, default=True,
-                        help='Enable TCP segment offloading (tso) and generic '
-                             'segment offloading (gso). By default, both are '
-                             'enabled [0|1] (default: 1)')
-    parser.add_argument('-s', '--sidecar', action='store_true',
-                        help='Enables the sidecar and sends the quack with the '
-                             'specified frequency.')
-    parser.add_argument('--frequency', default='2ms',
-                        help='Quack frequency, in terms of ms or packets e.g., '
-                             '2ms or 2p (default: 2ms)')
-    parser.add_argument('--threshold', type=int, default=20,
-                        help='Initializes the quACK sender and receiver with '
-                             'this threshold (default: 20).')
+    proto_config = parser.add_argument_group('proto_config')
+    proto_config.add_argument('-p', '--pep', action='store_true',
+        help='Start a TCP pep on r1')
+    proto_config.add_argument('--tso', type=bool, default=True,
+        metavar='ENABLED',
+        help='Enable TCP segment offloading (tso) and generic '
+             'segment offloading (gso). By default, both are '
+             'enabled [0|1] (default: 1)')
+    proto_config.add_argument('-s', '--sidecar', action='store_true',
+        help='Enables the sidecar and sends the quack with the specified '
+             'frequency.')
+    proto_config.add_argument('--frequency', default='2ms',
+        help='Quack frequency, in terms of ms or packets e.g., 2ms or 2p '
+             '(default: 2ms)')
+    proto_config.add_argument('--threshold', type=int, default=20,
+        metavar='PACKETS',
+        help='Initializes the quACK sender and receiver with this threshold '
+             '(default: 20).')
 
     ############################################################################
     # Client configurations
-    parser.add_argument('-n', default='1M', metavar='num',
-                        help='Number of bytes (default: 1M)')
-    parser.add_argument('-t', '--trials', type=int, metavar='num',
-                        help='Number of trials')
-    parser.add_argument('--stdout', default='/dev/null', metavar='FILENAME',
-                        help='File to write curl stdout (default: /dev/null)')
-    parser.add_argument('--stderr', default='/dev/null', metavar='FILENAME',
-                        help='File to write curl stderr (default: /dev/null)')
+    client_config = parser.add_argument_group('client_config')
+    client_config.add_argument('-n', default='1M', metavar='BYTES_STR',
+        help='Number of bytes (default: 1M)')
+    client_config.add_argument('-t', '--trials', type=int,
+        help='Number of trials')
+    client_config.add_argument('--stdout', default='/dev/null', metavar='FILENAME',
+        help='File to write curl stdout (default: /dev/null)')
+    client_config.add_argument('--stderr', default='/dev/null', metavar='FILENAME',
+        help='File to write curl stderr (default: /dev/null)')
 
     ############################################################################
     # TCP client benchmark
@@ -140,40 +127,39 @@ if __name__ == '__main__':
     quack = subparsers.add_parser('quack')
     quack.set_defaults(ty='benchmark', benchmark=benchmark_quack, sidecar=True)
     quack.add_argument('--sidecar-mtu', type=bool, default=True,
-                       help='Send packets only if cwnd > mtu [0|1] (default: 1)')
+        metavar='ENABLED',
+        help='Send packets only if cwnd > mtu [0|1] (default: 1)')
     quack.add_argument('--quack-reset', type=bool, default=True,
-                       help='Whether to send quack reset messages [0|1] (default: 1)')
+        metavar='ENABLED',
+        help='Whether to send quack reset messages [0|1] (default: 1)')
 
     ############################################################################
     # Multiflow experiments
     mf = subparsers.add_parser('multiflow', help='run two flows simultaneously')
     mf.set_defaults(ty='multiflow')
     mf.add_argument('-f1', '--flow1', required=True,
-                    help='[quack|quic|tcp|pep]')
+                    choices=['quack', 'quic', 'tcp', 'pep'])
     mf.add_argument('-f2', '--flow2', required=True,
-                    help='[quack|quic|tcp|pep]')
+                    choices=['quack', 'quic', 'tcp', 'pep'])
     mf.add_argument('-d', '--delay', default=0, type=int,
                     help='delay in starting flow2, in s (default: 0)')
 
     ############################################################################
     # Network monitoring tests
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--iperf-r1',
-                        type=int,
-                        metavar='TIME_S',
-                        help='Run an iperf test for this length of time with '
-                             'a server on h1 and client on r1.')
-    group.add_argument('--iperf',
-                        type=int,
-                        metavar='TIME_S',
-                        help='Run an iperf test for this length of time with '
-                             'a server on h1 and client on h2.')
-    parser.add_argument('--ping', type=int,
-                        help='Run this many pings from h2 to h1.')
-    parser.add_argument('--ss', nargs=2, metavar=('TIME_S', 'HOST'),
-                        help='Run an ss test for this length of time, in s '
-                             '(while uploading a 100M file) on this host. Gets '
-                             'ss data every 0.1s of a TCP connection to h1.')
+    network_monitor = parser.add_argument_group('network_monitor')
+    group = network_monitor.add_mutually_exclusive_group()
+    group.add_argument('--iperf-r1', type=int, metavar='TIME_S',
+        help='Run an iperf test for this length of time with a server on h1 '
+             'and client on r1.')
+    group.add_argument('--iperf', type=int, metavar='TIME_S',
+        help='Run an iperf test for this length of time with a server on h1 '
+             'and client on h2.')
+    network_monitor.add_argument('--ping', type=int,
+        help='Run this many pings from h2 to h1.')
+    network_monitor.add_argument('--ss', nargs=2, metavar=('TIME_S', 'HOST'),
+        help='Run an ss test for this length of time, in s (while uploading a '
+             'a 100M file) on this host. Gets ss data every 0.1s of a TCP '
+             'TCP connection to h1.')
 
     args = parser.parse_args()
     net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
