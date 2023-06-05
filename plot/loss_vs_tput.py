@@ -156,7 +156,8 @@ def plot_graph(data, https, legend, pdf=None):
         else:
             label = key
         plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=label)
-        max_x = max(max_x, max(xs))
+        if len(xs) > 0:
+            max_x = max(max_x, max(xs))
     plt.xlabel('Loss (%)')
     plt.ylabel('Goodput (MBytes/s)')
     plt.xlim(0, max_x)
