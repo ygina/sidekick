@@ -130,6 +130,12 @@ class SidecarNetwork():
             f'--target-addr 10.0.2.10:5103 ' + \
             f'{frequency} >> r1.log 2>&1 &'))
 
+    def get_h1_tx_packets(self):
+        p = self.h1.popen(['cat', '/sys/class/net/h1-eth0/statistics/tx_packets'])
+        assert p.wait() == 0
+        for line in p.stdout:
+            return int(line.strip())
+
     def stop(self):
         if self.net is not None:
             self.net.stop()
