@@ -16,6 +16,7 @@ def run_client(args, base_command, http_flag):
     cmd += f'--data-binary @{f.name} '
     cmd += f'https://{args.addr}/ '
     if args.trials is None:
+        print(cmd)
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
         cmd += f'-w \"{fmt}\" '
         os.system(f'eval \'{cmd}\'')
@@ -48,6 +49,10 @@ def run_quic_client(args):
         cmd += '--quack-reset '
     if args.sidecar_mtu:
         cmd += '--sidecar-mtu '
+    if args.min_ack_delay is not None:
+        cmd += f'--min-ack-delay {args.min_ack_delay} '
+    if args.max_ack_delay is not None:
+        cmd += f'--max-ack-delay {args.max_ack_delay} '
     run_client(args, cmd, '--http3')
 
 
@@ -78,6 +83,10 @@ if __name__ == '__main__':
     quic = subparsers.add_parser('quic')
     quic.add_argument('--threshold', type=int, default=20,
                       help='The quACK threshold. (default: 20)')
+    quic.add_argument('--min-ack-delay', type=int, default=0, metavar='MS',
+                      help='Min delay between acks. (default: 0)')
+    quic.add_argument('--max-ack-delay', type=int, default=25, metavar='MS',
+                      help='Max delay between acks. (default: 25)')
     quic.add_argument('--sidecar-mtu', type=bool, default=True,
                       help='Send packets only if cwnd > mtu [0|1] (default: 1)')
     quic.add_argument('--quack-reset', type=bool, default=True,
