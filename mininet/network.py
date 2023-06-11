@@ -9,7 +9,8 @@ from mininet.link import TCLink
 
 
 class SidecarNetwork():
-    def __init__(self, delay1, delay2, loss1, loss2, bw1, bw2, qdisc):
+    def __init__(self, delay1, delay2, loss1, loss2, bw1, bw2, qdisc,
+            min_ack_delay, max_ack_delay):
         self.net = Mininet(controller=None, link=TCLink)
 
         # Add hosts and switches
@@ -76,10 +77,27 @@ class SidecarNetwork():
         tc(self.h2, 'h2-eth0', loss2, delay2, bw2)
 
         # Start the webserver on h1
+        self.start_webserver(min_ack_delay, max_ack_delay)
+
+    def start_webserver(self, min_ack_delay, max_ack_delay):
         sclog('Starting the NGINX/Python webserver on h1...')
         self.h1.cmd("kill $(pidof nginx)")
         home_dir = os.environ['HOME']
-        popen(self.h1, f'nginx -c {home_dir}/sidecar/webserver/nginx.conf')
+
+        # Set the minimum and maximum ack delay
+        nginx_conf = f'{home_dir}/sidecar/webserver/nginx.conf'
+        with open(nginx_conf, 'r') as f:
+            lines = f.readlines()
+        for (i, line) in enumerate(lines):
+            if 'http3_min_ack_delay' in line:
+                lines[i] = f'        http3_min_ack_delay {min_ack_delay};\n'
+            if 'http3_max_ack_delay' in line:
+                lines[i] = f'        http3_max_ack_delay {max_ack_delay};\n'
+        with open(nginx_conf, 'w') as f:
+            f.writelines(lines)
+
+        # Start the webserver
+        popen(self.h1, f'nginx -c {nginx_conf}')
         self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
         while True:
             with open('h1.log', 'r') as f:

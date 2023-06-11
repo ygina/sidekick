@@ -15,6 +15,10 @@ def benchmark(net, args, proxy, quic, client):
              f'--timeout {timeout} '
     if args.trials: h2_cmd += f'-t {args.trials} '
     h2_cmd += f'{client}'
+    if args.client_min_ack_delay:
+        h2_cmd += f' --min-ack-delay {args.client_min_ack_delay} '
+    if args.client_max_ack_delay:
+        h2_cmd += f' --max-ack-delay {args.client_max_ack_delay} '
     net.h2.cmdPrint(h2_cmd)
     tx2 = net.get_h1_tx_packets()
     print(f'h1-eth0 tx_packets = {tx2 - tx1}')
@@ -76,6 +80,10 @@ if __name__ == '__main__':
         help='link bandwidth (in Mbps) between r1 and h2 (default: 100)')
     net_config.add_argument('--qdisc', default='grenville',
         help='queuing discipline [tbf|cake|codel|red|grenville|none]')
+    net_config.add_argument('--min-ack-delay', type=int, default=0, metavar='MS',
+        help='minimum delay between ACKs from the webserver (default: 0)')
+    net_config.add_argument('--max-ack-delay', type=int, default=25, metavar='MS',
+        help='maximum delay between ACKs from the webserver (default: 25)')
 
     ############################################################################
     # TCP/QUIC-Specific Network Configurations
@@ -124,11 +132,19 @@ if __name__ == '__main__':
     # QUIC client benchmark
     quic = subparsers.add_parser('quic')
     quic.set_defaults(ty='benchmark', benchmark=benchmark_quic, sidecar=False)
+    quic.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
+        help='Minimum delay between acks, in ms (default: 0)')
+    quic.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
+        help='Maximum delay between acks, in ms (default: 25)')
 
     ############################################################################
     # QuACK client benchmark
     quack = subparsers.add_parser('quack')
     quack.set_defaults(ty='benchmark', benchmark=benchmark_quack, sidecar=True)
+    quack.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
+        help='Minimum delay between acks, in ms (default: 0)')
+    quack.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
+        help='Maximum delay between acks, in ms (default: 25)')
     quack.add_argument('--sidecar-mtu', type=bool, default=True,
         metavar='ENABLED',
         help='Send packets only if cwnd > mtu [0|1] (default: 1)')
@@ -166,7 +182,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
-                         args.bw1, args.bw2, args.qdisc)
+        args.bw1, args.bw2, args.qdisc, args.min_ack_delay, args.max_ack_delay)
     sys.stderr.buffer.write(bytes(f'Link1 delay={args.delay1} loss={args.loss1} bw={args.bw1}\n', 'utf-8'))
     sys.stderr.buffer.write(bytes(f'Link2 delay={args.delay2} loss={args.loss2} bw={args.bw2}\n', 'utf-8'))
     sys.stderr.buffer.flush()
