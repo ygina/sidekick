@@ -15,9 +15,9 @@ def benchmark(net, args, proxy, quic, client):
              f'--timeout {timeout} '
     if args.trials: h2_cmd += f'-t {args.trials} '
     h2_cmd += f'{client}'
-    if args.client_min_ack_delay:
+    if quic and args.client_min_ack_delay:
         h2_cmd += f' --min-ack-delay {args.client_min_ack_delay} '
-    if args.client_max_ack_delay:
+    if quic and args.client_max_ack_delay:
         h2_cmd += f' --max-ack-delay {args.client_max_ack_delay} '
     net.h2.cmdPrint(h2_cmd)
     tx2 = net.get_h1_tx_packets()
