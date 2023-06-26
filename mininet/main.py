@@ -15,10 +15,10 @@ def benchmark(net, args, proxy, quic, client):
              f'--timeout {timeout} '
     if args.trials: h2_cmd += f'-t {args.trials} '
     h2_cmd += f'{client}'
-    if quic and args.client_min_ack_delay:
+    if quic:
         h2_cmd += f' --min-ack-delay {args.client_min_ack_delay} '
-    if quic and args.client_max_ack_delay:
         h2_cmd += f' --max-ack-delay {args.client_max_ack_delay} '
+        h2_cmd += f' --sidecar-mtu {int(args.sidecar_mtu)} '
     net.h2.cmdPrint(h2_cmd)
     tx2 = net.get_h1_tx_packets()
     print(f'h1-eth0 tx_packets = {tx2 - tx1}')
@@ -30,7 +30,7 @@ def benchmark_pep(net, args):
     benchmark(net, args, proxy=True, quic=False, client='tcp')
 
 def benchmark_quic(net, args):
-    benchmark(net, args, proxy=False, quic=False, client='quic')
+    benchmark(net, args, proxy=False, quic=True, client='quic')
 
 def benchmark_quack(net, args):
     timeout = estimate_timeout(n=args.n, proxy=True, quic=True, loss=args.loss2)
@@ -44,9 +44,12 @@ def benchmark_quack(net, args):
         h2_cmd += '-t 1 '
 
     # Add sidecar-specific flags
-    h2_cmd += f'quic --sidecar {args.threshold} '
-    h2_cmd += f'--quack-reset {int(args.quack_reset)} '
+    h2_cmd += f'quic '
+    h2_cmd += f'--min-ack-delay {args.client_min_ack_delay} '
+    h2_cmd += f'--max-ack-delay {args.client_max_ack_delay} '
     h2_cmd += f'--sidecar-mtu {int(args.sidecar_mtu)} '
+    h2_cmd += f'--threshold {args.threshold} '
+    h2_cmd += f'--quack-reset {int(args.quack_reset)} '
 
     net.h2.cmdPrint(h2_cmd)
     for _ in range(loops):
@@ -136,6 +139,9 @@ if __name__ == '__main__':
         help='Minimum delay between acks, in ms (default: 0)')
     quic.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
         help='Maximum delay between acks, in ms (default: 25)')
+    quic.add_argument('--sidecar-mtu', type=bool, default=True,
+        metavar='ENABLED',
+        help='Send packets only if cwnd > mtu [0|1] (default: 1)')
 
     ############################################################################
     # QuACK client benchmark
