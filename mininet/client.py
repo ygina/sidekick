@@ -81,8 +81,8 @@ if __name__ == '__main__':
     tcp = subparsers.add_parser('tcp')
     tcp.set_defaults(func=run_tcp_client)
     quic = subparsers.add_parser('quic')
-    quic.add_argument('--threshold', type=int, default=20,
-                      help='The quACK threshold. (default: 20)')
+    quic.add_argument('--threshold', type=int, default=0,
+                      help='The quACK threshold. (default: 0)')
     quic.add_argument('--min-ack-delay', type=int, default=0, metavar='MS',
                       help='Min delay between acks. (default: 0)')
     quic.add_argument('--max-ack-delay', type=int, default=25, metavar='MS',
