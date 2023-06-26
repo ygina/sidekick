@@ -22,15 +22,15 @@ def run_client(args, base_command, http_flag):
         os.system(f'eval \'{cmd}\'')
     else:
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
-        cmd += f'-w \"{fmt}\" '
         cmd += f'--max-time {args.timeout} '
         cmd += f'-o {args.stdout} 2>>{args.stderr} '
+        print(cmd)
+        cmd += f'-w \"{fmt}\" '
         # cmd = f"/usr/bin/time -f\"0\t\t0\t\t0\t\t\t%e\t0\t200\" "+\
         #       f"/home/gina/quiche-sidecar/target/release/quiche-client "+\
         #       f"--max-data 100000000 "+\
         #       f"--no-verify https://10.0.1.10:443 --body {f.name} > /dev/null"
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
-        print(cmd)
         print(header)
         for _ in range(args.trials):
             os.system(f'eval \'{cmd}\'')
