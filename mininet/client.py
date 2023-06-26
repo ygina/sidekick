@@ -36,11 +36,11 @@ def run_client(args, base_command, http_flag):
             os.system(f'eval \'{cmd}\'')
 
 def run_tcp_client(args):
-    cmd = 'RUST_LOG=debug sidecurl '
+    cmd = 'sidecurl '
     run_client(args, cmd, '--http1.1')
 
 def run_quic_client(args):
-    cmd = 'RUST_LOG=debug '
+    cmd = ''
     if args.qlog:
         cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
     cmd += 'sidecurl '
