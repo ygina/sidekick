@@ -113,10 +113,10 @@ if __name__ == '__main__':
         help='Number of bytes (default: 1M)')
     client_config.add_argument('-t', '--trials', type=int,
         help='Number of trials')
-    client_config.add_argument('--stdout', default='/dev/null', metavar='FILENAME',
-        help='File to write curl stdout (default: /dev/null)')
-    client_config.add_argument('--stderr', default='/dev/null', metavar='FILENAME',
-        help='File to write curl stderr (default: /dev/null)')
+    client_config.add_argument('--stdout', default='/tmp/scstdout', metavar='FILENAME',
+        help='File to write curl stdout (default: /tmp/scstdout)')
+    client_config.add_argument('--stderr', default='/tmp/scstderr', metavar='FILENAME',
+        help='File to write curl stderr (default: /tmp/scstderr)')
 
     ############################################################################
     # TCP client benchmark
