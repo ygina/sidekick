@@ -8,11 +8,7 @@ import statistics
 from os import path
 from common import *
 
-LOSSES = ['0', '0.25', '1', '2', '5']
 KEYS = ['cwnd']
-# bms = ['quack', 'pep_r1', 'quic', 'tcp']
-# bms = ['quack']
-bms = ['quic']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
@@ -36,25 +32,27 @@ def parse_quic_data(filename):
         assert key in KEYS
         y = int(m[1]) / 1000.
         x = 1.0 * int(m[2]) + int(m[3]) / 1_000_000_000.
-        events.append(m[4])
-        xs[key].append(x)
-        ys[key].append(y)
+        events.append(m[4]) # The reason for logging the congestion window
+        xs[key].append(x)   # Number of seconds according to the Instant
+        ys[key].append(y)   # Congestion window, in kB
 
+    if len(xs['cwnd']) == 0:
+        return (xs, ys)
     min_x = min([min(xs[key]) for key in KEYS])
     for key in KEYS:
-        xs[key] = [x - min_x for x in xs[key]]
+        xs[key] = [x - min_x for x in xs[key]]  # Normalize by initial time
     _xs = xs['cwnd']
     _ys = ys['cwnd']
-    decreases = []
+    decreases = []  # The number of times that the cwnd decreases (due to loss)
     for i in range(len(_ys) - 1):
         if _ys[i] > _ys[i+1]:
             decreases.append(i)
-    reasons1 = [events[i] for i in decreases]
-    reasons2 = [events[i+1] for i in decreases]
-    times2 = [_xs[i+1] for i in decreases]
+    reasons1 = [events[i] for i in decreases]   # Reason for cwnd decrease
+    reasons2 = [events[i+1] for i in decreases] # Reason for cwnd increase
+    times2 = [_xs[i+1] for i in decreases]      # When the cwnd decreases
     # for i in range(len(times2)):
     #     print('{} {}'.format(reasons2[i], times2[i]))
-    count = 0
+    count = 0  # Number of times the congestion window changes due to quacks
     for i in range(len(_xs)):
         if _xs[i] > 3.0:
             start_i = i
@@ -67,7 +65,7 @@ def parse_quic_data(filename):
     for i in range(start_i, end_i):
         if events[i] == 'on_quack_received':
             count += 1
-    print(f'{count} / 13500 = {count/13500.0}')
+    # print(f'{count} / 13500 = {count/13500.0}')
     return (xs, ys)
 
 def parse_tcp_data_iperf(filename):
@@ -111,148 +109,142 @@ def parse_tcp_data_ss(filename):
 
     return (xs, ys)
 
-def plot_graph(data, iperf, max_x_arg, loss, bw):
-    xy = {}
-    for bm in ['quic', 'quack']:
-        if bm in bms:
-            (xs, ys) = parse_quic_data(data[bm])
-            xy[bm] = (xs['cwnd'], ys['cwnd'])
-    for bm in ['tcp', 'pep_h2', 'pep_r1']:
-        if bm in bms:
-            if iperf:
-                xy[bm] = parse_tcp_data_iperf(data[bm])
-            else:
-                xy[bm] = parse_tcp_data_ss(data[bm])
+def get_filename(time_s, http, loss):
+    filename = f'cwnd_{http}_{time_s}s_loss{loss}p.out'
+    directory = f'{WORKDIR}/results/cwnd/'
+    os.system(f'mkdir -p {directory}')
+    return f'{directory}{filename}'
+
+def parse_data(args, bm, filename):
+    if not path.exists(filename):
+        return ([], [])
+    if bm in ['quic', 'quack']:
+        (xs, ys) = parse_quic_data(filename)
+        return (xs['cwnd'], ys['cwnd'])
+    if bm in ['tcp', 'pep_h2', 'pep_r1']:
+        if args.iperf:
+            return parse_tcp_data_iperf(filename)
+        else:
+            return parse_tcp_data_ss(filename)
+
+def execute_and_parse_data(args, bm, loss):
+    filename = get_filename(args.time, bm, loss)
+    (xs, ys) = parse_data(args, bm, filename)
+    if len(xs) > 0 and len(ys) > 0:
+        return (xs, ys)
+    if not args.execute:
+        print(f'ERROR: missing data in {filename}')
+        return ([], [])
+
+    cmd =  ['sudo', '-E', 'python3', 'mininet/main.py']
+    cmd += ['--loss2', loss, '--bw2', args.bw]
+    cmd += ['--delay1', args.delay1, '--delay2', args.delay2]
+    if bm == 'quic' or bm == 'quack':
+        cmd += ['-n', f'{args.time}M', '-t', '1']
+        cmd += ['--timeout', str(args.time)]
+        cmd += [bm]
+    elif args.iperf:
+        if bm == 'tcp':
+            cmd += ['--iperf', str(args.time)]
+        elif bm == 'pep_h2':
+            cmd += ['--iperf', str(args.time), '--pep']
+        elif bm == 'pep_r1':
+            cmd += ['--iperf-r1', str(args.time)]
+    else:
+        if bm == 'tcp':
+            cmd += ['monitor', '--ss', str(args.time), 'h2']
+        elif bm == 'pep_h2':
+            cmd += ['--pep', 'monitor', '--ss', str(args.time), 'h2']
+        elif bm == 'pep_r1':
+            cmd += ['--pep', 'monitor', '--ss', str(args.time), 'r1']
+
+    cmd += args.args
+    print(' '.join(cmd))
+    p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT)
+    with open(filename, 'wb') as f:
+        for line in p.stdout:
+            f.write(line)
+    p.wait()
+    return parse_data(args, bm, filename)
+
+def print_average_cwnd(bm, xs, ys):
+    # Bucket the logged cwnds for each second. Take the average of the logged
+    # cwnds for a certain second. If there are no logged cwnds, take the average
+    # cwnd from the previous second. If the first data point does not have any
+    # logged cwnds, set the initial cwnd to 0.
+    all_cwnds = [[] for _ in range(int(max(xs))+1)]
+    avg_cwnds = []
+    for (x, y) in zip(xs, ys):
+        all_cwnds[int(x)].append(y)
+    for ys in all_cwnds:
+        if len(ys) > 0:
+            avg_cwnds.append(statistics.mean(ys))
+        elif len(avg_cwnds) == 0:
+            avg_cwnds.append(0)
+        else:
+            avg_cwnds.append(avg_cwnds[-1])
+
+    # Skip the first 5 seconds and take the average of all remaining cwnds.
+    SECS_TO_SKIP = 5
+    if len(avg_cwnds) <= SECS_TO_SKIP:
+        avg_cwnd = 0
+    else:
+        avg_cwnd = statistics.mean(avg_cwnds[SECS_TO_SKIP:])
+    print('{}: {}'.format(bm, avg_cwnd))
+
+def run(args, https, loss):
+    xy_bm = []
+    for bm in https:
+        # Execute the benchmark for any data we need to collect.
+        (xs, ys) = execute_and_parse_data(args, bm, loss)
+        xy_bm.append((xs, ys, bm))
 
     plt.figure(figsize=(9, 6))
-    plot_data = []
-    for bm in bms:
-        if bm in xy:
-            (xs, ys) = xy[bm]
-            plot_data.append((xs, ys, bm))
-    for (xs, ys, label) in plot_data:
-        ys = [y / 1.5 for y in ys]
-        plt.plot(xs, ys, label=LABEL_MAP[label])
-
-        # SUCH TERRIBLE CODE
-        if len(xs) < 5:
-            continue
-        for (i, x) in enumerate(xs):
-            if i > 5:
-                xs2 = xs[i:]
-                ys2 = ys[i:]
-                break
-        xs2 = [int(x) for x in xs2]
-        xymap = {}
-        for x in range(xs2[0], xs2[-1]+1):
-            xymap[x] = []
-        for i in range(len(xs2)):
-            x = xs2[i]
-            y = ys2[i]
-            xymap[x].append(y)
-        ys3 = []
-        last_y3 = None
-        for x in range(xs2[0], xs2[-1]+1):
-            if len(xymap[x]) == 0:
-                y3 = last_y3
-            else:
-                y3 = statistics.mean(xymap[x])
-                last_y3 = y3
-            if y3 is not None:
-                ys3.append(y3)
-        print('{}: {}'.format(label, statistics.mean(ys3)))
+    for (xs, ys, bm) in xy_bm:
+        ys = [y / 1.5 for y in ys]  # Convert kB to packets.
+        plt.plot(xs, ys, label=LABEL_MAP[bm])
+        print_average_cwnd(bm, xs, ys)
 
     plt.xlabel('Time (s)')
     plt.ylabel('cwnd (packets)')
-    if max_x_arg is not None:
-        plt.xlim(0, max_x_arg)
-    plt.ylim(0, 200)
+    if args.max_x is not None:
+        plt.xlim(0, args.max_x)
+    plt.ylim(0, 250)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
-    pdf = 'cwnd_{}s_loss{}p_bw{}.pdf'.format(max_x_arg, loss, bw)
+    pdf = 'cwnd_{}s_loss{}p.pdf'.format(args.time, loss)
     plt.title(pdf)
-    print(pdf)
     save_pdf(pdf)
     plt.clf()
 
-def run(args, loss):
-    data = {}
-    # basically hardcoded time to get the right-length tcp cwnd test
-    if args.tcp is None:
-        time_s = int(25 * (float(loss) + 1))
-    else:
-        time_s = int(args.tcp)
-    tcp_test = 'iperf' if args.iperf else 'ss'
-    data['quic'] = f'cwnd_quic_{args.quic_n}_loss{loss}p_bw{args.bw}.out'
-    data['quack'] = f'cwnd_quack_{args.quack_n}_loss{loss}p_bw{args.bw}.out'
-    data['tcp'] = f'cwnd_tcp_{time_s}s_loss{loss}p_{tcp_test}_bw{args.bw}.out'
-    data['pep_h2'] = f'cwnd_pep_h2_{time_s}s_loss{loss}p_{tcp_test}_bw{args.bw}.out'
-    data['pep_r1'] = f'cwnd_pep_r1_{time_s}s_loss{loss}p_{tcp_test}_bw{args.bw}.out'
-
-    for key in bms:
-        data[key] = f'{WORKDIR}/results/cwnd/{data[key]}'
-        filename = data[key]
-        print(filename)
-        if path.exists(filename):
-            continue
-        if not args.execute:
-            print('ERROR: path does not exist: {}'.format(filename))
-            exit(1)
-
-        cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '--loss2', loss, '--bw2', args.bw]
-        cmd += ['--delay1', args.delay1, '--delay2', args.delay2]
-        if key == 'quic':
-            assert args.quic_n is not None
-            cmd += ['--sidecar-mtu']
-            cmd += ['-n', args.quic_n, '--benchmark', 'quic', '-t', '1']
-        elif key == 'quack':
-            assert args.quack_n is not None
-            cmd += ['--sidecar-mtu']
-            cmd += ['-n', args.quack_n, '--benchmark', 'quic', '-t', '1',
-                    '-s', '2ms']
-        elif args.iperf:
-            if key == 'tcp':
-                cmd += ['--iperf', str(time_s)]
-            elif key == 'pep_h2':
-                cmd += ['--iperf', str(time_s), '--pep']
-            elif key == 'pep_r1':
-                cmd += ['--iperf-r1', str(time_s)]
-        else:
-            if key == 'tcp':
-                cmd += ['--ss', str(time_s), 'h2']
-            elif key == 'pep_h2':
-                cmd += ['--ss', str(time_s), 'h2', '--pep']
-            elif key == 'pep_r1':
-                cmd += ['--ss', str(time_s), 'r1', '--pep']
-
-        cmd += args.args
-        print(' '.join(cmd))
-        p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
-        with open(filename, 'wb') as f:
-            for line in p.stdout:
-                f.write(line)
-        p.wait()
-
-    plot_graph(data, iperf=args.iperf, max_x_arg=args.max_x, loss=loss, bw=args.bw)
-
 if __name__ == '__main__':
+    DEFAULT_LOSSES = ['0', '0.25', '1', '2', '5']
+    DEFAULT_PROTOCOLS = ['quack', 'pep_h2', 'pep_r1', 'quic', 'tcp']
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
-    parser.add_argument('--quic-n', required=True, help='quic data size')
-    parser.add_argument('--quack-n', required=True, help='quack data size')
-    parser.add_argument('--tcp', required=True,
-                        help='how long to run the tcp iperf test, in s')
-    parser.add_argument('--delay1', default="75")
-    parser.add_argument('--delay2', default="1")
-    parser.add_argument('--loss', help='loss perecentage e.g, 0')
-    parser.add_argument('--bw', help='near subpath bw (default: 100)', default='100')
-    parser.add_argument('--max-x', type=float, help='max x axis')
+    parser.add_argument('--time', required=True, type=int, metavar='S',
+        help='time to run each experiment, in seconds')
+    parser.add_argument('--max-x', type=int, metavar='S', help='max-x axis')
+    parser.add_argument('--http', action='extend', nargs='+', default=[],
+        help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
     parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
-    args = parser.parse_args()
 
-    if args.loss is not None:
-        LOSSES = [args.loss]
-    for loss in LOSSES:
-        run(args, loss)
+    ############################################################################
+    # Network configuration
+    net_config = parser.add_argument_group('net_config')
+    net_config.add_argument('--delay1', default="75")
+    net_config.add_argument('--delay2', default="1")
+    net_config.add_argument('--loss', action='extend', nargs='+', default=[],
+        help=f'loss percentages e.g, 0 (default: {DEFAULT_LOSSES})')
+    net_config.add_argument('--bw', help='near subpath bw (default: 100)', default='100')
+
+    # Parse arguments
+    args = parser.parse_args()
+    https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
+    losses = DEFAULT_LOSSES if len(args.loss) == 0 else args.loss
+
+    for loss in losses:
+        run(args, https, loss)

@@ -184,7 +184,7 @@ def run_ss(net, time_s, host, interval_s=0.1):
     else:
         exit(1)
 
-    cmd = f'python3 mininet/client.py -n 50M tcp -t 1 --timeout {time_s+1} &'
+    cmd = f'python3 mininet/client.py -n 50M -t 1 --timeout {time_s+1} tcp &'
     net.h2.cmd(cmd)
     for _ in range(int(time_s / interval_s)):
         host.cmdPrint('ss -t -i | grep -A1 "10.0.1.10:https$" | grep cwnd')

@@ -178,17 +178,18 @@ if __name__ == '__main__':
 
     ############################################################################
     # Network monitoring tests
-    network_monitor = parser.add_argument_group('network_monitor')
-    group = network_monitor.add_mutually_exclusive_group()
+    monitor = subparsers.add_parser('monitor', help='network monitoring')
+    monitor.set_defaults(ty='monitor')
+    group = monitor.add_mutually_exclusive_group()
     group.add_argument('--iperf-r1', type=int, metavar='TIME_S',
         help='Run an iperf test for this length of time with a server on h1 '
              'and client on r1.')
     group.add_argument('--iperf', type=int, metavar='TIME_S',
         help='Run an iperf test for this length of time with a server on h1 '
              'and client on h2.')
-    network_monitor.add_argument('--ping', type=int,
+    monitor.add_argument('--ping', type=int,
         help='Run this many pings from h2 to h1.')
-    network_monitor.add_argument('--ss', nargs=2, metavar=('TIME_S', 'HOST'),
+    monitor.add_argument('--ss', nargs=2, metavar=('TIME_S', 'HOST'),
         help='Run an ss test for this length of time, in s (while uploading a '
              'a 100M file) on this host. Gets ss data every 0.1s of a TCP '
              'TCP connection to h1.')
@@ -206,14 +207,15 @@ if __name__ == '__main__':
     net.set_segmentation_offloading(args.tso)
     clean_logs()
 
-    if args.ping is not None:
-        run_ping(net, args.ping)
-    elif args.ss is not None:
-        run_ss(net, int(args.ss[0]), args.ss[1])
-    elif args.iperf is not None:
-        run_iperf(sc, args.iperf, host='h2')
-    elif args.iperf_r1 is not None:
-        run_iperf(sc, args.iperf_r1, host='r1')
+    if args.ty == 'monitor':
+        if args.ping is not None:
+            run_ping(net, args.ping)
+        elif args.ss is not None:
+            run_ss(net, int(args.ss[0]), args.ss[1])
+        elif args.iperf is not None:
+            run_iperf(sc, args.iperf, host='h2')
+        elif args.iperf_r1 is not None:
+            run_iperf(sc, args.iperf_r1, host='r1')
     elif args.ty == 'multiflow':
         assert not args.pep and not args.sidecar
         run_multiflow(sc, args.flow1, args.flow2, args.delay)
