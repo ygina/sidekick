@@ -9,7 +9,10 @@ from mininet.log import setLogLevel
 
 def benchmark(net, args, proxy, quic, client):
     tx1 = net.get_h1_tx_packets()
-    timeout = estimate_timeout(args.n, proxy, quic, loss=args.loss2)
+    if args.timeout:
+        timeout = args.timeout
+    else:
+        timeout = estimate_timeout(args.n, proxy, quic, loss=args.loss2)
     h2_cmd = f'python3 mininet/client.py -n {args.n} ' \
              f'--stdout {args.stdout} --stderr {args.stderr} ' \
              f'--timeout {timeout} '
@@ -33,7 +36,10 @@ def benchmark_quic(net, args):
     benchmark(net, args, proxy=False, quic=True, client='quic')
 
 def benchmark_quack(net, args):
-    timeout = estimate_timeout(n=args.n, proxy=True, quic=True, loss=args.loss2)
+    if args.timeout:
+        timeout = args.timeout
+    else:
+        timeout = estimate_timeout(n=args.n, proxy=True, quic=True, loss=args.loss2)
     h2_cmd = f'python3 mininet/client.py -n {args.n} ' \
              f'--stdout {args.stdout} --stderr {args.stderr} ' \
              f'--timeout {timeout} '
@@ -120,6 +126,8 @@ if __name__ == '__main__':
         help='File to write curl stdout (default: /tmp/scstdout)')
     client_config.add_argument('--stderr', default='/tmp/scstderr', metavar='FILENAME',
         help='File to write curl stderr (default: /tmp/scstderr)')
+    client_config.add_argument('--timeout', type=int, metavar='S',
+        help='Timeout, in seconds. Default is estimated.')
 
     ############################################################################
     # TCP client benchmark
