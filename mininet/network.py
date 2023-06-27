@@ -92,7 +92,7 @@ class SidecarNetwork():
             if 'http3_min_ack_delay' in line:
                 lines[i] = f'        http3_min_ack_delay {min_ack_delay};\n'
             if 'http3_max_ack_delay' in line:
-                lines[i] = f'        http3_max_ack_delay {max_ack_delay};\n'
+                lines[i] = f'        http3_max_ack_delay {max(min_ack_delay, max_ack_delay)};\n'
         with open(nginx_conf, 'w') as f:
             f.writelines(lines)
 

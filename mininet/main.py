@@ -19,7 +19,7 @@ def benchmark(net, args, proxy, quic, client):
     h2_cmd += f'{client}'
     if quic:
         h2_cmd += f' --min-ack-delay {args.client_min_ack_delay} '
-        h2_cmd += f' --max-ack-delay {args.client_max_ack_delay} '
+        h2_cmd += f' --max-ack-delay {max(args.client_max_ack_delay, args.min_ack_delay)} '
         h2_cmd += f' --sidecar-mtu {int(args.sidecar_mtu)} '
     net.h2.cmdPrint(h2_cmd)
 
@@ -49,7 +49,7 @@ def benchmark_quack(net, args):
     # Add sidecar-specific flags
     h2_cmd += f'quic '
     h2_cmd += f'--min-ack-delay {args.client_min_ack_delay} '
-    h2_cmd += f'--max-ack-delay {args.client_max_ack_delay} '
+    h2_cmd += f'--max-ack-delay {max(args.client_max_ack_delay, args.min_ack_delay)} '
     h2_cmd += f'--sidecar-mtu {int(args.sidecar_mtu)} '
     h2_cmd += f'--threshold {args.threshold} '
     h2_cmd += f'--quack-reset {int(args.quack_reset)} '
@@ -143,7 +143,8 @@ if __name__ == '__main__':
     quic.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
         help='Minimum delay between acks, in ms (default: 0)')
     quic.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
-        help='Maximum delay between acks, in ms (default: 25)')
+        help='Maximum delay between acks, in ms (default: 25 or the '
+             'min_ack_delay, whichever is larger)')
     quic.add_argument('--sidecar-mtu', type=bool, default=True,
         metavar='ENABLED',
         help='Send packets only if cwnd > mtu [0|1] (default: 1)')
@@ -155,7 +156,8 @@ if __name__ == '__main__':
     quack.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
         help='Minimum delay between acks, in ms (default: 0)')
     quack.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
-        help='Maximum delay between acks, in ms (default: 25)')
+        help='Maximum delay between acks, in ms (default: 25 or the server\'s '
+             'min_ack_delay, whichever is larger)')
     quack.add_argument('--sidecar-mtu', type=bool, default=True,
         metavar='ENABLED',
         help='Send packets only if cwnd > mtu [0|1] (default: 1)')
