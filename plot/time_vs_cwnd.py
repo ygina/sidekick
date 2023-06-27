@@ -118,7 +118,7 @@ def get_filename(time_s, http, loss):
 def parse_data(args, bm, filename):
     if not path.exists(filename):
         return ([], [])
-    if bm in ['quic', 'quack']:
+    if bm == 'quic' or 'quack' in bm:
         (xs, ys) = parse_quic_data(filename)
         return (xs['cwnd'], ys['cwnd'])
     if bm in ['tcp', 'pep_h2', 'pep_r1']:
@@ -139,10 +139,14 @@ def execute_and_parse_data(args, bm, loss):
     cmd =  ['sudo', '-E', 'python3', 'mininet/main.py']
     cmd += ['--loss2', loss, '--bw2', args.bw]
     cmd += ['--delay1', args.delay1, '--delay2', args.delay2]
-    if bm == 'quic' or bm == 'quack':
+    if bm == 'quic':
         cmd += ['-n', f'{args.time}M', '-t', '1']
         cmd += ['--timeout', str(args.time)]
-        cmd += [bm]
+        cmd += ['quic']
+    elif 'quack' in bm:
+        cmd += ['-n', f'{args.time}M', '-t', '1']
+        cmd += ['--timeout', str(args.time)]
+        cmd += ['quack']
     elif args.iperf:
         if bm == 'tcp':
             cmd += ['--iperf', str(args.time)]
@@ -203,7 +207,11 @@ def run(args, https, loss):
     plt.figure(figsize=(9, 6))
     for (xs, ys, bm) in xy_bm:
         ys = [y / 1.5 for y in ys]  # Convert kB to packets.
-        plt.plot(xs, ys, label=LABEL_MAP[bm])
+        if bm in LABEL_MAP:
+            label = LABEL_MAP[bm]
+        else:
+            label = bm
+        plt.plot(xs, ys, label=label)
         print_average_cwnd(bm, xs, ys)
 
     plt.xlabel('Time (s)')
@@ -211,7 +219,7 @@ def run(args, https, loss):
     if args.max_x is not None:
         plt.xlim(0, args.max_x)
     plt.ylim(0, 250)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
     pdf = 'cwnd_{}s_loss{}p.pdf'.format(args.time, loss)
     plt.title(pdf)
     save_pdf(pdf)
