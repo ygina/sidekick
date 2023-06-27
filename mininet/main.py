@@ -8,7 +8,6 @@ from mininet.log import setLogLevel
 
 
 def benchmark(net, args, proxy, quic, client):
-    tx1 = net.get_h1_tx_packets()
     if args.timeout:
         timeout = args.timeout
     else:
@@ -23,8 +22,6 @@ def benchmark(net, args, proxy, quic, client):
         h2_cmd += f' --max-ack-delay {args.client_max_ack_delay} '
         h2_cmd += f' --sidecar-mtu {int(args.sidecar_mtu)} '
     net.h2.cmdPrint(h2_cmd)
-    tx2 = net.get_h1_tx_packets()
-    print(f'h1-eth0 tx_packets = {tx2 - tx1}')
 
 def benchmark_tcp(net, args):
     benchmark(net, args, proxy=False, quic=False, client='tcp')
@@ -221,5 +218,8 @@ if __name__ == '__main__':
     elif args.ty == 'cli':
         CLI(net.net)
     else:
+        tx1 = net.get_h1_tx_packets()
         args.benchmark(net, args)
+        tx2 = net.get_h1_tx_packets()
+        print(f'h1-eth0 tx_packets = {tx2 - tx1}')
     net.stop()
