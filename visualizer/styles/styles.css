@@ -1,0 +1,40 @@
+body {
+  text-align: center;
+}
+
+#play-button {
+  background-color: black;
+  color: white;
+}
+
+.container {
+  padding: 30px;
+  display: inline-block;
+  max-width: 1400px;
+  line-height: 43px;
+  text-align: left;
+}
+
+.box {
+  padding: 10px;
+}
+
+.sent {
+  color: gray;
+  background-color: gray;
+}
+
+.quacked {
+  color: yellow;
+  background-color: yellow;
+}
+
+.acked {
+  color: green;
+  background-color: green;
+}
+
+.lost {
+  color: black;
+  background-color: black;
+}
