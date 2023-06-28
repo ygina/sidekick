@@ -67,6 +67,17 @@ function applyFrame(index) {
   }
 }
 
+function removeFrame(index) {
+  const frame = data[index];
+  const prevFrame = data[index - 1];
+  document.getElementById('timeSinceStart').innerHTML = prevFrame.instant
+  if (frame.reason == "sent") {
+    document.getElementById(frame.sidecarId).remove()
+  } else {
+    document.getElementById(frame.sidecarId).classList.remove(frame.reason)
+  }
+}
+
 document.getElementById('myFile').onchange = async function(a, b, c) {
   data = await parseFile(this.files[0]);
   document.getElementById('maxFrames').innerHTML = data.length;
@@ -80,4 +91,13 @@ document.getElementById('forward-button').onclick = function() {
   const index = parseInt(frameInput.value) + 1;
   frameInput.value = index;
   applyFrame(index);
+}
+
+document.getElementById('backward-button').onclick = function() {
+  const frameInput = document.getElementById('frameNumber');
+  const index = parseInt(frameInput.value);
+  if (index == 0)
+    return;
+  frameInput.value = index - 1;
+  removeFrame(index);
 }
