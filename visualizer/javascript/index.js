@@ -131,3 +131,12 @@ document.getElementById('backward-button').onclick = function() {
   frameInput.value = index - 1;
   removeFrame(index);
 }
+
+document.getElementById('jump-button').onclick = function() {
+  const frameInput = document.getElementById('frameNumber');
+  const index = parseInt(frameInput.value);
+  document.getElementById('container').innerHTML = '';
+  for (let i = 0; i <= index; i++) {
+    applyFrame(i)
+  }
+}
