@@ -10,9 +10,13 @@ class Action {
 }
 
 class Match {
-  constructor(instant, sidecarId, reason) {
+  constructor(instant) {
     this.instant = instant;
-    this.action = new Action(sidecarId, reason)
+    this.actions = []
+  }
+
+  addAction(sidecarId, reason) {
+    this.actions.push(new Action(sidecarId, reason))
   }
 }
 
@@ -24,7 +28,7 @@ async function parseFile(file) {
   const re = /quack_log Instant { tv_sec: (\d+), tv_nsec: (\d+) } (\d+) \((\S+)\).*/
 
   var minTime = null;
-  const data = text.map(function(line) {
+  const matches = text.map(function(line) {
     const match = re.exec(line)
     if (match) {
       const instant = parseInt(match[1]) + parseInt(match[2]) / 10**9;
@@ -39,10 +43,25 @@ async function parseFile(file) {
   }).map(function(match) {
     if (!minTime)
       minTime = match[0]
-    return new Match(match[0] - minTime, match[1], match[2]);
+    match[0] -= minTime;
+    return match;
   })
 
-  return data;
+  return matches;
+}
+
+// Group actions executed at the same time (within 0.000001s tolerance).
+function combineActions(matches) {
+  const combined = [new Match(matches[0][0])];
+  var currMatch = combined[0];
+  matches.forEach(function(match) {
+    if (Math.abs(match[0] - currMatch.instant) > 0.000001) {
+      currMatch = new Match(match[0]);
+      combined.push(currMatch);
+    }
+    currMatch.addAction(match[1], match[2]);
+  })
+  return combined;
 }
 
 // Creates a span element for the given reason.
@@ -63,29 +82,34 @@ function applyFrame(index) {
   }
   const frame = data[index];
   document.getElementById('timeSinceStart').innerHTML = frame.instant
-  if (frame.action.reason == "sent") {
-    const span = createSpan(frame.action.sidecarId);
-    const container = document.getElementById('container');
-    container.appendChild(span);
-    container.appendChild(document.createTextNode(' '))
-  } else {
-    document.getElementById(frame.action.sidecarId).classList.add(frame.action.reason)
-  }
+  frame.actions.forEach(function(action) {
+    if (action.reason == "sent") {
+      const span = createSpan(action.sidecarId);
+      const container = document.getElementById('container');
+      container.appendChild(span);
+      container.appendChild(document.createTextNode(' '))
+    } else {
+      document.getElementById(action.sidecarId).classList.add(action.reason)
+    }
+  })
 }
 
 function removeFrame(index) {
   const frame = data[index];
   const prevFrame = data[index - 1];
   document.getElementById('timeSinceStart').innerHTML = prevFrame.instant
-  if (frame.action.reason == "sent") {
-    document.getElementById(frame.action.sidecarId).remove()
-  } else {
-    document.getElementById(frame.action.sidecarId).classList.remove(frame.action.reason)
-  }
+  frame.actions.forEach(function(action) {
+    if (action.reason == "sent") {
+      document.getElementById(action.sidecarId).remove()
+    } else {
+      document.getElementById(action.sidecarId).classList.remove(action.reason)
+    }
+  })
 }
 
 document.getElementById('myFile').onchange = async function(a, b, c) {
-  data = await parseFile(this.files[0]);
+  const matches = await parseFile(this.files[0]);
+  data = combineActions(matches);
   document.getElementById('maxFrames').innerHTML = data.length;
   document.getElementById('container').innerHTML = '';
   console.log(data);
