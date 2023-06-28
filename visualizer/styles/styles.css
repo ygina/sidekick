@@ -2,7 +2,7 @@ body {
   text-align: center;
 }
 
-#play-button {
+.inverted {
   background-color: black;
   color: white;
 }

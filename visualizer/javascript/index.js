@@ -1,6 +1,7 @@
 document.getElementById('date').innerHTML = new Date().toDateString();
 
 var data = [];
+var paused = true;
 
 class Action {
   constructor(sidecarId, reason) {
@@ -110,8 +111,9 @@ function removeFrame(index) {
 document.getElementById('myFile').onchange = async function(a, b, c) {
   const matches = await parseFile(this.files[0]);
   data = combineActions(matches);
-  document.getElementById('maxFrames').innerHTML = data.length;
+  document.getElementById('maxFrames').innerHTML = data.length - 1;
   document.getElementById('container').innerHTML = '';
+  document.getElementById('frameNumber').value = 0;
   console.log(data);
   applyFrame(0);
 }
@@ -143,12 +145,21 @@ document.getElementById('jump-button').onclick = function() {
 }
 
 document.getElementById('play-button').onclick = async function() {
+  paused = false;
   const maxFrame = parseInt(document.getElementById('maxFrames').innerHTML)
   const frameInput = document.getElementById('frameNumber');
   while (parseInt(frameInput.value) < maxFrame) {
+    if (paused) {
+      break;
+    }
     const currFrame = parseInt(frameInput.value)
     const secsUntilNextFrame = data[currFrame+1].instant - data[currFrame].instant;
-    await new Promise(r => setTimeout(r, secsUntilNextFrame*100));
-    clickForward();
+    await new Promise(r => setTimeout(r, Math.round(secsUntilNextFrame*1000)));
+    frameInput.value = currFrame + 1;
+    applyFrame(currFrame + 1);
   }
+}
+
+document.getElementById('pause-button').onclick = function() {
+  paused = true;
 }
