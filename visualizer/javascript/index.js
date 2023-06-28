@@ -116,12 +116,13 @@ document.getElementById('myFile').onchange = async function(a, b, c) {
   applyFrame(0);
 }
 
-document.getElementById('forward-button').onclick = function() {
+function clickForward() {
   const frameInput = document.getElementById('frameNumber');
   const index = parseInt(frameInput.value) + 1;
   frameInput.value = index;
   applyFrame(index);
 }
+document.getElementById('forward-button').onclick = clickForward;
 
 document.getElementById('backward-button').onclick = function() {
   const frameInput = document.getElementById('frameNumber');
@@ -138,5 +139,16 @@ document.getElementById('jump-button').onclick = function() {
   document.getElementById('container').innerHTML = '';
   for (let i = 0; i <= index; i++) {
     applyFrame(i)
+  }
+}
+
+document.getElementById('play-button').onclick = async function() {
+  const maxFrame = parseInt(document.getElementById('maxFrames').innerHTML)
+  const frameInput = document.getElementById('frameNumber');
+  while (parseInt(frameInput.value) < maxFrame) {
+    const currFrame = parseInt(frameInput.value)
+    const secsUntilNextFrame = data[currFrame+1].instant - data[currFrame].instant;
+    await new Promise(r => setTimeout(r, secsUntilNextFrame*100));
+    clickForward();
   }
 }
