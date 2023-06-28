@@ -2,11 +2,17 @@ document.getElementById('date').innerHTML = new Date().toDateString();
 
 var data = [];
 
+class Action {
+  constructor(sidecarId, reason) {
+    this.sidecarId = sidecarId;
+    this.reason = reason;
+  }
+}
+
 class Match {
   constructor(instant, sidecarId, reason) {
     this.instant = instant;
-    this.sidecarId = sidecarId;
-    this.reason = reason;
+    this.action = new Action(sidecarId, reason)
   }
 }
 
@@ -57,13 +63,13 @@ function applyFrame(index) {
   }
   const frame = data[index];
   document.getElementById('timeSinceStart').innerHTML = frame.instant
-  if (frame.reason == "sent") {
-    const span = createSpan(frame.sidecarId);
+  if (frame.action.reason == "sent") {
+    const span = createSpan(frame.action.sidecarId);
     const container = document.getElementById('container');
     container.appendChild(span);
     container.appendChild(document.createTextNode(' '))
   } else {
-    document.getElementById(frame.sidecarId).classList.add(frame.reason)
+    document.getElementById(frame.action.sidecarId).classList.add(frame.action.reason)
   }
 }
 
@@ -71,10 +77,10 @@ function removeFrame(index) {
   const frame = data[index];
   const prevFrame = data[index - 1];
   document.getElementById('timeSinceStart').innerHTML = prevFrame.instant
-  if (frame.reason == "sent") {
-    document.getElementById(frame.sidecarId).remove()
+  if (frame.action.reason == "sent") {
+    document.getElementById(frame.action.sidecarId).remove()
   } else {
-    document.getElementById(frame.sidecarId).classList.remove(frame.reason)
+    document.getElementById(frame.action.sidecarId).classList.remove(frame.action.reason)
   }
 }
 
