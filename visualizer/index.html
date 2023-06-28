@@ -10,33 +10,23 @@
     <input type="file" id="myFile" name="filename">
 
     <h4 id='date'></h4>
-    <p><b>Time since start:</b> <span>0</span> seconds</p>
+    <p><b>Time since start:</b> <span id="timeSinceStart">0</span> seconds</p>
     <p>
-      <input type="text" value="143"></input> of 150
+      <input type="text" id="frameNumber" value="0"></input> of <span id="maxFrames">???</span>
       <br>
-      <button id="backward-button">Backward</button>
+      <!--<button id="backward-button">Backward</button>-->
       <button id="forward-button">Forward</button>
-      <button id="jump-button">Jump</button>
-      <button id="play-button">Play</button>
+      <!--<button id="jump-button">Jump</button>-->
+      <!--<button id="play-button">Play</button>-->
     </p>
-    <div class="container">
+    <div id="container">
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
-      <span class="box sent">0</span>
-      <span class="box sent">0</span>
-      <span class="box sent">0</span>
-      <span class="box quacked">0</span>
-      <span class="box sent">0</span>
-      <span class="box sent">0</span>
-      <span class="box sent">0</span>
-      <span class="box quacked">0</span>
-      <span class="box acked">0</span>
-      <span class="box lost">0</span>
-      <span class="box sent">0</span>
+      <span class="box detect_lost_packets">0</span>
+      <span class="box sidecar_detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
@@ -45,7 +35,7 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
@@ -55,7 +45,7 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
@@ -65,7 +55,7 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
@@ -75,7 +65,7 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
@@ -85,7 +75,7 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
@@ -95,7 +85,7 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
@@ -105,7 +95,17 @@
       <span class="box sent">0</span>
       <span class="box quacked">0</span>
       <span class="box acked">0</span>
-      <span class="box lost">0</span>
+      <span class="box detect_lost_packets">0</span>
+      <span class="box sent">0</span>
+      <span class="box sent">0</span>
+      <span class="box sent">0</span>
+      <span class="box quacked">0</span>
+      <span class="box sent">0</span>
+      <span class="box sent">0</span>
+      <span class="box sent">0</span>
+      <span class="box quacked">0</span>
+      <span class="box acked">0</span>
+      <span class="box detect_lost_packets">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>
       <span class="box sent">0</span>

@@ -7,7 +7,7 @@ body {
   color: white;
 }
 
-.container {
+#container {
   padding: 30px;
   display: inline-block;
   max-width: 1400px;
@@ -34,7 +34,12 @@ body {
   background-color: green;
 }
 
-.lost {
+.detect_lost_packets {
+  color: red;
+  background-color: red;
+}
+
+.sidecar_detect_lost_packets {
   color: black;
   background-color: black;
 }
