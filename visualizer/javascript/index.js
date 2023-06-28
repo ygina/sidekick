@@ -11,14 +11,24 @@ class Action {
 }
 
 class Match {
-  constructor(instant) {
-    this.instant = instant;
+  constructor(match) {
+    this.instant = match[0];
+    this.cwnd = match[3] / 1500;
     this.actions = []
   }
 
   addAction(sidecarId, reason) {
     this.actions.push(new Action(sidecarId, reason))
   }
+}
+
+function approxEqual(val1, val2) {
+  return Math.abs(val1 - val2) < 0.000001;
+}
+
+function setInstantCwnd(instant, cwnd) {
+  document.getElementById('timeSinceStart').innerHTML = instant.toFixed(3)
+  document.getElementById('congestionWindow').innerHTML = cwnd.toFixed(3)
 }
 
 // Parse all lines that begin with quack_log and return an array of arrays
@@ -48,16 +58,45 @@ async function parseFile(file) {
     return match;
   })
 
-  return matches;
+  // Parse the congestion windows and consolidate them with the matches above.
+  const cwndRe = /cwnd (\d+) Instant { tv_sec: (\d+), tv_nsec: (\d+) }.*/
+  const cwnds = text.map(function(line) {
+    const match = cwndRe.exec(line);
+    if (match) {
+      const instant = parseInt(match[2]) + parseInt(match[3]) / 10**9;
+      const cwndBytes = parseInt(match[1])
+      return [instant - minTime, cwndBytes]
+    } else {
+      return null
+    }
+  }).filter(function(match) {
+    return match;
+  })
+
+  var currIndex = 0;
+  return matches.map(function(match) {
+    // Set currIndex to the smallest index such that the time of the next
+    // cwnd is larger than the current time.
+    const myTime = match[0];
+    while (currIndex < cwnds.length - 1) {
+      const nextTime = cwnds[currIndex + 1][0]
+      if (nextTime < myTime || approxEqual(nextTime, myTime)) {
+        currIndex += 1;
+      } else {
+        break;
+      }
+    }
+    return [myTime, match[1], match[2], cwnds[currIndex][1]]
+  })
 }
 
 // Group actions executed at the same time (within 0.000001s tolerance).
 function combineActions(matches) {
-  const combined = [new Match(matches[0][0])];
+  const combined = [new Match(matches[0])];
   var currMatch = combined[0];
   matches.forEach(function(match) {
-    if (Math.abs(match[0] - currMatch.instant) > 0.000001) {
-      currMatch = new Match(match[0]);
+    if (!approxEqual(match[0], currMatch.instant)) {
+      currMatch = new Match(match);
       combined.push(currMatch);
     }
     currMatch.addAction(match[1], match[2]);
@@ -82,7 +121,7 @@ function applyFrame(index) {
     return;
   }
   const frame = data[index];
-  document.getElementById('timeSinceStart').innerHTML = frame.instant
+  setInstantCwnd(frame.instant, frame.cwnd)
   frame.actions.forEach(function(action) {
     if (action.reason == "sent") {
       const span = createSpan(action.sidecarId);
@@ -98,7 +137,7 @@ function applyFrame(index) {
 function removeFrame(index) {
   const frame = data[index];
   const prevFrame = data[index - 1];
-  document.getElementById('timeSinceStart').innerHTML = prevFrame.instant
+  setInstantCwnd(prevFrame.instant, prevFrame.cwnd)
   frame.actions.forEach(function(action) {
     if (action.reason == "sent") {
       document.getElementById(action.sidecarId).remove()
