@@ -70,7 +70,7 @@ function createSpan(sidecarId) {
   const span = document.createElement("span");
   span.id = sidecarId;
   span.alt = sidecarId;
-  span.innerHTML = "0";
+  span.innerHTML = "&#9733;";
   span.classList.add("box");
   span.classList.add("sent");
   return span;

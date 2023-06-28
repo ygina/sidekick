@@ -11,17 +11,28 @@ body {
   padding: 30px;
   display: inline-block;
   max-width: 1400px;
-  line-height: 26px;
+  line-height: 18px;
   text-align: left;
 }
 
 .box {
-  padding: 2px;
+  font-size: 10pt;
+  padding: 0px;
 }
 
 .sent {
   color: gray;
   background-color: gray;
+}
+
+.quacked.acked {
+  color: #9ACD32;
+  background-color: #9ACD32;
+}
+
+.quacked.detect_lost_packets {
+  color: #440000;
+  background-color: #440000;
 }
 
 .quacked {
@@ -35,11 +46,11 @@ body {
 }
 
 .detect_lost_packets {
-  color: red;
-  background-color: red;
+  color: black;
+  background-color: black;
 }
 
 .sidecar_detect_lost_packets {
-  color: black;
+  color: yellow;
   background-color: black;
 }
