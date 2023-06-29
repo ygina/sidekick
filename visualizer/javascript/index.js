@@ -1,5 +1,6 @@
 document.getElementById('date').innerHTML = new Date().toDateString();
 
+const EPSILON = 0.001;
 var data = [];
 var paused = true;
 
@@ -23,7 +24,7 @@ class Match {
 }
 
 function approxEqual(val1, val2) {
-  return Math.abs(val1 - val2) < 0.000001;
+  return Math.abs(val1 - val2) < EPSILON;
 }
 
 function setInstantCwnd(instant, cwnd) {
@@ -90,7 +91,7 @@ async function parseFile(file) {
   })
 }
 
-// Group actions executed at the same time (within 0.000001s tolerance).
+// Group actions executed at the same time (within EPSILON seconds tolerance).
 function combineActions(matches) {
   const combined = [new Match(matches[0])];
   var currMatch = combined[0];
@@ -180,6 +181,19 @@ document.getElementById('jump-button').onclick = function() {
   document.getElementById('container').innerHTML = '';
   for (let i = 0; i <= index; i++) {
     applyFrame(i)
+  }
+}
+
+document.getElementById('jumpToTime-button').onclick = function() {
+  const frameInput = document.getElementById('frameNumber');
+  const jumpInput = document.getElementById('jumpToTime');
+  const time = parseFloat(jumpInput.value);
+  document.getElementById('container').innerHTML = '';
+  for (let index = 0; index < data.length; index++) {
+    if (data[index].instant > time)
+      break;
+    applyFrame(index)
+    frameInput.value = index
   }
 }
 
