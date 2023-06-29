@@ -7,7 +7,17 @@
   </head>
   <body>
     <h1>Sidekick Visualizer</h1>
-    <input type="file" id="myFile" name="filename">
+    <div><input type="file" id="myFile" name="filename"></div>
+
+    <div style="text-align:left;display:inline-block;">
+      <span class="box sent">&#9733;</span> sent<br>
+      <span class="box sent acked">&#9733;</span> acknowledged e2e<br>
+      <span class="box sent quacked">&#9733;</span> acknowledged quack<br>
+      <span class="box sent quacked acked">&#9733;</span> acknowledged quack+e2e<br>
+      <span class="box sent detect_lost_packets">&#9733;</span> lost e2e (retransmitted)<br>
+      <span class="box sent sidecar_detect_lost_packets">&#9733;</span> lost quack (retransmitted)<br>
+      <span class="box sent quacked detect_lost_packets">&#9733;</span> acknowledged quack+lost e2e (retransmitted)<br>
+    </div>
 
     <h4 id='date'></h4>
     <p>
@@ -28,97 +38,6 @@
       <button id="play-button" class="inverted">Play</button>
       <button id="pause-button" class="inverted">Pause</button>
     </p>
-    <div id="container">
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked acked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sidecar_detect_lost_packets">&#9733;</span>
-      <span class="box quacked detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-      <span class="box acked">&#9733;</span>
-      <span class="box detect_lost_packets">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box sent">&#9733;</span>
-      <span class="box quacked">&#9733;</span>
-    </div>
+    <div id="container"></div>
   </body>
 </html>

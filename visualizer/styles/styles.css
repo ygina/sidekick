@@ -2,6 +2,10 @@ body {
   text-align: center;
 }
 
+div {
+  margin: 10px;
+}
+
 .inverted {
   background-color: black;
   color: white;
@@ -31,8 +35,8 @@ body {
 }
 
 .quacked.detect_lost_packets {
-  color: #440000;
-  background-color: #440000;
+  color: #990000;
+  background-color: #990000;
 }
 
 .quacked {
