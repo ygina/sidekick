@@ -15,6 +15,7 @@ class Match {
   constructor(match) {
     this.instant = match[0];
     this.cwnd = match[3] / 1500;
+    this.pktsInFlight = match[4] / 1500;
     this.actions = []
   }
 
@@ -27,9 +28,26 @@ function approxEqual(val1, val2) {
   return Math.abs(val1 - val2) < EPSILON;
 }
 
-function setInstantCwnd(instant, cwnd) {
+function setInstantData(instant, cwnd, pktsInFlight) {
   document.getElementById('timeSinceStart').innerHTML = instant.toFixed(3)
   document.getElementById('congestionWindow').innerHTML = cwnd.toFixed(3)
+  document.getElementById('packetsInFlight').innerHTML = pktsInFlight.toFixed(3)
+}
+
+function parseTextKey(text, key, minTime) {
+  const re = new RegExp(key + " (\\d+) Instant { tv_sec: (\\d+), tv_nsec: (\\d+) }.*")
+  return text.map(function(line) {
+    const match = re.exec(line);
+    if (match) {
+      const instant = parseInt(match[2]) + parseInt(match[3]) / 10**9;
+      const value = parseInt(match[1])
+      return [instant - minTime, value]
+    } else {
+      return null
+    }
+  }).filter(function(match) {
+    return match;
+  })
 }
 
 // Parse all lines that begin with quack_log and return an array of arrays
@@ -59,35 +77,35 @@ async function parseFile(file) {
     return match;
   })
 
-  // Parse the congestion windows and consolidate them with the matches above.
-  const cwndRe = /cwnd (\d+) Instant { tv_sec: (\d+), tv_nsec: (\d+) }.*/
-  const cwnds = text.map(function(line) {
-    const match = cwndRe.exec(line);
-    if (match) {
-      const instant = parseInt(match[2]) + parseInt(match[3]) / 10**9;
-      const cwndBytes = parseInt(match[1])
-      return [instant - minTime, cwndBytes]
-    } else {
-      return null
-    }
-  }).filter(function(match) {
-    return match;
-  })
-
-  var currIndex = 0;
+  // Parse the congestion windows and bytes in flight. Consolidate the values
+  // with the matches above..
+  const cwnds = parseTextKey(text, "cwnd", minTime);
+  const inFlight = parseTextKey(text, "bytes_in_flight", minTime);
+  console.log(cwnds)
+  console.log(inFlight)
+  var cwndIndex = 0;
+  var inFlightIndex = 0;
   return matches.map(function(match) {
     // Set currIndex to the smallest index such that the time of the next
     // cwnd is larger than the current time.
     const myTime = match[0];
-    while (currIndex < cwnds.length - 1) {
-      const nextTime = cwnds[currIndex + 1][0]
+    while (cwndIndex < cwnds.length - 1) {
+      const nextTime = cwnds[cwndIndex + 1][0]
       if (nextTime < myTime || approxEqual(nextTime, myTime)) {
-        currIndex += 1;
+        cwndIndex += 1;
       } else {
         break;
       }
     }
-    return [myTime, match[1], match[2], cwnds[currIndex][1]]
+    while (inFlightIndex < inFlight.length - 1) {
+      const nextTime = inFlight[inFlightIndex + 1][0]
+      if (nextTime < myTime || approxEqual(nextTime, myTime)) {
+        inFlightIndex += 1;
+      } else {
+        break;
+      }
+    }
+    return [myTime, match[1], match[2], cwnds[cwndIndex][1], inFlight[inFlightIndex][1]]
   })
 }
 
@@ -122,7 +140,7 @@ function applyFrame(index) {
     return;
   }
   const frame = data[index];
-  setInstantCwnd(frame.instant, frame.cwnd)
+  setInstantData(frame.instant, frame.cwnd, frame.pktsInFlight)
   frame.actions.forEach(function(action) {
     if (action.reason == "sent") {
       const span = createSpan(action.sidecarId);
@@ -138,7 +156,7 @@ function applyFrame(index) {
 function removeFrame(index) {
   const frame = data[index];
   const prevFrame = data[index - 1];
-  setInstantCwnd(prevFrame.instant, prevFrame.cwnd)
+  setInstantData(prevFrame.instant, prevFrame.cwnd, prevFrame.pktsInFlight)
   frame.actions.forEach(function(action) {
     if (action.reason == "sent") {
       document.getElementById(action.sidecarId).remove()
