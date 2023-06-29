@@ -207,7 +207,7 @@ document.getElementById('play-button').onclick = async function() {
     }
     const currFrame = parseInt(frameInput.value)
     const secsUntilNextFrame = data[currFrame+1].instant - data[currFrame].instant;
-    await new Promise(r => setTimeout(r, Math.round(secsUntilNextFrame*1000)));
+    await new Promise(r => setTimeout(r, Math.round(secsUntilNextFrame*10000)));
     frameInput.value = currFrame + 1;
     applyFrame(currFrame + 1);
   }
