@@ -8,7 +8,7 @@ import statistics
 from os import path
 from common import *
 
-KEYS = ['cwnd']
+KEYS = ['cwnd', 'bytes_in_flight']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
@@ -41,15 +41,19 @@ def parse_quic_data(filename):
     min_x = min([min(xs[key]) for key in KEYS])
     for key in KEYS:
         xs[key] = [x - min_x for x in xs[key]]  # Normalize by initial time
+
+    ###########################################################################
+    # The following is some post-processing on events that cause cwnd drops.
     _xs = xs['cwnd']
     _ys = ys['cwnd']
-    decreases = []  # The number of times that the cwnd decreases (due to loss)
+    decreases = []  # The indexes at which the cwnd decreases (due to loss)
     for i in range(len(_ys) - 1):
         if _ys[i] > _ys[i+1]:
             decreases.append(i)
-    reasons1 = [events[i] for i in decreases]   # Reason for cwnd decrease
-    reasons2 = [events[i+1] for i in decreases] # Reason for cwnd increase
-    times2 = [_xs[i+1] for i in decreases]      # When the cwnd decreases
+    reasons1 = [events[i] for i in decreases]   # Reason prior to cwnd decrease
+    reasons2 = [events[i+1] for i in decreases] # Reason for cwnd decrease
+    times2 = [_xs[i+1] for i in decreases]      # Value the cwnd decreases to
+    # import pdb; pdb.set_trace()
     # for i in range(len(times2)):
     #     print('{} {}'.format(reasons2[i], times2[i]))
     count = 0  # Number of times the congestion window changes due to quacks
@@ -115,21 +119,22 @@ def get_filename(time_s, http, loss):
     os.system(f'mkdir -p {directory}')
     return f'{directory}{filename}'
 
-def parse_data(args, bm, filename):
+def parse_data(args, bm, filename, key):
     if not path.exists(filename):
         return ([], [])
     if bm == 'quic' or 'quack' in bm:
         (xs, ys) = parse_quic_data(filename)
-        return (xs['cwnd'], ys['cwnd'])
+        return (xs[key], ys[key])
     if bm in ['tcp', 'pep_h2', 'pep_r1']:
         if args.iperf:
             return parse_tcp_data_iperf(filename)
         else:
             return parse_tcp_data_ss(filename)
 
-def execute_and_parse_data(args, bm, loss):
+def execute_and_parse_data(args, bm, loss, key='cwnd'):
     filename = get_filename(args.time, bm, loss)
-    (xs, ys) = parse_data(args, bm, filename)
+    print(filename)
+    (xs, ys) = parse_data(args, bm, filename, key)
     if len(xs) > 0 and len(ys) > 0:
         return (xs, ys)
     if not args.execute:
@@ -170,7 +175,7 @@ def execute_and_parse_data(args, bm, loss):
         for line in p.stdout:
             f.write(line)
     p.wait()
-    return parse_data(args, bm, filename)
+    return parse_data(args, bm, filename, key)
 
 def print_average_cwnd(bm, xs, ys):
     # Bucket the logged cwnds for each second. Take the average of the logged
@@ -203,6 +208,10 @@ def run(args, https, loss):
         # Execute the benchmark for any data we need to collect.
         (xs, ys) = execute_and_parse_data(args, bm, loss)
         xy_bm.append((xs, ys, bm))
+        # Parse bytes_in_flight if flag is set
+        if args.bytes_in_flight and (bm == 'quic' or 'quack' in bm):
+            (xs, ys) = execute_and_parse_data(args, bm, loss, key='bytes_in_flight')
+            xy_bm.append((xs, ys, f'{bm}_BIF'))
 
     plt.figure(figsize=(9, 6))
     for (xs, ys, bm) in xy_bm:
@@ -231,6 +240,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
+    parser.add_argument('--bytes_in_flight', action='store_true')
     parser.add_argument('--time', required=True, type=int, metavar='S',
         help='time to run each experiment, in seconds')
     parser.add_argument('--max-x', type=int, metavar='S', help='max-x axis')
