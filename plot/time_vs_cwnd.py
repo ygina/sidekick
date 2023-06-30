@@ -8,7 +8,7 @@ import statistics
 from os import path
 from common import *
 
-KEYS = ['cwnd', 'bytes_in_flight']
+KEYS = ['cwnd']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
@@ -29,7 +29,8 @@ def parse_quic_data(filename):
             continue
         m = m.groups()
         key = m[0]
-        assert key in KEYS
+        if key not in KEYS:
+            continue
         y = int(m[1]) / 1000.
         x = 1.0 * int(m[2]) + int(m[3]) / 1_000_000_000.
         events.append(m[4]) # The reason for logging the congestion window
@@ -122,7 +123,7 @@ def get_filename(time_s, http, loss):
 def parse_data(args, bm, filename, key):
     if not path.exists(filename):
         return ([], [])
-    if bm == 'quic' or 'quack' in bm:
+    if 'quic' in bm or 'quack' in bm:
         (xs, ys) = parse_quic_data(filename)
         return (xs[key], ys[key])
     if bm in ['tcp', 'pep_h2', 'pep_r1']:
@@ -142,15 +143,19 @@ def execute_and_parse_data(args, bm, loss, key='cwnd'):
         return ([], [])
 
     cmd =  ['sudo', '-E', 'python3', 'mininet/main.py']
-    cmd += ['--loss2', loss, '--bw2', args.bw]
+    cmd += ['--loss2', loss]
     cmd += ['--delay1', args.delay1, '--delay2', args.delay2]
-    if bm == 'quic':
+    cmd += ['--bw1', args.bw1, '--bw2', args.bw2]
+    cmd += ['--threshold', args.threshold]
+    if 'quic' in bm:
         cmd += ['-n', f'{args.time}M', '-t', '1']
         cmd += ['--timeout', str(args.time)]
+        cmd += ['--min-ack-delay', args.min_ack_delay]
         cmd += ['quic']
     elif 'quack' in bm:
         cmd += ['-n', f'{args.time}M', '-t', '1']
         cmd += ['--timeout', str(args.time)]
+        cmd += ['--min-ack-delay', args.min_ack_delay]
         cmd += ['quack']
     elif args.iperf:
         if bm == 'tcp':
@@ -209,7 +214,7 @@ def run(args, https, loss):
         (xs, ys) = execute_and_parse_data(args, bm, loss)
         xy_bm.append((xs, ys, bm))
         # Parse bytes_in_flight if flag is set
-        if args.bytes_in_flight and (bm == 'quic' or 'quack' in bm):
+        if args.bytes_in_flight and ('quic' in bm or 'quack' in bm):
             (xs, ys) = execute_and_parse_data(args, bm, loss, key='bytes_in_flight')
             xy_bm.append((xs, ys, f'{bm}_BIF'))
 
@@ -228,7 +233,7 @@ def run(args, https, loss):
     if args.max_x is not None:
         plt.xlim(0, args.max_x)
     plt.ylim(0, 250)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
     pdf = 'cwnd_{}s_loss{}p.pdf'.format(args.time, loss)
     plt.title(pdf)
     save_pdf(pdf)
@@ -251,13 +256,21 @@ if __name__ == '__main__':
     parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
 
     ############################################################################
+    # QUIC/QuACK configuration
+    quic_config = parser.add_argument_group('quic_config')
+    quic_config.add_argument('--min-ack-delay', default='0',
+        help='Server minimum ack delay (default: 0)')
+
+    ############################################################################
     # Network configuration
     net_config = parser.add_argument_group('net_config')
-    net_config.add_argument('--delay1', default="75")
-    net_config.add_argument('--delay2', default="1")
+    net_config.add_argument('--delay1', default='75', help='(default: 75)')
+    net_config.add_argument('--delay2', default='1', help='(default: 1)')
+    net_config.add_argument('--threshold', default='100', help=('default: 100'))
+    net_config.add_argument('--bw1', default='10', help='(default: 10)')
+    net_config.add_argument('--bw2', default='100', help='(default: 100)')
     net_config.add_argument('--loss', action='extend', nargs='+', default=[],
         help=f'loss percentages e.g, 0 (default: {DEFAULT_LOSSES})')
-    net_config.add_argument('--bw', help='near subpath bw (default: 100)', default='100')
 
     # Parse arguments
     args = parser.parse_args()
