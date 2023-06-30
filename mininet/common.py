@@ -55,7 +55,7 @@ def estimate_timeout(n, proxy, quic, loss):
             kb = int(n[:-1]) * 1000
         scale = 0.015
         if quic:
-            scale *= 2
+            scale *= 10
         if float(loss) > 1:
             scale *= float(loss) / 1.5
         if proxy:
