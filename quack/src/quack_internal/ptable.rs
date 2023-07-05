@@ -40,6 +40,7 @@ pub struct PowerTableQuack {
     #[serde(skip)]
     inverse_table: Vec<ModularInteger<u16>>,
     power_sums: Vec<ModularInteger<u16>>,
+    last_value: u16,
     count: u16,
 }
 
@@ -61,6 +62,7 @@ impl Quack<u16> for PowerTableQuack {
         Self {
             inverse_table,
             power_sums: (0..size).map(|_| ModularInteger::zero()).collect(),
+            last_value: 0,
             count: 0,
         }
     }
@@ -74,6 +76,7 @@ impl Quack<u16> for PowerTableQuack {
         }
         // TODO: handle count overflow
         self.count += 1;
+        self.last_value = value;
     }
 
     fn remove(&mut self, value: u16) {
@@ -93,6 +96,10 @@ impl Quack<u16> for PowerTableQuack {
 
     fn count(&self) -> u16 {
         self.count
+    }
+
+    fn last_value(&self) -> u16 {
+        self.last_value
     }
 
     /// Returns the missing identifiers from the log. Note that if there are
@@ -160,6 +167,7 @@ impl SubAssign for PowerTableQuack {
             self.power_sums[i] -= rhs.power_sums[i];
         }
         self.count -= rhs.count;
+        self.last_value = rhs.last_value;
     }
 }
 

@@ -19,6 +19,7 @@ pub trait Quack<T> {
     fn remove(&mut self, value: T);
     fn threshold(&self) -> usize;
     fn count(&self) -> u16;
+    fn last_value(&self) -> T;
 
     fn decode_with_log(&self, log: &Vec<T>) -> Vec<T>;
     fn to_coeffs(&self) -> Vec<arithmetic::ModularInteger<T>>;

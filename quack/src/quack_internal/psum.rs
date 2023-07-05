@@ -16,6 +16,7 @@ pub struct PowerSumQuack<T> where ModularInteger<T>: ModularArithmetic<T> {
     #[serde(skip)]
     inverse_table: Vec<ModularInteger<T>>,
     power_sums: Vec<ModularInteger<T>>,
+    last_value: ModularInteger<T>,
     count: u16,
 }
 
@@ -35,6 +36,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
         Self {
             inverse_table,
             power_sums: (0..size).map(|_| ModularInteger::zero()).collect(),
+            last_value: ModularInteger::zero(),
             count: 0,
         }
     }
@@ -51,6 +53,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
         self.power_sums[size - 1] += y;
         // TODO: handle count overflow
         self.count += 1;
+        self.last_value = x;
     }
 
     fn remove(&mut self, value: T) {
@@ -65,6 +68,10 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
         self.power_sums[size - 1] -= y;
         // TODO: handle count overflow
         self.count -= 1;
+    }
+
+    fn last_value(&self) -> T {
+        self.last_value.value()
     }
 
     fn threshold(&self) -> usize {
@@ -141,6 +148,7 @@ ModularInteger<T>: ModularArithmetic<T> + SubAssign + Copy {
             self.power_sums[i] -= rhs.power_sums[i];
         }
         self.count -= rhs.count;
+        self.last_value = rhs.last_value;
     }
 }
 
