@@ -147,6 +147,7 @@ def execute_and_parse_data(args, bm, loss, key='cwnd'):
     cmd += ['--delay1', args.delay1, '--delay2', args.delay2]
     cmd += ['--bw1', args.bw1, '--bw2', args.bw2]
     cmd += ['--threshold', args.threshold]
+    cmd += ['--frequency', args.frequency]
     if 'quic' in bm:
         cmd += ['-n', f'{args.time}M', '-t', '1']
         cmd += ['--timeout', str(args.time)]
@@ -267,6 +268,7 @@ if __name__ == '__main__':
     net_config.add_argument('--delay1', default='75', help='(default: 75)')
     net_config.add_argument('--delay2', default='1', help='(default: 1)')
     net_config.add_argument('--threshold', default='100', help=('default: 100'))
+    net_config.add_argument('--frequency', default='2ms', help=('default: 2ms'))
     net_config.add_argument('--bw1', default='10', help='(default: 10)')
     net_config.add_argument('--bw2', default='100', help='(default: 100)')
     net_config.add_argument('--loss', action='extend', nargs='+', default=[],
