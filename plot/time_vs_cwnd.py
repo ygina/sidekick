@@ -8,7 +8,7 @@ import statistics
 from os import path
 from common import *
 
-KEYS = ['cwnd']
+KEYS = ['cwnd', 'bytes_in_flight']
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
@@ -57,19 +57,19 @@ def parse_quic_data(filename):
     # import pdb; pdb.set_trace()
     # for i in range(len(times2)):
     #     print('{} {}'.format(reasons2[i], times2[i]))
-    count = 0  # Number of times the congestion window changes due to quacks
-    for i in range(len(_xs)):
-        if _xs[i] > 3.0:
-            start_i = i
-            break
-    for i in range(len(_xs)):
-        if _xs[i] < 30.0:
-            end_i = i
-        else:
-            break
-    for i in range(start_i, end_i):
-        if events[i] == 'on_quack_received':
-            count += 1
+    # count = 0  # Number of times the congestion window changes due to quacks
+    # for i in range(len(_xs)):
+    #     if _xs[i] > 3.0:
+    #         start_i = i
+    #         break
+    # for i in range(len(_xs)):
+    #     if _xs[i] < 30.0:
+    #         end_i = i
+    #     else:
+    #         break
+    # for i in range(start_i, end_i):
+    #     if events[i] == 'on_quack_received':
+    #         count += 1
     # print(f'{count} / 13500 = {count/13500.0}')
     return (xs, ys)
 
@@ -246,7 +246,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
-    parser.add_argument('--bytes_in_flight', action='store_true')
+    parser.add_argument('-b', '--bytes_in_flight', action='store_true')
     parser.add_argument('--time', required=True, type=int, metavar='S',
         help='time to run each experiment, in seconds')
     parser.add_argument('--max-x', type=int, metavar='S', help='max-x axis')
