@@ -46,10 +46,10 @@ if __name__ == '__main__':
           max (ns/packet)
         * Load generator: target tput (packets/s); tput (packets/s)
     """
-    h1 = net.h1.popen(f'iperf3 -s -f m'.split(' '),
+    h1 = net.h1.popen(f'taskset -c 1 iperf3 -s -f m'.split(' '),
         stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
-    client_cmd = f'iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout + 1} --congestion cubic'.split(' ')
+    client_cmd = f'taskset -c 2 iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout + 1} --congestion cubic'.split(' ')
     client_cmd += ['-b', str(int(args.tput * args.length * 8))]
     client_cmd += ['-l', str(args.length)]
     sclog(f'Target rate is {args.tput * args.length} bytes/s')
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     if not args.disable_sidecar:
         env = os.environ.copy()
         # env['RUST_LOG'] = 'trace'
-        r1 = net.r1.popen(f'./target/release/benchmark_encode --threshold {args.threshold} --frequency {args.frequency}'.split(' '),
+        r1 = net.r1.popen(f'taskset -c 3 ./target/release/benchmark_encode --threshold {args.threshold} --frequency {args.frequency}'.split(' '),
             stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
     time.sleep(args.timeout)
     if not args.disable_sidecar:
