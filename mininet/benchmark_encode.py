@@ -4,6 +4,29 @@ import time
 from network import *
 from mininet.log import setLogLevel
 
+def start_iperf_servers(net, count=2):
+    servers = []
+    for i in range(count):
+        cmd = f'taskset -c 0 iperf3 -s -f m -p 520{i+1}'.split(' ')
+        print(' '.join(cmd))
+        p = net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        servers.append(p)
+    return servers
+
+def start_iperf_clients(net, count=2):
+    clients = []
+    cmd = ['iperf3', '-c', '10.0.1.10', '--udp', '--congestion', 'cubic']
+    cmd += ['--time', str(args.warmup + args.timeout + 1)]
+    cmd += ['-b', str(int(args.tput * args.length * 8))]
+    cmd += ['-l', str(args.length)]
+    sclog(f'Target rate is {args.tput * args.length} bytes/s')
+    for i in range(count):
+        new_cmd = ['taskset', '-c', str(i+1)] + cmd + ['-p', f'520{i+1}']
+        print(' '.join(new_cmd))
+        p = net.h2.popen(new_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        clients.append(p)
+    return clients
+
 if __name__ == '__main__':
     setLogLevel('info')
 
@@ -46,15 +69,10 @@ if __name__ == '__main__':
           max (ns/packet)
         * Load generator: target tput (packets/s); tput (packets/s)
     """
-    h1 = net.h1.popen(f'taskset -c 1 iperf3 -s -f m'.split(' '),
-        stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
-    client_cmd = f'taskset -c 2 iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout + 1} --congestion cubic'.split(' ')
-    client_cmd += ['-b', str(int(args.tput * args.length * 8))]
-    client_cmd += ['-l', str(args.length)]
-    sclog(f'Target rate is {args.tput * args.length} bytes/s')
-    h2 = net.h2.popen(client_cmd,
-        stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    servers = start_iperf_servers(net)
+    time.sleep(1)
+    clients = start_iperf_clients(net)
     time.sleep(args.warmup)
     if not args.disable_sidecar:
         env = os.environ.copy()
@@ -64,9 +82,13 @@ if __name__ == '__main__':
     time.sleep(args.timeout)
     if not args.disable_sidecar:
         r1.terminate()
-    sys.stdout.buffer.write(h1.stdout.peek())
+    sys.stdout.buffer.write(servers[0].stdout.peek())
     sys.stdout.buffer.write(b'\n')
-    sys.stdout.buffer.write(h2.stdout.peek())
+    sys.stdout.buffer.write(servers[1].stdout.peek())
+    sys.stdout.buffer.write(b'\n')
+    sys.stdout.buffer.write(clients[0].stdout.peek())
+    sys.stdout.buffer.write(b'\n')
+    sys.stdout.buffer.write(clients[1].stdout.peek())
     sys.stdout.buffer.write(b'\n')
     sys.stdout.buffer.flush()
 
