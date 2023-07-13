@@ -26,14 +26,12 @@ if __name__ == '__main__':
         help='Quack frequency in ms (default: 0)')
     parser.add_argument('--threshold', type=int, default=20, metavar='PACKETS',
         help='Quack threshold (default: 20)')
-    parser.add_argument('--bw', type=int, default=10000, metavar='MBITS',
-        help='Link bandwidth (in Mbit/s) (default: 10000)')
     parser.add_argument('--disable-sidecar', action='store_true',
         help='Disable the sidecar to test only iperf load generator')
 
     args = parser.parse_args()
-    net = SidecarNetwork(delay1=0, delay2=0, loss1=0, loss2=0, bw1=args.bw,
-        bw2=args.bw, qdisc='codel')
+    net = SidecarNetwork(delay1=0, delay2=0, loss1=0, loss2=0, bw1=0,
+        bw2=0, qdisc='none')
 
     """
     1. Set up the network
