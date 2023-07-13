@@ -11,6 +11,7 @@ tokio = { version = "1", features = ["net", "sync", "rt", "time", "macros"] }
 log = "0.4.17"
 env_logger = "0.9.3"
 libc = "0.2.137"
+signal-hook = "0.3.15"
 
 [features]
 default = []

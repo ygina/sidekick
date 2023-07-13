@@ -9,8 +9,7 @@ from mininet.link import TCLink
 
 
 class SidecarNetwork():
-    def __init__(self, delay1, delay2, loss1, loss2, bw1, bw2, qdisc,
-            min_ack_delay, max_ack_delay):
+    def __init__(self, delay1, delay2, loss1, loss2, bw1, bw2, qdisc):
         self.net = Mininet(controller=None, link=TCLink)
 
         # Add hosts and switches
@@ -75,9 +74,6 @@ class SidecarNetwork():
         tc(self.r1, 'r1-eth0', loss1, delay1, bw1)
         tc(self.r1, 'r1-eth1', loss2, delay2, bw2)
         tc(self.h2, 'h2-eth0', loss2, delay2, bw2)
-
-        # Start the webserver on h1
-        self.start_webserver(min_ack_delay, max_ack_delay)
 
     def start_webserver(self, min_ack_delay, max_ack_delay):
         sclog('Starting the NGINX/Python webserver on h1...')
