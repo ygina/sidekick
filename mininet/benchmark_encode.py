@@ -11,8 +11,13 @@ if __name__ == '__main__':
 
     ############################################################################
     # Network Configurations
-    parser.add_argument('--tput', type=int, default=1000, metavar='PPS',
-        help='Target load generator throughput (packets/s) (default: 1000)')
+    parser.add_argument('--tput', default=500, type=int, metavar='PPS',
+        help='Target load generator throughput in packets per second. The load '
+             'generator may not be able to achieve too high of throughputs. '
+             '(default: 500)')
+    parser.add_argument('--length', '-l', default=70, type=int, metavar='BYTES',
+        help='Target load generator packet length, the -l option in iperf3 '
+             '(default: 70)')
     parser.add_argument('--warmup', '-w', type=int, default=3, metavar='S',
         help='Warmup time, in seconds (default: 3)')
     parser.add_argument('--timeout', '-t', type=int, default=5, metavar='S',
@@ -46,9 +51,11 @@ if __name__ == '__main__':
     h1 = net.h1.popen(f'iperf3 -s -f m'.split(' '),
         stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
-    rate = f'{args.tput * 1460 / 1000000}M'
-    print(f'Rate: {rate}')
-    h2 = net.h2.popen(f'iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout} --format m --congestion cubic -b {rate}'.split(' '),
+    client_cmd = f'iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout + 1} --congestion cubic'.split(' ')
+    client_cmd += ['-b', str(int(args.tput * args.length * 8))]
+    client_cmd += ['-l', str(args.length)]
+    sclog(f'Target rate is {args.tput * args.length} bytes/s')
+    h2 = net.h2.popen(client_cmd,
         stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     time.sleep(args.warmup)
     if not args.disable_sidecar:
