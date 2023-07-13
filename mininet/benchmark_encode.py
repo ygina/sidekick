@@ -23,6 +23,8 @@ if __name__ == '__main__':
         help='Quack threshold (default: 20)')
     parser.add_argument('--bw', type=int, default=10000, metavar='MBITS',
         help='Link bandwidth (in Mbit/s) (default: 10000)')
+    parser.add_argument('--disable-sidecar', action='store_true',
+        help='Disable the sidecar to test only iperf load generator')
 
     args = parser.parse_args()
     net = SidecarNetwork(delay1=0, delay2=0, loss1=0, loss2=0, bw1=args.bw,
@@ -49,22 +51,25 @@ if __name__ == '__main__':
     h2 = net.h2.popen(f'iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout} --format m --congestion cubic -b {rate}'.split(' '),
         stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     time.sleep(args.warmup)
-    env = os.environ.copy()
-    # env['RUST_LOG'] = 'trace'
-    r1 = net.r1.popen(f'./target/release/benchmark_encode --threshold {args.threshold} --frequency {args.frequency}'.split(' '),
-        stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
+    if not args.disable_sidecar:
+        env = os.environ.copy()
+        # env['RUST_LOG'] = 'trace'
+        r1 = net.r1.popen(f'./target/release/benchmark_encode --threshold {args.threshold} --frequency {args.frequency}'.split(' '),
+            stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
     time.sleep(args.timeout)
-    r1.terminate()
+    if not args.disable_sidecar:
+        r1.terminate()
     sys.stdout.buffer.write(h1.stdout.peek())
     sys.stdout.buffer.write(b'\n')
     sys.stdout.buffer.write(h2.stdout.peek())
     sys.stdout.buffer.write(b'\n')
     sys.stdout.buffer.flush()
 
-    for line in r1.stdout.peek().split(b'\n'):
-        if b'DONE' in line:
-            break
-        sys.stdout.buffer.write(line)
-        sys.stdout.buffer.write(b'\n')
-        sys.stdout.buffer.flush()
+    if not args.disable_sidecar:
+        for line in r1.stdout.peek().split(b'\n'):
+            if b'DONE' in line:
+                break
+            sys.stdout.buffer.write(line)
+            sys.stdout.buffer.write(b'\n')
+            sys.stdout.buffer.flush()
     net.stop()
