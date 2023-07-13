@@ -41,16 +41,30 @@ if __name__ == '__main__':
           max (ns/packet)
         * Load generator: target tput (packets/s); tput (packets/s)
     """
-    print(net.h1.popen(f'iperf3 -s -f m'.split(' ')))
+    h1 = net.h1.popen(f'iperf3 -s -f m'.split(' '),
+        stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
-    print(net.h2.popen(f'iperf3 -c 0.0.0.0 --udp --time {args.warmup + args.timeout} --format m --congestion cubic -b {int(args.tput * 1460 / 1000)}K'.split(' ')))
+    rate = f'{args.tput * 1460 / 1000000}M'
+    print(f'Rate: {rate}')
+    h2 = net.h2.popen(f'iperf3 -c 10.0.1.10 --udp --time {args.warmup + args.timeout} --format m --congestion cubic -b {rate}'.split(' '),
+        stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     time.sleep(args.warmup)
-    p2 = net.r1.popen(f'./target/release/benchmark_encode --threshold {args.threshold} --frequency {args.frequency}'.split(' '))
+    env = os.environ.copy()
+    # env['RUST_LOG'] = 'trace'
+    r1 = net.r1.popen(f'./target/release/benchmark_encode --threshold {args.threshold} --frequency {args.frequency}'.split(' '),
+        stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
     time.sleep(args.timeout)
-    p2.terminate()
-    for line in p2.stdout:
+    r1.terminate()
+    sys.stdout.buffer.write(h1.stdout.peek())
+    sys.stdout.buffer.write(b'\n')
+    sys.stdout.buffer.write(h2.stdout.peek())
+    sys.stdout.buffer.write(b'\n')
+    sys.stdout.buffer.flush()
+
+    for line in r1.stdout.peek().split(b'\n'):
         if b'DONE' in line:
-            sys.stdout.buffer.flush()
             break
         sys.stdout.buffer.write(line)
+        sys.stdout.buffer.write(b'\n')
+        sys.stdout.buffer.flush()
     net.stop()

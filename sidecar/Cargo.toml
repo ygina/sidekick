@@ -18,3 +18,10 @@ default = []
 
 # Log the sidecar identifier when it is inserted in a quACK.
 quack_log = []
+
+# Benchmark performance.
+benchmark = []
+
+[[bin]]
+name = "benchmark_encode"
+required-features = ["benchmark"]

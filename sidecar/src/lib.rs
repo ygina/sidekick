@@ -3,7 +3,7 @@ use quack::*;
 use bincode;
 use log::{trace, debug, info};
 use tokio;
-use tokio::{sync::{mpsc, oneshot}, net::UdpSocket};
+use tokio::{sync::{mpsc, oneshot}, net::UdpSocket, time::Instant};
 
 mod socket;
 mod buffer;
@@ -26,6 +26,8 @@ pub struct Sidecar {
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
+    #[cfg(feature = "benchmark")]
+    pub start_time: Option<Instant>,
     quack: PowerSumQuack<u32>,
     log: Vec<u32>,
 }
@@ -44,6 +46,8 @@ impl Sidecar {
             interface: interface.to_string(),
             threshold,
             bits,
+            #[cfg(feature = "benchmark")]
+            start_time: None,
             quack: PowerSumQuack::new(threshold),
             log: vec![],
         }
@@ -132,10 +136,14 @@ impl Sidecar {
                 debug!("insert {} ({:#10x})", id, id);
                 // TODO: filter by QUIC connection?
                 {
+                    let mut sc = sc.lock().unwrap();
                     if let Some(tx) = tx.take() {
                         tx.send(()).unwrap();
+                        #[cfg(feature = "benchmark")]
+                        {
+                            sc.start_time = Some(Instant::now());
+                        }
                     }
-                    let mut sc = sc.lock().unwrap();
                     sc.insert_packet(id);
                     #[cfg(feature = "quack_log")]
                     println!("quack {:?} {} {}", std::time::Instant::now(), id, sc.quack.count());

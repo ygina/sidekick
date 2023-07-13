@@ -1,9 +1,10 @@
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use clap::Parser;
+use quack::Quack;
 use sidecar::{Sidecar, SidecarType};
 use tokio::net::{UdpSocket};
-use tokio::time::{self, Duration};
+use tokio::time::{self, Instant, Duration};
 use signal_hook::{consts::SIGTERM, iterator::Signals};
 
 #[derive(Parser)]
@@ -28,10 +29,22 @@ pub struct Benchmark {
     pub frequency: Option<Duration>,
 }
 
-async fn handle_signals(mut signals: Signals) {
-    for signal in &mut signals {
-        if signal == SIGTERM {
-            println!("SIGTERM");
+async fn handle_signals(sc: Arc<Mutex<Sidecar>>, mut signals: Signals) {
+    for _ in &mut signals {
+        let sc = sc.lock().unwrap();
+        if let Some(start_time) = sc.start_time {
+            let total = Instant::now() - start_time;
+            let count = sc.quack().count();
+            println!("Total: {:?}", total);
+            println!("Count: {}", count);
+
+            let total_us: u128 = total.as_micros();
+            let rate_pps: f64 = count as f64 * 1000000.0 / total_us as f64;
+            let rate_mbits: f64 = rate_pps * 1500.0 * 8.0 / 1000000.0;
+            println!("Rate (packets/s): {}", rate_pps);
+            println!("Rate (Mbit/s): {}", rate_mbits);
+        } else {
+            println!("No start time!");
         }
         println!("DONE");
     }
@@ -51,7 +64,7 @@ impl Benchmark {
 
     pub fn setup_signal_handler(&self) {
         let signals = Signals::new(&[SIGTERM]).unwrap();
-        tokio::spawn(handle_signals(signals));
+        tokio::spawn(handle_signals(self.sc.clone(), signals));
     }
 
     pub async fn start(&mut self) {
