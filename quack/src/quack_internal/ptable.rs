@@ -41,7 +41,7 @@ pub struct PowerTableQuack {
     inverse_table: Vec<ModularInteger<u16>>,
     power_sums: Vec<ModularInteger<u16>>,
     last_value: u16,
-    count: u16,
+    count: u32,
 }
 
 impl Quack<u16> for PowerTableQuack {
@@ -94,7 +94,7 @@ impl Quack<u16> for PowerTableQuack {
         self.power_sums.len()
     }
 
-    fn count(&self) -> u16 {
+    fn count(&self) -> u32 {
         self.count
     }
 

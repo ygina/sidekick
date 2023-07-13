@@ -17,7 +17,7 @@ pub struct PowerSumQuack<T> where ModularInteger<T>: ModularArithmetic<T> {
     inverse_table: Vec<ModularInteger<T>>,
     power_sums: Vec<ModularInteger<T>>,
     last_value: ModularInteger<T>,
-    count: u16,
+    count: u32,
 }
 
 impl<T> Quack<T> for PowerSumQuack<T>
@@ -78,7 +78,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
         self.power_sums.len()
     }
 
-    fn count(&self) -> u16 {
+    fn count(&self) -> u32 {
         self.count
     }
 

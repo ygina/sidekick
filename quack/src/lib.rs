@@ -18,7 +18,7 @@ pub trait Quack<T> {
     fn insert(&mut self, value: T);
     fn remove(&mut self, value: T);
     fn threshold(&self) -> usize;
-    fn count(&self) -> u16;
+    fn count(&self) -> u32;
     fn last_value(&self) -> T;
 
     fn decode_with_log(&self, log: &Vec<T>) -> Vec<T>;
