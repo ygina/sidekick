@@ -1,7 +1,7 @@
 use std::ffi::CString;
 use log::{debug, error};
 use libc::*;
-use crate::BUFFER_SIZE;
+use crate::buffer::BUFFER_SIZE;
 
 pub struct Socket {
     pub fd: i32,
