@@ -3,7 +3,7 @@ use quack::*;
 use bincode;
 use log::{trace, debug, info};
 use tokio;
-use tokio::{sync::{mpsc, oneshot}, net::UdpSocket, time::Instant};
+use tokio::{sync::oneshot, net::UdpSocket};
 
 mod socket;
 mod buffer;
@@ -14,15 +14,8 @@ use buffer::{BUFFER_SIZE, Direction, UdpParser};
 pub use buffer::ID_OFFSET;
 use crate::Quack;
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub enum SidecarType {
-    QuackSender,
-    QuackReceiver,
-}
-
 #[derive(Clone)]
 pub struct Sidecar {
-    pub ty: SidecarType,
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
@@ -34,15 +27,9 @@ pub struct Sidecar {
 
 impl Sidecar {
     /// Create a new sidecar.
-    pub fn new(
-        ty: SidecarType,
-        interface: &str,
-        threshold: usize,
-        bits: usize,
-    ) -> Self {
+    pub fn new(interface: &str, threshold: usize, bits: usize) -> Self {
         assert_eq!(bits, 32, "ERROR: <num_bits_id> must be 32");
         Self {
-            ty,
             interface: interface.to_string(),
             threshold,
             bits,
@@ -58,9 +45,6 @@ impl Sidecar {
     /// packets. Typically if this function is used, do not call start().
     pub fn insert_packet(&mut self, id: u32) {
         self.quack.insert(id);
-        if self.ty == SidecarType::QuackReceiver {
-            self.log.push(id);
-        }
     }
 
     /// Reset the sidecar state.
@@ -78,10 +62,7 @@ impl Sidecar {
     pub fn start(
         sc: Arc<Mutex<Sidecar>>,
     ) -> Result<oneshot::Receiver<()>, String> {
-        let (interface, ty) = {
-            let sc = sc.lock().unwrap();
-            (sc.interface.clone(), sc.ty.clone())
-        };
+        let interface = sc.lock().unwrap().interface.clone();
         let sock = Socket::new(interface.clone())?;
         sock.set_promiscuous()?;
 
@@ -94,17 +75,11 @@ impl Sidecar {
             info!("tapping socket on fd={} interface={}", sock.fd, interface);
             let mut addr = SockAddr::new_sockaddr_ll();
             let ip_protocol = (libc::ETH_P_IP as u16).to_be();
-            let dir = match ty {
-                SidecarType::QuackSender => Direction::Incoming,
-                SidecarType::QuackReceiver => Direction::Outgoing,
-            };
             let mut tx = Some(tx);
             loop {
                 let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
                 trace!("received {} bytes: {:?}", n, buf);
-                let actual_dir: Direction = addr.sll_pkttype.into();
-                if actual_dir != dir {
-                    trace!("packet in wrong direction: {:?}", actual_dir);
+                if Direction::Incoming != addr.sll_pkttype.into() {
                     continue;
                 }
                 if addr.sll_protocol != ip_protocol {
@@ -173,7 +148,6 @@ impl Sidecar {
         info!("tapping socket on fd={} interface={}", recvsock.fd, self.interface);
         let mut addr = SockAddr::new_sockaddr_ll();
         let ip_protocol = (libc::ETH_P_IP as u16).to_be();
-        assert_eq!(self.ty, SidecarType::QuackSender);
         let mut mod_count = 0;
         loop {
             // TODO: resets, dont' duplicate code from start()
@@ -211,34 +185,6 @@ impl Sidecar {
                 sendsock.send_to(&bytes, sendaddr).await.unwrap();
             }
         }
-    }
-
-    /// Receive quACKs on the given UDP port. Returns the channel on which
-    /// to loop received quACKs.
-    pub fn listen(&self, port: u16) -> mpsc::Receiver<PowerSumQuack<u32>> {
-        // https://docs.rs/tokio/latest/tokio/sync/mpsc/fn.channel.html
-        // buffer up to 100 messages
-        let (tx, rx) = mpsc::channel(100);
-        let buf_len = {
-            let quack = PowerSumQuack::<u32>::new(self.threshold);
-            bincode::serialize(&quack).unwrap().len()
-        };
-        debug!("allocating {} bytes for receiving quACKs", buf_len);
-        tokio::spawn(async move {
-            let addr = format!("0.0.0.0:{}", port);
-            info!("listening for quACKs on {}", addr);
-            let socket = UdpSocket::bind(addr).await.unwrap();
-            let mut buf = vec![0; buf_len];
-            loop {
-                let (nbytes, _) = socket.recv_from(&mut buf).await.unwrap();
-                assert_eq!(nbytes, buf.len());
-                // TODO: check that it's actually a quack
-                let quack: PowerSumQuack<u32> = bincode::deserialize(&buf).unwrap();
-                trace!("received quACK with count {}", quack.count());
-                tx.send(quack).await.unwrap();
-            }
-        });
-        rx
     }
 
     /// Snapshot the quACK.

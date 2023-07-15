@@ -1,7 +1,7 @@
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use clap::Parser;
-use sidecar::{Sidecar, SidecarType};
+use sidecar::Sidecar;
 use tokio::net::UdpSocket;
 use tokio::time::{self, Duration};
 use tokio::sync::oneshot;
@@ -85,7 +85,6 @@ async fn main() -> Result<(), String> {
 
     // Start the sidecar.
     let mut sc = Sidecar::new(
-        SidecarType::QuackSender,
         &args.interface,
         args.threshold,
         args.num_bits_id,

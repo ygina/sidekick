@@ -93,9 +93,7 @@ async fn main() -> Result<(), String> {
     env_logger::init();
 
     let args = Cli::parse();
-    let sc = Sidecar::new(
-        SidecarType::QuackSender, &args.interface, args.threshold, 32,
-    );
+    let sc = Sidecar::new(&args.interface, args.threshold, 32);
     let mut benchmark = Benchmark::new(sc, args.addr, args.frequency);
     benchmark.setup_signal_handler();
     benchmark.start().await;
