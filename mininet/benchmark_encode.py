@@ -4,33 +4,36 @@ import time
 from network import *
 from mininet.log import setLogLevel
 
-def start_iperf_servers(net, count):
+def start_iperf_servers(net, args):
     servers = []
-    for i in range(count):
+    for i in range(args.num_clients):
         cmd = f'taskset -c 0 iperf3 -s -f m -p 520{i+1}'.split(' ')
-        print(' '.join(cmd))
+        sclog(' '.join(cmd))
         p = net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         servers.append(p)
     return servers
 
-def start_iperf_clients(net, count):
+def start_iperf_clients(net, args):
+    target_pps = args.tput * args.num_clients
+    target_bits = args.tput * args.length * 8;
+    sclog(f'Target rate is {target_pps} packets/s ({target_bits / 1000000} * {args.num_clients} Mbit/s)')
+
     clients = []
     cmd = ['iperf3', '-c', '10.0.1.10', '--udp', '--congestion', 'cubic']
     cmd += ['--time', str(args.warmup + args.timeout + 1)]
     cmd += ['-b', str(int(args.tput * args.length * 8))]
     cmd += ['-l', str(args.length)]
-    sclog(f'Target rate is {args.tput * args.length} bytes/s')
-    for i in range(count):
+    for i in range(args.num_clients):
         new_cmd = ['taskset', '-c', str(i+1)] + cmd + ['-p', f'520{i+1}']
-        print(' '.join(new_cmd))
+        sclog(' '.join(new_cmd))
         p = net.h2.popen(new_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         clients.append(p)
     return clients
 
-def start_iperf(net, count=2):
-    servers = start_iperf_servers(net, count)
+def start_iperf(net, args):
+    servers = start_iperf_servers(net, args)
     time.sleep(1)
-    clients = start_iperf_clients(net, count)
+    clients = start_iperf_clients(net, args)
     return (servers, clients)
 
 def print_loadgen_output(servers, clients):
@@ -65,7 +68,7 @@ def run_benchmark_single(net, args):
         * Load generator: target tput (packets/s); tput (packets/s)
     """
     # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
-    servers, clients = start_iperf(net)
+    servers, clients = start_iperf(net, args)
     time.sleep(args.warmup)
     if args.disable_sidecar:
         time.sleep(args.timeout)
@@ -79,6 +82,9 @@ def run_benchmark_single(net, args):
         r1.terminate()
         print_loadgen_output(servers, clients)
         print_sidecar_output(r1)
+    target_pps = args.tput * args.num_clients
+    print(f'Target rate (packets/s): {round(target_pps, 3)}')
+    print(f'Target rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000, 3)}')
     net.stop()
 
 def run_benchmark_multi(net, args):
@@ -102,13 +108,15 @@ if __name__ == '__main__':
     ############################################################################
     # Load generator configurations
     loadgen_config = parser.add_argument_group('loadgen_config')
-    loadgen_config.add_argument('--tput', default=500, type=int, metavar='PPS',
+    loadgen_config.add_argument('--tput', default=50000, type=int, metavar='PPS',
         help='Target load generator throughput in packets per second for each '
              'iperf client. The load generator may not be able to achieve too '
-             'high of throughputs. (default: 500)')
+             'high of throughputs. (default: 50000)')
     loadgen_config.add_argument('--length', '-l', default=70, type=int, metavar='BYTES',
         help='Target load generator packet length, the -l option in iperf3 '
              '(default: 70)')
+    loadgen_config.add_argument('--num-clients', '-n', default=2, type=int,
+        help='Number of iperf clients. (default: 2)')
 
     ############################################################################
     # Sidecar configurations
