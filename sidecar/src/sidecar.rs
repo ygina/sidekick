@@ -4,7 +4,7 @@ use quack::*;
 use bincode;
 use log::{trace, debug, info};
 use tokio;
-use tokio::{sync::oneshot, net::UdpSocket, time::Instant};
+use tokio::{sync::oneshot, net::UdpSocket};
 
 use crate::{Quack, Socket};
 use crate::socket::SockAddr;
@@ -18,7 +18,7 @@ pub struct Sidecar {
     pub threshold: usize,
     pub bits: usize,
     #[cfg(feature = "benchmark")]
-    pub start_time: Option<Instant>,
+    pub start_time: Option<tokio::time::Instant>,
     quack: PowerSumQuack<u32>,
     log: Vec<u32>,
 }
@@ -111,7 +111,7 @@ impl Sidecar {
                         tx.send(()).unwrap();
                         #[cfg(feature = "benchmark")]
                         {
-                            sc.start_time = Some(Instant::now());
+                            sc.start_time = Some(tokio::time::Instant::now());
                         }
                     }
                     sc.insert_packet(id);
