@@ -1,13 +1,16 @@
 use std::sync::{Arc, Mutex};
+use std::net::{IpAddr, Ipv4Addr};
 use quack::*;
 use bincode;
 use log::{trace, debug, info};
 use tokio;
-use tokio::{sync::oneshot, net::UdpSocket};
+use tokio::{sync::oneshot, net::UdpSocket, time::Instant};
 
 use crate::{Quack, Socket};
 use crate::socket::SockAddr;
 use crate::buffer::{BUFFER_SIZE, Direction, UdpParser};
+
+const SIDECAR_IP_ADDR: IpAddr = IpAddr::V4(Ipv4Addr::new(10, 0, 2, 1));
 
 #[derive(Clone)]
 pub struct Sidecar {
@@ -65,9 +68,9 @@ impl Sidecar {
         let (tx, rx) = oneshot::channel();
 
         // Loop over received packets
-        let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
         tokio::task::spawn_blocking(move || {
             info!("tapping socket on fd={} interface={}", sock.fd, interface);
+            let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
             let mut addr = SockAddr::new_sockaddr_ll();
             let ip_protocol = (libc::ETH_P_IP as u16).to_be();
             let mut tx = Some(tx);
@@ -81,17 +84,14 @@ impl Sidecar {
                     trace!("not IP packet: {}", addr.sll_protocol);
                     continue;
                 }
+                if !UdpParser::is_udp(&buf) {
+                    trace!("not UDP packet");
+                    continue;
+                }
 
                 // Reset the quack if the dst IP is our own (and not for
                 // another e2e quic connection).
-                let dst_ip = match UdpParser::parse_dst_ip(&buf) {
-                    Some(dst_ip) => dst_ip,
-                    None => {
-                        trace!("not UDP packet");
-                        continue;
-                    }
-                };
-                if dst_ip == [10, 0, 2, 1] {
+                if UdpParser::parse_dst_addr(&buf).ip() == SIDECAR_IP_ADDR {
                     // TODO: check if dst port corresponds to this connection
                     sc.lock().unwrap().reset();
                     continue;
@@ -102,7 +102,7 @@ impl Sidecar {
                     trace!("underfilled buffer: {} < {}", n, BUFFER_SIZE);
                     continue;
                 }
-                let id = UdpParser::parse_identifier(&buf).unwrap();
+                let id = UdpParser::parse_identifier(&buf);
                 debug!("insert {} ({:#10x})", id, id);
                 // TODO: filter by QUIC connection?
                 {
@@ -161,13 +161,11 @@ impl Sidecar {
                 trace!("not IP packet: {}", addr.sll_protocol);
                 continue;
             }
-            let id = match UdpParser::parse_identifier(&buf) {
-                Some(id) => id,
-                None => {
-                    trace!("not UDP idacket");
-                    continue;
-                }
-            };
+            if !UdpParser::is_udp(&buf) {
+                trace!("not UDP packet");
+                continue;
+            }
+            let id = UdpParser::parse_identifier(&buf);
             debug!("insert {} ({:#10x})", id, id);
             // TODO: filter by QUIC connection?
             self.quack.insert(id);

@@ -1,4 +1,5 @@
 use libc::c_uchar;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 // Ethernet (14), IP (20), TCP/UDP (8) headers
 // The randomly-encrypted payload in a QUIC packet with a short header is at
@@ -64,28 +65,34 @@ impl UdpParser {
         })
     }
 
-    /// Returns the dst_ip if it is a UDP packet, otherwise None.
-    pub fn parse_dst_ip(x: &[u8; BUFFER_SIZE]) -> Option<[u8; 4]> {
+    /// Returns True if and only if the buffer represents a UDP packet.
+    pub fn is_udp(x: &[u8; BUFFER_SIZE]) -> bool {
         let ip_protocol = x[23];
-        if i32::from(ip_protocol) != libc::IPPROTO_UDP {
-            None
-        } else {
-            Some([x[30], x[31], x[32], x[33]])
-        }
+        i32::from(ip_protocol) == libc::IPPROTO_UDP
     }
 
-    /// Returns the sidecar identifier if it is a UDP packet, otherwise None.
-    pub fn parse_identifier(x: &[u8; BUFFER_SIZE]) -> Option<u32> {
-        let ip_protocol = x[23];
-        if i32::from(ip_protocol) != libc::IPPROTO_UDP {
-            None
-        } else {
-            Some(u32::from_be_bytes([
-                x[ID_OFFSET],
-                x[ID_OFFSET+1],
-                x[ID_OFFSET+2],
-                x[ID_OFFSET+3],
-            ]))
-        }
+    /// Returns the src_addr assuming the buffer represents a UDP packet.
+    pub fn parse_src_addr(x: &[u8; BUFFER_SIZE]) -> SocketAddr {
+        let ip = [x[26], x[27], x[28], x[29]];
+        let port = u16::from_be_bytes([x[34], x[35]]);
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::from(ip)), port)
+    }
+
+    /// Returns the dst_addr assuming the buffer represents a UDP packet.
+    pub fn parse_dst_addr(x: &[u8; BUFFER_SIZE]) -> SocketAddr {
+        let ip = [x[30], x[31], x[32], x[33]];
+        let port = u16::from_be_bytes([x[36], x[37]]);
+        SocketAddr::new(IpAddr::V4(Ipv4Addr::from(ip)), port)
+    }
+
+    /// Returns the sidecar identifier assuming the buffer represents
+    /// a QUIC UDP packet.
+    pub fn parse_identifier(x: &[u8; BUFFER_SIZE]) -> u32 {
+        u32::from_be_bytes([
+            x[ID_OFFSET],
+            x[ID_OFFSET+1],
+            x[ID_OFFSET+2],
+            x[ID_OFFSET+3],
+        ])
     }
 }

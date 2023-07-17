@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use clap::Parser;
 use quack::Quack;
-use sidecar::{Sidecar, SidecarType};
+use sidecar::Sidecar;
 use tokio::net::{UdpSocket};
 use tokio::time::{self, Instant, Duration};
 use signal_hook::{consts::SIGTERM, iterator::Signals};
