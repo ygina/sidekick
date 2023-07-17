@@ -6,12 +6,17 @@ import multiprocessing
 from network import *
 from mininet.log import setLogLevel
 
+NUM_LINES = 5
+
 def start_iperf_servers(net, args):
     servers = []
     num_server_cores = math.ceil(1.0 * args.num_clients / args.servers_per_core)
     for i in range(args.num_clients):
         cmd = f'taskset -c {int(i % num_server_cores)} iperf3 -s -f m -p {5200+i+1}'.split(' ')
-        sclog(' '.join(cmd))
+        if i < NUM_LINES or i == args.num_clients - 1:
+            sclog(' '.join(cmd))
+        elif i == NUM_LINES:
+            sclog('...')
         p = net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         servers.append(p)
     return servers
@@ -31,7 +36,10 @@ def start_iperf_clients(net, args):
     for i in range(args.num_clients):
         core = num_server_cores + (i % num_client_cores)
         new_cmd = ['taskset', '-c', str(core)] + cmd + ['-p', f'{5200+i+1}']
-        sclog(' '.join(new_cmd))
+        if i < NUM_LINES or i == args.num_clients - 1:
+            sclog(' '.join(new_cmd))
+        elif i == NUM_LINES:
+            sclog('...')
         p = net.h2.popen(new_cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
         clients.append(p)
     return clients
@@ -43,12 +51,18 @@ def start_iperf(net, args):
     return (servers, clients)
 
 def print_loadgen_output(servers, clients):
-    for server in servers:
-        sys.stdout.buffer.write(server.stdout.peek())
-        sys.stdout.buffer.write(b'\n')
-    for client in clients:
-        sys.stdout.buffer.write(client.stdout.peek())
-        sys.stdout.buffer.write(b'\n')
+    for i, server in enumerate(servers):
+        if i < NUM_LINES or i == args.num_clients - 1:
+            sys.stdout.buffer.write(server.stdout.peek())
+            sys.stdout.buffer.write(b'\n')
+        elif i == NUM_LINES:
+            sclog('...')
+    for i, client in enumerate(clients):
+        if i < NUM_LINES or i == args.num_clients - 1:
+            sys.stdout.buffer.write(client.stdout.peek())
+            sys.stdout.buffer.write(b'\n')
+        elif i == NUM_LINES:
+            sclog('...')
     sys.stdout.buffer.flush()
 
 def print_sidecar_output(sidecar):
@@ -81,7 +95,7 @@ def run_benchmark(net, args, binary):
         print_loadgen_output(servers, clients)
     else:
         env = os.environ.copy()
-        # env['RUST_LOG'] = 'trace'
+        # env['RUST_LOG'] = 'debug'
         benchmark_cmd = f'taskset -c {args.cores - 1} ./target/release/{binary} --threshold {args.threshold} --frequency {args.frequency}'
         sclog(benchmark_cmd)
         r1 = net.r1.popen(benchmark_cmd.split(' '),
@@ -93,6 +107,8 @@ def run_benchmark(net, args, binary):
     target_pps = args.tput * args.num_clients
     print(f'Target combined rate (packets/s): {round(target_pps, 3)}')
     print(f'Target combined rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000, 3)}')
+    print(f'Target average rate (packets/s): {round(target_pps / args.num_clients, 3)}')
+    print(f'Target average rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000 / args.num_clients, 3)}')
     net.stop()
 
 if __name__ == '__main__':
