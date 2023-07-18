@@ -121,10 +121,11 @@ class SidecarNetwork():
         popen(self.r1, 'iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
         self.r1.cmd('pepsal -v >> r1.log 2>&1 &')
 
-    def start_quack_sender(self, frequency, threshold):
+    def start_quack_sender(self, frequency, threshold, style):
         """
         - `frequency`: frequency of the sidecar sender e.g. 2ms or 2p
         - `threshold`: quACK threshold
+        - `style`: power_sum, strawman_a, strawman_b, OR strawman_c
         """
         print('', file=sys.stderr)
         sclog('Starting the QUIC sidecar sender on r1...')
@@ -139,10 +140,17 @@ class SidecarNetwork():
 
         self.r1.cmd(f'kill $(pidof sidecar)')
         # Does ./target/release/sender exist?
-        print(self.r1.cmd(f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
-            f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
-            f'--target-addr 10.0.2.10:5103 ' + \
-            f'{frequency} >> r1.log 2>&1 &'))
+        if style == 'power_sum':
+            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
+                f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
+                f'--target-addr 10.0.2.10:5103 ' + \
+                f'{frequency} >> r1.log 2>&1 &'
+        elif style == 'strawman_a':
+            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
+                f'./target/release/sender_strawman_a -i r1-eth1 ' + \
+                f'--addr 10.0.2.10:5103 >> r1.log 2>&1 &'
+        sclog(cmd)
+        sclog(self.r1.cmd(cmd))
 
     def get_h1_tx_packets(self):
         p = self.h1.popen(['cat', '/sys/class/net/h1-eth0/statistics/tx_packets'])

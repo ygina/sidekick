@@ -53,10 +53,11 @@ def benchmark_quack(net, args):
     h2_cmd += f'--sidecar-mtu {int(args.sidecar_mtu)} '
     h2_cmd += f'--threshold {args.threshold} '
     h2_cmd += f'--quack-reset {int(args.quack_reset)} '
+    h2_cmd += f'--quack-style {args.style} '
 
     net.h2.cmdPrint(h2_cmd)
     for _ in range(loops):
-        net.start_quack_sender(args.frequency, args.threshold)
+        net.start_quack_sender(args.frequency, args.threshold, args.style)
         time.sleep(0.1)  # wait for the quack sender to start
         net.h2.cmdPrint(h2_cmd)
 
@@ -164,6 +165,8 @@ if __name__ == '__main__':
     quack.add_argument('--quack-reset', type=bool, default=True,
         metavar='ENABLED',
         help='Whether to send quack reset messages [0|1] (default: 1)')
+    quack.add_argument('--style', default='power_sum',
+        choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
 
     ############################################################################
     # Multiflow experiments
@@ -203,7 +206,7 @@ if __name__ == '__main__':
     if args.pep:
         net.start_tcp_pep()
     if args.sidecar:
-        net.start_quack_sender(args.frequency, args.threshold)
+        net.start_quack_sender(args.frequency, args.threshold, args.style)
     net.set_segmentation_offloading(args.tso)
     clean_logs()
 

@@ -50,6 +50,8 @@ def run_quic_client(args):
         cmd += '--quack-reset '
     if args.sidecar_mtu:
         cmd += '--sidecar-mtu '
+    if args.quack_style:
+        cmd += f'--quack-style {args.quack_style} '
     if args.min_ack_delay is not None:
         cmd += f'--min-ack-delay {args.min_ack_delay} '
     if args.max_ack_delay is not None:
@@ -92,6 +94,9 @@ if __name__ == '__main__':
                       help='Send packets only if cwnd > mtu [0|1] (default: 1)')
     quic.add_argument('--quack-reset', type=bool, default=True,
                       help='Whether to send quack reset messages [0|1] (default: 1)')
+    quic.add_argument('--quack-style', default='power_sum',
+                      help='Style of quack to send/receive (default: power_sum)',
+                      choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
     quic.add_argument('--qlog', action='store_true',
                       help='Store qlogs at $HOME/sidecar/qlog')
     quic.set_defaults(func=run_quic_client)
