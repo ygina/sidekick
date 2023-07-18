@@ -1,8 +1,10 @@
 mod psum;
+mod strawman_a;
 #[cfg(feature = "power_table")]
 mod ptable;
 
 pub use psum::PowerSumQuack;
+pub use strawman_a::StrawmanAQuack;
 #[cfg(feature = "power_table")]
 pub use ptable::PowerTableQuack;
 #[cfg(feature = "power_table")]

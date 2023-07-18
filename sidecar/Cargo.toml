@@ -29,3 +29,9 @@ required-features = ["benchmark"]
 [[bin]]
 name = "benchmark_encode_multi"
 required-features = ["benchmark"]
+
+[[bin]]
+name = "sender"
+
+[[bin]]
+name = "sender_strawman_a"

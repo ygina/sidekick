@@ -1,7 +1,7 @@
 use quack::*;
 
-mod socket;
-mod buffer;
+pub mod socket;
+pub mod buffer;
 mod sidecar;
 pub mod sidecar_multi;
 
