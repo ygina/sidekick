@@ -38,7 +38,7 @@ class SidecarNetwork():
         rtt_ms = 2 * (delay1 + delay2)
         bw_mbps = min(bw1, bw2)
         bdp = get_max_queue_size_bytes(rtt_ms, bw_mbps)
-        print(f'max_queue_size (bytes) = {bdp}')
+        sclog(f'max_queue_size (bytes) = {bdp}')
         def tc(host, iface, loss, delay, bw):
             if qdisc == 'tbf':
                 popen(host, f'tc qdisc add dev {iface} root handle 1:0 ' \

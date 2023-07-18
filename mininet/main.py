@@ -198,9 +198,8 @@ if __name__ == '__main__':
     net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
         args.bw1, args.bw2, args.qdisc)
     net.start_webserver(args.min_ack_delay, args.max_ack_delay)
-    sys.stderr.buffer.write(bytes(f'Link1 delay={args.delay1} loss={args.loss1} bw={args.bw1}\n', 'utf-8'))
-    sys.stderr.buffer.write(bytes(f'Link2 delay={args.delay2} loss={args.loss2} bw={args.bw2}\n', 'utf-8'))
-    sys.stderr.buffer.flush()
+    sclog(f'Link1 delay={args.delay1} loss={args.loss1} bw={args.bw1}')
+    sclog(f'Link2 delay={args.delay2} loss={args.loss2} bw={args.bw2}')
     if args.pep:
         net.start_tcp_pep()
     if args.sidecar:
@@ -226,5 +225,5 @@ if __name__ == '__main__':
         tx1 = net.get_h1_tx_packets()
         args.benchmark(net, args)
         tx2 = net.get_h1_tx_packets()
-        print(f'h1-eth0 tx_packets = {tx2 - tx1}')
+        sclog(f'h1-eth0 tx_packets = {tx2 - tx1}')
     net.stop()

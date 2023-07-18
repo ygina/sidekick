@@ -1,9 +1,10 @@
 import argparse
 import os
 import tempfile
+from common import sclog
 
 def print_and_run_cmd(cmd):
-    print(cmd)
+    sclog(cmd)
     return os.system(cmd)
 
 def run_client(args, base_command, http_flag):
@@ -16,7 +17,7 @@ def run_client(args, base_command, http_flag):
     cmd += f'--data-binary @{f.name} '
     cmd += f'https://{args.addr}/ '
     if args.trials is None:
-        print(cmd)
+        sclog(cmd)
         fmt="\n\n      time_connect:  %{time_connect}s\n   time_appconnect:  %{time_appconnect}s\ntime_starttransfer:  %{time_starttransfer}s\n                   ----------\n        time_total:  %{time_total}s\n\nexitcode: %{exitcode}\nresponse_code: %{response_code}\nsize_upload: %{size_upload}\nsize_download: %{size_download}\nerrormsg: %{errormsg}\n"
         cmd += f'-w \"{fmt}\" '
         os.system(f'eval \'{cmd}\'')
@@ -24,7 +25,7 @@ def run_client(args, base_command, http_flag):
         fmt="%{time_connect}\\t%{time_appconnect}\\t%{time_starttransfer}\\t\\t%{time_total}\\t%{exitcode}\\t\\t%{response_code}\\t\\t%{size_upload}\\t\\t%{size_download}\\t%{errormsg}\\n"
         cmd += f'--max-time {args.timeout} '
         cmd += f'-o {args.stdout} 2>>{args.stderr} '
-        print(cmd)
+        sclog(cmd)
         cmd += f'-w \"{fmt}\" '
         # cmd = f"/usr/bin/time -f\"0\t\t0\t\t0\t\t\t%e\t0\t200\" "+\
         #       f"/home/gina/quiche-sidecar/target/release/quiche-client "+\
@@ -36,14 +37,14 @@ def run_client(args, base_command, http_flag):
             os.system(f'eval \'{cmd}\'')
 
 def run_tcp_client(args):
-    cmd = 'sidecurl '
+    cmd = 'RUST_LOG=debug sidecurl '
     run_client(args, cmd, '--http1.1')
 
 def run_quic_client(args):
     cmd = ''
     if args.qlog:
         cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
-    cmd += 'sidecurl '
+    cmd += 'RUST_LOG=debug sidecurl '
     cmd += f'--threshold {args.threshold} '
     if args.quack_reset:
         cmd += '--quack-reset '
