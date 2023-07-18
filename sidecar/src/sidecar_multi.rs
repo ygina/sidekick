@@ -1,5 +1,4 @@
 use std::sync::{Arc, Mutex};
-use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 use std::collections::HashMap;
 
 use quack::*;
@@ -11,7 +10,7 @@ use crate::{Quack, Socket};
 use crate::socket::SockAddr;
 use crate::buffer::{BUFFER_SIZE, Direction, UdpParser};
 
-const SIDECAR_IP_ADDR: IpAddr = IpAddr::V4(Ipv4Addr::new(10, 0, 2, 1));
+type AddrKey = [u8; 12];
 
 const IP_PROTOCOL: u16 = (libc::ETH_P_IP as u16).to_be();
 
@@ -29,20 +28,13 @@ pub struct SidecarMulti {
     pub start_time: Option<Instant>,
 
     /// Map from UDP source and dest address to the quack
-    senders: HashMap<(SocketAddr, SocketAddr), PowerSumQuack<u32>>,
+    senders: HashMap<AddrKey, PowerSumQuack<u32>>,
 }
 
 enum Action {
     Skip,
-    Reset {
-        src_addr: SocketAddr,
-        dst_addr: SocketAddr,
-    },
-    Insert {
-        src_addr: SocketAddr,
-        dst_addr: SocketAddr,
-        sidecar_id: u32,
-    },
+    Reset { addr_key: AddrKey },
+    Insert { addr_key: AddrKey, sidecar_id: u32 },
 }
 
 impl SidecarMulti {
@@ -59,28 +51,28 @@ impl SidecarMulti {
         }
     }
 
-    pub fn reset(&mut self, src_dst: &(SocketAddr, SocketAddr)) {
+    pub fn reset(&mut self, addr_key: &AddrKey) {
         self.senders
-            .get_mut(src_dst)
+            .get_mut(addr_key)
             .map(|quack| *quack = PowerSumQuack::new(self.threshold));
     }
 
     pub fn insert(
-        &mut self, src_dst: (SocketAddr, SocketAddr), sidecar_id: u32,
+        &mut self, addr_key: AddrKey, sidecar_id: u32,
     ) {
         self.senders
-            .entry(src_dst)
+            .entry(addr_key)
             .or_insert(PowerSumQuack::new(self.threshold))
             .insert(sidecar_id);
     }
 
     pub fn quack(
-        &self, src_dst: &(SocketAddr, SocketAddr),
+        &self, addr_key: &AddrKey,
     ) -> Option<PowerSumQuack<u32>> {
-        self.senders.get(src_dst).map(|quack| quack.clone())
+        self.senders.get(addr_key).map(|quack| quack.clone())
     }
 
-    pub fn senders(&self) -> &HashMap<(SocketAddr, SocketAddr), PowerSumQuack<u32>> {
+    pub fn senders(&self) -> &HashMap<AddrKey, PowerSumQuack<u32>> {
         &self.senders
     }
 }
@@ -100,10 +92,9 @@ fn process_one_packet(
 
     // Reset the quack if the dst IP is our own (and not for another e2e quic
     // connection).
-    let src_addr = UdpParser::parse_src_addr(buf);
-    let dst_addr = UdpParser::parse_dst_addr(buf);
-    if dst_addr.ip() == SIDECAR_IP_ADDR {  // TODO: check dst port
-        return Action::Reset { src_addr, dst_addr };
+    let addr_key = UdpParser::parse_addr_key(buf);
+    if &addr_key[6..10] == [10, 0, 2, 1] {  // TODO: check dst port
+        return Action::Reset { addr_key };
     }
 
     // Otherwise parse the identifier and insert it into the quack.
@@ -111,7 +102,7 @@ fn process_one_packet(
         return Action::Skip;
     }
     let sidecar_id = UdpParser::parse_identifier(&buf);
-    Action::Insert { src_addr, dst_addr, sidecar_id }
+    Action::Insert { addr_key, sidecar_id }
 }
 
 /// Start the raw socket that listens to the specified interface. Creates a new
@@ -138,10 +129,10 @@ pub fn start_sidecar_multi(
             trace!("received {} bytes: {:?}", n, buf);
             match process_one_packet(n, &buf, &addr) {
                 Action::Skip => { continue; }
-                Action::Reset { src_addr, dst_addr } => {
-                    sc.lock().unwrap().reset(&(src_addr, dst_addr));
+                Action::Reset { addr_key } => {
+                    sc.lock().unwrap().reset(&addr_key);
                 }
-                Action::Insert { src_addr, dst_addr, sidecar_id } => {
+                Action::Insert { addr_key, sidecar_id } => {
                     let mut sc = sc.lock().unwrap();
                     if let Some(tx) = tx.take() {
                         let now = Instant::now();
@@ -151,7 +142,7 @@ pub fn start_sidecar_multi(
                             sc.start_time = Some(now);
                         }
                     }
-                    sc.insert((src_addr, dst_addr), sidecar_id);
+                    sc.insert(addr_key, sidecar_id);
                 }
             }
         }

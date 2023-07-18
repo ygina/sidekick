@@ -25,3 +25,7 @@ benchmark = []
 [[bin]]
 name = "benchmark_encode"
 required-features = ["benchmark"]
+
+[[bin]]
+name = "benchmark_encode_multi"
+required-features = ["benchmark"]

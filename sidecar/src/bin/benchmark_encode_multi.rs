@@ -1,4 +1,5 @@
 use std::sync::{Arc, Mutex};
+use std::net::{SocketAddr, IpAddr, Ipv4Addr};
 use clap::Parser;
 use quack::Quack;
 use sidecar::SidecarMulti;
@@ -43,6 +44,8 @@ async fn handle_signals(sc: Arc<Mutex<SidecarMulti>>, mut signals: Signals) {
             let rate_mbits: f64 = rate_pps * 1500.0 * 8.0 / 1000000.0;
             println!("Average rate (packets/s): {:.3}", rate_pps);
             println!("Average rate (Mbit/s): {:.3}", rate_mbits);
+            println!("Combined rate (packets/s): {:.3}", rate_pps * (senders.len() as f64));
+            println!("Combined rate (Mbit/s): {:.3}", rate_mbits * (senders.len() as f64));
         } else {
             println!("No start time!");
         }
@@ -74,7 +77,10 @@ impl Benchmark {
             interval.tick().await;  // The first tick completes immediately.
             loop {
                 interval.tick().await;
-                for ((src_addr, _), quack) in self.sc.lock().unwrap().senders() {
+                for (key, quack) in self.sc.lock().unwrap().senders() {
+                    let src_ip = IpAddr::V4(Ipv4Addr::new(key[0], key[1], key[2], key[3]));
+                    let src_port = u16::from_be_bytes([key[5], key[6]]);
+                    let src_addr = SocketAddr::new(src_ip, src_port);
                     let bytes = bincode::serialize(&quack).unwrap();
                     socket.send_to(&bytes, src_addr).await.unwrap();
                 }

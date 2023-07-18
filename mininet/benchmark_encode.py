@@ -6,36 +6,21 @@ import multiprocessing
 from network import *
 from mininet.log import setLogLevel
 
-NUM_LINES = 5
+NUM_LINES = 2
 
-def start_iperf_servers(net, args):
-    servers = []
-    num_server_cores = math.ceil(1.0 * args.num_clients / args.servers_per_core)
-    for i in range(args.num_clients):
-        cmd = f'taskset -c {int(i % num_server_cores)} iperf3 -s -f m -p {5200+i+1}'.split(' ')
-        if i < NUM_LINES or i == args.num_clients - 1:
-            sclog(' '.join(cmd))
-        elif i == NUM_LINES:
-            sclog('...')
-        p = net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        servers.append(p)
-    return servers
-
-def start_iperf_clients(net, args):
+def start_iperf(net, args):
     target_pps = args.tput * args.num_clients
     target_bits = args.tput * args.length * 8;
     sclog(f'Target rate is {target_pps} packets/s ({target_bits / 1000000} * {args.num_clients} Mbit/s)')
 
     clients = []
-    cmd = ['iperf3', '-c', '10.0.1.10', '--udp', '--congestion', 'cubic']
-    cmd += ['--time', str(args.warmup + args.timeout + 1)]
+    cmd = ['iperf', '-c', '10.0.1.10', '--udp']
+    cmd += ['--time', str(args.warmup + args.timeout + 10)]
     cmd += ['-b', str(int(args.tput * args.length * 8))]
     cmd += ['-l', str(args.length)]
-    num_client_cores = math.ceil(1.0 * args.num_clients / args.clients_per_core)
-    num_server_cores = math.ceil(1.0 * args.num_clients / args.servers_per_core)
     for i in range(args.num_clients):
-        core = num_server_cores + (i % num_client_cores)
-        new_cmd = ['taskset', '-c', str(core)] + cmd + ['-p', f'{5200+i+1}']
+        core = i % (args.cores - 1)
+        new_cmd = ['taskset', '-c', str(core)] + cmd # + ['--cport', f'{5200+i+1}']
         if i < NUM_LINES or i == args.num_clients - 1:
             sclog(' '.join(new_cmd))
         elif i == NUM_LINES:
@@ -44,19 +29,7 @@ def start_iperf_clients(net, args):
         clients.append(p)
     return clients
 
-def start_iperf(net, args):
-    servers = start_iperf_servers(net, args)
-    time.sleep(1)
-    clients = start_iperf_clients(net, args)
-    return (servers, clients)
-
-def print_loadgen_output(servers, clients):
-    for i, server in enumerate(servers):
-        if i < NUM_LINES or i == args.num_clients - 1:
-            sys.stdout.buffer.write(server.stdout.peek())
-            sys.stdout.buffer.write(b'\n')
-        elif i == NUM_LINES:
-            sclog('...')
+def print_loadgen_output(clients):
     for i, client in enumerate(clients):
         if i < NUM_LINES or i == args.num_clients - 1:
             sys.stdout.buffer.write(client.stdout.peek())
@@ -88,11 +61,11 @@ def run_benchmark(net, args, binary):
         * Load generator: target tput (packets/s); tput (packets/s)
     """
     # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
-    servers, clients = start_iperf(net, args)
+    clients = start_iperf(net, args)
     time.sleep(args.warmup)
     if args.disable_sidecar:
         time.sleep(args.timeout)
-        print_loadgen_output(servers, clients)
+        print_loadgen_output(clients)
     else:
         env = os.environ.copy()
         # env['RUST_LOG'] = 'debug'
@@ -102,13 +75,15 @@ def run_benchmark(net, args, binary):
             stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
         time.sleep(args.timeout)
         r1.terminate()
-        print_loadgen_output(servers, clients)
+        print_loadgen_output(clients)
         print_sidecar_output(r1)
     target_pps = args.tput * args.num_clients
-    print(f'Target combined rate (packets/s): {round(target_pps, 3)}')
-    print(f'Target combined rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000, 3)}')
-    print(f'Target average rate (packets/s): {round(target_pps / args.num_clients, 3)}')
-    print(f'Target average rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000 / args.num_clients, 3)}')
+    if 'multi' not in binary:
+        print(f'\nTarget combined rate (packets/s): {round(target_pps, 3)}')
+        print(f'Target combined rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000, 3)}')
+    else:
+        print(f'\nTarget average rate (packets/s): {round(target_pps / args.num_clients, 3)}')
+        print(f'Target average rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000 / args.num_clients, 3)}')
     net.stop()
 
 if __name__ == '__main__':
@@ -134,9 +109,9 @@ if __name__ == '__main__':
     ############################################################################
     # Load generator configurations
     loadgen_config = parser.add_argument_group('loadgen_config')
-    loadgen_config.add_argument('--length', '-l', default=70, type=int, metavar='BYTES',
+    loadgen_config.add_argument('--length', '-l', default=40, type=int, metavar='BYTES',
         help='Target load generator packet length, the -l option in iperf3 '
-             '(default: 70)')
+             '(default: 40)')
 
     ############################################################################
     # Sidecar configurations
@@ -149,17 +124,13 @@ if __name__ == '__main__':
     ############################################################################
     # Single quack
     single = subparsers.add_parser('single')
-    single.set_defaults(binary='benchmark_encode')
-    single.add_argument('--tput', default=80000, type=int, metavar='PPS',
+    single.set_defaults(binary='benchmark_encode', clients_per_core=1)
+    single.add_argument('--tput', default=160000, type=int, metavar='PPS',
         help='Target load generator throughput in packets per second for each '
              'iperf client. The load generator may not be able to achieve too '
-             'high of throughputs. (default: 80000)')
-    single.add_argument('--num-clients', '-n', default=2, type=int,
-        help='Number of iperf clients. (default: 2)')
-    single.add_argument('--clients-per-core', default=1, type=int,
-        help='Number of iperf clients per core (default: 1)')
-    single.add_argument('--servers-per-core', default=2, type=int,
-        help='Number of iperf servers per core (default: 2)')
+             'high of throughputs. (default: 160000)')
+    single.add_argument('--num-clients', '-n', default=3, type=int,
+        help='Number of iperf clients. (default: 3)')
 
     ############################################################################
     # Multiple quacks
@@ -167,20 +138,19 @@ if __name__ == '__main__':
     # Each client sends at 83.333 packets/s (1 Mbit/s with 1500 byte MTU).
     multi = subparsers.add_parser('multi')
     multi.set_defaults(binary='benchmark_encode_multi')
-    multi.add_argument('--tput', default=83, type=int, metavar='PPS',
+    multi.add_argument('--tput', default=83.333, type=float, metavar='PPS',
         help='Target load generator throughput in packets per second for each '
-             'iperf client. (default: 83)')
+             'iperf client. (default: 83.333)')
     multi.add_argument('--num-clients', '-n', default=100, type=int,
         help='Number of iperf clients. (default: 100)')
     multi.add_argument('--clients-per-core', default=1000, type=int,
-        help='Number of iperf clients per core (default: 1000)')
-    multi.add_argument('--servers-per-core', default=2000, type=int,
-        help='Number of iperf servers per core (default: 2000)')
+        help='Number of iperf clients per core (default: 400)')
 
     args = parser.parse_args()
+    os.system('pkill -9 -f iperf')
+    os.system('pkill -9 -f ./target/release/benchmark')
     num_client_cores = math.ceil(1.0 * args.num_clients / args.clients_per_core)
-    num_server_cores = math.ceil(1.0 * args.num_clients / args.servers_per_core)
-    total_num_cores = num_client_cores + num_server_cores + 1
+    total_num_cores = num_client_cores + 1
     if total_num_cores > args.cores:
         sclog(f'Need {total_num_cores} cores for {args.num_clients} clients')
         exit(1)

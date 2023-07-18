@@ -1,16 +1,12 @@
 use std::sync::{Arc, Mutex};
-use std::net::{IpAddr, Ipv4Addr};
 use quack::*;
-use bincode;
 use log::{trace, debug, info};
 use tokio;
-use tokio::{sync::oneshot, net::UdpSocket};
+use tokio::sync::oneshot;
 
 use crate::{Quack, Socket};
 use crate::socket::SockAddr;
 use crate::buffer::{BUFFER_SIZE, Direction, UdpParser};
-
-const SIDECAR_IP_ADDR: IpAddr = IpAddr::V4(Ipv4Addr::new(10, 0, 2, 1));
 
 #[derive(Clone)]
 pub struct Sidecar {
@@ -91,7 +87,7 @@ impl Sidecar {
 
                 // Reset the quack if the dst IP is our own (and not for
                 // another e2e quic connection).
-                if UdpParser::parse_dst_addr(&buf).ip() == SIDECAR_IP_ADDR {
+                if UdpParser::parse_dst_ip(&buf) == [10, 0, 2, 1] {
                     // TODO: check if dst port corresponds to this connection
                     sc.lock().unwrap().reset();
                     continue;
@@ -131,9 +127,10 @@ impl Sidecar {
     /// Returns a channel that indicates when the first packet is sniffed.
     pub async fn start_frequency_pkts(
         &mut self,
-        frequency_pkts: usize,
-        sendaddr: std::net::SocketAddr,
+        _frequency_pkts: usize,
+        _sendaddr: std::net::SocketAddr,
     ) -> Result<(), String> {
+        /*
         let recvsock = Socket::new(self.interface.clone())?;
         let sendsock = UdpSocket::bind("0.0.0.0:0").await.unwrap();
         recvsock.set_promiscuous()?;
@@ -178,6 +175,8 @@ impl Sidecar {
                 sendsock.send_to(&bytes, sendaddr).await.unwrap();
             }
         }
+        */
+        unimplemented!()
     }
 
     /// Snapshot the quACK.
