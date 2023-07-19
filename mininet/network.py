@@ -149,6 +149,10 @@ class SidecarNetwork():
             cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
                 f'./target/release/sender_strawman_a -i r1-eth1 ' + \
                 f'--addr 10.0.2.10:5103 >> r1.log 2>&1 &'
+        elif style == 'strawman_b':
+            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
+                f'./target/release/sender_strawman_b -i r1-eth1 ' + \
+                f'--addr 10.0.2.10:5103 -n 4 >> r1.log 2>&1 &'
         sclog(cmd)
         sclog(self.r1.cmd(cmd))
 

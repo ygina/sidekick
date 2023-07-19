@@ -9,6 +9,7 @@ pub mod arithmetic {
 mod quack_internal;
 pub use quack_internal::PowerSumQuack;
 pub use quack_internal::StrawmanAQuack;
+pub use quack_internal::StrawmanBQuack;
 #[cfg(feature = "power_table")]
 pub(crate) use quack_internal::{init_pow_table, POWER_TABLE};
 #[cfg(feature = "power_table")]
