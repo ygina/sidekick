@@ -3,9 +3,37 @@ import time
 import re
 import os
 import subprocess
+from collections import defaultdict
 from common import *
 from mininet.net import Mininet
 from mininet.link import TCLink
+
+
+class NetStatistics():
+    def __init__(self, iface_to_host):
+        self.iface_to_host = iface_to_host
+        self.tx_packets = {}
+        self.tx_bytes = {}
+
+    def get(self, host, iface, name):
+        p = host.popen(['cat', f'/sys/class/net/{iface}/statistics/{name}'])
+        assert p.wait() == 0
+        for line in p.stdout:
+            return int(line.strip())
+
+    def start(self):
+        for iface, host in self.iface_to_host.items():
+            self.tx_packets[iface] = self.get(host, iface, 'tx_packets')
+            self.tx_bytes[iface] = self.get(host, iface, 'tx_bytes')
+
+    def stop_and_print(self):
+        ifaces = self.iface_to_host.keys()
+        sclog('\ttx_packets\ttx_bytes')
+        for iface in ifaces:
+            host = self.iface_to_host[iface]
+            num_packets = self.get(host, iface, 'tx_packets') - self.tx_packets[iface]
+            num_bytes = self.get(host, iface, 'tx_bytes') - self.tx_bytes[iface]
+            sclog(f'{iface}\t{num_packets}\t{num_bytes}')
 
 
 class SidecarNetwork():
@@ -21,6 +49,14 @@ class SidecarNetwork():
         self.net.addLink(self.r1, self.h1)
         self.net.addLink(self.r1, self.h2)
         self.net.build()
+
+        # Initialize statistics
+        self.statistics = NetStatistics({
+            'h1-eth0': self.h1,
+            'r1-eth0': self.r1,
+            'r1-eth1': self.r1,
+            'h2-eth0': self.h2
+        })
 
         # Configure interfaces
         popen(self.r1, "ifconfig r1-eth0 0")
@@ -155,12 +191,6 @@ class SidecarNetwork():
                 f'--addr 10.0.2.10:5103 -n 4 >> r1.log 2>&1 &'
         sclog(cmd)
         sclog(self.r1.cmd(cmd))
-
-    def get_h1_tx_packets(self):
-        p = self.h1.popen(['cat', '/sys/class/net/h1-eth0/statistics/tx_packets'])
-        assert p.wait() == 0
-        for line in p.stdout:
-            return int(line.strip())
 
     def stop(self):
         if self.net is not None:

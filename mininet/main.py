@@ -225,8 +225,7 @@ if __name__ == '__main__':
     elif args.ty == 'cli':
         CLI(net.net)
     else:
-        tx1 = net.get_h1_tx_packets()
+        net.statistics.start()
         args.benchmark(net, args)
-        tx2 = net.get_h1_tx_packets()
-        sclog(f'h1-eth0 tx_packets = {tx2 - tx1}')
+        net.statistics.stop_and_print()
     net.stop()
