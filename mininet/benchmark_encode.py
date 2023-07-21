@@ -16,7 +16,7 @@ def start_iperf(net, args):
 
     clients = []
     cmd = ['iperf', '-c', '10.0.1.10', '--udp']
-    cmd += ['--time', str(args.warmup + args.timeout + 10)]
+    cmd += ['--time', str(args.warmup + args.timeout + 600)]
     cmd += ['-b', str(int(args.tput * args.length * 8))]
     cmd += ['-l', str(args.length)]
     for i in range(args.num_clients):
