@@ -110,9 +110,9 @@ if __name__ == '__main__':
     ############################################################################
     # Load generator configurations
     loadgen_config = parser.add_argument_group('loadgen_config')
-    loadgen_config.add_argument('--length', '-l', default=40, type=int, metavar='BYTES',
-        help='Target load generator packet length, the -l option in iperf3 '
-             '(default: 40)')
+    loadgen_config.add_argument('--length', '-l', default=25, type=int, metavar='BYTES',
+        help='Target load generator packet length, the -l option in iperf3. '
+             'Minimum is 25 bytes to ensure parsing sidecar ID. (default: 25)')
 
     ############################################################################
     # Sidecar configurations
@@ -144,8 +144,8 @@ if __name__ == '__main__':
              'iperf client. (default: 83.333)')
     multi.add_argument('--num-clients', '-n', default=100, type=int,
         help='Number of iperf clients. (default: 100)')
-    multi.add_argument('--clients-per-core', default=1000, type=int,
-        help='Number of iperf clients per core (default: 400)')
+    multi.add_argument('--clients-per-core', default=10000, type=int,
+        help='Number of iperf clients per core (default: 10000)')
 
     args = parser.parse_args()
     os.system('pkill -9 -f iperf')
