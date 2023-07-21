@@ -7,6 +7,7 @@ from network import *
 from mininet.log import setLogLevel
 
 NUM_LINES = 2
+NUM_HEADER_BYTES = 14 + 20 + 8
 
 def start_iperf(net, args):
     target_pps = args.tput * args.num_clients
@@ -80,10 +81,10 @@ def run_benchmark(net, args, binary):
     target_pps = args.tput * args.num_clients
     if 'multi' not in binary:
         print(f'\nTarget combined rate (packets/s): {round(target_pps, 3)}')
-        print(f'Target combined rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000, 3)}')
+        print(f'Target combined rate (Mbit/s): {round(target_pps * (NUM_HEADER_BYTES + args.length) * 8 / 1000000, 3)}')
     else:
         print(f'\nTarget average rate (packets/s): {round(target_pps / args.num_clients, 3)}')
-        print(f'Target average rate (Mbit/s): {round(target_pps * 1500 * 8 / 1000000 / args.num_clients, 3)}')
+        print(f'Target average rate (Mbit/s): {round(target_pps * (NUM_HEADER_BYTES + args.length) * 8 / 1000000 / args.num_clients, 3)}')
     net.stop()
 
 if __name__ == '__main__':

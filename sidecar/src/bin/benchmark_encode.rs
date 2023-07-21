@@ -42,7 +42,6 @@ async fn handle_signals(sc: Arc<Mutex<Sidecar>>, mut signals: Signals) {
             let rate_pps: f64 = count as f64 * 1000000.0 / total_us as f64;
             let rate_mbits: f64 = rate_pps * 1500.0 * 8.0 / 1000000.0;
             println!("Rate (packets/s): {:.3}", rate_pps);
-            println!("Rate (Mbit/s): {:.3}", rate_mbits);
         } else {
             println!("No start time!");
         }
