@@ -13,5 +13,4 @@ use serde::{Serialize, Deserialize};
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StrawmanAQuack {
     pub sidecar_id: u32,
-    pub count: u32,
 }

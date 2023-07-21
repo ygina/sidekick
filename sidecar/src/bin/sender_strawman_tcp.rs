@@ -34,7 +34,6 @@ async fn main() -> Result<(), String> {
     let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
     let mut addr = SockAddr::new_sockaddr_ll();
     let ip_protocol = (libc::ETH_P_IP as u16).to_be();
-    let mut count: u32 = 0;
     loop {
         let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
         if Direction::Incoming != addr.sll_pkttype.into() {
@@ -49,10 +48,8 @@ async fn main() -> Result<(), String> {
         if n != (BUFFER_SIZE as _) {
             continue;
         }
-        count += 1;
         let quack = StrawmanAQuack {
             sidecar_id: UdpParser::parse_identifier(&buf),
-            count,
         };
         let bytes = bincode::serialize(&quack).unwrap();
         stream.write_all(&bytes).await.unwrap();
