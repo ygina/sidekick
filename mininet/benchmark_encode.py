@@ -40,11 +40,11 @@ def print_loadgen_output(clients):
     sys.stdout.buffer.flush()
 
 def print_sidecar_output(sidecar):
-    for line in sidecar.stdout.peek().split(b'\n'):
+    while True:
+        line = sidecar.stdout.readline()
         if b'DONE' in line:
             break
         sys.stdout.buffer.write(line)
-        sys.stdout.buffer.write(b'\n')
         sys.stdout.buffer.flush()
 
 def run_benchmark(net, args, binary):
