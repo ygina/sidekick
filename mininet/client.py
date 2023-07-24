@@ -44,7 +44,11 @@ def run_quic_client(args):
     cmd = ''
     if args.qlog:
         cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
-    cmd += 'RUST_LOG=debug sidecurl '
+    cmd += 'RUST_LOG=debug '
+    if args.quack_style == 'strawman_c':
+        cmd += '/home/gina/sidecar/curl/sidecurl/tcpsidecurl '
+    else:
+        cmd += 'sidecurl '
     cmd += f'--threshold {args.threshold} '
     if args.quack_reset:
         cmd += '--quack-reset '
