@@ -14,6 +14,8 @@ class NetStatistics():
         self.iface_to_host = iface_to_host
         self.tx_packets = {}
         self.tx_bytes = {}
+        self.rx_packets = {}
+        self.rx_bytes = {}
 
     def get(self, host, iface, name):
         p = host.popen(['cat', f'/sys/class/net/{iface}/statistics/{name}'])
@@ -25,15 +27,19 @@ class NetStatistics():
         for iface, host in self.iface_to_host.items():
             self.tx_packets[iface] = self.get(host, iface, 'tx_packets')
             self.tx_bytes[iface] = self.get(host, iface, 'tx_bytes')
+            self.rx_packets[iface] = self.get(host, iface, 'rx_packets')
+            self.rx_bytes[iface] = self.get(host, iface, 'rx_bytes')
 
     def stop_and_print(self):
         ifaces = self.iface_to_host.keys()
-        sclog('\ttx_packets\ttx_bytes')
+        sclog('            tx_packets    tx_bytes  rx_packets    rx_bytes')
         for iface in ifaces:
             host = self.iface_to_host[iface]
-            num_packets = self.get(host, iface, 'tx_packets') - self.tx_packets[iface]
-            num_bytes = self.get(host, iface, 'tx_bytes') - self.tx_bytes[iface]
-            sclog(f'{iface}\t{num_packets}\t{num_bytes}')
+            tx_packets = self.get(host, iface, 'tx_packets') - self.tx_packets[iface]
+            tx_bytes = self.get(host, iface, 'tx_bytes') - self.tx_bytes[iface]
+            rx_packets = self.get(host, iface, 'rx_packets') - self.rx_packets[iface]
+            rx_bytes = self.get(host, iface, 'rx_bytes') - self.rx_bytes[iface]
+            sclog(f'{iface:<10}{tx_packets:>12}{tx_bytes:>12}{rx_packets:>12}{rx_bytes:>12}')
 
 
 class SidecarNetwork():
