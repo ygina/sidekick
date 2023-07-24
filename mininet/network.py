@@ -182,25 +182,23 @@ class SidecarNetwork():
 
         self.r1.cmd(f'kill $(pidof sidecar)')
         # Does ./target/release/sender exist?
+        env = os.environ.copy()
+        env['RUST_BACKTRACE'] = '1'
+        env['RUST_LOG'] = 'debug'
         if style == 'power_sum':
-            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
-                f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
-                f'--target-addr 10.0.2.10:5103 ' + \
-                f'{frequency} >> r1.log 2>&1 &'
+            cmd = f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
+                  f'--target-addr 10.0.2.10:5103 {frequency}'
         elif style == 'strawman_a':
-            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
-                f'./target/release/sender_strawman_a -i r1-eth1 ' + \
-                f'--addr 10.0.2.10:5103 >> r1.log 2>&1 &'
+            cmd = f'./target/release/sender_strawman_a ' + \
+                  f'-i r1-eth1 --addr 10.0.2.10:5103'
         elif style == 'strawman_b':
-            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
-                f'./target/release/sender_strawman_b -i r1-eth1 ' + \
-                f'--addr 10.0.2.10:5103 -n 4 >> r1.log 2>&1 &'
+            cmd = f'./target/release/sender_strawman_b ' + \
+                  f'-i r1-eth1 --addr 10.0.2.10:5103 -n 4'
         elif style == 'strawman_c':
-            cmd = f'RUST_BACKTRACE=1 RUST_LOG=debug ' \
-                f'./target/release/sender_strawman_tcp -i r1-eth1 ' + \
-                f'--addr 10.0.2.10:5103 >> r1.log 2>&1 &'
+            cmd = f'./target/release/sender_strawman_tcp ' + \
+                  f'-i r1-eth1 --addr 10.0.2.10:5103'
         sclog(cmd)
-        sclog(self.r1.cmd(cmd))
+        self.r1.popen(cmd.split(' '), stdout=sys.stdout, stderr=sys.stderr, env=env)
 
     def stop(self):
         if self.net is not None:
