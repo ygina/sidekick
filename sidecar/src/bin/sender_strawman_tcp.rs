@@ -35,6 +35,7 @@ async fn main() -> Result<(), String> {
             Err(_) => { continue; }
         }
     };
+    stream.set_nodelay(true).unwrap();
 
     let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
     let mut addr = SockAddr::new_sockaddr_ll();
@@ -58,5 +59,6 @@ async fn main() -> Result<(), String> {
         };
         let bytes = bincode::serialize(&quack).unwrap();
         stream.write_all(&bytes).await.unwrap();
+        stream.flush().await.unwrap();
     }
 }
