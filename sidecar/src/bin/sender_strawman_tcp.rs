@@ -27,9 +27,14 @@ async fn main() -> Result<(), String> {
 
     let args = Cli::parse();
 
-    let mut stream = TcpStream::connect(args.addr).await.unwrap();
     let sock = Socket::new(args.interface.clone())?;
     sock.set_promiscuous()?;
+    let mut stream = loop {
+        match TcpStream::connect(args.addr).await {
+            Ok(stream) => { break stream; }
+            Err(_) => { continue; }
+        }
+    };
 
     let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
     let mut addr = SockAddr::new_sockaddr_ll();
