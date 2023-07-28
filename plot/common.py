@@ -5,7 +5,7 @@ from matplotlib.transforms import Bbox
 import seaborn as sns
 
 # Plot markers.
-MARKERS = 'PXD*o^v<>'
+MARKERS = 'PXD*o^v<>.'
 
 # Configure graph styling library.
 sns.set_style('ticks')
