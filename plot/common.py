@@ -49,6 +49,15 @@ def save_pdf(output_filename, bbox_inches='tight'):
             pdf.savefig(bbox_inches=bbox_inches)
     print(output_filename)
 
+def time_to_tput(total_time, n):
+    """
+    Converts runtime (in seconds) to throughput (in Mbit/s) where the data size
+    is provided as a string <data_size>M in MBytes.
+    """
+    assert n[-1] == 'M'
+    n = int(n[:-1])
+    return n * 8 / total_time
+
 LABEL_MAP = {}
 LABEL_MAP['quic'] = 'QUIC e2e'
 LABEL_MAP['quack'] = 'QUIC+sidecar'
