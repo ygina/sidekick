@@ -184,7 +184,7 @@ class SidecarNetwork():
         # Does ./target/release/sender exist?
         env = os.environ.copy()
         env['RUST_BACKTRACE'] = '1'
-        env['RUST_LOG'] = 'debug'
+        env['RUST_LOG'] = 'info'
         if style == 'power_sum':
             cmd = f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
                   f'--target-addr 10.0.2.10:5103 {frequency}'

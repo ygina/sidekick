@@ -5,7 +5,7 @@ use sidecar::Sidecar;
 use tokio::net::UdpSocket;
 use tokio::time::{self, Duration};
 use tokio::sync::oneshot;
-use log::{debug, info};
+use log::{trace, debug, info};
 use quack::Quack;
 
 /// Sends quACKs in the sidecar protocol, receives data in the base protocol.
@@ -49,8 +49,10 @@ async fn send_quacks(
             interval.tick().await;
             let quack = sc.lock().unwrap().quack();
             let bytes = bincode::serialize(&quack).unwrap();
-            info!("quack {}", quack.count());
-            socket.send_to(&bytes, addr).await.unwrap();
+            trace!("quack {}", quack.count());
+            if let Err(_) = socket.send_to(&bytes, addr).await {
+                break;
+            }
         }
     }
 }

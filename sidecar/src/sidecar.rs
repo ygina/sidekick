@@ -71,7 +71,10 @@ impl Sidecar {
             let ip_protocol = (libc::ETH_P_IP as u16).to_be();
             let mut tx = Some(tx);
             loop {
-                let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
+                let n = match sock.recvfrom(&mut addr, &mut buf) {
+                    Ok(n) => n,
+                    Err(_) => { break; },
+                };
                 trace!("received {} bytes: {:?}", n, buf);
                 if Direction::Incoming != addr.sll_pkttype.into() {
                     continue;

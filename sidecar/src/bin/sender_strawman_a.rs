@@ -34,7 +34,10 @@ async fn main() -> Result<(), String> {
     let mut addr = SockAddr::new_sockaddr_ll();
     let ip_protocol = (libc::ETH_P_IP as u16).to_be();
     loop {
-        let n = recv_sock.recvfrom(&mut addr, &mut buf).unwrap();
+        let n = match recv_sock.recvfrom(&mut addr, &mut buf) {
+            Ok(n) => n,
+            Err(_) => { return Ok(()); }
+        };
         if Direction::Incoming != addr.sll_pkttype.into() {
             continue;
         }
