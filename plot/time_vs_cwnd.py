@@ -114,8 +114,8 @@ def parse_tcp_data_ss(filename):
 
     return (xs, ys)
 
-def get_filename(time_s, http, loss):
-    filename = f'cwnd_{http}_{time_s}s_loss{loss}p.out'
+def get_filename(exp_name, time_s, http, delay, loss):
+    filename = f'cwnd_{exp_name}_{http}_{time_s}s_delay{delay}_loss{loss}p.out'
     directory = f'{WORKDIR}/results/cwnd/'
     os.system(f'mkdir -p {directory}')
     return f'{directory}{filename}'
@@ -133,7 +133,7 @@ def parse_data(args, bm, filename, key):
             return parse_tcp_data_ss(filename)
 
 def execute_and_parse_data(args, bm, loss, key='cwnd'):
-    filename = get_filename(args.time, bm, loss)
+    filename = get_filename(args.name, args.time, bm, args.min_ack_delay, loss)
     print(filename)
     (xs, ys) = parse_data(args, bm, filename, key)
     if len(xs) > 0 and len(ys) > 0:
@@ -233,11 +233,11 @@ def run(args, https, loss):
     plt.ylabel('cwnd (packets)')
     if args.max_x is not None:
         plt.xlim(0, args.max_x)
-    plt.ylim(0, 250)
+    plt.ylim(0, 300)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
-    pdf = 'cwnd_{}s_loss{}p.pdf'.format(args.time, loss)
+    pdf = f'cwnd_{args.name}_{args.time}s_delay{args.min_ack_delay}_loss{loss}p.pdf'
     plt.title(pdf)
-    save_pdf(pdf)
+    save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
     plt.clf()
 
 if __name__ == '__main__':
@@ -255,6 +255,7 @@ if __name__ == '__main__':
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
     parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
+    parser.add_argument('--name', required=True, help="experiment name")
 
     ############################################################################
     # QUIC/QuACK configuration
