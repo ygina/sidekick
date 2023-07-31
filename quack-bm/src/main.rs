@@ -59,7 +59,6 @@ fn main() {
                 args.quack_ty,
                 args.num_trials,
                 args.num_packets,
-                args.num_drop,
                 args.quack,
             )
         }

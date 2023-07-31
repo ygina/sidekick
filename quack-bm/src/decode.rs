@@ -20,17 +20,17 @@ fn benchmark_decode_strawman1(
     let mut acc1 = HashMultiSet::new();
     let mut acc2 = HashMultiSet::new();
 
-    // Insert all random numbers into the first accumulator.
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
-    }
-
     // Insert all but num_drop random numbers into the second accumulator.
     for j in 0..(num_packets - num_drop) {
         acc2.insert(numbers[j]);
     }
 
     let t1 = Instant::now();
+    // Insert all random numbers into the first accumulator.
+    // Then find the set difference.
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
     let dropped = acc1 - acc2;
     let t2 = Instant::now();
 
@@ -101,17 +101,15 @@ fn benchmark_decode_power_sum_factor_u32(
     let mut acc1 = PowerSumQuack::<u32>::new(size);
     let mut acc2 = PowerSumQuack::<u32>::new(size);
 
-    // Insert all random numbers into the first accumulator.
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
-    }
-
     // Insert all but num_drop random numbers into the second accumulator.
     for j in 0..(num_packets - num_drop) {
         acc2.insert(numbers[j]);
     }
 
     let t1 = Instant::now();
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
     acc1 -= acc2;
     let dropped = acc1.decode_by_factorization().unwrap();
     let t2 = Instant::now();
@@ -135,17 +133,15 @@ fn benchmark_decode_power_sum_precompute_u16(
     let mut acc1 = PowerTableQuack::new(size);
     let mut acc2 = PowerTableQuack::new(size);
 
-    // Insert all random numbers into the first accumulator.
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
-    }
-
     // Insert all but num_drop random numbers into the second accumulator.
     for j in 0..(num_packets - num_drop) {
         acc2.insert(numbers[j]);
     }
 
     let t1 = Instant::now();
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
     acc1 -= acc2;
     let dropped = acc1.decode_with_log(&numbers);
     let t2 = Instant::now();
@@ -173,17 +169,15 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     let mut acc1 = PowerSumQuack::<T>::new(size);
     let mut acc2 = PowerSumQuack::<T>::new(size);
 
-    // Insert all random numbers into the first accumulator.
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
-    }
-
     // Insert all but num_drop random numbers into the second accumulator.
     for j in 0..(num_packets - num_drop) {
         acc2.insert(numbers[j]);
     }
 
     let t1 = Instant::now();
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
     acc1 -= acc2;
     let dropped = acc1.decode_with_log(&numbers);
     let t2 = Instant::now();
