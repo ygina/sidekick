@@ -38,7 +38,9 @@ impl Sidecar {
     /// receivers, such as in the client code, with direct access to sent
     /// packets. Typically if this function is used, do not call start().
     pub fn insert_packet(&mut self, id: u32) {
-        self.quack.insert(id);
+        if self.threshold != 0 {
+            self.quack.insert(id);
+        }
     }
 
     /// Reset the sidecar state.
