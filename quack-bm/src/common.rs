@@ -6,10 +6,11 @@ use rand::{distributions::{Standard, Distribution}, Rng};
 #[derive(Clone, ValueEnum, Debug)]
 pub enum BenchmarkType {
     Construct,
+    ConstructMulti,
     Decode,
 }
 
-#[derive(Clone, ValueEnum, Debug)]
+#[derive(Clone, ValueEnum, Debug, PartialEq, Eq)]
 pub enum QuackType {
     Strawman1,
     Strawman2,

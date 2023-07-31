@@ -1,5 +1,6 @@
 mod common;
 mod construct;
+mod construct_multi;
 mod decode;
 
 use common::*;
@@ -42,6 +43,9 @@ struct Cli {
     /// Number of dropped packets.
     #[arg(short = 'd', long = "dropped", default_value_t = 20)]
     num_drop: usize,
+    /// Number of connections.
+    #[arg(short = 'c', long = "connections", default_value_t = 1)]
+    num_conns: usize,
     /// Quack parameters.
     #[command(flatten)]
     quack: QuackParams,
@@ -59,6 +63,15 @@ fn main() {
                 args.quack_ty,
                 args.num_trials,
                 args.num_packets,
+                args.quack,
+            )
+        }
+        BenchmarkType::ConstructMulti => {
+            construct_multi::run_benchmark(
+                args.quack_ty,
+                args.num_trials,
+                args.num_packets,
+                args.num_conns,
                 args.quack,
             )
         }
