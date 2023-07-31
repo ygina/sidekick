@@ -237,5 +237,5 @@ pub fn run_benchmark(
             durations.push(duration);
         }
     }
-    print_summary(durations);
+    print_summary(durations, num_packets);
 }
