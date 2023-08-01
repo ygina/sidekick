@@ -9,8 +9,7 @@ from os import path
 from collections import defaultdict
 from common import *
 
-# TARGET_XS = [x for x in range(0, 1100, 100)]
-TARGET_XS = [x for x in range(0, 160, 10)]
+TARGET_XS = [x for x in range(0, 100, 10)] + [x for x in range(100, 1100, 100)]
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def collect_ys_mean(ys):
@@ -134,7 +133,7 @@ def maybe_collect_missing_data(filename, key, args):
                     sys.stdout.buffer.write(line)
                     sys.stdout.buffer.flush()
 
-def plot_graph(data, https, legend, max_x, ylabel, xlabel='min_ack_delay', pdf=None):
+def plot_graph(data, https, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=None, pdf=None):
     max_x = max_x
     max_y = 0
     plt.figure(figsize=(8, 6))
@@ -145,16 +144,19 @@ def plot_graph(data, https, legend, max_x, ylabel, xlabel='min_ack_delay', pdf=N
             label = LABEL_MAP[key]
         else:
             label = key
-        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=label)
+        if yerr is None:
+            plt.plot(xs, ys, marker=MARKERS[i], label=label)
+        else:
+            plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=label)
         if len(xs) > 0:
             max_x = max(max_x, max(xs))
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
-    plt.xlim(0, max_x)
-    if max_y > 2000:
-        plt.ylim(0, 2000)
-    else:
+    plt.xlim(0)
+    if ylim is None:
         plt.ylim(0)
+    else:
+        plt.ylim(0, ylim)
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
     plt.title(pdf)
@@ -221,6 +223,7 @@ if __name__ == '__main__':
     # Parse results data, and collect missing data points if specified.
     data_tput = {}
     data_pkts = {}
+    data_all = {}
     for key in https:
         filename = f'{path}/{key}.txt'
         print(filename)
@@ -229,8 +232,10 @@ if __name__ == '__main__':
         (xs, ys_tput, ys_pkts) = parse_data(filename, key, args.trials, args.max_x, args.n)
         data_tput[key] = collect_data(xs, ys_tput, args.median)
         data_pkts[key] = collect_data(xs, ys_pkts, args.median)
+        data_all[key] = (data_tput[key][1], data_pkts[key][1], None)
 
     # Plot data.
     pdf = f'min_ack_delay_loss{args.loss}_{args.n}'
     plot_graph(data_pkts, https, args.legend, args.max_x, ylabel='h1-eth0 tx_packets', pdf=f'{pdf}_tx_packets.pdf')
     plot_graph(data_tput, https, args.legend, args.max_x, ylabel='Goodput (Mbit/s)', pdf=f'{pdf}_goodput.pdf')
+    plot_graph(data_all, https, args.legend, args.max_x, xlabel='Goodput (Mbit/s)', ylabel='h1-eth0 tx_packets', pdf=f'{pdf}.pdf', ylim=1000)
