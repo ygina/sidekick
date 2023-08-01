@@ -24,13 +24,13 @@ TARGET_XS = {}
 # # TARGET_XS['quic'] = [0]
 # TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
 # TARGET_XS['pep'] = TARGET_XS['quack']
-TARGET_XS['pep'] = [x for x in range(0, 1000, 100)]
-TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
+TARGET_XS['pep'] = [x for x in range(0, 1000, 50)]
+TARGET_XS['quack'] = [x for x in range(0, 1000, 50)]
 # TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
 # TARGET_XS['quic'] += [200, 400, 800]
 # TARGET_XS['tcp'] = TARGET_XS['quic']
-TARGET_XS['quic'] = [0, 100, 200]
-TARGET_XS['tcp'] = [0, 100, 200]
+TARGET_XS['quic'] = [0, 25, 50, 100, 200]
+TARGET_XS['tcp'] = [0, 25, 50, 100, 200]
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
@@ -40,7 +40,7 @@ def empty_list():
 def collect_ys_mean(ys, n):
     assert n[-1] == 'M'
     n_megabyte = int(n[:-1]) * 1.0
-    ys = [n_megabyte / y for y in ys]
+    ys = [n_megabyte * 8 / y for y in ys]
     y = statistics.mean(ys)
     yerr = 0 if len(ys) == 1 else statistics.stdev(ys)
     return (y, yerr)
@@ -102,6 +102,8 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
                 key_index = None
                 exitcode_index = None
                 continue
+            if '[sidecar]' in line:
+                continue
             if exitcode_index is not None and int(line[exitcode_index]) != 0:
                 continue
             data[loss].append(float(line[key_index]))
@@ -134,7 +136,9 @@ def maybe_collect_missing_data(filename, key, args):
             continue
         cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '-n', args.n,
                '--loss2', loss, '-t', str(missing), '--bw2', str(args.bw),
-               '--stderr', 'loss_tput.error']
+               '--stderr', 'loss_tput.error', '--timeout', '150']
+        cmd += ['--delay1', str(args.delay1), '--delay2', str(args.delay2)]
+        cmd += ['--frequency', f'{args.frequency}ms', '--threshold', str(args.threshold)]
         cmd += args.args
         cmd += [key]
         print(' '.join(cmd))
@@ -159,14 +163,14 @@ def plot_graph(data, https, legend, pdf=None):
         if len(xs) > 0:
             max_x = max(max_x, max(xs))
     plt.xlabel('Loss (%)')
-    plt.ylabel('Goodput (MBytes/s)')
+    plt.ylabel('Goodput (Mbit/s)')
     plt.xlim(0, max_x)
     plt.ylim(0)
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4)
     plt.title(pdf)
     if pdf:
-        save_pdf(pdf)
+        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
 
 def plot_legend(data, https, pdf):
     plot_graph(data, https, legend=False)
@@ -190,6 +194,14 @@ if __name__ == '__main__':
         help='bandwidth of near subpath link in Mbps (default: 100)')
     parser.add_argument('--max-x', default=800, type=int,
         help='maximum loss perecentage in hundredths of a percentage (default: 800)')
+    parser.add_argument('--delay1', default=75, type=int,
+        help='in ms (default: 75)')
+    parser.add_argument('--delay2', default=1, type=int,
+        help='in ms (default: 1)')
+    parser.add_argument('--frequency', default=100, type=int,
+        help='in ms (default: 100)')
+    parser.add_argument('--threshold', default=40, type=int,
+        help='in number of packets (default: 40)')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/main.py command if executing.')
     parser.add_argument('--median', action='store_true',
@@ -200,7 +212,7 @@ if __name__ == '__main__':
 
     # Create the directory that holds the results.
     https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
-    path = f'{WORKDIR}/results/loss_tput/bw{args.bw}/{args.n}'
+    path = f'{WORKDIR}/results/loss_tput/bw{args.bw}/{args.n}/{args.delay1}ms_{args.delay2}ms'
     os.system(f'mkdir -p {path}')
 
     # Parse results data, and collect missing data points if specified.
@@ -233,6 +245,6 @@ if __name__ == '__main__':
         data[key] = (new_xs, new_ys, new_yerrs)
 
     # Plot data.
-    pdf = f'loss_bw{args.bw}_{args.n}.pdf'
+    pdf = f'loss_bw{args.bw}_{args.n}_delay_{args.delay1}ms_{args.delay2}ms.pdf'
     plot_graph(data, https, args.legend, pdf=pdf)
     plot_legend(data, https, pdf='legend.pdf')
