@@ -10,6 +10,7 @@ def start_webrtc_server(net, args):
     cmd = './target/release/webrtc_server '
     cmd += '--port 5123 --client-addr 10.0.2.10:5124 '
     cmd += f'-b {args.client_bytes} '
+    cmd += f'--rtt {2 * (args.delay1 + args.delay2)} '
     print(cmd)
     cmd = cmd.strip().split(' ')
     return net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
