@@ -9,9 +9,9 @@
 //! On receiving a timeout packet (sequence number is the max u32 integer),
 //! print packet statistics. Print the average, p95, and p99 latencies, where
 //! the latencies are how long the packet stayed in the queue. Print histogram.
+use std::io;
 use std::net::SocketAddr;
-use std::collections::BinaryHeap;
-use std::cmp::Reverse;
+use std::collections::VecDeque;
 
 use clap::Parser;
 use tokio;
@@ -36,31 +36,37 @@ struct Cli {
 }
 
 const TIMEOUT_SEQNO: u32 = u32::MAX;
-const PAYLOAD_OFFSET: usize = 14 + 20 + 8;
 
 struct Statistics {
-
+    values: Vec<Duration>,
 }
 
 impl Statistics {
     /// Create a new histogram for adding duration values.
     fn new() -> Self {
-        unimplemented!()
+        Self {
+            values: Vec::new(),
+        }
     }
 
     /// Add a new duration value.
     fn add_value(&mut self, value: Duration) {
-        unimplemented!()
+        self.values.push(value);
     }
 
     /// Print average, p95, and p99 latency statistics.
-    fn print_statistics(&self) {
-        unimplemented!()
+    fn print_statistics(&mut self) {
+        self.values.sort();
+        let len = self.values.len();
+        println!("Average: {:?}", self.values[(len as f64 * 0.50) as usize]);
+        println!("p95: {:?}", self.values[(len as f64 * 0.95) as usize]);
+        println!("p99: {:?}", self.values[(len as f64 * 0.99) as usize]);
     }
 
     /// Print a histogram of the latency statistics.
     fn print_histogram(&self) {
-        unimplemented!()
+        println!("no histogram yet");
+        // unimplemented!()
     }
 }
 
@@ -72,37 +78,74 @@ struct Packet {
 }
 
 impl Packet {
-    fn new_missing(seqno: u32) -> Self {
+    fn new(seqno: u32) -> Self {
         Self { seqno, time_recv: None, time_nack: None }
-    }
-
-    fn new_received(seqno: u32, now: Instant) -> Self {
-        Self { seqno, time_recv: Some(now), time_nack: None }
     }
 }
 
 struct BufferedPackets {
+    send_sock: UdpSocket,
+    nack_addr: SocketAddr,
     nack_frequency: Duration,
+    /// Next seqno to play, and the seqno of the first packet in the buffer
+    /// if the buffer is non-empty.
     next_seqno: u32,
+    buffer: VecDeque<Packet>,
 }
 
 impl BufferedPackets {
-    fn new(nack_frequency: Duration) -> Self {
-        Self {
+    async fn new(
+        nack_addr: SocketAddr, nack_frequency: Duration,
+    ) -> io::Result<Self> {
+        Ok(Self {
+            send_sock: UdpSocket::bind("0.0.0.0:0").await?,
+            nack_addr,
             nack_frequency,
             next_seqno: 0,
-        }
+            buffer: VecDeque::new(),
+        })
     }
 
     /// Receive a packet with this sequence number.
-    fn recv_seqno(&mut self, seqno: u32, now: Instant) {
-        unimplemented!()
+    fn recv_seqno(&mut self, new_seqno: u32, now: Instant) {
+        // Ignore the seqno if it has already been received.
+        if new_seqno < self.next_seqno {
+            return;
+        }
+
+        // Add packets to the buffer until the seqno is guaranteed to be there.
+        if self.buffer.is_empty() {
+            self.buffer.push_back(Packet::new(self.next_seqno));
+        }
+        let next_seqno_to_push = self.buffer.back().unwrap().seqno + 1;
+        for seqno in next_seqno_to_push..(new_seqno + 1) {
+            self.buffer.push_back(Packet::new(seqno));
+        }
+
+        // Go through the buffer and mark the new packet received.
+        for packet in self.buffer.iter_mut() {
+            if packet.seqno == new_seqno {
+                if packet.time_recv.is_none() {
+                    packet.time_recv = Some(now);
+                    packet.time_nack = None;
+                }
+                return;
+            }
+        }
+
+        // Packet should have been marked received.
+        unreachable!()
     }
 
     /// Return the received time of the next packet to play if the next packet
     /// in the sequence is available. Removes that packet from the buffer.
     fn pop_seqno(&mut self) -> Option<Instant> {
-        unimplemented!()
+        if !self.buffer.is_empty() && self.buffer.front().unwrap().time_recv.is_some() {
+            self.next_seqno += 1;
+            Some(self.buffer.pop_front().unwrap().time_recv.unwrap())
+        } else {
+            None
+        }
     }
 
     /// Send NACKs to the given client address if any packets are missing i.e.,
@@ -110,14 +153,35 @@ impl BufferedPackets {
     /// been more than an RTT since the last NACK for that sequence number.
     /// It may be considerably more than an RTT for NACK retransmissions if
     /// this function is only called on receiving a packet.
-    fn send_nacks(&mut self, addr: SocketAddr) {
-        unimplemented!()
+    async fn send_nacks(
+        &mut self, now: Instant,
+    ) -> io::Result<()> {
+        if self.buffer.is_empty() {
+            return Ok(());
+        }
+        for packet in self.buffer.iter_mut() {
+            if packet.time_recv.is_some() {
+                continue;
+            }
+            if let Some(time_nack) = packet.time_nack.as_mut() {
+                if now - *time_nack > self.nack_frequency {
+                    let buf = packet.seqno.to_be_bytes();
+                    self.send_sock.send_to(&buf, &self.nack_addr).await?;
+                    *time_nack = now;
+                }
+            } else {
+                let buf = packet.seqno.to_be_bytes();
+                self.send_sock.send_to(&buf, &self.nack_addr).await?;
+                continue;
+            }
+        }
+        Ok(())
     }
 }
 
 
 #[tokio::main(flavor = "current_thread")]
-async fn main() -> std::io::Result<()> {
+async fn main() -> io::Result<()> {
     env_logger::init();
 
     let args = Cli::parse();
@@ -125,17 +189,18 @@ async fn main() -> std::io::Result<()> {
 
     // Listen for incoming packets.
     let nack_frequency = Duration::from_millis(args.rtt);
-    let mut pkts = BufferedPackets::new(nack_frequency);
-    let mut buf = Vec::new();
+    let mut pkts = BufferedPackets::new(args.client_addr, nack_frequency).await?;
+    let mut buf = vec![0; args.bytes];
     let sock = UdpSocket::bind(format!("0.0.0.0:{}", args.port)).await.unwrap();
     debug!("webrtc server is now listening");
     loop {
         let (len, _addr) = sock.recv_from(&mut buf).await?;
+        assert_eq!(len, args.bytes);
         let seqno = u32::from_be_bytes([
-            buf[PAYLOAD_OFFSET],
-            buf[PAYLOAD_OFFSET + 1],
-            buf[PAYLOAD_OFFSET + 2],
-            buf[PAYLOAD_OFFSET + 3],
+            buf[0],
+            buf[1],
+            buf[2],
+            buf[3],
         ]);
         trace!("received seqno {} ({} bytes)", seqno, len);
         if seqno == TIMEOUT_SEQNO {
@@ -147,7 +212,7 @@ async fn main() -> std::io::Result<()> {
         while let Some(time_recv) = pkts.pop_seqno() {
             stats.add_value(now - time_recv);
         }
-        pkts.send_nacks(args.client_addr);
+        pkts.send_nacks(now).await?;
     }
 
     // Print statistics before exiting.

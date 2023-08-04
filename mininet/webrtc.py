@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 import time
 import subprocess
@@ -6,16 +7,16 @@ from common import *
 from network import *
 from mininet.log import setLogLevel
 
-def start_webrtc_server(net, args):
+def start_webrtc_server(net, args, env):
     cmd = './target/release/webrtc_server '
     cmd += '--port 5123 --client-addr 10.0.2.10:5124 '
     cmd += f'-b {args.client_bytes} '
     cmd += f'--rtt {2 * (args.delay1 + args.delay2)} '
     print(cmd)
     cmd = cmd.strip().split(' ')
-    return net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    return net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
 
-def start_webrtc_client(net, args):
+def start_webrtc_client(net, args, env):
     cmd = './target/release/webrtc_client '
     cmd += '--server-addr 10.0.1.10:5123 --port 5124 '
     cmd += f'--timeout {args.timeout} '
@@ -26,7 +27,7 @@ def start_webrtc_client(net, args):
         cmd += f'--quack-style {args.style} --threshold {args.threshold} '
     print(cmd)
     cmd = cmd.strip().split(' ')
-    return net.h2.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    return net.h2.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
 
 def flush_process(p):
     for line in p.stdout:
@@ -34,9 +35,12 @@ def flush_process(p):
         sys.stdout.buffer.flush()
 
 def benchmark(net, args):
-    server = start_webrtc_server(net, args)
+    env = os.environ.copy()
+    env['RUST_LOG'] = 'debug'
+    env['RUST_BACKTRACE'] = '1'
+    server = start_webrtc_server(net, args, env)
     time.sleep(1)
-    client = start_webrtc_client(net, args)
+    client = start_webrtc_client(net, args, env)
     print(f'client exitcode = {client.wait()}')
     print(f'server exitcode = {server.wait()}')
     flush_process(client)
