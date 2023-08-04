@@ -63,6 +63,14 @@ impl Statistics {
         println!("Average: {:?}", self.values[(len as f64 * 0.50) as usize]);
         println!("p95: {:?}", self.values[(len as f64 * 0.95) as usize]);
         println!("p99: {:?}", self.values[(len as f64 * 0.99) as usize]);
+        println!("Percentiles = {:?}", (0..101).collect::<Vec<_>>());
+        println!("Latencies (ns) = {:?}", (0..101)
+            .map(|percent| (percent as f64) / 100.0)
+            .map(|percent| ((len as f64) * percent) as usize)
+            .map(|index| std::cmp::min(index, len - 1))
+            .map(|index| self.values[index])
+            .map(|duration| duration.as_secs() * 1000000000 + duration.subsec_nanos() as u64)
+            .collect::<Vec<_>>());
     }
 
     /// Print a histogram of the latency statistics.
