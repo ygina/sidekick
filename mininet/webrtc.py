@@ -5,6 +5,7 @@ import time
 import subprocess
 from common import *
 from network import *
+from mininet.cli import CLI
 from mininet.log import setLogLevel
 
 def start_webrtc_server(net, args, env):
@@ -36,7 +37,7 @@ def flush_process(p):
 
 def benchmark(net, args):
     env = os.environ.copy()
-    env['RUST_LOG'] = 'debug'
+    env['RUST_LOG'] = 'quack=info,mio=info,debug'
     env['RUST_BACKTRACE'] = '1'
     server = start_webrtc_server(net, args, env)
     time.sleep(1)
@@ -51,6 +52,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(prog='Sidecar')
     subparsers = parser.add_subparsers(required=True)
+    cli = subparsers.add_parser('cli')
+    cli.set_defaults(cli=True)
 
     ############################################################################
     # Network Configurations
@@ -71,6 +74,21 @@ if __name__ == '__main__':
         help='queuing discipline [tbf|cake|codel|red|grenville|none]')
 
     ############################################################################
+    # Sidecar Configurations
+    sc_config = parser.add_argument_group('sc_config')
+    sc_config.add_argument('--sidecar', action='store_true',
+        help='Enable the sidecar')
+    sc_config.add_argument('--style', default='power_sum',
+        choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
+    sc_config.add_argument('--frequency', default='10ms',
+        help='Quack frequency, in terms of ms or packets e.g., 2ms or 2p '
+             '(default: 10ms)')
+    sc_config.add_argument('--threshold', type=int, default=5,
+        metavar='PACKETS',
+        help='Initializes the quACK sender and receiver with this threshold '
+             '(default: 5).')
+
+    ############################################################################
     # Client configurations
     client_config = parser.add_argument_group('client_config')
     client_config.add_argument('-b', '--client-bytes', type=int, default=240,
@@ -83,21 +101,12 @@ if __name__ == '__main__':
     ############################################################################
     # Baseline benchmark
     base = subparsers.add_parser('base')
-    base.set_defaults(sidecar=False)
+    base.set_defaults(sidecar=False, cli=False)
 
     ############################################################################
     # QuACK benchmark
     quack = subparsers.add_parser('quack')
-    quack.set_defaults(sidecar=True)
-    quack.add_argument('--style', default='power_sum',
-        choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
-    quack.add_argument('--frequency', default='10ms',
-        help='Quack frequency, in terms of ms or packets e.g., 2ms or 2p '
-             '(default: 10ms)')
-    quack.add_argument('--threshold', type=int, default=5,
-        metavar='PACKETS',
-        help='Initializes the quACK sender and receiver with this threshold '
-             '(default: 5).')
+    quack.set_defaults(sidecar=True, cli=False)
 
     args = parser.parse_args()
     net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
@@ -106,5 +115,8 @@ if __name__ == '__main__':
         net.start_quack_sender(args.frequency, args.threshold, args.style)
     clean_logs()
 
-    benchmark(net, args)
+    if args.cli:
+        CLI(net.net)
+    else:
+        benchmark(net, args)
     net.stop()

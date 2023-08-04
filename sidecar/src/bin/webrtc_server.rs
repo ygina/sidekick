@@ -1,6 +1,7 @@
 //! Receives dummy WebRTC messages on a UDP socket.
 //!
 //! The first four bytes of the payload indicate a packet sequence number.
+//! The sequence numbers start at 1.
 //! Store the incoming packets in a buffer and play them as soon as the next
 //! packet in the sequence is available. If it ever detects a loss i.e. a
 //! packet is missing after 3 later packets have been received, send a NACK
@@ -58,6 +59,7 @@ impl Statistics {
     fn print_statistics(&mut self) {
         self.values.sort();
         let len = self.values.len();
+        println!("Num Values: {}", len);
         println!("Average: {:?}", self.values[(len as f64 * 0.50) as usize]);
         println!("p95: {:?}", self.values[(len as f64 * 0.95) as usize]);
         println!("p99: {:?}", self.values[(len as f64 * 0.99) as usize]);
@@ -101,7 +103,7 @@ impl BufferedPackets {
             send_sock: UdpSocket::bind("0.0.0.0:0").await?,
             nack_addr,
             nack_frequency,
-            next_seqno: 0,
+            next_seqno: 1,
             buffer: VecDeque::new(),
         })
     }
@@ -166,11 +168,14 @@ impl BufferedPackets {
             if let Some(time_nack) = packet.time_nack.as_mut() {
                 if now - *time_nack > self.nack_frequency {
                     let buf = packet.seqno.to_be_bytes();
+                    debug!("nacking {} (again)", packet.seqno);
                     self.send_sock.send_to(&buf, &self.nack_addr).await?;
                     *time_nack = now;
                 }
             } else {
+                debug!("nacking {}", packet.seqno);
                 let buf = packet.seqno.to_be_bytes();
+                packet.time_nack = Some(now);
                 self.send_sock.send_to(&buf, &self.nack_addr).await?;
                 continue;
             }

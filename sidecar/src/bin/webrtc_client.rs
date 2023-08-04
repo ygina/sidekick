@@ -1,6 +1,7 @@
 //! Send dummy WebRTC messages to a UDP socket.
 //!
 //! The first four bytes of the payload indicate a packet sequence number.
+//! The sequence numbers start at 1.
 //! Send a packet every <FREQUENCY> milliseconds, containing <BYTES> bytes of
 //! dummy data. (Sending a 240-byte payload every 20ms represents a 96 kbps
 //! stream.) When <TIMEOUT> time has elapsed, send a timeout packet where the
@@ -13,11 +14,17 @@
 //! which the quACK was sent.
 use std::io;
 use std::net::SocketAddr;
+use std::sync::Arc;
 
 use clap::{ValueEnum, Parser};
+use log::{trace, debug, info};
+use rand::Rng;
 use tokio;
 use tokio::net::UdpSocket;
+use tokio::sync::Mutex;  // locked across calls to .await
 use tokio::time::{Instant, Duration};
+use quack::{StrawmanAQuack, StrawmanBQuack, PowerSumQuack, Quack};
+use quack::arithmetic::{MonicPolynomialEvaluator, ModularArithmetic};
 
 #[derive(ValueEnum, PartialEq, Debug, Clone, Copy)]
 #[clap(rename_all = "snake_case")]
@@ -59,30 +66,78 @@ struct Cli {
     threshold: usize,
 }
 
+/// NACKs just have 4 bytes for the sequence number.
 const NACK_BUFFER_SIZE: usize = 4;
 
+/// The sidecar sniffs at a certain offset in QUIC packets such that those
+/// bytes are randomly-encrypted. I don't want to edit the sidecar code
+/// currently so I will set the sequence numbers here in the same offset.
+/// The sidecar offset also includes the Ethernet/IP/UDP headers since it
+/// sniffs from a raw socket.
+const ID_OFFSET: usize = sidecar::ID_OFFSET - (14+20+8);
+
+/// Max UDP payload size to expect.
+const MTU: usize = 1500;
+
+/// A packet is considered missing if a packet with a sequence number greater
+/// than this threshold away has been received. So packet 4 is considered
+/// missing if packet 7 or greater has been received. If the last received
+/// value is 7, at most packets 5 and 6 can be considered indeterminate.
+const REORDER_THRESHOLD: u32 = 3;
+
 struct PacketSender {
+    sidecar: bool,
     addr: SocketAddr,
     payload: Vec<u8>,
     send_sock: UdpSocket,
+    seqno_ids: Arc<Mutex<Vec<(u32, u32)>>>,
 }
 
 impl PacketSender {
-    async fn new(server_addr: &SocketAddr, bytes: usize) -> io::Result<Self> {
+    async fn clone_with_sock(&self) -> io::Result<Self> {
         Ok(Self {
+            sidecar: self.sidecar,
+            addr: self.addr.clone(),
+            payload: self.payload.clone(),
+            send_sock: UdpSocket::bind("0.0.0.0:0").await?,
+            seqno_ids: self.seqno_ids.clone(),
+        })
+    }
+
+    async fn new(
+        sidecar: bool, server_addr: &SocketAddr, bytes: usize,
+    ) -> io::Result<Self> {
+        Ok(Self {
+            sidecar,
             addr: server_addr.clone(),
             payload: vec![0xFF; bytes],
             send_sock: UdpSocket::bind("0.0.0.0:0").await?,
+            seqno_ids: Arc::new(Mutex::new(Vec::new())),
         })
     }
 
     /// Send a packet with this sequence number to the server.
     async fn send(&mut self, seqno: u32) -> io::Result<()> {
-        let seqno = seqno.to_be_bytes();
-        self.payload[0] = seqno[0];
-        self.payload[1] = seqno[1];
-        self.payload[2] = seqno[2];
-        self.payload[3] = seqno[3];
+        // Set the sequence number in the first 4 bytes.
+        let seqno_bytes = seqno.to_be_bytes();
+        self.payload[0] = seqno_bytes[0];
+        self.payload[1] = seqno_bytes[1];
+        self.payload[2] = seqno_bytes[2];
+        self.payload[3] = seqno_bytes[3];
+
+        // Set the random packet identifier at the QUIC offset.
+        let id: u32 = rand::thread_rng().gen();
+        let id_bytes = id.to_be_bytes();
+        self.payload[ID_OFFSET] = id_bytes[0];
+        self.payload[ID_OFFSET + 1] = id_bytes[1];
+        self.payload[ID_OFFSET + 2] = id_bytes[2];
+        self.payload[ID_OFFSET + 3] = id_bytes[3];
+
+        // Add the new packet to the buffer and send the packet.
+        // (may be some harmless reordering here)
+        if self.sidecar {
+            self.seqno_ids.lock().await.push((seqno, id));
+        }
         self.send_sock.send_to(&self.payload, &self.addr).await?;
         Ok(())
     }
@@ -103,18 +158,120 @@ fn listen_for_nacks(mut sender: PacketSender, port: u16) {
                 buf[2],
                 buf[3],
             ]);
+            debug!("retransmit {} from nack", seqno);
             sender.send(seqno).await.unwrap();
         }
     });
 }
 
-/// Spawn a thread that listens for sidecar quACKs and retransmit packets when
-/// determined missing.
-fn listen_for_quacks(
-    mut sender: PacketSender, quack_style: QuackStyle, quack_port: u16,
-    reset_addr: SocketAddr, threshold: usize,
+/// Spawn a thread that listens for sidecar quACKs using Strawman 1a (echo
+/// every identifier) and retransmit packets when determined missing.
+fn listen_for_quacks_strawman_a(mut sender: PacketSender, quack_port: u16) {
+    tokio::spawn(async move {
+        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
+        let mut buf = vec![0; MTU];
+        loop {
+            let (len, _) = sock.recv_from(&mut buf).await.unwrap();
+            let quack: StrawmanAQuack = bincode::deserialize(&buf[..len]).unwrap();
+            unimplemented!()
+        }
+    });
+}
+
+/// Spawn a thread that listens for sidecar quACKs using Strawman 1b (echo a
+/// sliding window of identifiers) and retransmit packets when determined
+/// missing.
+fn listen_for_quacks_strawman_b(mut sender: PacketSender, quack_port: u16) {
+    tokio::spawn(async move {
+        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
+        let mut buf = vec![0; MTU];
+        loop {
+            let (len, _) = sock.recv_from(&mut buf).await.unwrap();
+            let quack: StrawmanBQuack = bincode::deserialize(&buf[..len]).unwrap();
+            unimplemented!()
+        }
+    });
+}
+
+/// Spawn a thread that listens for sidecar quACKs using Strawman 1c (echo
+/// every identifier over TCP) and retransmit packets when determined missing.
+fn listen_for_quacks_strawman_c(mut sender: PacketSender, quack_port: u16) {
+    tokio::spawn(async move {
+        unimplemented!()
+    });
+}
+
+/// Spawn a thread that listens for sidecar quACKs using the power sum quACK
+/// and retransmit packets when determined missing.
+fn listen_for_quacks_power_sum(
+    mut sender: PacketSender, quack_port: u16, reset_addr: SocketAddr,
+    threshold: usize,
 ) {
-    unimplemented!()
+    tokio::spawn(async move {
+        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
+        let mut buf = vec![0; MTU];
+        let mut my_quack: PowerSumQuack<u32> = PowerSumQuack::new(threshold);
+        loop {
+            // Deserialize the quACK and only process it if at least one packet
+            // has been received and the quack has changed.
+            let (len, _) = sock.recv_from(&mut buf).await.unwrap();
+            let quack: PowerSumQuack<u32> = bincode::deserialize(&buf[..len]).unwrap();
+            if quack.last_value() == my_quack.last_value() {
+                continue;
+            }
+
+            // Update our own cumulative quACK to include up to the last value
+            // received (we would have sent everything in order).
+            let mut seqno_ids = sender.seqno_ids.lock().await;
+            let mut last_index_inserted = None;
+            for (i, &(seqno, id)) in seqno_ids.iter().enumerate() {
+                my_quack.insert(id);
+                trace!("quack insert {} ({})", id, seqno);
+                if id == quack.last_value() {
+                    last_index_inserted = Some(i);
+                    break;
+                }
+            }
+            let last_index_inserted = last_index_inserted.unwrap();
+
+            // If the number of missing packets exceeds the threshold, reset
+            // the quack. If no packets are missing, continue on.
+            trace!("quack counts {} - {} (last values {} {})",
+                my_quack.count(), quack.count(),
+                my_quack.last_value(), quack.last_value());
+            let diff_quack = my_quack.clone() - quack;
+            if diff_quack.count() > threshold as u32 {
+                panic!("num missing {} exceeds threshold {}", diff_quack.count(), threshold);
+                continue;
+            }
+            if diff_quack.count() == 0 {
+                seqno_ids.drain(..(last_index_inserted + 1));
+                continue;
+            }
+
+            // Identify the missing sequence numbers up to the last value
+            // received.
+            let coeffs = diff_quack.to_coeffs();
+            let mut missing_seqno_ids = Vec::new();
+            for &(seqno, id) in seqno_ids.iter() {
+                if id == diff_quack.last_value() {
+                    break;
+                }
+                if MonicPolynomialEvaluator::eval(&coeffs, id).is_zero() {
+                    missing_seqno_ids.push((seqno, id));
+                }
+            }
+
+            // Retransmit any missing packets.
+            seqno_ids.drain(..(last_index_inserted + 1));
+            drop(seqno_ids);
+            for (seqno, id) in missing_seqno_ids.into_iter() {
+                my_quack.remove(id);
+                debug!("retransmit {} from quack", seqno);
+                sender.send(seqno).await.unwrap();
+            }
+        }
+    });
 }
 
 /// Send a stream of packets at the specified frequency with the given payload.
@@ -127,8 +284,9 @@ async fn stream_data(
 
     // Send packets with increasing sequence numbers until the elapsed time
     // is greater than the timeout.
-    for seqno in 0..u32::MAX {
+    for seqno in 1..u32::MAX {
         interval.tick().await;
+        trace!("send {}", seqno);
         sender.send(seqno).await?;
         if Instant::now() - start > timeout {
             break;
@@ -136,6 +294,7 @@ async fn stream_data(
     }
 
     // Send the timeout message.
+    info!("sending timeout message");
     sender.send(u32::MAX).await?;
     Ok(())
 }
@@ -145,21 +304,33 @@ async fn main() -> io::Result<()> {
     env_logger::init();
 
     let args = Cli::parse();
-    listen_for_nacks(
-        PacketSender::new(&args.server_addr, args.bytes).await?,
-        args.port,
-    );
+    let sender = PacketSender::new(
+        args.quack_style.is_some(),
+        &args.server_addr,
+        args.bytes,
+    ).await?;
+    listen_for_nacks(sender.clone_with_sock().await?, args.port);
     if let Some(quack_style) = args.quack_style {
-        listen_for_quacks(
-            PacketSender::new(&args.server_addr, args.bytes).await?,
-            quack_style,
-            args.quack_port,
-            args.reset_addr,
-            args.threshold,
-        );
+        match quack_style {
+            QuackStyle::StrawmanA => listen_for_quacks_strawman_a(
+                sender.clone_with_sock().await?, args.quack_port,
+            ),
+            QuackStyle::StrawmanB => listen_for_quacks_strawman_b(
+                sender.clone_with_sock().await?, args.quack_port,
+            ),
+            QuackStyle::StrawmanC => listen_for_quacks_strawman_c(
+                sender.clone_with_sock().await?, args.quack_port,
+            ),
+            QuackStyle::PowerSum => listen_for_quacks_power_sum(
+                sender.clone_with_sock().await?,
+                args.quack_port,
+                args.reset_addr,
+                args.threshold,
+            ),
+        };
     }
     stream_data(
-        PacketSender::new(&args.server_addr, args.bytes).await?,
+        sender,
         Duration::from_secs(args.timeout),
         Duration::from_millis(args.frequency),
     ).await?;
