@@ -84,6 +84,7 @@ def parse_data(filename, key, trials, max_x, n, data_key='time_total'):
             except:
                 exitcode = None
             if exitcode != 0:
+                exitcode = None
                 continue
             data_tput[min_ack_delay].append(time_to_tput(float(line[key_index]), n))
 
