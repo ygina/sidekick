@@ -41,9 +41,6 @@ struct Cli {
     /// Server address to send dummy WebRTC messages to.
     #[arg(long)]
     server_addr: SocketAddr,
-    /// Port to listen on for NACKs.
-    #[arg(long)]
-    port: u16,
     /// Number of seconds to stream data before sending a timeout message.
     #[arg(long, short, default_value_t = 10)]
     timeout: u64,
@@ -120,14 +117,14 @@ impl PacketSender {
 
 /// Listen to the mpsc channel and actually send packets on the UDP socket.
 /// Receives sequence numbers and random identifiers and fills the packets.
-fn send_data(
+async fn send_data(
+    sock: Arc<UdpSocket>,
     bytes: usize,
     mut rx: mpsc::Receiver<(u32, u32)>,
     server_addr: SocketAddr,
 ) -> io::Result<()> {
     let mut payload = vec![0xFF; bytes];
     tokio::spawn(async move {
-        let sock = UdpSocket::bind("0.0.0.0:0").await.unwrap();
         while let Some((seqno, id)) = rx.recv().await {
             // Set the sequence number in the first 4 bytes.
             let seqno_bytes = seqno.to_be_bytes();
@@ -151,10 +148,9 @@ fn send_data(
 
 /// Spawn a thread that listens for end-to-end NACKs and retransmit packets
 /// when requested.
-fn listen_for_nacks(mut sender: PacketSender, port: u16) {
+fn listen_for_nacks(sock: Arc<UdpSocket>, mut sender: PacketSender) {
     let mut buf: [u8; NACK_BUFFER_SIZE] = [0; NACK_BUFFER_SIZE];
     tokio::spawn(async move {
-        let sock = UdpSocket::bind(format!("0.0.0.0:{}", port)).await.unwrap();
         loop {
             let (len, _addr) = sock.recv_from(&mut buf).await.unwrap();
             assert_eq!(len, NACK_BUFFER_SIZE);
@@ -313,9 +309,10 @@ async fn main() -> io::Result<()> {
 
     let args = Cli::parse();
     let (tx, rx) = mpsc::channel(100);
+    let sock = Arc::new(UdpSocket::bind("0.0.0.0:0").await?);
     let sender = PacketSender::new(args.quack_style.is_some(), tx).await?;
-    send_data(args.bytes, rx, args.server_addr)?;
-    listen_for_nacks(sender.clone(), args.port);
+    send_data(sock.clone(), args.bytes, rx, args.server_addr).await?;
+    listen_for_nacks(sock, sender.clone());
     if let Some(quack_style) = args.quack_style {
         match quack_style {
             QuackStyle::StrawmanA => listen_for_quacks_strawman_a(

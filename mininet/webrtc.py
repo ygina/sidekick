@@ -9,8 +9,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 
 def start_webrtc_server(net, args, env):
-    cmd = './target/release/webrtc_server '
-    cmd += '--port 5123 --client-addr 10.0.2.10:5124 '
+    cmd = './target/release/webrtc_server --port 5123 '
     cmd += f'-b {args.client_bytes} '
     cmd += f'--rtt {2 * (args.delay1 + args.delay2)} '
     print(cmd)
@@ -18,8 +17,7 @@ def start_webrtc_server(net, args, env):
     return net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
 
 def start_webrtc_client(net, args, env):
-    cmd = './target/release/webrtc_client '
-    cmd += '--server-addr 10.0.1.10:5123 --port 5124 '
+    cmd = './target/release/webrtc_client --server-addr 10.0.1.10:5123 '
     cmd += f'--timeout {args.timeout} '
     cmd += f'-b {args.client_bytes} '
     cmd += f'-f {args.client_frequency} '

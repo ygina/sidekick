@@ -25,9 +25,6 @@ struct Cli {
     /// Port to listen on.
     #[arg(long, default_value_t = 5201)]
     port: u16,
-    /// Client address to send NACKs to.
-    #[arg(long)]
-    client_addr: SocketAddr,
     /// Number of bytes to expect in the payload.
     #[arg(long, short, default_value_t = 240)]
     bytes: usize,
@@ -95,7 +92,6 @@ impl Packet {
 
 struct BufferedPackets {
     send_sock: UdpSocket,
-    nack_addr: SocketAddr,
     nack_frequency: Duration,
     /// Next seqno to play, and the seqno of the first packet in the buffer
     /// if the buffer is non-empty.
@@ -104,12 +100,9 @@ struct BufferedPackets {
 }
 
 impl BufferedPackets {
-    async fn new(
-        nack_addr: SocketAddr, nack_frequency: Duration,
-    ) -> io::Result<Self> {
+    async fn new(nack_frequency: Duration) -> io::Result<Self> {
         Ok(Self {
             send_sock: UdpSocket::bind("0.0.0.0:0").await?,
-            nack_addr,
             nack_frequency,
             next_seqno: 1,
             buffer: VecDeque::new(),
@@ -164,7 +157,7 @@ impl BufferedPackets {
     /// It may be considerably more than an RTT for NACK retransmissions if
     /// this function is only called on receiving a packet.
     async fn send_nacks(
-        &mut self, now: Instant,
+        &mut self, now: Instant, nack_addr: &SocketAddr,
     ) -> io::Result<()> {
         if self.buffer.is_empty() {
             return Ok(());
@@ -177,14 +170,14 @@ impl BufferedPackets {
                 if now - *time_nack > self.nack_frequency {
                     let buf = packet.seqno.to_be_bytes();
                     debug!("nacking {} (again)", packet.seqno);
-                    self.send_sock.send_to(&buf, &self.nack_addr).await?;
+                    self.send_sock.send_to(&buf, nack_addr).await?;
                     *time_nack = now;
                 }
             } else {
                 debug!("nacking {}", packet.seqno);
                 let buf = packet.seqno.to_be_bytes();
                 packet.time_nack = Some(now);
-                self.send_sock.send_to(&buf, &self.nack_addr).await?;
+                self.send_sock.send_to(&buf, nack_addr).await?;
                 continue;
             }
         }
@@ -202,12 +195,12 @@ async fn main() -> io::Result<()> {
 
     // Listen for incoming packets.
     let nack_frequency = Duration::from_millis(args.rtt);
-    let mut pkts = BufferedPackets::new(args.client_addr, nack_frequency).await?;
+    let mut pkts = BufferedPackets::new(nack_frequency).await?;
     let mut buf = vec![0; args.bytes];
     let sock = UdpSocket::bind(format!("0.0.0.0:{}", args.port)).await.unwrap();
     debug!("webrtc server is now listening");
     loop {
-        let (len, _addr) = sock.recv_from(&mut buf).await?;
+        let (len, addr) = sock.recv_from(&mut buf).await?;
         assert_eq!(len, args.bytes);
         let seqno = u32::from_be_bytes([
             buf[0],
@@ -225,7 +218,7 @@ async fn main() -> io::Result<()> {
         while let Some(time_recv) = pkts.pop_seqno() {
             stats.add_value(now - time_recv);
         }
-        pkts.send_nacks(now).await?;
+        pkts.send_nacks(now, &addr).await?;
     }
 
     // Print statistics before exiting.
