@@ -93,8 +93,8 @@ if __name__ == '__main__':
     client_config = parser.add_argument_group('client_config')
     client_config.add_argument('-b', '--client-bytes', type=int, default=240,
         help='Number of bytes of dummy data in the payload (default: 240)')
-    client_config.add_argument('-f', '--client-frequency', type=int, default=50,
-        help='Frequency to send packets, in milliseconds (default: 50)')
+    client_config.add_argument('-f', '--client-frequency', type=int, default=20,
+        help='Frequency to send packets, in milliseconds (default: 20)')
     client_config.add_argument('--timeout', type=int, metavar='S', default=30,
         help='Timeout, in seconds (default: 30)')
 
