@@ -57,6 +57,7 @@ impl Sidecar {
     /// Returns a channel that indicates when the first packet is sniffed.
     pub fn start(
         sc: Arc<Mutex<Sidecar>>,
+        my_ipv4_addr: [u8; 4],
     ) -> Result<oneshot::Receiver<()>, String> {
         let interface = sc.lock().unwrap().interface.clone();
         let sock = Socket::new(interface.clone())?;
@@ -92,7 +93,7 @@ impl Sidecar {
 
                 // Reset the quack if the dst IP is our own (and not for
                 // another e2e quic connection).
-                if UdpParser::parse_dst_ip(&buf) == [10, 0, 2, 1] {
+                if UdpParser::parse_dst_ip(&buf) == my_ipv4_addr {
                     // TODO: check if dst port corresponds to this connection
                     sc.lock().unwrap().reset();
                     continue;

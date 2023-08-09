@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
 use clap::Parser;
 use sidecar::Sidecar;
@@ -30,6 +30,9 @@ struct Cli {
     /// goes to stdout.
     #[arg(long = "target-addr")]
     target_addr: Option<SocketAddr>,
+    /// My IPv4 address to receive quACK resets.
+    #[arg(long = "my-addr")]
+    my_addr: Ipv4Addr,
 }
 
 async fn send_quacks(
@@ -94,8 +97,9 @@ async fn main() -> Result<(), String> {
 
     // Handle a snapshotted quACK at the specified frequency.
     if let Some(frequency_ms) = args.frequency_ms {
+        info!("my ipv4 address is {:?}", args.my_addr);
         let sc = Arc::new(Mutex::new(sc));
-        let rx = Sidecar::start(sc.clone())?;
+        let rx = Sidecar::start(sc.clone(), args.my_addr.octets())?;
         if let Some(addr) = args.target_addr {
             info!("quACKing to {:?}", addr);
             send_quacks(sc, rx, addr, frequency_ms).await;

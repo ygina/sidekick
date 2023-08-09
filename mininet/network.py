@@ -187,7 +187,7 @@ class SidecarNetwork():
         env['RUST_LOG'] = 'info'
         if style == 'power_sum':
             cmd = f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
-                  f'--target-addr 10.0.2.10:5103 {frequency}'
+                  f'--target-addr 10.0.2.10:5103 {frequency} --my-addr 10.0.2.1'
         elif style == 'strawman_a':
             cmd = f'./target/release/sender_strawman_a ' + \
                   f'-i r1-eth1 --addr 10.0.2.10:5103'
