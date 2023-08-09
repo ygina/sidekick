@@ -21,6 +21,7 @@ use log::{trace, debug, info};
 use rand::Rng;
 use tokio;
 use tokio::net::UdpSocket;
+use tokio::sync::mpsc;
 use tokio::sync::Mutex;  // locked across calls to .await
 use tokio::time::{Instant, Duration};
 use quack::{StrawmanAQuack, StrawmanBQuack, PowerSumQuack, Quack};
@@ -85,62 +86,67 @@ const MTU: usize = 1500;
 /// value is 7, at most packets 5 and 6 can be considered indeterminate.
 const REORDER_THRESHOLD: u32 = 3;
 
+#[derive(Clone)]
 struct PacketSender {
     sidecar: bool,
-    addr: SocketAddr,
-    payload: Vec<u8>,
-    send_sock: UdpSocket,
+    channel: mpsc::Sender<(u32, u32)>,
     seqno_ids: Arc<Mutex<Vec<(u32, u32)>>>,
 }
 
 impl PacketSender {
-    async fn clone_with_sock(&self) -> io::Result<Self> {
-        Ok(Self {
-            sidecar: self.sidecar,
-            addr: self.addr.clone(),
-            payload: self.payload.clone(),
-            send_sock: UdpSocket::bind("0.0.0.0:0").await?,
-            seqno_ids: self.seqno_ids.clone(),
-        })
-    }
-
     async fn new(
-        sidecar: bool, server_addr: &SocketAddr, bytes: usize,
+        sidecar: bool, channel: mpsc::Sender<(u32, u32)>,
     ) -> io::Result<Self> {
         Ok(Self {
             sidecar,
-            addr: server_addr.clone(),
-            payload: vec![0xFF; bytes],
-            send_sock: UdpSocket::bind("0.0.0.0:0").await?,
+            channel,
             seqno_ids: Arc::new(Mutex::new(Vec::new())),
         })
     }
 
     /// Send a packet with this sequence number to the server.
     async fn send(&mut self, seqno: u32) -> io::Result<()> {
-        // Set the sequence number in the first 4 bytes.
-        let seqno_bytes = seqno.to_be_bytes();
-        self.payload[0] = seqno_bytes[0];
-        self.payload[1] = seqno_bytes[1];
-        self.payload[2] = seqno_bytes[2];
-        self.payload[3] = seqno_bytes[3];
-
-        // Set the random packet identifier at the QUIC offset.
         let id: u32 = rand::thread_rng().gen();
-        let id_bytes = id.to_be_bytes();
-        self.payload[ID_OFFSET] = id_bytes[0];
-        self.payload[ID_OFFSET + 1] = id_bytes[1];
-        self.payload[ID_OFFSET + 2] = id_bytes[2];
-        self.payload[ID_OFFSET + 3] = id_bytes[3];
 
         // Add the new packet to the buffer and send the packet.
         // (may be some harmless reordering here)
         if self.sidecar {
             self.seqno_ids.lock().await.push((seqno, id));
         }
-        self.send_sock.send_to(&self.payload, &self.addr).await?;
+        self.channel.send((seqno, id)).await.unwrap();
         Ok(())
     }
+}
+
+/// Listen to the mpsc channel and actually send packets on the UDP socket.
+/// Receives sequence numbers and random identifiers and fills the packets.
+fn send_data(
+    bytes: usize,
+    mut rx: mpsc::Receiver<(u32, u32)>,
+    server_addr: SocketAddr,
+) -> io::Result<()> {
+    let mut payload = vec![0xFF; bytes];
+    tokio::spawn(async move {
+        let sock = UdpSocket::bind("0.0.0.0:0").await.unwrap();
+        while let Some((seqno, id)) = rx.recv().await {
+            // Set the sequence number in the first 4 bytes.
+            let seqno_bytes = seqno.to_be_bytes();
+            payload[0] = seqno_bytes[0];
+            payload[1] = seqno_bytes[1];
+            payload[2] = seqno_bytes[2];
+            payload[3] = seqno_bytes[3];
+
+            // Set the random packet identifier at the QUIC offset.
+            let id_bytes = id.to_be_bytes();
+            payload[ID_OFFSET] = id_bytes[0];
+            payload[ID_OFFSET + 1] = id_bytes[1];
+            payload[ID_OFFSET + 2] = id_bytes[2];
+            payload[ID_OFFSET + 3] = id_bytes[3];
+
+            sock.send_to(&payload, &server_addr).await.unwrap();
+        }
+    });
+    Ok(())
 }
 
 /// Spawn a thread that listens for end-to-end NACKs and retransmit packets
@@ -166,13 +172,13 @@ fn listen_for_nacks(mut sender: PacketSender, port: u16) {
 
 /// Spawn a thread that listens for sidecar quACKs using Strawman 1a (echo
 /// every identifier) and retransmit packets when determined missing.
-fn listen_for_quacks_strawman_a(mut sender: PacketSender, quack_port: u16) {
+fn listen_for_quacks_strawman_a(mut _sender: PacketSender, quack_port: u16) {
     tokio::spawn(async move {
         let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
         let mut buf = vec![0; MTU];
         loop {
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
-            let quack: StrawmanAQuack = bincode::deserialize(&buf[..len]).unwrap();
+            let _quack: StrawmanAQuack = bincode::deserialize(&buf[..len]).unwrap();
             unimplemented!()
         }
     });
@@ -181,13 +187,13 @@ fn listen_for_quacks_strawman_a(mut sender: PacketSender, quack_port: u16) {
 /// Spawn a thread that listens for sidecar quACKs using Strawman 1b (echo a
 /// sliding window of identifiers) and retransmit packets when determined
 /// missing.
-fn listen_for_quacks_strawman_b(mut sender: PacketSender, quack_port: u16) {
+fn listen_for_quacks_strawman_b(mut _sender: PacketSender, quack_port: u16) {
     tokio::spawn(async move {
         let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
         let mut buf = vec![0; MTU];
         loop {
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
-            let quack: StrawmanBQuack = bincode::deserialize(&buf[..len]).unwrap();
+            let _quack: StrawmanBQuack = bincode::deserialize(&buf[..len]).unwrap();
             unimplemented!()
         }
     });
@@ -195,7 +201,7 @@ fn listen_for_quacks_strawman_b(mut sender: PacketSender, quack_port: u16) {
 
 /// Spawn a thread that listens for sidecar quACKs using Strawman 1c (echo
 /// every identifier over TCP) and retransmit packets when determined missing.
-fn listen_for_quacks_strawman_c(mut sender: PacketSender, quack_port: u16) {
+fn listen_for_quacks_strawman_c(mut _sender: PacketSender, _quack_port: u16) {
     tokio::spawn(async move {
         unimplemented!()
     });
@@ -204,7 +210,7 @@ fn listen_for_quacks_strawman_c(mut sender: PacketSender, quack_port: u16) {
 /// Spawn a thread that listens for sidecar quACKs using the power sum quACK
 /// and retransmit packets when determined missing.
 fn listen_for_quacks_power_sum(
-    mut sender: PacketSender, quack_port: u16, reset_addr: SocketAddr,
+    mut sender: PacketSender, quack_port: u16, _reset_addr: SocketAddr,
     threshold: usize,
 ) {
     tokio::spawn(async move {
@@ -242,7 +248,7 @@ fn listen_for_quacks_power_sum(
             let diff_quack = my_quack.clone() - quack;
             if diff_quack.count() > threshold as u32 {
                 panic!("num missing {} exceeds threshold {}", diff_quack.count(), threshold);
-                continue;
+                // continue;
             }
             if diff_quack.count() == 0 {
                 seqno_ids.drain(..(last_index_inserted + 1));
@@ -293,9 +299,11 @@ async fn stream_data(
         }
     }
 
-    // Send the timeout message.
+    // Send the timeout message. Do it a bunch and hope one makes it through.
     info!("sending timeout message");
-    sender.send(u32::MAX).await?;
+    for _ in 0..100 {
+        sender.send(u32::MAX).await?;
+    }
     Ok(())
 }
 
@@ -304,25 +312,23 @@ async fn main() -> io::Result<()> {
     env_logger::init();
 
     let args = Cli::parse();
-    let sender = PacketSender::new(
-        args.quack_style.is_some(),
-        &args.server_addr,
-        args.bytes,
-    ).await?;
-    listen_for_nacks(sender.clone_with_sock().await?, args.port);
+    let (tx, rx) = mpsc::channel(100);
+    let sender = PacketSender::new(args.quack_style.is_some(), tx).await?;
+    send_data(args.bytes, rx, args.server_addr)?;
+    listen_for_nacks(sender.clone(), args.port);
     if let Some(quack_style) = args.quack_style {
         match quack_style {
             QuackStyle::StrawmanA => listen_for_quacks_strawman_a(
-                sender.clone_with_sock().await?, args.quack_port,
+                sender.clone(), args.quack_port,
             ),
             QuackStyle::StrawmanB => listen_for_quacks_strawman_b(
-                sender.clone_with_sock().await?, args.quack_port,
+                sender.clone(), args.quack_port,
             ),
             QuackStyle::StrawmanC => listen_for_quacks_strawman_c(
-                sender.clone_with_sock().await?, args.quack_port,
+                sender.clone(), args.quack_port,
             ),
             QuackStyle::PowerSum => listen_for_quacks_power_sum(
-                sender.clone_with_sock().await?,
+                sender.clone(),
                 args.quack_port,
                 args.reset_addr,
                 args.threshold,
