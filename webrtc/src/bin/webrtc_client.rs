@@ -72,7 +72,9 @@ const NACK_BUFFER_SIZE: usize = 4;
 /// currently so I will set the sequence numbers here in the same offset.
 /// The sidecar offset also includes the Ethernet/IP/UDP headers since it
 /// sniffs from a raw socket.
-const ID_OFFSET: usize = sidecar::ID_OFFSET - (14+20+8);
+/// The randomly-encrypted payload in a QUIC packet with a short header is at
+/// offset 63, including the Ethernet (14), IP (20), UDP (8) headers.
+const ID_OFFSET: usize = 63 - (14+20+8);
 
 /// Max UDP payload size to expect.
 const MTU: usize = 1500;

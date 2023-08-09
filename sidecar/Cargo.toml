@@ -44,8 +44,3 @@ name = "sender_strawman_b"
 [[bin]]
 name = "sender_strawman_tcp"
 
-[[bin]]
-name = "webrtc_server"
-
-[[bin]]
-name = "webrtc_client"
