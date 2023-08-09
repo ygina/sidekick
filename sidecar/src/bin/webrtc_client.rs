@@ -44,13 +44,13 @@ struct Cli {
     #[arg(long)]
     port: u16,
     /// Number of seconds to stream data before sending a timeout message.
-    #[arg(long, short)]
+    #[arg(long, short, default_value_t = 10)]
     timeout: u64,
     /// Number of bytes to send in the payload, including the sequence number.
-    #[arg(long, short)]
+    #[arg(long, short, default_value_t = 240)]
     bytes: usize,
     /// Frequency at which to send packets, in milliseconds.
-    #[arg(long, short)]
+    #[arg(long, short, default_value_t = 20)]
     frequency: u64,
     /// Style of quack to expect.
     #[arg(long, value_enum)]

@@ -23,13 +23,13 @@ use tokio::time::{Instant, Duration};
 #[derive(Parser)]
 struct Cli {
     /// Port to listen on.
-    #[arg(long)]
+    #[arg(long, default_value_t = 5201)]
     port: u16,
     /// Client address to send NACKs to.
     #[arg(long)]
     client_addr: SocketAddr,
     /// Number of bytes to expect in the payload.
-    #[arg(long, short)]
+    #[arg(long, short, default_value_t = 240)]
     bytes: usize,
     /// End-to-end RTT in ms, which is also how often to resend NACKs.
     #[arg(long)]
