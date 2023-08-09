@@ -123,7 +123,6 @@ async fn send_data(
     sock: Arc<UdpSocket>,
     bytes: usize,
     mut rx: mpsc::Receiver<(u32, u32)>,
-    server_addr: SocketAddr,
 ) -> io::Result<()> {
     let mut payload = vec![0xFF; bytes];
     tokio::spawn(async move {
@@ -142,7 +141,7 @@ async fn send_data(
             payload[ID_OFFSET + 2] = id_bytes[2];
             payload[ID_OFFSET + 3] = id_bytes[3];
 
-            sock.send_to(&payload, &server_addr).await.unwrap();
+            sock.send(&payload).await.unwrap();
         }
     });
     Ok(())
@@ -154,7 +153,7 @@ fn listen_for_nacks(sock: Arc<UdpSocket>, mut sender: PacketSender) {
     let mut buf: [u8; NACK_BUFFER_SIZE] = [0; NACK_BUFFER_SIZE];
     tokio::spawn(async move {
         loop {
-            let (len, _addr) = sock.recv_from(&mut buf).await.unwrap();
+            let len = sock.recv(&mut buf).await.unwrap();
             assert_eq!(len, NACK_BUFFER_SIZE);
             let seqno = u32::from_be_bytes([
                 buf[0],
@@ -311,10 +310,15 @@ async fn main() -> io::Result<()> {
 
     let args = Cli::parse();
     let (tx, rx) = mpsc::channel(100);
-    let sock = Arc::new(UdpSocket::bind("0.0.0.0:0").await?);
-    info!("sending from {:?}", sock.local_addr().unwrap());
+
+    let sock = {
+        let sock = UdpSocket::bind("0.0.0.0:0").await?;
+        info!("sending from {:?}", sock.local_addr().unwrap());
+        sock.connect(args.server_addr).await?;
+        Arc::new(sock)
+    };
     let sender = PacketSender::new(args.quack_style.is_some(), tx).await?;
-    send_data(sock.clone(), args.bytes, rx, args.server_addr).await?;
+    send_data(sock.clone(), args.bytes, rx).await?;
     listen_for_nacks(sock, sender.clone());
     if let Some(quack_style) = args.quack_style {
         match quack_style {

@@ -13,6 +13,7 @@
 use std::io;
 use std::net::SocketAddr;
 use std::collections::VecDeque;
+use std::sync::Arc;
 
 use clap::Parser;
 use tokio;
@@ -91,7 +92,7 @@ impl Packet {
 }
 
 struct BufferedPackets {
-    send_sock: UdpSocket,
+    send_sock: Arc<UdpSocket>,
     nack_frequency: Duration,
     /// Next seqno to play, and the seqno of the first packet in the buffer
     /// if the buffer is non-empty.
@@ -100,9 +101,11 @@ struct BufferedPackets {
 }
 
 impl BufferedPackets {
-    async fn new(nack_frequency: Duration) -> io::Result<Self> {
+    async fn new(
+        sock: Arc<UdpSocket>, nack_frequency: Duration,
+    ) -> io::Result<Self> {
         Ok(Self {
-            send_sock: UdpSocket::bind("0.0.0.0:0").await?,
+            send_sock: sock,
             nack_frequency,
             next_seqno: 1,
             buffer: VecDeque::new(),
@@ -195,9 +198,13 @@ async fn main() -> io::Result<()> {
 
     // Listen for incoming packets.
     let nack_frequency = Duration::from_millis(args.rtt);
-    let mut pkts = BufferedPackets::new(nack_frequency).await?;
+    let sock = {
+        let addr = format!("0.0.0.0:{}", args.port);
+        let sock = UdpSocket::bind(addr).await.unwrap();
+        Arc::new(sock)
+    };
+    let mut pkts = BufferedPackets::new(sock.clone(), nack_frequency).await?;
     let mut buf = vec![0; args.bytes];
-    let sock = UdpSocket::bind(format!("0.0.0.0:{}", args.port)).await.unwrap();
     debug!("webrtc server is now listening");
     loop {
         let (len, addr) = sock.recv_from(&mut buf).await?;
