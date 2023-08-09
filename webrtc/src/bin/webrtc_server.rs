@@ -169,12 +169,12 @@ impl BufferedPackets {
             if let Some(time_nack) = packet.time_nack.as_mut() {
                 if now - *time_nack > self.nack_frequency {
                     let buf = packet.seqno.to_be_bytes();
-                    debug!("nacking {} (again)", packet.seqno);
+                    debug!("nacking {} (again) {:?}", packet.seqno, nack_addr);
                     self.send_sock.send_to(&buf, nack_addr).await?;
                     *time_nack = now;
                 }
             } else {
-                debug!("nacking {}", packet.seqno);
+                debug!("nacking {} {:?}", packet.seqno, nack_addr);
                 let buf = packet.seqno.to_be_bytes();
                 packet.time_nack = Some(now);
                 self.send_sock.send_to(&buf, nack_addr).await?;

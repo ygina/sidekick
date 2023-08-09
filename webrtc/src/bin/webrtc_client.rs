@@ -312,6 +312,7 @@ async fn main() -> io::Result<()> {
     let args = Cli::parse();
     let (tx, rx) = mpsc::channel(100);
     let sock = Arc::new(UdpSocket::bind("0.0.0.0:0").await?);
+    info!("sending from {:?}", sock.local_addr().unwrap());
     let sender = PacketSender::new(args.quack_style.is_some(), tx).await?;
     send_data(sock.clone(), args.bytes, rx, args.server_addr).await?;
     listen_for_nacks(sock, sender.clone());
