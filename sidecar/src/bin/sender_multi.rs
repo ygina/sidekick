@@ -3,7 +3,8 @@ use std::sync::{Arc, Mutex};
 use clap::Parser;
 use sidecar::{SidecarMulti, sidecar_multi::start_sidecar_multi};
 use tokio::net::UdpSocket;
-use tokio::time::{self, Duration};
+use tokio::sync::oneshot;
+use tokio::time::{self, Duration, Instant};
 use log::{debug, info};
 use quack::Quack;
 
@@ -38,6 +39,7 @@ struct Cli {
 
 async fn send_quacks(
     sc: Arc<Mutex<SidecarMulti>>,
+    rx: oneshot::Receiver<Instant>,
     dst_key: [u8; 6],
     quack_addr: SocketAddr,
     frequency_ms: u64,
@@ -47,6 +49,7 @@ async fn send_quacks(
     let mut interval = time::interval(Duration::from_millis(frequency_ms));
     // The first tick completes immediately
     interval.tick().await;
+    rx.await.expect("couldn't receive notice that 1st packet was sniffed");
     loop {
         interval.tick().await;
         let sc = sc.lock().unwrap();
@@ -91,7 +94,7 @@ async fn main() -> Result<(), String> {
     // Handle snapshotted quACKs at the specified frequency.
     info!("my ipv4 address is {:?}", args.my_addr);
     let sc = Arc::new(Mutex::new(sc));
-    start_sidecar_multi(sc.clone(), args.my_addr.octets())?;
-    send_quacks(sc, dst_key, args.quack_addr, args.frequency_ms).await;
+    let rx = start_sidecar_multi(sc.clone(), args.my_addr.octets())?;
+    send_quacks(sc, rx, dst_key, args.quack_addr, args.frequency_ms).await;
     Ok(())
 }
