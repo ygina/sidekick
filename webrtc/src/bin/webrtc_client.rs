@@ -57,7 +57,7 @@ struct Cli {
     #[arg(long, default_value_t = 5104)]
     quack_port: u16,
     /// Address to send quACK resets too.
-    #[arg(long, default_value = "10.0.2.1:1234")]
+    #[arg(long, default_value = "10.42.0.1:1234")]
     reset_addr: SocketAddr,
     /// QuACK threshold.
     #[arg(long, default_value_t = 5)]
@@ -207,18 +207,25 @@ fn listen_for_quacks_strawman_c(mut _sender: PacketSender, _quack_port: u16) {
 /// Spawn a thread that listens for sidecar quACKs using the power sum quACK
 /// and retransmit packets when determined missing.
 fn listen_for_quacks_power_sum(
-    mut sender: PacketSender, quack_port: u16, _reset_addr: SocketAddr,
+    mut sender: PacketSender, quack_port: u16, reset_addr: SocketAddr,
     threshold: usize,
 ) {
     tokio::spawn(async move {
         let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
         let mut buf = vec![0; MTU];
         let mut my_quack: PowerSumQuack<u32> = PowerSumQuack::new(threshold);
+        info!("listening for quacks on {:?}", sock.local_addr());
+
+        // Variables for sending quack resets.
+        let mut last_quack_reset = Instant::now();
+        let sidecar_reset_threshold = Duration::from_millis(10);
+
         loop {
             // Deserialize the quACK and only process it if at least one packet
             // has been received and the quack has changed.
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
             let quack: PowerSumQuack<u32> = bincode::deserialize(&buf[..len]).unwrap();
+            trace!("received quack count={} last_value={}", quack.count(), quack.last_value());
             if quack.last_value() == my_quack.last_value() {
                 continue;
             }
@@ -227,14 +234,36 @@ fn listen_for_quacks_power_sum(
             // received (we would have sent everything in order).
             let mut seqno_ids = sender.seqno_ids.lock().await;
             let mut last_index_inserted = None;
-            for (i, &(seqno, id)) in seqno_ids.iter().enumerate() {
-                my_quack.insert(id);
-                trace!("quack insert {} ({})", id, seqno);
+            for (i, &(_, id)) in seqno_ids.iter().enumerate() {
                 if id == quack.last_value() {
                     last_index_inserted = Some(i);
                     break;
                 }
             }
+            if let Some(idx) = last_index_inserted {
+                for &(seqno, id) in seqno_ids.iter().take(idx + 1) {
+                    my_quack.insert(id);
+                    trace!("quack insert {} ({})", id, seqno);
+                }
+            }
+
+            // Reset the quack if 1) the log got messed up above, 2) we're
+            // still waiting to process a previous reset, or 3) the number of
+            // missing packets exceeds the threshold.
+            let now = Instant::now();
+            let reset1 = my_quack.count() < quack.count();
+            let reset2 = my_quack.count() - quack.count() > threshold as u32;
+            if reset1 || reset2 {
+                if now - last_quack_reset > sidecar_reset_threshold {
+                    info!("resetting quack: waiting for reset? {}, exceeds threshold? {}", reset1, reset2);
+                    sock.send_to(&[0], reset_addr).await.unwrap();
+                    my_quack = PowerSumQuack::new(threshold);
+                    *seqno_ids = vec![];
+                    last_quack_reset = now;
+                }
+                continue;
+            }
+
             let last_index_inserted = last_index_inserted.unwrap();
 
             // If the number of missing packets exceeds the threshold, reset
@@ -243,10 +272,6 @@ fn listen_for_quacks_power_sum(
                 my_quack.count(), quack.count(),
                 my_quack.last_value(), quack.last_value());
             let diff_quack = my_quack.clone() - quack;
-            if diff_quack.count() > threshold as u32 {
-                panic!("num missing {} exceeds threshold {}", diff_quack.count(), threshold);
-                // continue;
-            }
             if diff_quack.count() == 0 {
                 seqno_ids.drain(..(last_index_inserted + 1));
                 continue;

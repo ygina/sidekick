@@ -22,6 +22,7 @@ def start_webrtc_client(net, args, env):
     cmd += f'-b {args.client_bytes} '
     cmd += f'-f {args.client_frequency} '
     if args.sidecar:
+        cmd += f'--reset-addr 10.0.2.1:1234 '
         cmd += f'--quack-port 5103 '
         cmd += f'--quack-style {args.style} --threshold {args.threshold} '
     print(cmd)
