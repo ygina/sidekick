@@ -54,7 +54,7 @@ struct Cli {
     #[arg(long, value_enum)]
     quack_style: Option<QuackStyle>,
     /// Port to listen on for quACKs.
-    #[arg(long, default_value_t = 5103)]
+    #[arg(long, default_value_t = 5104)]
     quack_port: u16,
     /// Address to send quACK resets too.
     #[arg(long, default_value = "10.0.2.1:1234")]

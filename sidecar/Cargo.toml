@@ -36,6 +36,9 @@ required-features = ["benchmark"]
 name = "sender"
 
 [[bin]]
+name = "sender_multi"
+
+[[bin]]
 name = "sender_strawman_a"
 
 [[bin]]
