@@ -27,8 +27,11 @@ struct Cli {
     #[arg(long = "quack-addr", default_value = "10.42.0.250:5104")]
     quack_addr: SocketAddr,
     /// My IPv4 address to receive quACK resets.
-    #[arg(long = "my-addr", default_value = "10.42.0.1")]
-    my_addr: Ipv4Addr,
+    #[arg(long = "my-ip", default_value = "10.42.0.1")]
+    my_ip: Ipv4Addr,
+    /// My port to receive quACK resets.
+    #[arg(long = "my-port", default_value_t = 1234)]
+    my_port: u16,
     /// Destination IP.
     #[arg(long = "dst-ip", default_value = "34.221.237.169")]
     dst_ip: Ipv4Addr,
@@ -91,10 +94,18 @@ async fn main() -> Result<(), String> {
     dst_key[4] = args.dst_port.to_be_bytes()[0];
     dst_key[5] = args.dst_port.to_be_bytes()[1];
 
+    let mut my_addr: [u8; 6] = [0; 6];
+    my_addr[0] = args.my_ip.octets()[0];
+    my_addr[1] = args.my_ip.octets()[1];
+    my_addr[2] = args.my_ip.octets()[2];
+    my_addr[3] = args.my_ip.octets()[3];
+    my_addr[4] = args.my_port.to_be_bytes()[0];
+    my_addr[5] = args.my_port.to_be_bytes()[1];
+
     // Handle snapshotted quACKs at the specified frequency.
-    info!("my ipv4 address is {:?}", args.my_addr);
+    info!("my address is {:?}", my_addr);
     let sc = Arc::new(Mutex::new(sc));
-    let rx = start_sidecar_multi(sc.clone(), args.my_addr.octets())?;
+    let rx = start_sidecar_multi(sc.clone(), my_addr)?;
     send_quacks(sc, rx, dst_key, args.quack_addr, args.frequency_ms).await;
     Ok(())
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use quack::*;
 use tokio;
 use tokio::{sync::oneshot, time::Instant};
-use log::trace;
+use log::{trace, info};
 
 use crate::{Quack, Socket};
 use crate::socket::SockAddr;
@@ -79,7 +79,7 @@ impl SidecarMulti {
 
 fn process_one_packet(
     n: isize, buf: &[u8; BUFFER_SIZE], addr: &libc::sockaddr_ll,
-    my_ipv4_addr: [u8; 4],
+    my_addr: [u8; 6],
 ) -> Action {
     if Direction::Incoming != addr.sll_pkttype.into() {
         return Action::Skip;
@@ -94,7 +94,7 @@ fn process_one_packet(
     // Reset the quack if the dst IP is our own (and not for another e2e quic
     // connection).
     let addr_key = UdpParser::parse_addr_key(buf);
-    if &addr_key[6..10] == my_ipv4_addr {
+    if &addr_key[6..12] == my_addr {
         return Action::Reset { addr_key };
     }
 
@@ -112,7 +112,7 @@ fn process_one_packet(
 /// first packet is sniffed.
 pub fn start_sidecar_multi(
     sc: Arc<Mutex<SidecarMulti>>,
-    my_ipv4_addr: [u8; 4],
+    my_addr: [u8; 6],
 ) -> Result<oneshot::Receiver<Instant>, String> {
     let interface = sc.lock().unwrap().interface.clone();
     let sock = Socket::new(interface.clone())?;
@@ -129,10 +129,11 @@ pub fn start_sidecar_multi(
         loop {
             let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
             trace!("received {} bytes: {:?}", n, buf);
-            match process_one_packet(n, &buf, &addr, my_ipv4_addr) {
+            match process_one_packet(n, &buf, &addr, my_addr) {
                 Action::Skip => { continue; }
                 Action::Reset { addr_key } => {
-                    sc.lock().unwrap().reset(&addr_key);
+                    info!("resetting quacks {:?}", addr_key);
+                    sc.lock().unwrap().senders = HashMap::new();
                 }
                 Action::Insert { addr_key, sidecar_id } => {
                     let mut sc = sc.lock().unwrap();
