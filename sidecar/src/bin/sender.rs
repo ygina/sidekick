@@ -109,7 +109,9 @@ async fn main() -> Result<(), String> {
         }
     } else if let Some(frequency_pkts) = args.frequency_pkts {
         let addr = args.target_addr.expect("Address must be set");
-        sc.start_frequency_pkts(frequency_pkts, addr).await.unwrap();
+        sc.start_frequency_pkts(
+            args.my_addr.octets(), frequency_pkts, addr,
+        ).await.unwrap();
     }
     Ok(())
 }
