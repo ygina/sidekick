@@ -12,7 +12,8 @@ pub enum BenchmarkType {
 
 #[derive(Clone, ValueEnum, Debug, PartialEq, Eq)]
 pub enum QuackType {
-    Strawman1,
+    Strawman1a,
+    Strawman1b,
     Strawman2,
     PowerSum,
 }

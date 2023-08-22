@@ -5,33 +5,53 @@ use std::fmt::{Debug, Display};
 use std::ops::{Sub, SubAssign, AddAssign, MulAssign};
 use std::time::{Instant, Duration};
 use log::info;
+use bincode;
 use quack::{*, arithmetic::{ModularInteger, ModularArithmetic}};
 use rand::distributions::{Standard, Distribution};
 use multiset::HashMultiSet;
+use serde::Serialize;
 use sha2::{Digest, Sha256};
 
-fn benchmark_construct_strawman1(
+fn benchmark_construct_strawman1a(
     num_packets: usize,
 ) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
-    let mut acc = HashMultiSet::new();
-
-    // Warm up the instruction cache by inserting a few numbers.
-    for i in num_packets..(num_packets + 10) {
-        acc.insert(numbers[i]);
-    }
+    let mut quack = StrawmanAQuack { sidecar_id: 0 };
 
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc.insert(numbers[j]);
+    for number in numbers {
+        quack.sidecar_id = number;
+        let _bytes = bincode::serialize(&quack).unwrap();
     }
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into 2 multisets: {:?}",
+    info!("Serialize {} numbers into StrawmanAQuack: {:?}",
         num_packets, duration);
+    duration
+}
+
+fn benchmark_construct_strawman1b(
+    threshold: usize,
+    num_packets: usize,
+) -> Duration {
+    let numbers = gen_numbers::<u32>(num_packets);
+
+    let mut quack = StrawmanBQuack::new(threshold);
+
+    // Insert a bunch of random numbers into the accumulator.
+    let t1 = Instant::now();
+    for number in numbers {
+        quack.insert(number);
+        let _bytes = bincode::serialize(&quack).unwrap();
+    }
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Serialize {} numbers into StrawmanBQuack with threshold {}: {:?}",
+        num_packets, threshold, duration);
     duration
 }
 
@@ -46,7 +66,7 @@ fn benchmark_construct_strawman2(
     for i in 0..num_packets {
         acc.update(numbers[i].to_be_bytes());
     }
-    acc.finalize();
+    let _array = acc.finalize();
     let t2 = Instant::now();
 
     let duration = t2 - t1;
@@ -56,62 +76,52 @@ fn benchmark_construct_strawman2(
 }
 
 fn benchmark_construct_power_sum_precompute_u16(
-    size: usize,
+    threshold: usize,
     num_packets: usize,
 ) -> Duration {
-    const WARMUP_PACKETS: usize = 10;
-    let numbers = gen_numbers::<u16>(num_packets + WARMUP_PACKETS);
+    let numbers = gen_numbers::<u16>(num_packets);
 
     // Construct two empty Quacks.
-    let mut acc = PowerTableQuack::new(size);
-
-    // Warm up the instruction cache by inserting a few numbers.
-    for i in num_packets..(num_packets + WARMUP_PACKETS) {
-        acc.insert(numbers[i]);
-    }
+    let mut quack = PowerTableQuack::new(threshold);
 
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc.insert(numbers[j]);
+    for number in numbers {
+        quack.insert(number);
     }
+    let _bytes = bincode::serialize(&quack);
     let t2 = Instant::now();
 
     let duration = t2 - t1;
     info!("Insert {} numbers into 2 Quacks (bits = 16, \
-        threshold = {}): {:?}", num_packets, size, duration);
+        threshold = {}): {:?}", num_packets, threshold, duration);
     duration
 }
 
 fn benchmark_construct_power_sum<T>(
-    size: usize,
+    threshold: usize,
     num_bits_id: usize,
     num_packets: usize,
 ) -> Duration
 where Standard: Distribution<T>,
-T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
+T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy + Serialize,
 ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
-    const WARMUP_PACKETS: usize = 10;
-    let numbers = gen_numbers::<T>(num_packets + WARMUP_PACKETS);
+    let numbers = gen_numbers::<T>(num_packets);
 
     // Construct two empty Quacks.
-    let mut acc = PowerSumQuack::<T>::new(size);
-
-    // Warm up the instruction cache by inserting a few numbers.
-    for i in num_packets..(num_packets + WARMUP_PACKETS) {
-        acc.insert(numbers[i]);
-    }
+    let mut quack = PowerSumQuack::<T>::new(threshold);
 
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc.insert(numbers[j]);
+    for number in numbers {
+        quack.insert(number);
     }
+    let _bytes = bincode::serialize(&quack);
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into 2 Quacks (bits = {}, \
-        threshold = {}): {:?}", num_packets, num_bits_id, size, duration);
+    info!("Insert {} numbers into a power sum quACK (bits = {}, \
+        threshold = {}): {:?}", num_packets, num_bits_id, threshold, duration);
     duration
 }
 
@@ -126,7 +136,8 @@ pub fn run_benchmark(
 
     for i in 0..(num_trials + 1) {
         let duration = match quack_ty {
-            QuackType::Strawman1 => benchmark_construct_strawman1(num_packets),
+            QuackType::Strawman1a => benchmark_construct_strawman1a(num_packets),
+            QuackType::Strawman1b => benchmark_construct_strawman1b(params.threshold, num_packets),
             QuackType::Strawman2 => benchmark_construct_strawman2(num_packets),
             QuackType::PowerSum =>  if params.precompute {
                 match params.num_bits_id {

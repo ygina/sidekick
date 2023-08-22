@@ -10,7 +10,7 @@ use quack::{*, arithmetic::{ModularInteger, ModularArithmetic}};
 use multiset::HashMultiSet;
 use sha2::{Digest, Sha256};
 
-fn benchmark_decode_strawman1(
+fn benchmark_decode_strawman1a(
     num_packets: usize,
     num_drop: usize,
 ) -> Duration {
@@ -202,7 +202,8 @@ pub fn run_benchmark(
 
     for i in 0..(num_trials + 1) {
         let duration = match quack_ty {
-            QuackType::Strawman1 => benchmark_decode_strawman1(num_packets, num_drop),
+            QuackType::Strawman1a => benchmark_decode_strawman1a(num_packets, num_drop),
+            QuackType::Strawman1b => unimplemented!(),
             QuackType::Strawman2 => benchmark_decode_strawman2(num_packets, num_drop),
             QuackType::PowerSum => if params.factor {
                 match params.num_bits_id {
