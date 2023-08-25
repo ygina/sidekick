@@ -117,12 +117,14 @@ def maybe_collect_missing_data(filename, key, args):
         num_missing = max(0, args.trials - len(ys_tput[i]))
         for _ in range(num_missing):
             cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '--delay1', '1',
-                   '--delay2', '40', '--bw1', '100', '--bw2', '10', '-t', '1',
+                   '--delay2', '25', '--bw1', '100', '--bw2', '10', '-t', '1',
                    '--loss1', '0', '--loss2', str(args.loss),
-                   '-n', args.n,
-                   '--frequency', f'{args.frequency}ms',
+                   '-n', args.n, '--print-statistics',
+                   '--frequency', args.frequency,
                    '--threshold', str(args.threshold),
                    '--min-ack-delay', str(min_ack_delay)]
+            if 'quack' in key:
+                cmd += ['--timeout', '60']
             cmd += [key]
             print(' '.join(cmd))
             p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
@@ -206,10 +208,10 @@ if __name__ == '__main__':
         help='Loss percentage on the near subpath (default: 0)')
     parser.add_argument('--max-x', default=1000, type=int,
         help='maximum minimum ack delay to plot (default: 1000)')
-    parser.add_argument('--frequency', default=20, type=int,
-        help='quack frequency, in ms (default: 20)')
-    parser.add_argument('--threshold', default=100, type=int,
-        help='quack threshold (default: 100)')
+    parser.add_argument('--frequency', default='10ms',
+        help='quack frequency (default: 10ms)')
+    parser.add_argument('--threshold', default=40, type=int,
+        help='quack threshold (default: 40)')
     parser.add_argument('--median', action='store_true',
         help='use the median instead of the mean')
     parser.add_argument('--legend', type=bool, default=True,

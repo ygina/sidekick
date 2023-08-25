@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.transforms import Bbox
 import seaborn as sns
+import statistics
 
 # Plot markers.
 MARKERS = 'PXD*o^v<>.'
@@ -69,3 +70,20 @@ LABEL_MAP['quack-2ms-r'] = LABEL_MAP['quack']
 LABEL_MAP['quack-2ms-rm'] = LABEL_MAP['quack']
 
 FONTSIZE = 18
+
+class DataPoint:
+    def __init__(self, arr, normalize=None):
+        if normalize is not None:
+            arr = [normalize * 1. / x for x in arr]
+        arr.sort()
+        mid = int(len(arr) / 2)
+        self.p50 = statistics.median(arr)
+        if len(arr) % 2 == 1:
+            self.p25 = statistics.median(arr[:mid+1])
+        else:
+            self.p25 = statistics.median(arr[:mid])
+        self.p75 = statistics.median(arr[mid:])
+        self.minval = arr[0]
+        self.maxval = arr[-1]
+        self.avg = statistics.mean(arr)
+        self.stdev = None if len(arr) == 1 else statistics.stdev(arr)

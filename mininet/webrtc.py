@@ -57,8 +57,8 @@ if __name__ == '__main__':
     ############################################################################
     # Network Configurations
     net_config = parser.add_argument_group('net_config')
-    net_config.add_argument('--delay1', type=int, default=75, metavar='MS',
-        help='1/2 RTT between h1 and r1 (default: 75)')
+    net_config.add_argument('--delay1', type=int, default=25, metavar='MS',
+        help='1/2 RTT between h1 and r1 (default: 25)')
     net_config.add_argument('--delay2', type=int, default=1, metavar='MS',
         help='1/2 RTT between r1 and h2 (default: 1)')
     net_config.add_argument('--loss1', type=int, default=0, metavar='PERCENT',

@@ -26,6 +26,7 @@ TARGET_XS = {}
 # TARGET_XS['pep'] = TARGET_XS['quack']
 TARGET_XS['pep'] = [x for x in range(0, 1000, 50)]
 TARGET_XS['quack'] = [x for x in range(0, 1000, 50)]
+TARGET_XS['quack_old'] = TARGET_XS['quack']
 # TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
 # TARGET_XS['quic'] += [200, 400, 800]
 # TARGET_XS['tcp'] = TARGET_XS['quic']
@@ -92,13 +93,12 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
         # Either we're done with this loss percentage or read another data point
         if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
             'factor' in line or 'unaccounted' in line:
-            loss = None
             key_index = None
             exitcode_index = None
+            pass
         else:
             line = line.split()
             if len(line) < exitcode_index:
-                loss = None
                 key_index = None
                 exitcode_index = None
                 continue
@@ -136,11 +136,14 @@ def maybe_collect_missing_data(filename, key, args):
             continue
         cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '-n', args.n,
                '--loss2', loss, '-t', str(missing), '--bw2', str(args.bw),
-               '--stderr', 'loss_tput.error', '--timeout', '150']
+               '--stderr', 'loss_tput.error', '--timeout', '600']
         cmd += ['--delay1', str(args.delay1), '--delay2', str(args.delay2)]
-        cmd += ['--frequency', f'{args.frequency}ms', '--threshold', str(args.threshold)]
+        cmd += ['--frequency', args.frequency, '--threshold', str(args.threshold)]
         cmd += args.args
-        cmd += [key]
+        if 'quack' in key:
+            cmd += ['quack']
+        else:
+            cmd += [key]
         print(' '.join(cmd))
         p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT)
@@ -179,7 +182,7 @@ def plot_legend(data, https, pdf):
     save_pdf(pdf, bbox_inches=bbox)
 
 if __name__ == '__main__':
-    DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
+    DEFAULT_PROTOCOLS = ['quack', 'pep']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
@@ -194,14 +197,14 @@ if __name__ == '__main__':
         help='bandwidth of near subpath link in Mbps (default: 100)')
     parser.add_argument('--max-x', default=800, type=int,
         help='maximum loss perecentage in hundredths of a percentage (default: 800)')
-    parser.add_argument('--delay1', default=75, type=int,
-        help='in ms (default: 75)')
+    parser.add_argument('--delay1', default=25, type=int,
+        help='in ms (default: 25)')
     parser.add_argument('--delay2', default=1, type=int,
         help='in ms (default: 1)')
-    parser.add_argument('--frequency', default=100, type=int,
-        help='in ms (default: 100)')
-    parser.add_argument('--threshold', default=40, type=int,
-        help='in number of packets (default: 40)')
+    parser.add_argument('--frequency', default='30ms',
+        help='in ms (default: 30ms)')
+    parser.add_argument('--threshold', default=10, type=int,
+        help='in number of packets (default: 10)')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/main.py command if executing.')
     parser.add_argument('--median', action='store_true',

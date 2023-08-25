@@ -73,8 +73,8 @@ if __name__ == '__main__':
     ############################################################################
     # Network Configurations
     net_config = parser.add_argument_group('net_config')
-    net_config.add_argument('--delay1', type=int, default=75, metavar='MS',
-        help='1/2 RTT between h1 and r1 (default: 75)')
+    net_config.add_argument('--delay1', type=int, default=25, metavar='MS',
+        help='1/2 RTT between h1 and r1 (default: 25)')
     net_config.add_argument('--delay2', type=int, default=1, metavar='MS',
         help='1/2 RTT between r1 and h2 (default: 1)')
     net_config.add_argument('--loss1', type=int, default=0, metavar='PERCENT',
@@ -105,13 +105,15 @@ if __name__ == '__main__':
     proto_config.add_argument('-s', '--sidecar', action='store_true',
         help='Enables the sidecar and sends the quack with the specified '
              'frequency.')
-    proto_config.add_argument('--frequency', default='2ms',
+    proto_config.add_argument('--frequency', default='30ms',
         help='Quack frequency, in terms of ms or packets e.g., 2ms or 2p '
-             '(default: 2ms)')
-    proto_config.add_argument('--threshold', type=int, default=20,
+             '(default: 30ms)')
+    proto_config.add_argument('--threshold', type=int, default=10,
         metavar='PACKETS',
         help='Initializes the quACK sender and receiver with this threshold '
-             '(default: 20).')
+             '(default: 10).')
+    proto_config.add_argument('--print-statistics', action='store_true',
+        help='Print statistics on number of packets sent at each host')
 
     ############################################################################
     # Client configurations
@@ -225,7 +227,10 @@ if __name__ == '__main__':
     elif args.ty == 'cli':
         CLI(net.net)
     else:
-        net.statistics.start()
-        args.benchmark(net, args)
-        net.statistics.stop_and_print()
+        if args.print_statistics:
+            net.statistics.start()
+            args.benchmark(net, args)
+            net.statistics.stop_and_print()
+        else:
+            args.benchmark(net, args)
     net.stop()

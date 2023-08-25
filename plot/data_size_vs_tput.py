@@ -2,14 +2,15 @@ import argparse
 import subprocess
 import os
 import sys
+import re
 import os.path
-import statistics
 from os import path
 from common import *
 
-TARGET_XS = [x for x in range(100, 1000, 100)] + \
-            [x for x in range(1000, 20000, 1000)] + \
-            [x for x in range(20000, 40000, 2000)]
+TARGET_XS = [x for x in range(100, 1100, 100)] + \
+            [x for x in range(2000, 20000, 2000)] + \
+            [x for x in range(20000, 50000, 5000)] + \
+            [50000]
 #             [x for x in range(40000, 100000, 10000)]
 # TARGET_XS = [x for x in range(200, 1000, 200)] + \
 #             [x for x in range(1000, 10000, 1000)] + \
@@ -17,29 +18,20 @@ TARGET_XS = [x for x in range(100, 1000, 100)] + \
 #             [x for x in range(20000, 100000, 5000)] + \
 #             [100000]
 
-class DataPoint:
-    def __init__(self, arr, normalize=None):
-        if normalize is not None:
-            arr = [normalize * 1. / x for x in arr]
-        arr.sort()
-        mid = int(len(arr) / 2)
-        self.p50 = statistics.median(arr)
-        if len(arr) % 2 == 1:
-            self.p25 = statistics.median(arr[:mid+1])
-        else:
-            self.p25 = statistics.median(arr[:mid])
-        self.p75 = statistics.median(arr[mid:])
-        self.minval = arr[0]
-        self.maxval = arr[-1]
-        self.avg = statistics.mean(arr)
-        self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
-
 def execute_cmd(workdir, loss, http_version, trials, data_size, bw2):
     results_file = f'{workdir}/results/loss{loss}p/{http_version}.txt'
     subprocess.Popen(['mkdir', '-p', f'results/loss{loss}p'], cwd=workdir).wait()
-    cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '--loss2', str(loss),
+    cmd = ['sudo', '-E', 'python3', 'mininet/main.py',
+        '--loss2', str(loss), '--delay1', '25',
         '-t', str(trials), '--bw2', str(bw2), '-n', f'{data_size}k',
-        '--stderr', os.environ['HOME'] + '/sidecar/error.log', http_version]
+        '--stderr', os.environ['HOME'] + '/sidecar/error.log']
+    match = re.match(r'quack_(.+(ms|p))_(\d+)', http_version)
+    if match is not None:
+        cmd += ['--frequency', match.group(1)]
+        cmd += ['--threshold', match.group(3)]
+        cmd += ['quack']
+    else:
+        cmd += [http_version]
     print(cmd)
     p = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT)
@@ -176,11 +168,11 @@ def plot_graph(args, loss, pdf, http_versions,
             yerr_lower = [y.p50 - y.p25 for y in ys_raw]
             yerr_upper = [y.p75 - y.p50 for y in ys_raw]
             plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
-                label=LABEL_MAP[label], marker=MARKERS[i])
+                label=label, marker=MARKERS[i])
         else:
             ys = [y.avg for y in ys_raw]
             yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
-            plt.errorbar(xs, ys, yerr=yerr, label=LABEL_MAP[label], marker=MARKERS[i])
+            plt.errorbar(xs, ys, yerr=yerr, label=label, marker=MARKERS[i])
         # print(label)
         # print(xs)
         # print(ys)
@@ -193,11 +185,12 @@ def plot_graph(args, loss, pdf, http_versions,
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONTSIZE)
     statistic = 'median' if use_median else 'mean'
     if pdf is not None:
-        save_pdf(pdf)
+        save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
 
 if __name__ == '__main__':
     DEFAULT_LOSSES = [0, 1]
-    DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
+    # DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
+    DEFAULT_PROTOCOLS = ['quack_30ms_10', 'quic']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',

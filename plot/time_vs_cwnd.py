@@ -233,29 +233,32 @@ def run(args, https, loss):
     plt.ylabel('cwnd (packets)')
     if args.max_x is not None:
         plt.xlim(0, args.max_x)
-    plt.ylim(0, 300)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
+    if args.max_y is not None:
+        plt.ylim(0, args.max_y)
+    plt.ylim(0)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
     pdf = f'cwnd_{args.name}_{args.time}s_delay{args.min_ack_delay}_loss{loss}p.pdf'
     plt.title(pdf)
     save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
     plt.clf()
 
 if __name__ == '__main__':
-    DEFAULT_LOSSES = ['0', '0.25', '1', '2', '5']
+    DEFAULT_LOSSES = ['1']
     DEFAULT_PROTOCOLS = ['quack', 'pep_h2', 'pep_r1', 'quic', 'tcp']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('-b', '--bytes_in_flight', action='store_true')
-    parser.add_argument('--time', required=True, type=int, metavar='S',
-        help='time to run each experiment, in seconds')
+    parser.add_argument('--time', default=60, type=int, metavar='S',
+        help='time to run each experiment, in seconds (default: 60)')
     parser.add_argument('--max-x', type=int, metavar='S', help='max-x axis')
+    parser.add_argument('--max-y', type=int, metavar='S', help='max-y axis')
     parser.add_argument('--http', action='extend', nargs='+', default=[],
         help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/net.py command if executing.')
     parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
-    parser.add_argument('--name', required=True, help="experiment name")
+    parser.add_argument('--name', required=True, help="experiment name e.g. retx, ackr")
 
     ############################################################################
     # QUIC/QuACK configuration
@@ -266,10 +269,10 @@ if __name__ == '__main__':
     ############################################################################
     # Network configuration
     net_config = parser.add_argument_group('net_config')
-    net_config.add_argument('--delay1', default='75', help='(default: 75)')
+    net_config.add_argument('--delay1', default='25', help='(default: 25)')
     net_config.add_argument('--delay2', default='1', help='(default: 1)')
-    net_config.add_argument('--threshold', default='100', help=('default: 100'))
-    net_config.add_argument('--frequency', default='2ms', help=('default: 2ms'))
+    net_config.add_argument('--threshold', default='10', help=('default: 10'))
+    net_config.add_argument('--frequency', default='30ms', help=('default: 30ms'))
     net_config.add_argument('--bw1', default='10', help='(default: 10)')
     net_config.add_argument('--bw2', default='100', help='(default: 100)')
     net_config.add_argument('--loss', action='extend', nargs='+', default=[],

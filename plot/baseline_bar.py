@@ -140,7 +140,7 @@ def plot_graph(args, loss, data_sizes, https, legend, pdf=None):
     ax.set_ylabel('Goodput (MBytes/s)', fontsize=FONTSIZE)
     ax.set_ylim(0, 1.2)
     if pdf is not None:
-        save_pdf(pdf)
+        save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
 
 if __name__ == '__main__':
     DEFAULT_LOSSES = [0, 1]
