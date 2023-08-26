@@ -8,7 +8,6 @@ use log::info;
 use bincode;
 use quack::{*, arithmetic::{ModularInteger, ModularArithmetic}};
 use rand::distributions::{Standard, Distribution};
-use multiset::HashMultiSet;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 
@@ -113,15 +112,24 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
 
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
+    #[cfg(feature = "cycles")]
+    let start = unsafe { core::arch::x86_64::_rdtsc() };
     for number in numbers {
         quack.insert(number);
     }
+    #[cfg(feature = "cycles")]
+    let end = unsafe { core::arch::x86_64::_rdtsc() };
     let _bytes = bincode::serialize(&quack);
     let t2 = Instant::now();
 
     let duration = t2 - t1;
+    #[cfg(not(feature = "cycles"))]
     info!("Insert {} numbers into a power sum quACK (bits = {}, \
         threshold = {}): {:?}", num_packets, num_bits_id, threshold, duration);
+    #[cfg(feature = "cycles")]
+    info!("Insert {} numbers into a power sum quACK (bits = {}, \
+        threshold = {}): {:?} ({} cycles/pkt)", num_packets, num_bits_id,
+        threshold, duration, (end - start) / (num_packets as u64));
     duration
 }
 
