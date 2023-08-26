@@ -10,6 +10,8 @@ use sidecar::socket::SockAddr;
 use sidecar::buffer::{BUFFER_SIZE, Direction, UdpParser};
 use quack::StrawmanBQuack;
 
+const DEFAULT_WINDOW_SIZE: usize = 20;
+
 /// Sends quACKs in the sidecar protocol, receives data in the base protocol.
 #[derive(Parser)]
 struct Cli {
@@ -57,7 +59,10 @@ async fn main() -> Result<(), String> {
         if window.len() > args.n {
             window.pop_front();
         }
-        let quack = StrawmanBQuack { window: window.clone() };
+        let quack = StrawmanBQuack {
+            window: window.clone(),
+            window_size: DEFAULT_WINDOW_SIZE,
+        };
         let bytes = bincode::serialize(&quack).unwrap();
         send_sock.send_to(&bytes, args.addr).await.unwrap();
     }
