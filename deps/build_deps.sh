@@ -19,12 +19,12 @@ mkdir -p logs
 patch -N -r- -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
 ./configure                                 \
    --prefix=$PWD                           \
-   --build="quiche-$(git --git-dir=$SIDECAR_HOME/quiche/.git rev-parse --short HEAD)" \
+   --build="quiche-$(git --git-dir=$SIDECAR_HOME/quiche-nginx/.git rev-parse --short HEAD)" \
    --with-http_ssl_module                  \
    --with-http_v2_module                   \
    --with-http_v3_module                   \
-   --with-openssl=$SIDECAR_HOME/quiche/quiche/deps/boringssl \
-   --with-quiche=$SIDECAR_HOME/quiche
+   --with-openssl=$SIDECAR_HOME/quiche-nginx/quiche/deps/boringssl \
+   --with-quiche=$SIDECAR_HOME/quiche-nginx
 make -j$(nproc)
 sudo ln -f -s $(pwd)/objs/nginx /usr/bin/nginx
 }
