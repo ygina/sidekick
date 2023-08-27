@@ -24,6 +24,10 @@ quack_log = []
 # Benchmark performance.
 benchmark = []
 
+# Benchmark cycles.
+cycles = []
+cycles_summary = []
+
 [[bin]]
 name = "benchmark_encode"
 required-features = ["benchmark"]

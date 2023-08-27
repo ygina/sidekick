@@ -19,11 +19,18 @@ struct Cli {
     /// Interface to listen on.
     #[arg(long, short = 'i', default_value = "r1-eth1")]
     interface: String,
+    /// My IPv4 address to receive quACK resets.
+    #[arg(long = "my-ip", default_value = "10.0.2.1")]
+    my_ip: Ipv4Addr,
+    /// My port to receive quACK resets.
+    #[arg(long = "my-port", default_value_t = 1234)]
+    my_port: u16,
 }
 
 pub struct Benchmark {
     pub sc: Arc<Mutex<SidecarMulti>>,
     pub frequency: Option<Duration>,
+    pub my_addr: [u8; 6],
 }
 
 async fn handle_signals(sc: Arc<Mutex<SidecarMulti>>, mut signals: Signals) {
@@ -54,13 +61,22 @@ async fn handle_signals(sc: Arc<Mutex<SidecarMulti>>, mut signals: Signals) {
 }
 
 impl Benchmark {
-    pub fn new(sc: SidecarMulti, frequency_ms: u64) -> Self {
+    pub fn new(
+        sc: SidecarMulti, frequency_ms: u64, my_ip: Ipv4Addr, my_port: u16,
+    ) -> Self {
         let frequency = if frequency_ms == 0 {
             None
         } else {
             Some(Duration::from_millis(frequency_ms))
         };
-        Self { sc: Arc::new(Mutex::new(sc)), frequency }
+        let mut my_addr = [0; 6];
+        my_addr[0] = my_ip.octets()[0];
+        my_addr[1] = my_ip.octets()[1];
+        my_addr[2] = my_ip.octets()[2];
+        my_addr[3] = my_ip.octets()[3];
+        my_addr[4] = my_port.to_be_bytes()[0];
+        my_addr[5] = my_port.to_be_bytes()[1];
+        Self { sc: Arc::new(Mutex::new(sc)), frequency, my_addr }
     }
 
     pub fn setup_signal_handler(&self) {
@@ -70,7 +86,7 @@ impl Benchmark {
 
     pub async fn start(&mut self) {
         // Wait for the first packet to arrive.
-        start_sidecar_multi(self.sc.clone()).unwrap().await.unwrap();
+        start_sidecar_multi(self.sc.clone(), self.my_addr).unwrap().await.unwrap();
         if let Some(frequency) = self.frequency {
             let socket = UdpSocket::bind("0.0.0.0:0").await.unwrap();
             let mut interval = time::interval(frequency);
@@ -100,7 +116,9 @@ async fn main() -> Result<(), String> {
     let args = Cli::parse();
     let sc = SidecarMulti::new(&args.interface, args.threshold, 32);
 
-    let mut benchmark_multi = Benchmark::new(sc, args.frequency);
+    let mut benchmark_multi = Benchmark::new(
+        sc, args.frequency, args.my_ip, args.my_port,
+    );
     benchmark_multi.setup_signal_handler();
     benchmark_multi.start().await;
     Ok(())

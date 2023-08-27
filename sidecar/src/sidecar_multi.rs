@@ -14,6 +14,11 @@ type AddrKey = [u8; 12];
 
 const IP_PROTOCOL: u16 = (libc::ETH_P_IP as u16).to_be();
 
+#[cfg(any(feature = "cycles", feature = "cycles_summary"))]
+static mut CYCLES_COUNT: u64 = 0;
+#[cfg(any(feature = "cycles", feature = "cycles_summary"))]
+static mut CYCLES: [u64; 5] = [0; 5];
+
 #[derive(Clone)]
 pub struct SidecarMulti {
     /// Interface to listen on
@@ -60,10 +65,28 @@ impl SidecarMulti {
     pub fn insert(
         &mut self, addr_key: AddrKey, sidecar_id: u32,
     ) {
-        self.senders
+        // ***CYCLES START step 2 hash address key
+        #[cfg(feature = "cycles")]
+        let start2 = unsafe { core::arch::x86_64::_rdtsc() };
+        let entry = self.senders
             .entry(addr_key)
-            .or_insert(PowerSumQuack::new(self.threshold))
-            .insert(sidecar_id);
+            .or_insert(PowerSumQuack::new(self.threshold));
+        // ***CYCLES STOP step 2 hash address key
+        #[cfg(feature = "cycles")]
+        unsafe {
+            let stop2 = core::arch::x86_64::_rdtsc();
+            CYCLES[2] += stop2 - start2;
+        }
+        // ***CYCLES START step 4 insert id into quack
+        #[cfg(feature = "cycles")]
+        let start4 = unsafe { core::arch::x86_64::_rdtsc() };
+        entry.insert(sidecar_id);
+        // ***CYCLES STOP step 4 insert id into quack
+        #[cfg(feature = "cycles")]
+        unsafe {
+            let stop4 = core::arch::x86_64::_rdtsc();
+            CYCLES[4] += stop4 - start4;
+        }
     }
 
     pub fn quack(
@@ -102,8 +125,27 @@ fn process_one_packet(
     if n != (BUFFER_SIZE as _) {
         return Action::Skip;
     }
+
+    // ***CYCLES START step 3 parse identifier
+    #[cfg(feature = "cycles")]
+    let start3 = unsafe { core::arch::x86_64::_rdtsc() };
     let sidecar_id = UdpParser::parse_identifier(&buf);
+    // ***CYCLES STOP step 3 parse identifier
+    #[cfg(feature = "cycles")]
+    unsafe {
+        let stop3 = core::arch::x86_64::_rdtsc();
+        CYCLES[3] += stop3 - start3;
+    }
     Action::Insert { addr_key, sidecar_id }
+}
+
+#[cfg(any(feature = "cycles", feature = "cycles_summary"))]
+unsafe fn print_cycles_count_summary() {
+    CYCLES_COUNT += 1;
+    if CYCLES_COUNT % 1000 == 0 {
+        println!("{:?}", CYCLES.clone().into_iter().map(|cycles| cycles /
+            CYCLES_COUNT).collect::<Vec<_>>());
+    }
 }
 
 /// Start the raw socket that listens to the specified interface. Creates a new
@@ -127,7 +169,16 @@ pub fn start_sidecar_multi(
         let mut tx = Some(tx);
 
         loop {
+            // ***CYCLES START step 0 total
+            #[cfg(feature = "cycles_summary")]
+            let start0 = unsafe { core::arch::x86_64::_rdtsc() };
+            // ***CYCLES START step 1 sniff packet
+            #[cfg(feature = "cycles")]
+            let start1 = unsafe { core::arch::x86_64::_rdtsc() };
             let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
+            // ***CYCLES STOP step 1 sniff packet
+            #[cfg(feature = "cycles")]
+            let stop1 = unsafe { core::arch::x86_64::_rdtsc() };
             trace!("received {} bytes: {:?}", n, buf);
             match process_one_packet(n, &buf, &addr, my_addr) {
                 Action::Skip => { continue; }
@@ -147,6 +198,18 @@ pub fn start_sidecar_multi(
                     }
                     sc.insert(addr_key, sidecar_id);
                 }
+            }
+            // ***CYCLES STOP step 0 total
+            #[cfg(feature = "cycles_summary")]
+            unsafe {
+                let stop0 = core::arch::x86_64::_rdtsc();
+                CYCLES[0] += stop0 - start0;
+                print_cycles_count_summary();
+            }
+            #[cfg(feature = "cycles")]
+            unsafe {
+                CYCLES[1] += stop1 - start1;
+                print_cycles_count_summary();
             }
         }
     });

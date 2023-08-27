@@ -125,7 +125,7 @@ if __name__ == '__main__':
     ############################################################################
     # Single quack
     single = subparsers.add_parser('single')
-    single.set_defaults(binary='benchmark_encode', clients_per_core=1)
+    single.set_defaults(binary='benchmark_encode_multi', clients_per_core=1)
     single.add_argument('--tput', default=160000, type=int, metavar='PPS',
         help='Target load generator throughput in packets per second for each '
              'iperf client. The load generator may not be able to achieve too '
