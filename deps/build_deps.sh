@@ -16,7 +16,7 @@ export SIDECAR_HOME=$HOME/sidecar
 build_nginx () {
 cd $SIDECAR_HOME/deps/nginx-1.16.1
 mkdir -p logs
-patch -N -r- -p01 < $SIDECAR_HOME/quiche/nginx/nginx-1.16.patch
+patch -N -r- -p01 < $SIDECAR_HOME/quiche-nginx/nginx/nginx-1.16.patch
 ./configure                                 \
    --prefix=$PWD                           \
    --build="quiche-$(git --git-dir=$SIDECAR_HOME/quiche-nginx/.git rev-parse --short HEAD)" \
