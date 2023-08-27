@@ -14,6 +14,7 @@ git submodule update
 
 # Linux dependencies
 sudo apt-get update -y
+sudo apt-get install -y curl ethtool
 sudo apt-get install -y texlive # pari
 sudo apt-get install -y autoconf libtool  # curl
 sudo apt-get install -y cmake libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev  # nginx
