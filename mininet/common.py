@@ -53,13 +53,13 @@ def estimate_timeout(n, proxy, quic, loss):
             kb = int(n[:-1])
         elif 'M' in n:
             kb = int(n[:-1]) * 1000
-        scale = 0.015
+        scale = 0.01
         if quic:
-            scale *= 10
+            scale *= 4
         if float(loss) > 1:
             scale *= float(loss) / 1.5
-        if proxy:
-            scale *= 0.1
+        # if proxy:
+        #     scale *= 0.1
         return max(int(scale * kb), 15)
     except:
         return 300
