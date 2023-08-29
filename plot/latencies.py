@@ -60,6 +60,23 @@ def plot_bar_graph(data, percentiles, keys, pdf, trials=1):
     ax.set_ylim(0)
     save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
 
+def plot_box_and_whiskers_graph(data, keys, pdf):
+    plt.clf()
+
+    protocols = [[y / 1000 for y in data[key]] for key in keys]
+    fig, ax = plt.subplots(figsize=(9,4))
+    pos = np.arange(len(protocols)) + 1
+    bp = ax.boxplot(protocols, sym='k+', positions=pos, notch=False)
+
+    ax.set_xticks(pos, keys, fontsize=16)
+    ax.set_xlabel('Protocol')
+    ax.set_ylabel('p99 Latency (ms)')
+    plt.setp(bp['whiskers'], color='k', linestyle='-')
+    plt.setp(bp['fliers'], markersize=3.0)
+
+    plt.title(pdf)
+    save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+
 def parse_data(filename, pcts, trials):
     data = defaultdict(lambda: [])
     num_points = 0
@@ -120,15 +137,17 @@ if __name__ == '__main__':
         help='Plot the line graph of percentile vs. latency')
     parser.add_argument('--bar-graph', action='store_true',
         help='Plot the bar graphs of configuration vs. p95 or p99 latency')
+    parser.add_argument('--box-and-whiskers', action='store_true',
+        help='Plot the box and whiskers plot')
     parser.add_argument('--execute', action='store_true',
         help='whether to execute benchmarks to collect missing data points')
     parser.add_argument('--timeout', default=60, type=int,
         help='Time to run each trial, in seconds (default: 60)')
-    parser.add_argument('-t', '--trials', default=1, type=int,
+    parser.add_argument('-t', '--trials', default=10, type=int,
         help='number of trials per data point (default: 1)')
     parser.add_argument('--http', action='extend', nargs='+', default=[],
         help=f'HTTP versions. (default: {DEFAULT_KEYS})')
-    parser.add_argument('--percentile', action='extend', nargs='+', default=[],
+    parser.add_argument('--percentile', action='extend', nargs='+', default=[], type=int,
         help=f'Percentiles to print. (default: {DEFAULT_PERCENTILES})')
     args = parser.parse_args()
 
@@ -187,3 +206,14 @@ if __name__ == '__main__':
                 continue
             data_point = DataPoint(data[pct])
             print(f'{key} p{pct}: {int(data_point.avg)}±{int(data_point.stdev)} us')
+
+    if args.box_and_whiskers:
+        for pct in pcts:
+            key_data = {}
+            for key in keys:
+                filename = f'{path}/{key}.txt'
+                _, data = parse_data(filename, pcts, args.trials)
+                if len(data[pct]) == 0:
+                    continue
+                key_data[key] = data[pct]
+            plot_box_and_whiskers_graph(key_data, keys, pdf=f'latencies_webrtc_p{pct}.pdf')
