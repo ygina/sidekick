@@ -218,12 +218,12 @@ if __name__ == '__main__':
         elif args.ss is not None:
             run_ss(net, int(args.ss[0]), args.ss[1])
         elif args.iperf is not None:
-            run_iperf(sc, args.iperf, host='h2')
+            run_iperf(net, args.iperf, host='h2')
         elif args.iperf_r1 is not None:
-            run_iperf(sc, args.iperf_r1, host='r1')
+            run_iperf(net, args.iperf_r1, host='r1')
     elif args.ty == 'multiflow':
         assert not args.pep and not args.sidecar
-        run_multiflow(sc, args.flow1, args.flow2, args.delay)
+        run_multiflow(net, args, args.flow1, args.flow2, args.delay)
     elif args.ty == 'cli':
         CLI(net.net)
     else:
