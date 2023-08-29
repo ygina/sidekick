@@ -4,7 +4,7 @@ use libc::c_uchar;
 // The randomly-encrypted payload in a QUIC packet with a short header is at
 // offset 63.
 pub const ID_OFFSET: usize = 63;
-pub const BUFFER_SIZE: usize = 1500;
+pub const BUFFER_SIZE: usize = ID_OFFSET+4;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Direction {

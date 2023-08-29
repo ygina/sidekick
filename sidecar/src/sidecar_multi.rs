@@ -5,7 +5,6 @@ use quack::*;
 use tokio;
 use tokio::{sync::oneshot, time::Instant};
 use log::{trace, info};
-use sha2::{Digest, Sha256};
 
 use crate::{Quack, Socket};
 use crate::socket::SockAddr;
@@ -123,22 +122,14 @@ fn process_one_packet(
     }
 
     // Otherwise parse the identifier and insert it into the quack.
-    const PAYLOAD_OFFSET: usize = 42;
-    // if n != (BUFFER_SIZE as _) {
-    //     return Action::Skip;
-    // }
-    if n <= (PAYLOAD_OFFSET as isize) {
+    if n != (BUFFER_SIZE as _) {
         return Action::Skip;
     }
 
     // ***CYCLES START step 3 parse identifier
     #[cfg(feature = "cycles")]
     let start3 = unsafe { core::arch::x86_64::_rdtsc() };
-    // let sidecar_id = UdpParser::parse_identifier(&buf);
-    let mut acc = Sha256::new();
-    acc.update(&buf[PAYLOAD_OFFSET..(n as usize)]);
-    let res = acc.finalize();
-    let sidecar_id = u32::from_be_bytes([res[0], res[1], res[2], res[3]]);
+    let sidecar_id = UdpParser::parse_identifier(&buf);
     // ***CYCLES STOP step 3 parse identifier
     #[cfg(feature = "cycles")]
     unsafe {
