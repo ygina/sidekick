@@ -1,7 +1,10 @@
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
 use clap::Parser;
-use sidecar::{SidecarMulti, sidecar_multi::start_sidecar_multi};
+use sidecar::{
+    SidecarMulti,
+    sidecar_multi::{start_sidecar_multi, start_sidecar_multi_frequency_pkts},
+};
 use tokio::net::UdpSocket;
 use tokio::sync::oneshot;
 use tokio::time::{self, Duration, Instant};
@@ -21,8 +24,11 @@ struct Cli {
     #[arg(long = "bits", short = 'b', default_value_t = 32)]
     num_bits_id: usize,
     /// Frequency at which to quack, in ms.
-    #[arg(long = "frequency", default_value_t = 10)]
-    frequency_ms: u64,
+    #[arg(long = "frequency-ms")]
+    frequency_ms: Option<u64>,
+    /// Frequency at which to quack, in packets.
+    #[arg(long = "frequency-pkts")]
+    frequency_pkts: Option<u32>,
     /// Address of the UDP socket to quack to e.g., <IP:PORT>.
     #[arg(long = "quack-addr", default_value = "10.42.0.250:5104")]
     quack_addr: SocketAddr,
@@ -40,7 +46,7 @@ struct Cli {
     dst_port: u16,
 }
 
-async fn send_quacks(
+async fn send_quacks_ms(
     sc: Arc<Mutex<SidecarMulti>>,
     rx: oneshot::Receiver<Instant>,
     dst_key: [u8; 6],
@@ -73,9 +79,8 @@ async fn main() -> Result<(), String> {
     env_logger::init();
 
     let args = Cli::parse();
-    assert!(args.frequency_ms > 0);
-    info!("interface={} threshold={} bits={} frequency_ms={}",
-        args.interface, args.threshold, args.num_bits_id, args.frequency_ms);
+    info!("interface={} threshold={} bits={} frequency_ms={:?} frequency_pkts={:?}",
+        args.interface, args.threshold, args.num_bits_id, args.frequency_ms, args.frequency_pkts);
 
     // Start the sidecar.
     let sc = SidecarMulti::new(
@@ -105,7 +110,15 @@ async fn main() -> Result<(), String> {
     // Handle snapshotted quACKs at the specified frequency.
     info!("my address is {:?}", my_addr);
     let sc = Arc::new(Mutex::new(sc));
-    let rx = start_sidecar_multi(sc.clone(), my_addr)?;
-    send_quacks(sc, rx, dst_key, args.quack_addr, args.frequency_ms).await;
+    if let Some(frequency_ms) = args.frequency_ms {
+        assert!(frequency_ms > 0);
+        let rx = start_sidecar_multi(sc.clone(), my_addr)?;
+        send_quacks_ms(sc, rx, dst_key, args.quack_addr, frequency_ms).await;
+    } else if let Some(frequency_pkts) = args.frequency_pkts {
+        assert!(frequency_pkts > 0);
+        start_sidecar_multi_frequency_pkts(
+            sc.clone(), my_addr, frequency_pkts, args.quack_addr,
+        ).await.unwrap();
+    }
     Ok(())
 }

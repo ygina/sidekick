@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use quack::*;
 use tokio;
-use tokio::{sync::oneshot, time::Instant};
+use tokio::{sync::oneshot, time::Instant, net::UdpSocket};
 use log::{trace, info};
 
 use crate::{Quack, Socket};
@@ -64,7 +64,7 @@ impl SidecarMulti {
 
     pub fn insert(
         &mut self, addr_key: AddrKey, sidecar_id: u32,
-    ) {
+    ) -> &PowerSumQuack<u32> {
         // ***CYCLES START step 2 hash address key
         #[cfg(feature = "cycles")]
         let start2 = unsafe { core::arch::x86_64::_rdtsc() };
@@ -87,6 +87,7 @@ impl SidecarMulti {
             let stop4 = core::arch::x86_64::_rdtsc();
             CYCLES[4] += stop4 - start4;
         }
+        self.senders.get(&addr_key).as_ref().unwrap()
     }
 
     pub fn quack(
@@ -214,4 +215,42 @@ pub fn start_sidecar_multi(
         }
     });
     Ok(rx)
+}
+
+pub async fn start_sidecar_multi_frequency_pkts(
+    sc: Arc<Mutex<SidecarMulti>>,
+    my_addr: [u8; 6],
+    frequency_pkts: u32,
+    sendaddr: std::net::SocketAddr,
+) -> Result<(), String> {
+    let interface = sc.lock().unwrap().interface.clone();
+    let sock = Socket::new(interface.clone())?;
+    sock.set_promiscuous()?;
+
+    // Creates the channel that indicates the time of when the first packet is
+    // sniffed and inserted into a quack
+    let mut addr = SockAddr::new_sockaddr_ll();
+    let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
+    let sendsock = UdpSocket::bind("0.0.0.0:0").await.unwrap();
+
+    loop {
+        let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
+        trace!("received {} bytes: {:?}", n, buf);
+        match process_one_packet(n, &buf, &addr, my_addr) {
+            Action::Skip => { continue; }
+            Action::Reset { addr_key } => {
+                info!("resetting quacks {:?}", addr_key);
+                sc.lock().unwrap().senders = HashMap::new();
+            }
+            Action::Insert { addr_key, sidecar_id } => {
+                let mut sc = sc.lock().unwrap();
+                let quack = sc.insert(addr_key, sidecar_id);
+                if quack.count() % frequency_pkts == 0 {
+                    let bytes = bincode::serialize(&quack).unwrap();
+                    trace!("quack {} {:?}", quack.count(), addr_key);
+                    sendsock.send_to(&bytes, sendaddr).await.unwrap();
+                }
+            }
+        }
+    }
 }
