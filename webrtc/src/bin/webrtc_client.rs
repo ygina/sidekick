@@ -251,11 +251,12 @@ fn listen_for_quacks_power_sum(
             // still waiting to process a previous reset, or 3) the number of
             // missing packets exceeds the threshold.
             let now = Instant::now();
+            let reset0 = last_index_inserted.is_none();
             let reset1 = my_quack.count() < quack.count();
-            let reset2 = my_quack.count() - quack.count() > threshold as u32;
-            if reset1 || reset2 {
-                if now - last_quack_reset > sidecar_reset_threshold {
-                    info!("resetting quack: waiting for reset? {}, exceeds threshold? {}", reset1, reset2);
+            let reset2 = my_quack.count() > quack.count() + threshold as u32;
+            if reset0 || reset1 || reset2 {
+                if now > last_quack_reset + sidecar_reset_threshold {
+                    info!("reset: reordered? {} waiting for reset? {}, exceeds threshold? {}", reset0, reset1, reset2);
                     sock.send_to(&[0], reset_addr).await.unwrap();
                     my_quack = PowerSumQuack::new(threshold);
                     *seqno_ids = vec![];
