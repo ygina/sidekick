@@ -32,6 +32,9 @@ struct Cli {
     /// End-to-end RTT in ms, which is also how often to resend NACKs.
     #[arg(long)]
     rtt: u64,
+    /// Whether to loop forever.
+    #[arg(long = "loop")]
+    should_loop: bool,
 }
 
 const TIMEOUT_SEQNO: u32 = u32::MAX;
@@ -193,7 +196,6 @@ async fn main() -> io::Result<()> {
     env_logger::init();
 
     let args = Cli::parse();
-    let mut stats = Statistics::new();
 
     // Listen for incoming packets.
     let nack_frequency = Duration::from_millis(args.rtt);
@@ -202,33 +204,45 @@ async fn main() -> io::Result<()> {
         let sock = UdpSocket::bind(addr).await.unwrap();
         Arc::new(sock)
     };
-    let mut pkts = BufferedPackets::new(sock.clone(), nack_frequency).await?;
-    let mut buf = vec![0; args.bytes];
-    debug!("webrtc server is now listening");
     loop {
-        let (len, addr) = sock.recv_from(&mut buf).await?;
-        assert_eq!(len, args.bytes);
-        let seqno = u32::from_be_bytes([
-            buf[0],
-            buf[1],
-            buf[2],
-            buf[3],
-        ]);
-        trace!("received seqno {} ({} bytes)", seqno, len);
-        if seqno == TIMEOUT_SEQNO {
-            debug!("timeout message received");
+        let mut stats = Statistics::new();
+        let mut pkts = BufferedPackets::new(sock.clone(), nack_frequency).await?;
+        let mut buf = vec![0; args.bytes];
+        debug!("webrtc server is now listening");
+        loop {
+            let (len, addr) = sock.recv_from(&mut buf).await?;
+            assert_eq!(len, args.bytes);
+            let seqno = u32::from_be_bytes([
+                buf[0],
+                buf[1],
+                buf[2],
+                buf[3],
+            ]);
+            trace!("received seqno {} ({} bytes)", seqno, len);
+            if seqno == TIMEOUT_SEQNO {
+                debug!("timeout message received");
+                break;
+            }
+            let now = Instant::now();
+            pkts.recv_seqno(seqno, now);
+            while let Some(time_recv) = pkts.pop_seqno() {
+                stats.add_value(now - time_recv);
+            }
+            pkts.send_nacks(now, &addr).await?;
+        }
+
+        // Print statistics before exiting.
+        stats.print_statistics();
+        stats.print_histogram();
+
+        // Exit the loop if not set.
+        if !args.should_loop {
             break;
         }
-        let now = Instant::now();
-        pkts.recv_seqno(seqno, now);
-        while let Some(time_recv) = pkts.pop_seqno() {
-            stats.add_value(now - time_recv);
-        }
-        pkts.send_nacks(now, &addr).await?;
-    }
 
-    // Print statistics before exiting.
-    stats.print_statistics();
-    stats.print_histogram();
+        // Process remaining timeout messages.
+        tokio::time::sleep(Duration::from_secs(1)).await;
+        while sock.try_recv(&mut buf).is_ok() {};
+    }
     Ok(())
 }

@@ -1,5 +1,7 @@
 use std::ops::{Sub, AddAssign, MulAssign};
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
+#[cfg(feature = "montgomery")]
+use crate::arithmetic::MontgomeryInteger;
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
@@ -27,6 +29,22 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + Copy {
     pub fn eval(coeffs: &Vec<ModularInteger<T>>, x: T) -> ModularInteger<T> {
         let size = coeffs.len();
         let x_mod = ModularInteger::new(x);
+        let mut result = x_mod;
+        // result = x(...(x(x(x+a0)+a1)+...))
+        // e.g., result = x(x+a0)+a1
+        for i in 0..(size - 1) {
+            result += coeffs[i];
+            result *= x_mod;
+        }
+        result + coeffs[size - 1]
+    }
+}
+
+impl MonicPolynomialEvaluator<u64> {
+    #[cfg(feature = "montgomery")]
+    pub fn eval_montgomery(coeffs: &Vec<MontgomeryInteger>, x: u64) -> MontgomeryInteger {
+        let size = coeffs.len();
+        let x_mod = MontgomeryInteger::new(x);
         let mut result = x_mod;
         // result = x(...(x(x(x+a0)+a1)+...))
         // e.g., result = x(x+a0)+a1

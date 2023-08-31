@@ -3,6 +3,8 @@ mod strawman_a;
 mod strawman_b;
 #[cfg(feature = "power_table")]
 mod ptable;
+#[cfg(feature = "montgomery")]
+mod montgomery;
 
 pub use psum::PowerSumQuack;
 pub use strawman_a::StrawmanAQuack;
@@ -11,3 +13,5 @@ pub use strawman_b::StrawmanBQuack;
 pub use ptable::PowerTableQuack;
 #[cfg(feature = "power_table")]
 pub(crate) use ptable::{init_pow_table, POWER_TABLE};
+#[cfg(feature = "montgomery")]
+pub use montgomery::MontgomeryQuack;

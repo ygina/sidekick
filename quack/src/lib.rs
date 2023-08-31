@@ -1,9 +1,13 @@
 pub mod arithmetic {
     mod modint;
     mod evaluator;
+    #[cfg(feature = "montgomery")]
+    mod montgomery;
 
     pub use modint::{ModularInteger, ModularArithmetic};
     pub use evaluator::MonicPolynomialEvaluator;
+    #[cfg(feature = "montgomery")]
+    pub use montgomery::MontgomeryInteger;
 }
 
 mod quack_internal;
@@ -14,6 +18,8 @@ pub use quack_internal::StrawmanBQuack;
 pub(crate) use quack_internal::{init_pow_table, POWER_TABLE};
 #[cfg(feature = "power_table")]
 pub use quack_internal::PowerTableQuack;
+#[cfg(feature = "montgomery")]
+pub use quack_internal::MontgomeryQuack;
 
 pub trait Quack<T> {
     fn new(threshold: usize) -> Self;
