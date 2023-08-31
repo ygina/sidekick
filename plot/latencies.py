@@ -64,17 +64,18 @@ def plot_box_and_whiskers_graph(data, keys, pdf):
     plt.clf()
 
     protocols = [[y / 1000 for y in data[key]] for key in keys]
-    fig, ax = plt.subplots(figsize=(9,4))
+    fig, ax = plt.subplots(figsize=(1.8*len(keys),4))
     pos = np.arange(len(protocols)) + 1
     bp = ax.boxplot(protocols, sym='k+', positions=pos, notch=False)
 
-    ax.set_xticks(pos, keys, fontsize=16)
-    ax.set_xlabel('Protocol')
-    ax.set_ylabel('p99 Latency (ms)')
+    plt.yticks(fontsize=FONTSIZE)
+    ax.set_xticks(pos, keys, fontsize=FONTSIZE)
+    ax.set_xlabel('Protocol', fontsize=FONTSIZE)
+    ax.set_ylabel('p99 Latency (ms)', fontsize=FONTSIZE)
     plt.setp(bp['whiskers'], color='k', linestyle='-')
     plt.setp(bp['fliers'], markersize=3.0)
 
-    plt.title(pdf)
+    plt.title(pdf, fontsize=FONTSIZE)
     save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
 
 def parse_data(filename, pcts, trials):
