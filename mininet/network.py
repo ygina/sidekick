@@ -248,7 +248,7 @@ def run_iperf(net, time_s, host):
     host.cmdPrint(f'iperf3 -c 10.0.1.10 -t {time_s} -f m -b 20M -C cubic -i 0.1')
 
 
-def run_multiflow(net, f1, f2, delay, threshold=20):
+def run_multiflow(net, args, f1, f2, delay):
     """
     o = currently possible
     x = needs to be implemented
@@ -260,14 +260,14 @@ def run_multiflow(net, f1, f2, delay, threshold=20):
     quic  -   -     o    o
     tcp   -   -     -    o
     """
-    assert args.nbytes is not None
+    assert args.n is not None
     assert not (f1 == 'quack' and f2 == 'quack')
     assert not (f1 == 'tcp' and f2 == 'pep')
     assert not (f1 == 'pep' and f2 == 'tcp')
     if 'pep' in [f1, f2]:
         net.start_tcp_pep()
     if 'quack' in [f1, f2]:
-        net.start_quack_sender('2ms', threshold=threshold)
+        net.start_quack_sender(args.frequency, args.threshold, style='power_sum')
 
     def make_cmd(bm):
         if bm in ['tcp', 'pep']:
@@ -276,22 +276,27 @@ def run_multiflow(net, f1, f2, delay, threshold=20):
             client = 'quic'
         else:
             raise f'invalid benchmark: {bm}'
-        cmd = ['python3', 'mininet/client.py', '-n', args.nbytes,
+        cmd = ['python3', 'mininet/client.py', '-n', args.n,
                '--stdout', args.stdout, '--stderr', args.stderr,
-               '-t', '1', client]
+               '-t', '1']
+        if args.timeout:
+            cmd += ['--timeout', str(args.timeout)]
+        cmd += [client]
         return cmd
 
     f1_cmd = make_cmd(f1)
     f2_cmd = make_cmd(f2)
 
     home_dir = os.environ['HOME']
-    prefix = f'{home_dir}/sidecar/results/multiflow/loss{net.loss2}p'
-    pcap_file = f'{prefix}/{f1}_{f2}_{args.nbytes}_delay{args.delay}s_bw{args.bw2}.pcap'
+    prefix = f'{home_dir}/sidecar/results/multiflow/loss{args.loss2}p'
+    pcap_file = f'{prefix}/{f1}_{f2}_{args.n}_delay{args.delay}s_bw{args.bw2}.pcap'
     os.system(f'mkdir -p {prefix}')
     os.system(f'rm -f {pcap_file}')
     net.h1.cmd(f"tcpdump -w {pcap_file} -i h1-eth0 'ip src 10.0.2.10 and (tcp or udp)' &")
+    sclog(' '.join(f1_cmd))
     p1 = net.h2.popen(f1_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     time.sleep(args.delay)
+    sclog(' '.join(f2_cmd))
     p2 = net.h2.popen(f2_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     def wait(p, logfile, i, bm):

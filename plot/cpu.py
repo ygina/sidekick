@@ -73,7 +73,7 @@ def parse_data(filename, payload, threshold, args):
             parsed.add_achieved_rate(achieved_rate)
             target_rate = None
             achieved_rate = None
-    print([x for x in zip(parsed.target_rates, parsed.achieved_rates)])
+    # print([x for x in zip(parsed.target_rates, parsed.achieved_rates)])
     return parsed
 
 def parse_and_maybe_collect_missing_data(filename, payload, threshold, args):
@@ -139,14 +139,47 @@ def plot_graph(data, payloads, throughput=False):
     if pdf:
         save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
 
+def plot_cpu_cycles_bar_graph(pdf='cpu_cycles.pdf'):
+    data = []
+    data.append([27424, 27193])
+    data.append([17808, 18012])
+    data.append([44, 38])
+    data.append([441, 449])
+    data.append([234, 255])
+    labels = ['Sniff Packet', 'Hash Key', 'Parse ID', 'Encode ID', 'Other']
+
+    def offsets(index):
+        offset25 = sum([x[0] for x in data[:index]])
+        offset1468 = sum([x[1] for x in data[:index]])
+        return [offset25, offset1468]
+
+    plt.figure(figsize=(8, 4))
+    xticks = [0, 1]
+    plt.barh(xticks, data[0], left=offsets(0), label=labels[0])
+    plt.barh(xticks, data[1], left=offsets(1), label=labels[1])
+    plt.barh(xticks, data[2], left=offsets(2), label=labels[2])
+    plt.barh(xticks, data[3], left=offsets(3), label=labels[3])
+    plt.barh(xticks, data[4], left=offsets(4), label=labels[4])
+
+    plt.legend(loc='right', bbox_to_anchor=(1.6, 0.5), ncol=1)
+    plt.title(pdf)
+    if pdf:
+        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+
 if __name__ == '__main__':
     DEFAULT_PAYLOADS = [25, 1468]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
         help='whether to execute benchmarks to collect missing data points')
+    parser.add_argument('--plot', action='store_true',
+        help='plot the threshold vs throughput graphs')
+    parser.add_argument('--bar-graph', action='store_true',
+        help='plot the cpu cycles horizontal stacked bar graphs')
     parser.add_argument('--payloads', action='extend', nargs='+', type=int,
         help=f'payload sizes. (default: {DEFAULT_PAYLOADS})', default=[])
+    parser.add_argument('--threshold', '-t', action='extend', nargs='+', type=int,
+        help=f'thresholds. (default: {THRESHOLDS})', default=[])
     parser.add_argument('--warmup', default=5, type=int, help='(default: 5)')
     parser.add_argument('--timeout', default=10, type=int, help='(default: 10)')
     parser.add_argument('--max-x', default=360, type=int,
@@ -156,20 +189,23 @@ if __name__ == '__main__':
     parser.add_argument('--initial-rate', default=200000, type=int,
         help='initial target rate per client, in packets per second. should be '
              'larger than the highest achievable rate (default: 200000)')
+    parser.add_argument('--prefix', default='', type=str,
+        help='results filename prefix (default = \'\')')
     args = parser.parse_args()
 
     # Parse results data, and collect missing data points if specified.
     data = {}
     payloads = DEFAULT_PAYLOADS if len(args.payloads) == 0 else args.payloads
+    thresholds = THRESHOLDS if len(args.threshold) == 0 else args.threshold
     for payload in payloads:
         path = f'{WORKDIR}/results/cpu/payload{payload}'
         os.system(f'mkdir -p {path}')
         xs = []
         ys = []
-        for threshold in THRESHOLDS:
+        for threshold in thresholds:
             if threshold > args.max_x:
                 continue
-            filename = f'{path}/threshold{threshold}.txt'
+            filename = f'{path}/{args.prefix}threshold{threshold}.txt'
             os.system(f'touch {filename}')
             parsed = parse_and_maybe_collect_missing_data(
                 filename, payload, threshold, args)
@@ -177,7 +213,11 @@ if __name__ == '__main__':
                 xs.append(threshold)
                 ys.append(parsed.max_achieved_rate())
         data[payload] = (xs, ys)
+    print(data)
 
     # Plot data.
-    plot_graph(data, payloads, throughput=False)
-    plot_graph(data, payloads, throughput=True)
+    if args.plot:
+        plot_graph(data, payloads, throughput=False)
+        plot_graph(data, payloads, throughput=True)
+    if args.bar_graph:
+        plot_cpu_cycles_bar_graph()

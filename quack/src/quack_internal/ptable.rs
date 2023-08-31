@@ -11,7 +11,7 @@ use log::{debug, info, trace};
 
 
 // https://stackoverflow.com/questions/13212212/creating-two-dimensional-arrays-in-rust
-pub const MEMOIZED_POWER: usize = 32;
+pub const MEMOIZED_POWER: usize = 301;
 pub const NUM_U16S: usize = 1 << 16;
 pub static mut POWER_TABLE: [[ModularInteger<u16>; MEMOIZED_POWER]; NUM_U16S]
     = [[ModularInteger { value: 0 }; MEMOIZED_POWER]; NUM_U16S];

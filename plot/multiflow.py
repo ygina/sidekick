@@ -30,21 +30,22 @@ def plot_graph(filename, xs, ys0, ys1, f1, f2, pdf):
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
     plt.title(pdf)
     print(pdf)
-    save_pdf(pdf)
+    save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
     plt.clf()
 
 def get_pcap_filename(loss, n, f1, f2, delay, bw):
-    prefix = f'{WORKDIR}/results/multiflow'
-    f = f'{prefix}/loss{loss}p/{f1}_{f2}_{n}_delay{delay}s_bw{bw}.pcap'
+    prefix = f'{WORKDIR}/results/multiflow/loss{loss}p'
+    os.system(f'mkdir -p {prefix}')
+    f = f'{prefix}/{f1}_{f2}_{n}_delay{delay}s_bw{bw}.pcap'
     return f
 
 def get_pdf_filename(loss, n, f1, f2, delay, bw):
     f = f'{f1}_{f2}_{n}_loss{loss}p_delay{delay}s_bw{bw}.pdf'
     return f
 
-def execute_cmd(loss, n, f1, f2, delay, bw):
-    cmd = ['sudo', '-E', 'python3', 'mininet/net.py', '-n', n,
-       '--loss2', str(loss), '--bw2', str(bw),
+def execute_cmd(loss, n, f1, f2, delay, bw, timeout):
+    cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '-n', n,
+       '--loss2', str(loss), '--bw2', str(bw), '--timeout', str(timeout),
        'multiflow', '-f1', f1, '-f2', f2, '-d', str(delay)]
     print(' '.join(cmd))
     p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
@@ -87,11 +88,11 @@ def parse_pcap(filename):
 
     return (xs, ys0, ys1)
 
-def run(execute, loss, n, f1, f2, delay, bw):
+def run(execute, loss, n, f1, f2, delay, bw, timeout):
     filename = get_pcap_filename(loss, n, f1, f2, delay, bw)
     if not path.exists(filename):
         if execute:
-            execute_cmd(loss, n, f1, f2, delay, bw)
+            execute_cmd(loss, n, f1, f2, delay, bw, timeout)
         else:
             print('file does not exist:', filename)
             return
@@ -103,7 +104,7 @@ def run(execute, loss, n, f1, f2, delay, bw):
 def main(args):
     assert args.flow1 is not None
     assert args.flow2 is not None
-    run(args.execute, args.loss, args.n, args.flow1, args.flow2, args.delay, args.bw)
+    run(args.execute, args.loss, args.n, args.flow1, args.flow2, args.delay, args.bw, timeout=args.max_x)
 
 def run_loss0p(args):
     # 30M for every 30 seconds
@@ -112,9 +113,9 @@ def run_loss0p(args):
     else:
         n = args.n
     for delay in [0, 5]:
-        run(args.execute, 0, n, 'quic', 'quic', delay, args.bw)
-        run(args.execute, 0, n, 'quic', 'quack', delay, args.bw)
-        run(args.execute, 0, n, 'quack', 'quic', delay, args.bw)
+        run(args.execute, 0, n, 'quic', 'quic', delay, args.bw, timeout=args.max_x)
+        run(args.execute, 0, n, 'quic', 'quack', delay, args.bw, timeout=args.max_x)
+        run(args.execute, 0, n, 'quack', 'quic', delay, args.bw, timeout=args.max_x)
 
 def run_loss1p(args):
     # 30M for every 30 seconds
@@ -123,9 +124,9 @@ def run_loss1p(args):
     else:
         n = args.n
     for delay in [0, 5]:
-        run(args.execute, 1, n, 'pep', 'pep', delay, args.bw)
-        run(args.execute, 1, n, 'pep', 'quack', delay, args.bw)
-        run(args.execute, 1, n, 'quack', 'pep', delay, args.bw)
+        run(args.execute, 1, n, 'pep', 'pep', delay, args.bw, timeout=args.max_x)
+        run(args.execute, 1, n, 'pep', 'quack', delay, args.bw, timeout=args.max_x)
+        run(args.execute, 1, n, 'quack', 'pep', delay, args.bw, timeout=args.max_x)
 
 def run_loss5p(args):
     # 30M for every 30 seconds
