@@ -42,7 +42,7 @@ struct Cli {
     #[arg(long)]
     server_addr: SocketAddr,
     /// Number of seconds to stream data before sending a timeout message.
-    #[arg(long, short, default_value_t = 10)]
+    #[arg(long, short, default_value_t = 60)]
     timeout: u64,
     /// Number of bytes to send in the payload, including the sequence number.
     #[arg(long, short, default_value_t = 240)]
@@ -54,13 +54,13 @@ struct Cli {
     #[arg(long, value_enum)]
     quack_style: Option<QuackStyle>,
     /// Port to listen on for quACKs.
-    #[arg(long, default_value_t = 5104)]
+    #[arg(long, default_value_t = 5103)]
     quack_port: u16,
     /// Address to send quACK resets too.
     #[arg(long, default_value = "10.42.0.1:1234")]
     reset_addr: SocketAddr,
     /// QuACK threshold.
-    #[arg(long, default_value_t = 5)]
+    #[arg(long, default_value_t = 8)]
     threshold: usize,
 }
 
@@ -218,7 +218,7 @@ fn listen_for_quacks_power_sum(
 
         // Variables for sending quack resets.
         let mut last_quack_reset = Instant::now();
-        let sidecar_reset_threshold = Duration::from_millis(10);
+        let sidecar_reset_threshold = Duration::from_millis(100);
 
         loop {
             // Deserialize the quACK and only process it if at least one packet
