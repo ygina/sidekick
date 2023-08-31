@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-quack = { path = "../quack", features = ["libpari", "power_table"] }
+quack = { path = "../quack", features = ["libpari", "power_table", "montgomery"] }
 clap = { version = "4.0.26", features = ["derive"] }
 rand = "0.8.5"
 log = "0.4.17"

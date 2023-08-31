@@ -154,6 +154,38 @@ fn benchmark_decode_power_sum_precompute_u16(
     duration
 }
 
+fn benchmark_decode_power_sum_montgomery_u64(
+    size: usize,
+    num_packets: usize,
+    num_drop: usize,
+) -> Duration {
+    let numbers = gen_numbers::<u64>(num_packets);
+
+    // Construct two empty Quacks.
+    let mut acc1 = MontgomeryQuack::new(size);
+    let mut acc2 = MontgomeryQuack::new(size);
+
+    // Insert all but num_drop random numbers into the second accumulator.
+    for j in 0..(num_packets - num_drop) {
+        acc2.insert(numbers[j]);
+    }
+
+    let t1 = Instant::now();
+    for j in 0..num_packets {
+        acc1.insert(numbers[j]);
+    }
+    acc1 -= acc2;
+    let dropped = acc1.decode_with_log(&numbers);
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Decode time (bits = 64, threshold = {}, num_packets={}, \
+        false_positives = {}, dropped = {}): {:?}", size,
+        num_packets, dropped.len() - num_drop, num_drop, duration);
+    assert!(dropped.len() >= num_drop);
+    duration
+}
+
 fn benchmark_decode_power_sum<T>(
     size: usize,
     num_bits_id: usize,
@@ -217,6 +249,13 @@ pub fn run_benchmark(
                 16 => benchmark_decode_power_sum_precompute_u16(params.threshold, num_packets, num_drop),
                 32 => todo!(),
                 64 => todo!(),
+                _ => unimplemented!(),
+                }
+            } else if params.montgomery {
+                match params.num_bits_id {
+                16 => unimplemented!(),
+                32 => unimplemented!(),
+                64 => benchmark_decode_power_sum_montgomery_u64(params.threshold, num_packets, num_drop),
                 _ => unimplemented!(),
                 }
             } else {

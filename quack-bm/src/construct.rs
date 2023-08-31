@@ -97,6 +97,29 @@ fn benchmark_construct_power_sum_precompute_u16(
     duration
 }
 
+fn benchmark_construct_power_sum_montgomery_u64(
+    threshold: usize,
+    num_packets: usize,
+) -> Duration {
+    let numbers = gen_numbers::<u64>(num_packets);
+
+    // Construct an empty Quack.
+    let mut quack = MontgomeryQuack::new(threshold);
+
+    // Insert a bunch of random numbers into the accumulator.
+    let t1 = Instant::now();
+    for number in numbers {
+        quack.insert(number);
+    }
+    let _bytes = bincode::serialize(&quack);
+    let t2 = Instant::now();
+
+    let duration = t2 - t1;
+    info!("Insert {} numbers into a montgomery quACK (bits = 64, \
+        threshold = {}): {:?}", num_packets, threshold, duration);
+    duration
+}
+
 fn benchmark_construct_power_sum<T>(
     threshold: usize,
     num_bits_id: usize,
@@ -152,6 +175,13 @@ pub fn run_benchmark(
                 16 => benchmark_construct_power_sum_precompute_u16(params.threshold, num_packets),
                 32 => todo!(),
                 64 => todo!(),
+                _ => unimplemented!(),
+                }
+            } else if params.montgomery {
+                match params.num_bits_id {
+                16 => unimplemented!(),
+                32 => unimplemented!(),
+                64 => benchmark_construct_power_sum_montgomery_u64(params.threshold, num_packets),
                 _ => unimplemented!(),
                 }
             } else {
