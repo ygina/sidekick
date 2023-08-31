@@ -217,7 +217,7 @@ fn listen_for_quacks_power_sum(
         info!("listening for quacks on {:?}", sock.local_addr());
 
         // Variables for sending quack resets.
-        let mut last_quack_reset = Instant::now();
+        let mut last_quack_reset = None;
         let sidecar_reset_threshold = Duration::from_millis(100);
 
         loop {
@@ -255,17 +255,26 @@ fn listen_for_quacks_power_sum(
             let reset1 = my_quack.count() < quack.count();
             let reset2 = my_quack.count() > quack.count() + threshold as u32;
             if reset0 || reset1 || reset2 {
-                if now > last_quack_reset + sidecar_reset_threshold {
-                    info!("reset: reordered? {} waiting for reset? {}, exceeds threshold? {}", reset0, reset1, reset2);
+                let should_reset = if let Some(last_quack_reset) = last_quack_reset {
+                    now > last_quack_reset + sidecar_reset_threshold
+                } else {
+                    true
+                };
+                if should_reset {
+                    info!("reset: reordered? {} retx? {} exceeds threshold? {}", reset0, reset1, reset2);
                     sock.send_to(&[0], reset_addr).await.unwrap();
                     my_quack = PowerSumQuack::new(threshold);
                     *seqno_ids = vec![];
-                    last_quack_reset = now;
+                    last_quack_reset = Some(now);
                 }
                 continue;
             }
 
             let last_index_inserted = last_index_inserted.unwrap();
+            if last_quack_reset.is_some() {
+                info!("successful reset");
+                last_quack_reset = None;
+            }
 
             // If the number of missing packets exceeds the threshold, reset
             // the quack. If no packets are missing, continue on.
