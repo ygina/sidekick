@@ -102,16 +102,38 @@ def parse_data(filename, pcts, trials):
     return (num_points, data)
 
 # Should only be one trial
-def parse_data_cdf(filename):
-    data = defaultdict(lambda: [])
+def parse_data_cdf(filename, args):
     with open(filename) as f:
         lines = f.read().split('\n')
-    for line in lines:
-        match = re.match(r'Latencies \(ns\) = (.+)', line)
-        if match is None:
-            continue
-        # Represents 95.0% to 100.0% by 0.1% increments
-        return [int(x) for x in list(match.group(1)[1:-1].split(', '))]
+    if args.trials == 1:
+        for line in lines:
+            match = re.match(r'Latencies \(ns\) = (.+)', line)
+            if match is None:
+                continue
+            # Represents 90.0% to 100.0% by 0.1% increments
+            return [int(x) for x in list(match.group(1)[1:-1].split(', '))]
+    else:
+        num_trials = 0
+        raw_data = []
+        for line in lines:
+            match = re.match(r'Raw values = (.+)', line)
+            if match is None:
+                continue
+            raw_data += [int(x) for x in list(match.group(1)[1:-1].split(', '))]
+            num_trials += 1
+            if num_trials == args.trials:
+                break
+        if len(raw_data) == 0:
+            return None
+        # Now that we have all the raw data points, get the 90th
+        # to 100th percentiles by 0.1% increments.
+        raw_data.sort()
+        data = []
+        for percentile in range(900, 1001, 1):
+            index = int(percentile / 1000.0 * len(raw_data))
+            index = min(index, len(raw_data) - 1)
+            data.append(raw_data[index])
+        return data
     return None
 
 def maybe_collect_missing_data(filename, key, args):
@@ -225,7 +247,7 @@ if __name__ == '__main__':
             filename = f'{path}/{key}.txt'
             os.system(f'touch {filename}')
             maybe_collect_missing_data(filename, key, args)
-            data = parse_data_cdf(filename)
+            data = parse_data_cdf(filename, args)
             if data is not None:
                 key_data[key] = data
         plot_percentile_vs_latency_graph(key_data,
