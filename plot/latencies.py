@@ -13,14 +13,14 @@ from common import *
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
-def plot_percentile_vs_latency_graph(data, keys, legend=True, pdf=None):
+def plot_percentile_vs_latency_graph(data, keys, xs=range(101), legend=True, pdf=None):
     plt.figure(figsize=(9, 2))
     for (i, key) in enumerate(keys):
         ys = [y / 1000000.0 for y in data[key]]
-        plt.plot(range(101), ys, marker=MARKERS[i], label=key)
+        plt.plot(xs, ys, marker=MARKERS[i], label=key)
     plt.xlabel('Percentile')
     plt.ylabel('Latency (ms)')
-    plt.xlim(0, 100)
+    plt.xlim(min(xs), max(xs))
     plt.ylim(0)
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.8), ncol=2)
@@ -87,17 +87,31 @@ def parse_data(filename, pcts, trials):
         match = re.match(r'Latencies \(ns\) = (.+)', line)
         if match is None:
             continue
+        # Represents 95.0% to 100.0% by 0.1% increments
         latencies = [int(x) for x in list(match.group(1)[1:-1].split(', '))]
         for pct in pcts:
-            us = int(latencies[pct] / 1000)
+            assert pct >= 950
+            us = int(latencies[pct - 950] / 1000)
             data[pct].append(us)
         num_points += 1
         if num_points >= trials:
             break
     return (num_points, data)
 
-def maybe_collect_missing_data(filename, key, pcts, args):
-    num_points, _ = parse_data(filename, pcts, args.trials)
+# Should only be one trial
+def parse_data_cdf(filename):
+    data = defaultdict(lambda: [])
+    with open(filename) as f:
+        lines = f.read().split('\n')
+    for line in lines:
+        match = re.match(r'Latencies \(ns\) = (.+)', line)
+        if match is None:
+            continue
+        # Represents 95.0% to 100.0% by 0.1% increments
+        return [int(x) for x in list(match.group(1)[1:-1].split(', '))]
+
+def maybe_collect_missing_data(filename, key, args):
+    num_points, _ = parse_data(filename, DEFAULT_PERCENTILES, args.trials)
     if num_points >= args.trials:
         print(filename)
         return
@@ -131,7 +145,7 @@ def maybe_collect_missing_data(filename, key, pcts, args):
 if __name__ == '__main__':
     DEFAULT_PDF = f'latencies_webrtc.pdf'
     DEFAULT_KEYS = ['base', 'quack_2p_8', 'quack_4p_16', 'quack_8p_32']
-    DEFAULT_PERCENTILES = [95, 99]
+    DEFAULT_PERCENTILES = [990]
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--line-graph', action='store_true',
@@ -140,6 +154,8 @@ if __name__ == '__main__':
         help='Plot the bar graphs of configuration vs. p95 or p99 latency')
     parser.add_argument('--box-and-whiskers', action='store_true',
         help='Plot the box and whiskers plot')
+    parser.add_argument('--cdf', action='store_true',
+        help='Plot the CDF from p99 to p100')
     parser.add_argument('--execute', action='store_true',
         help='whether to execute benchmarks to collect missing data points')
     parser.add_argument('--timeout', default=60, type=int,
@@ -162,7 +178,7 @@ if __name__ == '__main__':
         data['quack_loss1_freq19ms'] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19248287]
         data['quack_loss1_freq20ms'] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3991917, 4091838, 4956121, 4975895, 4988555, 5009217, 5011281, 5052052, 5089611, 15154229, 15175043]
         data['quack_loss10_freq20ms'] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4121921, 4315239, 5004513, 5019362, 5026590, 5034487, 5077427, 5199125, 15296679, 54856115]
-        plot_percentile_vs_latency_graph(data, keys=keys, pdf=DEFAULT_PDF)
+        plot_percentile_vs_latency_graph(data, xs=[x for x in range(101)], keys=keys, pdf=DEFAULT_PDF)
         exit(0)
 
     keys = DEFAULT_KEYS if len(args.http) == 0 else args.http
@@ -197,10 +213,23 @@ if __name__ == '__main__':
         plot_bar_graph(data, percentiles, keys=keys, pdf=DEFAULT_PDF)
         exit(0)
 
+    if args.cdf:
+        key_data = {}
+        for key in keys:
+            filename = f'{path}/{key}.txt'
+            os.system(f'touch {filename}')
+            _, data = parse_data_cdf(filename)
+            if data is not None:
+                key_data[key] = data
+        plot_percentile_vs_latency_graph(key_data,
+                                         xs=[x / 10.0 for x in range(950, 1001)],
+                                         keys=keys,
+                                         pdf=DEFAULT_PDF)
+
     for key in keys:
         filename = f'{path}/{key}.txt'
         os.system(f'touch {filename}')
-        maybe_collect_missing_data(filename, key, pcts, args)
+        maybe_collect_missing_data(filename, key, args)
         _, data = parse_data(filename, pcts, args.trials)
         for pct in pcts:
             if len(data[pct]) == 0:
