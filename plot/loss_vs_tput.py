@@ -30,8 +30,8 @@ TARGET_XS['quack_old'] = TARGET_XS['quack']
 # TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
 # TARGET_XS['quic'] += [200, 400, 800]
 # TARGET_XS['tcp'] = TARGET_XS['quic']
-TARGET_XS['quic'] = [0, 25, 50, 100, 200]
-TARGET_XS['tcp'] = [0, 25, 50, 100, 200]
+TARGET_XS['quic'] = [0, 25, 50, 100, 200, 400, 800]
+TARGET_XS['tcp'] = TARGET_XS['quic']
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
@@ -182,7 +182,7 @@ def plot_legend(data, https, pdf):
     save_pdf(pdf, bbox_inches=bbox)
 
 if __name__ == '__main__':
-    DEFAULT_PROTOCOLS = ['quack', 'pep']
+    DEFAULT_PROTOCOLS = ['quack', 'pep', 'tcp', 'quic']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
