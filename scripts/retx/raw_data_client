@@ -1,0 +1,449 @@
+gina@snake:~/sidecar/scripts$ for i in $(seq 1 1 10); do ./run_quic.sh 1M; sleep 5; ./run_quack.sh 1M; sleep 5; done
+POST request for /
+time_total: 6.712636
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 3.693857
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.883463
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.675508
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 4.179071
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 4.441190
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 5.220343
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.614579
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.576400
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.366354
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.234775
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.673024
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 4.009079
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.809964
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.497224
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 3.433754
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 4.440873
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 2.447262
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 4.746018
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+POST request for /
+time_total: 3.962095
+exitcode: 0
+response_code: 200
+size_upload: 1048576
+size_download: 18
+errormsg:
+
+
+
+size_upload: 1048576
+size_download: 18
+errormsg:
+gina@snake:~/sidecar/scripts$ for i in $(seq 1 1 5); do ./run_quic.sh 10M; sleep 5; ./run_quack.sh 10M; sleep 5; done
+POST request for /
+time_total: 40.618722
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 26.679292
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 34.904855
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 24.413014
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 37.588759
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 22.203797
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 35.555504
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 31.751578
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 37.585444
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 25.160763
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+gina@snake:~/sidecar/scripts$ for i in $(seq 1 1 5); do ./run_quic.sh 10M; sleep 5; ./run_quack.sh 10M; sleep 5; done
+POST request for /
+time_total: 38.849286
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 18.340019
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 24.238750
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 20.842764
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 25.890907
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 21.037658
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 28.548892
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 22.129411
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 31.370909
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+POST request for /
+time_total: 24.691013
+exitcode: 0
+response_code: 200
+size_upload: 10485760
+size_download: 18
+errormsg:
+
+gina@snake:~/sidecar/scripts$ for i in $(seq 1 1 2); do ./run_quic.sh 50M; sleep 5; ./run_quack.sh 50M; sleep 5; done
+POST request for /
+time_total: 180.519908
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 109.367024
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 147.414645
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 112.190154
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+
+gina@snake:~/sidecar/scripts$ for i in $(seq 1 1 8); do ./run_quic.sh 50M; sleep 5; ./run_quack.sh 50M; sleep 5; done
+POST request for /
+time_total: 171.697321
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 140.979310
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 172.523362
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 147.493014
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 181.503244
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 133.723531
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 204.094687
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+POST request for /
+time_total: 159.736379
+exitcode: 0
+response_code: 200
+size_upload: 52428800
+size_download: 18
+errormsg:
+
+1M
+POST request for /
+time_total: 13.389671 (0 200 1048576 18: ())
+POST request for /
+time_total: 12.499980 (0 200 1048576 18: ())
+POST request for /
+time_total: 9.764715 (0 200 1048576 18: ())
+POST request for /
+time_total: 6.455725 (0 200 1048576 18: ())
+POST request for /
+time_total: 9.511431 (0 200 1048576 18: ())
+POST request for /
+time_total: 4.976494 (0 200 1048576 18: ())
+POST request for /
+time_total: 6.502541 (0 200 1048576 18: ())
+POST request for /
+time_total: 6.257007 (0 200 1048576 18: ())
+POST request for /
+time_total: 7.067453 (0 200 1048576 18: ())
+POST request for /
+time_total: 9.636542 (0 200 1048576 18: ())
+POST request for /
+time_total: 9.837232 (0 200 1048576 18: ())
+POST request for /
+time_total: 11.076679 (0 200 1048576 18: ())
+POST request for /
+time_total: 9.842330 (0 200 1048576 18: ())
+POST request for /
+time_total: 6.106071 (0 200 1048576 18: ())
+POST request for /
+time_total: 10.709180 (0 200 1048576 18: ())
+POST request for /
+time_total: 10.519761 (0 200 1048576 18: ())
+POST request for /
+time_total: 4.697543 (0 200 1048576 18: ())
+POST request for /
+time_total: 7.477837 (0 200 1048576 18: ())
+POST request for /
+time_total: 5.747926 (0 200 1048576 18: ())
+POST request for /
+time_total: 6.874833 (0 200 1048576 18: ())
+
+10M
+gina@snake:~/sidecar/script$ for i in $(seq 1 1 10); do ./run_quic.sh 10M 300; sleep 2; ./run_quack.sh 10M 300; sleep 2; done
+POST request for /
+time_total: 111.061333 (0 200 10485760 18: ())
+POST request for /
+time_total: 100.224426 (0 200 10485760 18: ())
+POST request for /
+time_total: 87.487611 (0 200 10485760 18: ())
+POST request for /
+time_total: 53.027380 (0 200 10485760 18: ())
+POST request for /
+time_total: 76.856121 (0 200 10485760 18: ())
+POST request for /
+time_total: 54.012760 (0 200 10485760 18: ())
+
+time_total: 299.999022 (28 000 10485760 0: (Operation timed out after 299999 milliseconds with 0 bytes received))
+POST request for /
+time_total: 115.545369 (0 200 10485760 18: ())
+POST request for /
+time_total: 98.890475 (0 200 10485760 18: ())
+POST request for /
+time_total: 71.814570 (0 200 10485760 18: ())
+POST request for /
+time_total: 142.246060 (0 200 10485760 18: ())
+
+time_total: 299.999012 (28 000 10485760 0: (Operation timed out after 299999 milliseconds with 0 bytes received))
+POST request for /
+time_total: 107.826417 (0 200 10485760 18: ())
+^C
