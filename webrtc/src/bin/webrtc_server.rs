@@ -57,25 +57,27 @@ impl Statistics {
     }
 
     /// Print average, p95, and p99 latency statistics.
-    fn print_statistics(&mut self) {
-        self.values.sort();
-        let len = self.values.len();
+    fn print_statistics(&self) {
+        let mut values = self.values.clone();
+        values.sort();
+        let len = values.len();
         println!("Num Values: {}", len);
-        println!("Average: {:?}", self.values[(len as f64 * 0.50) as usize]);
-        println!("p95: {:?}", self.values[(len as f64 * 0.95) as usize]);
-        println!("p99: {:?}", self.values[(len as f64 * 0.99) as usize]);
-        let values_raw = self.values.into_iter()
+        println!("Average: {:?}", values[(len as f64 * 0.50) as usize]);
+        println!("p95: {:?}", values[(len as f64 * 0.95) as usize]);
+        println!("p99: {:?}", values[(len as f64 * 0.99) as usize]);
+        let values_raw = values.into_iter()
             .map(|duration| duration.as_secs() * 1000000000 + duration.subsec_nanos() as u64)
             .collect::<Vec<_>>();
-        // Print 95% to 100% by 0.1%
-        println!("Latencies (ns) = {:?}", (950..1001)
+        // Print 90% to 100% by 0.1%
+        println!("Latencies (ns) = {:?}", (900..1001)
             .map(|percent| (percent as f64) / 1000.0)
             .map(|percent| ((len as f64) * percent) as usize)
             .map(|index| std::cmp::min(index, len - 1))
             .map(|index| values_raw[index])
-            .rev()
             .collect::<Vec<_>>());
-        println!("Raw values = {:?}", values_raw);
+        println!("Raw values = {:?}", self.values.iter()
+            .map(|duration| duration.as_secs() * 1000000000 + duration.subsec_nanos() as u64)
+            .collect::<Vec<_>>());
     }
 
     /// Print a histogram of the latency statistics.

@@ -13,17 +13,20 @@ from common import *
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
-def plot_percentile_vs_latency_graph(data, keys, xs=range(101), legend=True, pdf=None):
-    plt.figure(figsize=(9, 2))
+def plot_percentile_vs_latency_graph(data, keys, min_x=None, xs=range(101), legend=True, pdf=None):
+    plt.figure(figsize=(9, 6))
     for (i, key) in enumerate(keys):
         ys = [y / 1000000.0 for y in data[key]]
-        plt.plot(xs, ys, marker=MARKERS[i], label=key)
+        plt.plot(xs, ys, label=key)
     plt.xlabel('Percentile')
     plt.ylabel('Latency (ms)')
-    plt.xlim(min(xs), max(xs))
+    if min_x is None:
+        plt.xlim(min(xs), max(xs))
+    else:
+        plt.xlim(min_x / 10.0, max(xs))
     plt.ylim(0)
     if legend:
-        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.8), ncol=2)
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
     plt.title(pdf)
     if pdf:
         save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
@@ -90,8 +93,8 @@ def parse_data(filename, pcts, trials):
         # Represents 95.0% to 100.0% by 0.1% increments
         latencies = [int(x) for x in list(match.group(1)[1:-1].split(', '))]
         for pct in pcts:
-            assert pct >= 950
-            us = int(latencies[pct - 950] / 1000)
+            assert pct >= 900
+            us = int(latencies[pct - 900] / 1000)
             data[pct].append(us)
         num_points += 1
         if num_points >= trials:
@@ -109,6 +112,7 @@ def parse_data_cdf(filename):
             continue
         # Represents 95.0% to 100.0% by 0.1% increments
         return [int(x) for x in list(match.group(1)[1:-1].split(', '))]
+    return None
 
 def maybe_collect_missing_data(filename, key, args):
     num_points, _ = parse_data(filename, DEFAULT_PERCENTILES, args.trials)
@@ -155,7 +159,9 @@ if __name__ == '__main__':
     parser.add_argument('--box-and-whiskers', action='store_true',
         help='Plot the box and whiskers plot')
     parser.add_argument('--cdf', action='store_true',
-        help='Plot the CDF from p99 to p100')
+        help='Plot the CDF from p95 to p100')
+    parser.add_argument('--min-x', type=int,
+        help='Min x value to plot the CDF at, in tenths of a percentile.')
     parser.add_argument('--execute', action='store_true',
         help='whether to execute benchmarks to collect missing data points')
     parser.add_argument('--timeout', default=60, type=int,
@@ -218,13 +224,16 @@ if __name__ == '__main__':
         for key in keys:
             filename = f'{path}/{key}.txt'
             os.system(f'touch {filename}')
-            _, data = parse_data_cdf(filename)
+            maybe_collect_missing_data(filename, key, args)
+            data = parse_data_cdf(filename)
             if data is not None:
                 key_data[key] = data
         plot_percentile_vs_latency_graph(key_data,
-                                         xs=[x / 10.0 for x in range(950, 1001)],
+                                         min_x=args.min_x,
+                                         xs=[x / 10.0 for x in range(900, 1001)],
                                          keys=keys,
                                          pdf=DEFAULT_PDF)
+        exit(0)
 
     for key in keys:
         filename = f'{path}/{key}.txt'
