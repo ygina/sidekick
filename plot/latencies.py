@@ -20,7 +20,7 @@ def plot_percentile_vs_latency_graph_flipped(data, keys, min_x=None, xs=range(10
         plt.plot(ys, xs, label=key)
     plt.ylabel('Percentile')
     plt.xlabel('Latency (ms)')
-    if min_y is None:
+    if min_x is None:
         plt.ylim(min(xs), max(xs))
     else:
         plt.ylim(min_x / 10.0, max(xs))
