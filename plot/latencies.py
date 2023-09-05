@@ -13,6 +13,25 @@ from common import *
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
+def plot_percentile_vs_latency_graph_flipped(data, keys, min_x=None, xs=range(101), legend=True, pdf=None):
+    plt.figure(figsize=(9, 6))
+    for (i, key) in enumerate(keys):
+        ys = [y / 1000000.0 for y in data[key]]
+        plt.plot(ys, xs, label=key)
+    plt.ylabel('Percentile')
+    plt.xlabel('Latency (ms)')
+    if min_y is None:
+        plt.ylim(min(xs), max(xs))
+    else:
+        plt.ylim(min_x / 10.0, max(xs))
+    plt.xlim(0)
+    if legend:
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
+    plt.title(pdf)
+    if pdf:
+        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+    plt.clf()
+
 def plot_percentile_vs_latency_graph(data, keys, min_x=None, xs=range(101), legend=True, pdf=None):
     plt.figure(figsize=(9, 6))
     for (i, key) in enumerate(keys):
@@ -250,7 +269,7 @@ if __name__ == '__main__':
             data = parse_data_cdf(filename, args)
             if data is not None:
                 key_data[key] = data
-        plot_percentile_vs_latency_graph(key_data,
+        plot_percentile_vs_latency_graph_flipped(key_data,
                                          min_x=args.min_x,
                                          xs=[x / 10.0 for x in range(900, 1001)],
                                          keys=keys,
