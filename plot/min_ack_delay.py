@@ -9,7 +9,9 @@ from os import path
 from collections import defaultdict
 from common import *
 
-TARGET_XS = [x for x in range(0, 100, 10)] + [x for x in range(100, 1100, 100)]
+TARGET_XS = [x for x in range(0, 10, 1)] + \
+            [x for x in range(10, 100, 10)] + \
+            [x for x in range(100, 1100, 100)]
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def collect_ys_mean(ys):
@@ -120,12 +122,15 @@ def maybe_collect_missing_data(filename, key, args):
                    '--delay2', '25', '--bw1', '100', '--bw2', '10', '-t', '1',
                    '--loss1', '0', '--loss2', str(args.loss),
                    '-n', args.n, '--print-statistics',
-                   '--frequency', args.frequency,
-                   '--threshold', str(args.threshold),
                    '--min-ack-delay', str(min_ack_delay)]
-            if 'quack' in key:
+            match = re.match(r'quack_(.+(ms|p))_(\d+)', key)
+            if match is not None:
+                cmd += ['--frequency', match.group(1)]
+                cmd += ['--threshold', match.group(3)]
                 cmd += ['--timeout', '60']
-            cmd += [key]
+                cmd += ['quack']
+            else:
+                cmd += [key]
             print(' '.join(cmd))
             p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
@@ -193,7 +198,7 @@ def collect_data(xs, ys, median):
     return (new_xs, new_ys, new_yerrs)
 
 if __name__ == '__main__':
-    DEFAULT_PROTOCOLS = ['quack', 'quic']
+    DEFAULT_PROTOCOLS = ['quack_15ms_50', 'quack_30ms_100', 'quack_60ms_200', 'quic']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
@@ -206,12 +211,8 @@ if __name__ == '__main__':
         help='number of trials per data point (default: 1)')
     parser.add_argument('--loss', default='0', type=str,
         help='Loss percentage on the near subpath (default: 0)')
-    parser.add_argument('--max-x', default=1000, type=int,
+    parser.add_argument('--max-x', default=800, type=int,
         help='maximum minimum ack delay to plot (default: 1000)')
-    parser.add_argument('--frequency', default='10ms',
-        help='quack frequency (default: 10ms)')
-    parser.add_argument('--threshold', default=40, type=int,
-        help='quack threshold (default: 40)')
     parser.add_argument('--median', action='store_true',
         help='use the median instead of the mean')
     parser.add_argument('--legend', type=bool, default=True,
