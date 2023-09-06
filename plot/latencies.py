@@ -21,7 +21,7 @@ def plot_percentile_vs_latency_graph_flipped(data, keys, min_x=None, xs=range(10
         label = 'Simple E2E' if i == 0 else MAIN_RESULT_LABELS[i]
         plt.plot(ys, xs, label=label, marker=MARKERS[i], linewidth=LINEWIDTH,
                  linestyle=LINESTYLES[i], zorder=MAIN_RESULT_ZORDERS[i],
-                 color=MAIN_RESULT_COLORS[i])
+                 color=MAIN_RESULT_COLORS[i], markersize=MARKERSIZE)
     plt.ylabel('Percentile', fontsize=FONTSIZE)
     plt.xlabel('De-Jitter Latency (ms)', fontsize=FONTSIZE)
     plt.xticks(fontsize=FONTSIZE)

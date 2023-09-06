@@ -215,7 +215,7 @@ def plot_marquee_graph(args, loss, pdf, http_versions, data_key='time_total'):
         plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
             label=label, marker=MARKERS[i], linewidth=LINEWIDTH,
             linestyle=LINESTYLES[i], zorder=MAIN_RESULT_ZORDERS[i],
-            color=MAIN_RESULT_COLORS[i], elinewidth=2)
+            color=MAIN_RESULT_COLORS[i], elinewidth=2, markersize=MARKERSIZE)
         # print(label)
         # print(xs)
         # print(ys)

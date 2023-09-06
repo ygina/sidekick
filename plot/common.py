@@ -13,11 +13,11 @@ MARKERS = 'PXD*o^v<>.'
 sns.set_style('ticks')
 font = {
     'font.weight': 1000,
-    'font.size': 15,
+    'font.size': 18,
 }
 sns.set_style(font)
 paper_rc = {
-    'lines.linewidth': 2,
+    'lines.linewidth': 3,
     'lines.markersize': 10,
 }
 sns.set_context("paper", font_scale=3,  rc=paper_rc)
@@ -53,12 +53,17 @@ MARKERSIZE = 10
 # Line styles
 # https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html
 LINESTYLES = [
-    (0, (1, 1)),  # dotted
-    'solid',
     (0, (3, 1, 1, 1)),  # densely dashdotted
+    'solid',
     (0, (5, 1)),  # densely dashed
-    (0, (3, 1, 1, 1, 1, 1, 1, 1)),  # densely dashdashdashdotted
+    (0, (1, 1, 3, 1, 3, 1, 3, 1)),  # densely dashdashdashdotted
+    (0, (3, 1, 1, 1, 5, 1, 1, 1)),  # densely dashdotdashhhdotted
 ]
+LINESTYLE_MAP = {}
+LINESTYLE_MAP['quic'] = LINESTYLES[0]
+LINESTYLE_MAP['quack'] = LINESTYLES[1]
+LINESTYLE_MAP['tcp'] = LINESTYLES[2]
+LINESTYLE_MAP['pep'] = LINESTYLES[3]
 
 styles = [
 'Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid',
