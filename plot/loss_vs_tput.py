@@ -40,16 +40,16 @@ def empty_list():
 
 def collect_ys_mean(ys, n):
     assert n[-1] == 'M'
-    n_megabyte = int(n[:-1]) * 1.0
-    ys = [n_megabyte * 8 / y for y in ys]
+    n_megabit = int(n[:-1]) * 1.0 * 8.0
+    ys = [n_megabit * 8 / y for y in ys]
     y = statistics.mean(ys)
     yerr = 0 if len(ys) == 1 else statistics.stdev(ys)
     return (y, yerr)
 
 def collect_ys_median(ys, n):
     assert n[-1] == 'M'
-    n_megabyte = int(n[:-1]) * 1.0
-    ys = [n_megabyte / y for y in ys]
+    n_megabit = int(n[:-1]) * 1.0 * 8.0
+    ys = [n_megabit / y for y in ys]
     ys.sort()
     y = statistics.median(ys)
     mid = int(len(ys) / 2)
@@ -153,7 +153,7 @@ def maybe_collect_missing_data(filename, key, args):
                 sys.stdout.buffer.write(line)
                 sys.stdout.buffer.flush()
 
-def plot_graph(data, https, legend, pdf=None):
+def plot_graph(args, data, https, legend, pdf=None):
     max_x = 0
     plt.figure(figsize=(15, 5))
     for (i, key) in enumerate(https):
@@ -162,27 +162,31 @@ def plot_graph(data, https, legend, pdf=None):
             label = LABEL_MAP[key]
         else:
             label = key
-        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], label=label)
+        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], markersize=MARKERSIZE,
+                     label=label, color=COLOR_MAP[key], linewidth=LINEWIDTH,
+                     capsize=5, linestyle=LINESTYLES[i], elinewidth=2)
         if len(xs) > 0:
             max_x = max(max_x, max(xs))
-    plt.xlabel('Loss (%)')
+    plt.xlabel(f'Loss % (Link 1 Delay = {args.delay2} ms, Link 2 Delay = {args.delay1} ms)')
     plt.ylabel('Goodput (Mbit/s)')
     plt.xlim(0, max_x)
     plt.ylim(0)
+    plt.grid()
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4)
-    plt.title(pdf)
+    # plt.title(pdf)
     if pdf:
         save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
 
-def plot_legend(data, https, pdf):
-    plot_graph(data, https, legend=False)
+def plot_legend(args, data, https, pdf):
+    pdf = f'{WORKDIR}/plot/graphs/{pdf}'
+    plot_graph(args, data, https, legend=False)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4, frameon=True)
     bbox = Bbox.from_bounds(0.5, 4.55, 14.35, 0.95)
     save_pdf(pdf, bbox_inches=bbox)
 
 if __name__ == '__main__':
-    DEFAULT_PROTOCOLS = ['quack', 'pep', 'tcp', 'quic']
+    DEFAULT_PROTOCOLS = ['quic', 'quack', 'tcp', 'pep']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
@@ -207,9 +211,9 @@ if __name__ == '__main__':
         help='in number of packets (default: 10)')
     parser.add_argument('--args', action='extend', nargs='+', default=[],
         help='additional arguments to append to the mininet/main.py command if executing.')
-    parser.add_argument('--median', action='store_true',
-        help='use the median instead of the mean')
-    parser.add_argument('--legend', type=bool, default=True,
+    parser.add_argument('--mean', action='store_true',
+        help='use the mean instead of the median')
+    parser.add_argument('--legend', type=int, default=1,
         help='Whether to plot a legend [0|1]. (default: 1)')
     args = parser.parse_args()
 
@@ -228,26 +232,26 @@ if __name__ == '__main__':
         (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
         new_xs = []
         new_ys = []
-        if args.median:
-            new_yerrs = ([], [])
-        else:
+        if args.mean:
             new_yerrs = []
+        else:
+            new_yerrs = ([], [])
         for i in range(len(ys)):
             if len(ys[i]) == 0:
                 continue
             new_xs.append(0.01*xs[i])
-            if args.median:
+            if args.mean:
+                (collected_ys, yerr) = collect_ys_mean(ys[i], args.n)
+                new_ys.append(collected_ys)
+                new_yerrs.append(yerr)
+            else:
                 (collected_ys, yerr) = collect_ys_median(ys[i], args.n)
                 new_ys.append(collected_ys)
                 new_yerrs[0].append(yerr[0])
                 new_yerrs[1].append(yerr[1])
-            else:
-                (collected_ys, yerr) = collect_ys_mean(ys[i], args.n)
-                new_ys.append(collected_ys)
-                new_yerrs.append(yerr)
         data[key] = (new_xs, new_ys, new_yerrs)
 
     # Plot data.
     pdf = f'loss_bw{args.bw}_{args.n}_delay_{args.delay1}ms_{args.delay2}ms.pdf'
-    plot_graph(data, https, args.legend, pdf=pdf)
-    plot_legend(data, https, pdf='legend.pdf')
+    plot_graph(args, data, https, args.legend, pdf=pdf)
+    plot_legend(args, data, https, pdf='legend.pdf')

@@ -219,32 +219,41 @@ def run(args, https, loss):
             (xs, ys) = execute_and_parse_data(args, bm, loss, key='bytes_in_flight')
             xy_bm.append((xs, ys, f'{bm}_BIF'))
 
+    plt.clf()
     plt.figure(figsize=(9, 6))
-    for (xs, ys, bm) in xy_bm:
+    for (i, (xs, ys, bm)) in enumerate(xy_bm):
         ys = [y / 1.5 for y in ys]  # Convert kB to packets.
         if bm in LABEL_MAP:
             label = LABEL_MAP[bm]
         else:
             label = bm
-        plt.plot(xs, ys, label=label)
+        plt.plot(xs, ys, label=label, color=COLOR_MAP[bm], linewidth=LINEWIDTH,
+                 linestyle=LINESTYLES[i])
         print_average_cwnd(bm, xs, ys)
 
-    plt.xlabel('Time (s)')
+    plt.xlabel('Time Since Start (s)')
     plt.ylabel('cwnd (packets)')
     if args.max_x is not None:
         plt.xlim(0, args.max_x)
     if args.max_y is not None:
         plt.ylim(0, args.max_y)
     plt.ylim(0)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
+    plt.grid()
+    if args.legend:
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
     pdf = f'cwnd_{args.name}_{args.time}s_delay{args.min_ack_delay}_loss{loss}p.pdf'
-    plt.title(pdf)
+    # plt.title(pdf)
     save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
-    plt.clf()
+
+def plot_legend(args, pdf='cwnd_legend.pdf'):
+    pdf = f'{WORKDIR}/plot/graphs/{pdf}'
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3, frameon=True)
+    bbox = Bbox.from_bounds(-1.7, 5.65, 12.5, 1.4)
+    save_pdf(pdf, bbox_inches=bbox)
 
 if __name__ == '__main__':
     DEFAULT_LOSSES = ['1']
-    DEFAULT_PROTOCOLS = ['quack', 'pep_h2', 'pep_r1', 'quic', 'tcp']
+    DEFAULT_PROTOCOLS = ['quic', 'quack', 'tcp', 'pep_h2', 'pep_r1']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')
@@ -259,6 +268,8 @@ if __name__ == '__main__':
         help='additional arguments to append to the mininet/net.py command if executing.')
     parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
     parser.add_argument('--name', required=True, help="experiment name e.g. retx, ackr")
+    parser.add_argument('--legend', type=int, default=1,
+        help='Whether to plot a legend [0|1]. (default: 1)')
 
     ############################################################################
     # QUIC/QuACK configuration
@@ -285,3 +296,4 @@ if __name__ == '__main__':
 
     for loss in losses:
         run(args, https, loss)
+    plot_legend(args)

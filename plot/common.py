@@ -31,9 +31,11 @@ COLOR_MAP['quack'] = colors[0]
 COLOR_MAP['pep'] = colors[2]
 COLOR_MAP['quic'] = colors[1]
 COLOR_MAP['tcp'] = colors[3]
-COLOR_MAP[16] = colors[4]
+COLOR_MAP['pep_h2'] = COLOR_MAP['pep']
+COLOR_MAP['pep_r1'] = colors[4]
+COLOR_MAP[16] = colors[5]
 COLOR_MAP[32] = COLOR_MAP['quack']
-COLOR_MAP[63] = colors[5]
+COLOR_MAP[63] = colors[6]
 
 MAIN_RESULT_LABELS = ['Baseline', 'Sidekick', 'Sidekick(2x)', 'Sidekick(4x)']
 MAIN_RESULT_ZORDERS = [2, 3, 1, 0]
@@ -45,8 +47,18 @@ HATCHES = ['/', '.', '\\\\', 'O']
 # Line width
 LINEWIDTH = 3
 
+# Marker size
+MARKERSIZE = 10
+
 # Line styles
-LINESTYLES = ['-', '--', '-.', ':']
+# https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html
+LINESTYLES = [
+    (0, (1, 1)),  # dotted
+    'solid',
+    (0, (3, 1, 1, 1)),  # densely dashdotted
+    (0, (5, 1)),  # densely dashed
+    (0, (3, 1, 1, 1, 1, 1, 1, 1)),  # densely dashdashdashdotted
+]
 
 styles = [
 'Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid',
@@ -79,7 +91,7 @@ LABEL_MAP['quack'] = 'QUIC+Sidekick'
 LABEL_MAP['tcp'] = 'TCP E2E'
 LABEL_MAP['pep'] = 'TCP+PEP'
 LABEL_MAP['pep_r1'] = 'TCP+PEP(proxy)'
-LABEL_MAP['pep_h2'] = 'TCP+PEP(client)'
+LABEL_MAP['pep_h2'] = 'TCP+PEP'
 LABEL_MAP['quack-2ms-r'] = LABEL_MAP['quack']
 LABEL_MAP['quack-2ms-rm'] = LABEL_MAP['quack']
 
