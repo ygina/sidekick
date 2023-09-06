@@ -1,4 +1,5 @@
 # Imports
+from collections import defaultdict
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.transforms import Bbox
@@ -33,6 +34,16 @@ COLOR_MAP['tcp'] = colors[3]
 COLOR_MAP[16] = colors[4]
 COLOR_MAP[32] = COLOR_MAP['quack']
 COLOR_MAP[63] = colors[5]
+
+MAIN_RESULT_LABELS = ['Baseline', 'Sidekick', 'Sidekick(2x)', 'Sidekick(4x)']
+MAIN_RESULT_ZORDERS = [2, 3, 1, 0]
+MAIN_RESULT_COLORS = ['#ff7f0e', '#1f77b4', '#8ec3de', '#aab2bd']
+
+# Line width
+LINEWIDTH = 3
+
+# Line styles
+LINESTYLES = ['-', '--', '-.', ':']
 
 styles = [
 'Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid',

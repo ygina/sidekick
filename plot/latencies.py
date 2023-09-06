@@ -14,20 +14,29 @@ from common import *
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def plot_percentile_vs_latency_graph_flipped(data, keys, min_x=None, xs=range(101), legend=True, pdf=None):
-    plt.figure(figsize=(9, 6))
+    plt.figure(figsize=(6, 4))
+    zorders = [2, 3, 1, 0]
     for (i, key) in enumerate(keys):
         ys = [y / 1000000.0 for y in data[key]]
-        plt.plot(ys, xs, label=key)
-    plt.ylabel('Percentile')
-    plt.xlabel('Latency (ms)')
+        label = 'Simple E2E' if i == 0 else MAIN_RESULT_LABELS[i]
+        plt.plot(ys, xs, label=label, marker=MARKERS[i], linewidth=LINEWIDTH,
+                 linestyle=LINESTYLES[i], zorder=MAIN_RESULT_ZORDERS[i],
+                 color=MAIN_RESULT_COLORS[i])
+    plt.ylabel('Percentile', fontsize=FONTSIZE)
+    plt.xlabel('De-Jitter Latency (ms)', fontsize=FONTSIZE)
+    plt.xticks(fontsize=FONTSIZE)
+    plt.yticks(ticks=[90, 92, 94, 96, 98, 100],
+               labels=['90%', '92%', '94%', '96%', '98%', '100%'],
+               fontsize=FONTSIZE)
+    plt.grid()
     if min_x is None:
         plt.ylim(min(xs), max(xs))
     else:
         plt.ylim(min_x / 10.0, max(xs))
     plt.xlim(0)
+    plt.ylim(90, 100.5)
     if legend:
-        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
-    plt.title(pdf)
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, fontsize=FONTSIZE)
     if pdf:
         save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
     plt.clf()

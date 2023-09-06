@@ -7,7 +7,7 @@ import os.path
 from os import path
 from common import *
 
-TARGET_XS = [x for x in range(100, 1100, 100)] + \
+TARGET_XS = [x for x in range(200, 1100, 200)] + \
             [x for x in range(2000, 20000, 2000)] + \
             [x for x in range(20000, 50000, 5000)] + \
             [50000]
@@ -122,8 +122,9 @@ def parse_data(args, loss, http_version, normalize=True,
                     execute_cmd(args.workdir, loss, http_version, missing, x, args.bw2)
                 else:
                     print(f'{x}k missing {missing}/{args.trials}')
-            xs[i] /= 1000.
-            y = DataPoint(y, normalize=xs[i] if normalize else None)
+            xs[i] /= 1000.  # convert kilobyte to megabyte
+            # convert seconds to megabit / s
+            y = DataPoint(y, normalize=(xs[i]*8) if normalize else None)
             # if 'quic' in filename or 'quack' in filename:
             #     if y.stdev is not None and y.stdev > 0.1:
             #         print(f'ABNORMAL x={x} stdev={y.stdev} f={filename}')
@@ -176,9 +177,9 @@ def plot_graph(args, loss, pdf, http_versions,
         # print(label)
         # print(xs)
         # print(ys)
-    plt.xlabel('Data Size (MB)')
+    plt.xlabel('Data Size (MByte)')
     if normalize:
-        plt.ylabel('Goodput (MBytes/s)')
+        plt.ylabel('Goodput (MByte/s)')
     else:
         plt.ylabel('{} (s)'.format(data_key))
     if args.legend:
@@ -187,10 +188,52 @@ def plot_graph(args, loss, pdf, http_versions,
     if pdf is not None:
         save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
 
+def plot_marquee_graph(args, loss, pdf, http_versions, data_key='time_total'):
+    data = {}
+    for http_version in http_versions:
+        filename = get_filename(loss, http_version)
+        if not path.exists(filename):
+            print('Path does not exist: {}'.format(filename))
+            open(filename, 'w')
+            continue
+        try:
+            data[http_version] = parse_data(args, loss, http_version,
+                                            normalize=True, data_key=data_key)
+        except Exception as e:
+            print('Error parsing: {}'.format(filename))
+            print(e)
+    plt.clf()
+    plt.figure(figsize=(6, 4))
+    for (i, label) in enumerate(http_versions):
+        if label not in data:
+            continue
+        (xs, ys_raw) = data[label]
+        ys = [y.p50 for y in ys_raw]
+        yerr_lower = [y.p50 - y.p25 for y in ys_raw]
+        yerr_upper = [y.p75 - y.p50 for y in ys_raw]
+        label = 'QUIC E2E' if i == 0 else MAIN_RESULT_LABELS[i]
+        plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
+            label=label, marker=MARKERS[i], linewidth=LINEWIDTH,
+            linestyle=LINESTYLES[i], zorder=MAIN_RESULT_ZORDERS[i],
+            color=MAIN_RESULT_COLORS[i], elinewidth=2)
+        # print(label)
+        # print(xs)
+        # print(ys)
+    plt.xlabel('Upload Data Size (MByte)', fontsize=FONTSIZE)
+    plt.ylabel('Goodput (Mbit/s)', fontsize=FONTSIZE)
+    plt.xticks(fontsize=FONTSIZE)
+    plt.yticks(ticks=[0, 2, 4, 6, 8], fontsize=FONTSIZE)
+    plt.grid()
+    plt.xlim(0, 50)
+    plt.ylim(0)
+    if args.legend:
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, fontsize=FONTSIZE)
+    save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
+
 if __name__ == '__main__':
     DEFAULT_LOSSES = [0, 1]
     # DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
-    DEFAULT_PROTOCOLS = ['quack_30ms_10', 'quic']
+    DEFAULT_PROTOCOLS = ['quic', 'quack_30ms_10', 'quack_60ms_20', 'quack_120ms_40']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
@@ -216,12 +259,16 @@ if __name__ == '__main__':
     parser.add_argument('--workdir',
                         default=os.environ['HOME'] + '/sidecar',
                         help='Working directory (default: $HOME/sidecar)')
+    parser.add_argument('--marquee', action='store_true',
+                        help='Plot the marquee graph.')
     args = parser.parse_args()
 
     losses = DEFAULT_LOSSES if len(args.loss) == 0 else args.loss
     https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
 
     for loss in losses:
+        if args.marquee:
+            plot_marquee_graph(args, loss=loss, pdf=f'median_loss{loss}p.pdf', http_versions=https)
         if args.median:
             plot_graph(args, loss=loss, pdf=f'median_loss{loss}p.pdf', http_versions=https, use_median=True)
         if args.mean:

@@ -141,7 +141,7 @@ def maybe_collect_missing_data(filename, key, args):
                     sys.stdout.buffer.write(line)
                     sys.stdout.buffer.flush()
 
-def plot_graph(data, https, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=None, pdf=None):
+def plot_graph(data, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=None, pdf=None):
     max_x = max_x
     max_y = 0
     plt.figure(figsize=(8, 6))
@@ -168,6 +168,37 @@ def plot_graph(data, https, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
     plt.title(pdf)
+    if pdf:
+        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+
+def plot_marquee_graph(data, legend, max_y, pdf=None):
+    https = ['quic', 'quack_15ms_50', 'quack_30ms_100', 'quack_60ms_200']
+    max_y = max_y
+    max_x = 0
+    plt.figure(figsize=(6, 4))
+    for (i, key) in enumerate(https):
+        xs, ys = data[key]
+        max_x = max(max_x, max(xs))
+        label = 'QUIC E2E' if i == 0 else MAIN_RESULT_LABELS[i]
+        if 'quack' in key:
+            plt.plot(xs, ys, marker=MARKERS[i], label=label,
+                     linewidth=LINEWIDTH, linestyle=LINESTYLES[i],
+                     zorder=MAIN_RESULT_ZORDERS[i], color=MAIN_RESULT_COLORS[i])
+        else:
+            plt.plot(xs, ys, marker=MARKERS[i], label=label,
+                     linewidth=LINEWIDTH, linestyle=LINESTYLES[i],
+                     zorder=MAIN_RESULT_ZORDERS[i], color=MAIN_RESULT_COLORS[i])
+        if len(ys) > 0:
+            max_y = max(max_y, max(ys))
+    plt.xlabel('Num ACKs from Data Receiver', fontsize=FONTSIZE)
+    plt.ylabel('Goodput (Mbit/s)', fontsize=FONTSIZE)
+    plt.xticks(fontsize=FONTSIZE)
+    plt.yticks(ticks=[0, 2, 4, 6, 8], fontsize=FONTSIZE)
+    plt.grid()
+    plt.ylim(0)
+    plt.xlim(0, 1000)
+    if legend:
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, fontsize=FONTSIZE)
     if pdf:
         save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
 
@@ -198,7 +229,7 @@ def collect_data(xs, ys, median):
     return (new_xs, new_ys, new_yerrs)
 
 if __name__ == '__main__':
-    DEFAULT_PROTOCOLS = ['quack_15ms_50', 'quack_30ms_100', 'quack_60ms_200', 'quic']
+    DEFAULT_PROTOCOLS = ['quic', 'quack_15ms_50', 'quack_30ms_100', 'quack_60ms_200']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true',
@@ -240,6 +271,12 @@ if __name__ == '__main__':
 
     # Plot data.
     pdf = f'min_ack_delay_loss{args.loss}_{args.n}'
-    plot_graph(data_pkts, https, args.legend, args.max_x, ylabel='h1-eth0 tx_packets', pdf=f'{pdf}_tx_packets.pdf')
-    plot_graph(data_tput, https, args.legend, args.max_x, ylabel='Goodput (Mbit/s)', pdf=f'{pdf}_goodput.pdf')
-    plot_graph(data_all, https, args.legend, args.max_x, xlabel='Goodput (Mbit/s)', ylabel='h1-eth0 tx_packets', pdf=f'{pdf}.pdf', ylim=1000)
+    # plot_graph(data_pkts, https, args.legend, args.max_x, ylabel='h1-eth0 tx_packets', pdf=f'{pdf}_tx_packets.pdf')
+    # plot_graph(data_tput, https, args.legend, args.max_x, ylabel='Goodput (Mbit/s)', pdf=f'{pdf}_goodput.pdf')
+
+    # ACK reduction marquee graph
+    marquee_data = {}
+    for key in data_all:
+        (xs, ys, _) = data_all[key]
+        marquee_data[key] = (ys, xs)
+    plot_marquee_graph(marquee_data, args.legend, max_y=args.max_x, pdf=f'{pdf}.pdf')
