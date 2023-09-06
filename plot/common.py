@@ -28,8 +28,8 @@ prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
 COLOR_MAP = {}
 COLOR_MAP['quack'] = colors[0]
-COLOR_MAP['pep'] = colors[1]
-COLOR_MAP['quic'] = colors[2]
+COLOR_MAP['pep'] = colors[2]
+COLOR_MAP['quic'] = colors[1]
 COLOR_MAP['tcp'] = colors[3]
 COLOR_MAP[16] = colors[4]
 COLOR_MAP[32] = COLOR_MAP['quack']
@@ -38,6 +38,9 @@ COLOR_MAP[63] = colors[5]
 MAIN_RESULT_LABELS = ['Baseline', 'Sidekick', 'Sidekick(2x)', 'Sidekick(4x)']
 MAIN_RESULT_ZORDERS = [2, 3, 1, 0]
 MAIN_RESULT_COLORS = ['#ff7f0e', '#1f77b4', '#8ec3de', '#aab2bd']
+
+# Bar graph hatches
+HATCHES = ['/', '.', '\\\\', 'O']
 
 # Line width
 LINEWIDTH = 3
@@ -71,12 +74,12 @@ def time_to_tput(total_time, n):
     return n * 8 / total_time
 
 LABEL_MAP = {}
-LABEL_MAP['quic'] = 'QUIC e2e'
-LABEL_MAP['quack'] = 'QUIC+sidecar'
-LABEL_MAP['tcp'] = 'TCP e2e'
+LABEL_MAP['quic'] = 'QUIC E2E'
+LABEL_MAP['quack'] = 'QUIC+Sidekick'
+LABEL_MAP['tcp'] = 'TCP E2E'
 LABEL_MAP['pep'] = 'TCP+PEP'
-LABEL_MAP['pep_r1'] = 'TCP+PEP(r1)'
-LABEL_MAP['pep_h2'] = 'TCP+PEP(h2)'
+LABEL_MAP['pep_r1'] = 'TCP+PEP(proxy)'
+LABEL_MAP['pep_h2'] = 'TCP+PEP(client)'
 LABEL_MAP['quack-2ms-r'] = LABEL_MAP['quack']
 LABEL_MAP['quack-2ms-rm'] = LABEL_MAP['quack']
 
