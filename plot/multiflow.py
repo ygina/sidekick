@@ -17,21 +17,31 @@ GRANULARITY = None
 X_MAX = None
 
 def plot_graph(filename, xs, ys0, ys1, f1, f2, pdf):
+    plt.clf()
     plt.figure(figsize=(9, 6))
-    plt.plot(xs, ys0, label=LABEL_MAP[f1], color=COLOR_MAP[f1])
-    plt.plot(xs, ys1, label=LABEL_MAP[f2], color=COLOR_MAP[f2])
-    plt.xlabel('Time (s)')
-    plt.ylabel('Throughput (MBytes/s)')
+    plt.plot(xs, ys0, label=LABEL_MAP[f1], color=COLOR_MAP[f1],
+             linewidth=LINEWIDTH, linestyle=LINESTYLE_MAP[f1])
+    plt.plot(xs, ys1, label=LABEL_MAP[f2], color=COLOR_MAP[f2],
+             linewidth=LINEWIDTH, linestyle=LINESTYLE_MAP[f2])
+    plt.xlabel('Time Since Start (s)')
+    plt.ylabel('Throughput (Mbit/s)')
     if X_MAX is not None:
         plt.xlim(0, X_MAX)
     else:
         plt.xlim(0, max(xs))
-    plt.ylim(0, 1.4)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
-    plt.title(pdf)
+    plt.ylim(0, 1.4*8)
+    plt.grid()
+    # plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
+    # plt.title(pdf)
     print(pdf)
     save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
-    plt.clf()
+
+def plot_legend(args, loss, f1, f2, pdf):
+    run(False, loss, args.n, f1, f2, 0, args.bw, timeout=args.max_x)
+    pdf = f'{WORKDIR}/plot/graphs/{pdf}'
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, frameon=True)
+    bbox = Bbox.from_bounds(0.5, 5.8, 8.3, 0.75)
+    save_pdf(pdf, bbox_inches=bbox)
 
 def get_pcap_filename(loss, n, f1, f2, delay, bw):
     prefix = f'{WORKDIR}/results/multiflow/loss{loss}p'
@@ -83,8 +93,8 @@ def parse_pcap(filename):
     max_x = max([x for x in data[0]] + [x for x in data[1]])
     for x in range(min_x, max_x+1):
         xs.append((x - min_x) / GRANULARITY)
-        ys0.append(data[0][x]/1000000.*GRANULARITY)
-        ys1.append(data[1][x]/1000000.*GRANULARITY)
+        ys0.append(data[0][x]/1000000.*8*GRANULARITY)
+        ys1.append(data[1][x]/1000000.*8*GRANULARITY)
 
     return (xs, ys0, ys1)
 
@@ -144,29 +154,32 @@ if __name__ == '__main__':
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('--bw', type=int, default=100,
                         help='bandwidth on near subpath in Mbps (default: 100)')
-    parser.add_argument('-n', help='data size (e.g. 10M)')
+    parser.add_argument('-n', default='60M', help='data size (e.g. 10M)')
     parser.add_argument('-g', '--granularity', default=1, type=int,
                         help='1000 for ms, 1 for s, so on (default: 1)')
     parser.add_argument('-f1', '--flow1', help='[quack|quic|tcp|pep]')
     parser.add_argument('-f2', '--flow2', help='[quack|quic|tcp|pep]')
     parser.add_argument('-d', '--delay', default=0, type=int,
                         help='delay in starting flow2, in s (default: 0)')
-    parser.add_argument('--max-x', type=int,
+    parser.add_argument('--max-x', type=int, default=60,
                         help='max x, in s')
     parser.add_argument('--loss', default=0, type=int,
                         help='loss on near subpath in %% (default: 0)')
     parser.set_defaults(func=main)
 
-    subparsers = parser.add_subparsers(title='subcommands')
-    loss0p = subparsers.add_parser('loss0p', help='quic+quic vs quic+quack')
-    loss1p = subparsers.add_parser('loss1p', help='quic+quic vs quic+quack')
-    loss5p = subparsers.add_parser('loss5p', help='pep+pep vs pep+quack')
-    loss0p.set_defaults(func=run_loss0p)
-    loss1p.set_defaults(func=run_loss1p)
-    loss5p.set_defaults(func=run_loss5p)
+    # subparsers = parser.add_subparsers(title='subcommands')
+    # loss0p = subparsers.add_parser('loss0p', help='quic+quic vs quic+quack')
+    # loss1p = subparsers.add_parser('loss1p', help='quic+quic vs quic+quack')
+    # loss5p = subparsers.add_parser('loss5p', help='pep+pep vs pep+quack')
+    # loss0p.set_defaults(func=run_loss0p)
+    # loss1p.set_defaults(func=run_loss1p)
+    # loss5p.set_defaults(func=run_loss5p)
 
     args = parser.parse_args()
     GRANULARITY = args.granularity
     X_MAX = args.max_x
 
-    args.func(args)
+    # run_loss0p(args)  # quic vs quack
+    # run_loss1p(args)  # pep vs quack
+    plot_legend(args, 0, 'quic', 'quack', 'multiflow_loss0p_legend.pdf')
+    plot_legend(args, 1, 'pep', 'quack', 'multiflow_loss1p_legend.pdf')
