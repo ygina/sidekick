@@ -14,17 +14,6 @@ DEFAULT_PROTOCOLS_RETX = ['quic', 'quack']
 DEFAULT_PROTOCOLS_WEBRTC = ['base', 'quack']
 DEFAULT_DATA_SIZES = [1000, 10000, 50000]
 
-def collect_parsed_data(data, n):
-    data = [n / 1000. / x for x in data]
-    if len(data) == 0:
-        return (0, 0)
-    mean = statistics.mean(data)
-    if len(data) > 1:
-        stdev = statistics.stdev(data)
-    else:
-        stdev = 0
-    return (mean, stdev)
-
 def plot_retx_graph(args,
                     https=DEFAULT_PROTOCOLS_RETX,
                     data_sizes=DEFAULT_DATA_SIZES,
@@ -64,7 +53,7 @@ def plot_retx_graph(args,
 
     for bm in https:
         for n in data_sizes:
-            data[bm][n] = collect_parsed_data(data[bm][n], n)
+            data[bm][n] = DataPoint([n / 1000. * 8 / x for x in data[bm][n]])
 
     plt.clf()
     original_xs = np.arange(len(data_sizes))
@@ -73,33 +62,27 @@ def plot_retx_graph(args,
     fig, ax = plt.subplots()
     for (i, bm) in enumerate(https):
         xs = original_xs - 3.*width/2 + width * i
-        ys = [data[bm][n][0] for n in data_sizes]
+        ys = [data[bm][n].p50 for n in data_sizes]
         if len(ys) == 1:
             yerrs = [0 for _ in data_sizes]
         else:
-            yerrs = [data[bm][n][1] for n in data_sizes]
-        bars = ax.bar(xs, ys, width, label=LABEL_MAP[bm], yerr=yerrs)
-        if statistics.mean(ys) < 0.25:
-            ax.bar_label(bars, padding=6, fmt='%1.3f', rotation=90,
-                         fontsize=FONTSIZE, color='black')
-        else:
-            ax.bar_label(bars, label_type='center', fmt='%1.3f', rotation=90,
-                         fontsize=FONTSIZE, color='white')
+            yerr_lower = [data[bm][n].p50 - data[bm][n].p25 for n in data_sizes]
+            yerr_upper = [data[bm][n].p75 - data[bm][n].p50 for n in data_sizes]
+            yerrs = (yerr_lower, yerr_upper)
+        label = ['QUIC E2E', 'Sidekick'][i]
+        bars = ax.bar(xs, ys, width, label=label, yerr=yerrs, capsize=5,
+                      color=COLOR_MAP[bm], fill=True, hatch=HATCHES[i])
 
-    for n in data_sizes:
-        for bm in https:
-            (y, yerr) = data[bm][n]
-
-    ax.set_xlabel('Data Size', fontsize=FONTSIZE)
+    ax.set_xlabel('Upload Data Size (MByte)', fontsize=FONTSIZE)
     ax.set_xticks(original_xs, [f'{int(x / 1000)}MB' for x in data_sizes],
         fontsize=FONTSIZE)
     ax.tick_params(axis='both', which='major', labelsize=FONTSIZE)
     ax.tick_params(axis='both', which='minor', labelsize=FONTSIZE)
-    if args.legend:
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=2,
-            fontsize=FONTSIZE)
-    ax.set_ylabel('Goodput (MBytes/s)', fontsize=FONTSIZE)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=2,
+        fontsize=FONTSIZE)
+    ax.set_ylabel('Goodput (Mbit/s)', fontsize=FONTSIZE)
     ax.set_ylim(0)
+    ax.grid(axis='y')
     if pdf is not None:
         save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
 
@@ -170,4 +153,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     plot_retx_graph(args)
-    plot_webrtc_graph(args)
+    # plot_webrtc_graph_cdf(args)
