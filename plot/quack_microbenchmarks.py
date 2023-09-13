@@ -17,7 +17,7 @@ def plot_graph(xs, data, keys, colors, xlabel, ylabel, legend, pdf=None):
     for (i, key) in enumerate(keys):
         if len(xs) != len(data[key]):
             import pdb; pdb.set_trace()
-        plt.plot(xs, data[key], marker=MARKERS[i], label=key, color=colors[i])
+        plt.plot(xs, data[key], label=key, color=colors[i])
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.xlim(0)
