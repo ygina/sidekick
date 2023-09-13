@@ -2,6 +2,7 @@ import argparse
 import subprocess
 import os
 import sys
+import re
 import os.path
 import statistics
 import numpy as np
@@ -56,6 +57,7 @@ def plot_retx_graph(args,
             data[bm][n] = DataPoint([n / 1000. * 8 / x for x in data[bm][n]])
 
     plt.clf()
+    plt.figure(figsize=(6, 4.5))
     original_xs = np.arange(len(data_sizes))
     width = 0.4
 
@@ -86,71 +88,73 @@ def plot_retx_graph(args,
     if pdf is not None:
         save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
 
-def plot_webrtc_graph_box_and_whiskers(data,
-                    percentile=99,
-                    https=DEFAULT_PROTOCOLS_WEBRTC,
-                    pdf='real_world_webrtc.pdf'):
-    data = defaultdict(lambda: {})
-    # p95 latencies, in ms (just to track)
-    data[95]['base'] = []
-    data[95]['quack'] = []
-    # p99 latencies, in ms
-    data[99]['base'] = [0.000,0.000,250.284604,74.535461,0.000,0.000,210.0883,29.448243,95.361871,0.191958,0.000,0.0,0.0,0.0,0.0,0.0,0.0,64.928623,0.0,0.036869]
-    data[99]['quack'] = [0.005957,19.922228,0.000,0.000,0.000,104.950924,0.000,10.375127,40.813684,0.023077,0.000,0.0,0.0,0.0,0.0,9.951971,0.0,0.017112,0.0,0.0]
+def parse_data_cdf(args, filename):
+    with open(f'{args.workdir}/{filename}') as f:
+        lines = f.read().split('\n')
 
+    # Every other trial is base or quack, starting with base.
+    # Collect all raw values.
+    raw_data = defaultdict(lambda: [])
+    for line in lines:
+        match = re.match(r'Raw values = \[(.+)\]', line)
+        if match is None:
+            continue
+        values = [int(x) for x in list(match.group(1).split(', '))]
+        if len(raw_data['base']) > len(raw_data['quack']):
+            raw_data['quack'] += values
+        else:
+            raw_data['base'] += values
+    raw_data['base'].sort()
+    raw_data['quack'].sort()
+
+    # Represents args.min_x/10% to 100.0% by 0.1% increments
+    key_data = defaultdict(lambda: [])
+    for percentile in range(args.min_x, 1001, 1):
+        for key in ['base', 'quack']:
+            index = int(percentile / 1000.0 * len(raw_data[key]))
+            index = min(index, len(raw_data[key]) - 1)
+            key_data[key].append(raw_data[key][index])
+    return key_data
+
+def plot_webrtc_graph(args, data,
+                      keys=['base', 'quack'],
+                      labels=['Simple E2E', 'Sidekick'],
+                      pdf='real_world_webrtc.pdf'):
     plt.clf()
-
-    protocols = [[y for y in data[percentile][bm]] for bm in https]
-    fig, ax = plt.subplots(figsize=(6,4))
-    pos = np.arange(len(protocols)) + 1
-    bp = ax.boxplot(protocols, sym='k+', positions=pos, notch=False)
-
-    plt.yticks(fontsize=FONTSIZE)
-    ax.set_xticks(pos, https, fontsize=FONTSIZE)
-    ax.set_xlabel('Protocol', fontsize=FONTSIZE)
-    ax.set_ylabel('p99 Latency (ms)', fontsize=FONTSIZE)
-    plt.setp(bp['whiskers'], color='k', linestyle='-')
-    plt.setp(bp['fliers'], markersize=3.0)
-
-    plt.title(pdf, fontsize=FONTSIZE)
-    save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
-
-def plot_webrtc_graph_cdf(data,
-                          min_x=95.0,
-                          keys=DEFAULT_PROTOCOLS_WEBRTC,
-                          pdf='real_world_webrtc.pdf'):
-    data = {}
-    # Paste the array from "Latencies (ns) = <array>" representing the
-    # 90th to 100th percentiles. Timeout is 10 minutes.
-    data['base'] = []
-    data['quack'] = []
-
-    xs = [x / 10.0 for x in range(900, 1001)]
-    plt.figure(figsize=(9, 6))
+    plt.figure(figsize=(6, 4.8))
+    xs = [x / 10.0 for x in range(args.min_x, 1001)]
     for (i, key) in enumerate(keys):
         ys = [y / 1000000.0 for y in data[key]]
-        plt.plot(xs, ys, label=key)
-    plt.xlabel('Percentile')
-    plt.ylabel('Latency (ms)')
-    if min_x is None:
-        plt.xlim(min(xs), max(xs))
-    else:
-        plt.xlim(min_x / 10.0, max(xs))
-    plt.ylim(0)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=2)
-    plt.title(pdf)
+        plt.plot(ys, xs, label=labels[i],
+                 linewidth=LINEWIDTH, linestyle=LINESTYLES[i],
+                 color=MAIN_RESULT_COLORS[i], markersize=MARKERSIZE)
+    plt.ylabel('Percentile', fontsize=FONTSIZE)
+    plt.xlabel('De-Jitter Latency (ms)', fontsize=FONTSIZE)
+    plt.xticks(fontsize=FONTSIZE)
+    min_x = int(args.min_x / 10)
+    ticks = [x for x in range(min_x, 102, 2)]
+    plt.yticks(ticks=ticks,
+               labels=[f'{tick}%' for tick in ticks],
+               fontsize=FONTSIZE)
+    plt.grid()
+    plt.ylim(min(xs), max(xs))
+    plt.xlim(0)
+    plt.ylim(min_x, 100.5)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=2, fontsize=FONTSIZE)
     if pdf:
-        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
-    plt.clf()
+        save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--legend', type=bool, default=True,
                         help='Whether to plot a legend [0|1]. (default: 1)')
+    parser.add_argument('--min-x', type=int, default=800, help='(default: 800)')
     parser.add_argument('--workdir',
                         default=os.environ['HOME'] + '/sidecar',
                         help='Working directory (default: $HOME/sidecar)')
+    parser.add_argument('--cdf-filename', default='raw_data_server_2:11PM')
     args = parser.parse_args()
 
     plot_retx_graph(args)
-    # plot_webrtc_graph_cdf(args)
+    cdf_data = parse_data_cdf(args, filename=f'scripts/webrtc/{args.cdf_filename}')
+    plot_webrtc_graph(args, cdf_data)

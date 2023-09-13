@@ -19,22 +19,20 @@ def plot_percentile_vs_latency_graph_flipped(data, keys, min_x=None, xs=range(10
     for (i, key) in enumerate(keys):
         ys = [y / 1000000.0 for y in data[key]]
         label = 'Simple E2E' if i == 0 else MAIN_RESULT_LABELS[i]
-        plt.plot(ys, xs, label=label, marker=MARKERS[i], linewidth=LINEWIDTH,
+        plt.plot(ys, xs, label=label, linewidth=LINEWIDTH,
                  linestyle=LINESTYLES[i], zorder=MAIN_RESULT_ZORDERS[i],
                  color=MAIN_RESULT_COLORS[i], markersize=MARKERSIZE)
     plt.ylabel('Percentile', fontsize=FONTSIZE)
     plt.xlabel('De-Jitter Latency (ms)', fontsize=FONTSIZE)
     plt.xticks(fontsize=FONTSIZE)
-    plt.yticks(ticks=[90, 92, 94, 96, 98, 100],
-               labels=['90%', '92%', '94%', '96%', '98%', '100%'],
+    min_x = min(xs) if min_x is None else int(min_x / 10.0)
+    ticks = [tick for tick in range(min_x, 102, 2)]
+    plt.yticks(ticks=ticks,
+               labels=[f'{tick}%' for tick in ticks],
                fontsize=FONTSIZE)
     plt.grid()
-    if min_x is None:
-        plt.ylim(min(xs), max(xs))
-    else:
-        plt.ylim(min_x / 10.0, max(xs))
+    plt.ylim(min_x, 100.5)
     plt.xlim(0)
-    plt.ylim(90, 100.5)
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, fontsize=FONTSIZE)
     if pdf:
@@ -157,7 +155,7 @@ def parse_data_cdf(filename, args):
         # to 100th percentiles by 0.1% increments.
         raw_data.sort()
         data = []
-        for percentile in range(900, 1001, 1):
+        for percentile in range(args.min_x, 1001, 1):
             index = int(percentile / 1000.0 * len(raw_data))
             index = min(index, len(raw_data) - 1)
             data.append(raw_data[index])
@@ -175,7 +173,8 @@ def maybe_collect_missing_data(filename, key, args):
         return
 
     for _ in range(num_missing):
-        cmd = f'sudo -E python3 mininet/webrtc.py --timeout {args.timeout}'
+        cmd = f'sudo -E python3 mininet/webrtc.py --timeout {args.timeout} '
+        cmd += f'--loss2 {args.loss}'
         cmd = cmd.split(' ')
         match = re.match(r'quack_(.+(ms|p))_(\d+)', key)
         if match is not None:
@@ -210,7 +209,7 @@ if __name__ == '__main__':
         help='Plot the box and whiskers plot')
     parser.add_argument('--cdf', action='store_true',
         help='Plot the CDF from p95 to p100')
-    parser.add_argument('--min-x', type=int,
+    parser.add_argument('--min-x', type=int, default=800,
         help='Min x value to plot the CDF at, in tenths of a percentile.')
     parser.add_argument('--execute', action='store_true',
         help='whether to execute benchmarks to collect missing data points')
@@ -220,6 +219,8 @@ if __name__ == '__main__':
         help='number of trials per data point (default: 1)')
     parser.add_argument('--http', action='extend', nargs='+', default=[],
         help=f'HTTP versions. (default: {DEFAULT_KEYS})')
+    parser.add_argument('--loss', type=str, default='1',
+        help='Loss percentage on the near subpath (default: 1)')
     parser.add_argument('--percentile', action='extend', nargs='+', default=[], type=int,
         help=f'Percentiles to print. (default: {DEFAULT_PERCENTILES})')
     args = parser.parse_args()
@@ -239,7 +240,7 @@ if __name__ == '__main__':
 
     keys = DEFAULT_KEYS if len(args.http) == 0 else args.http
     pcts = DEFAULT_PERCENTILES if len(args.percentile) == 0 else args.percentile
-    path = f'{WORKDIR}/results/latencies/timeout{args.timeout}'
+    path = f'{WORKDIR}/results/latencies/timeout{args.timeout}/loss{args.loss}p'
     os.system(f'mkdir -p {path}')
 
     if args.bar_graph:
@@ -280,7 +281,7 @@ if __name__ == '__main__':
                 key_data[key] = data
         plot_percentile_vs_latency_graph_flipped(key_data,
                                          min_x=args.min_x,
-                                         xs=[x / 10.0 for x in range(900, 1001)],
+                                         xs=[x / 10.0 for x in range(args.min_x, 1001)],
                                          keys=keys,
                                          pdf=DEFAULT_PDF)
         exit(0)
