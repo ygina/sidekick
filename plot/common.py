@@ -55,6 +55,7 @@ LINESTYLES = [
     (0, (5, 1)),  # densely dashed
     (0, (1, 1, 3, 1, 3, 1, 3, 1)),  # densely dashdashdashdotted
     (0, (3, 1, 1, 1, 5, 1, 1, 1)),  # densely dashdotdashhhdotted
+    (0, (1, 1)),  # densely dotted
 ]
 LINESTYLE_MAP = {}
 LINESTYLE_MAP['quic'] = LINESTYLES[0]

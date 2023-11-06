@@ -181,12 +181,10 @@ def plot_marquee_graph(data, legend, max_y, pdf=None):
         max_x = max(max_x, max(xs))
         label = 'QUIC E2E' if i == 0 else MAIN_RESULT_LABELS[i]
         if 'quack' in key:
-            plt.plot(xs, ys, marker=MARKERS[i], label=label, markersize=MARKERSIZE,
-                     linewidth=LINEWIDTH, linestyle=LINESTYLES[i],
+            plt.scatter(xs, ys, marker=MARKERS[i], label=label,
                      zorder=MAIN_RESULT_ZORDERS[i], color=MAIN_RESULT_COLORS[i])
         else:
-            plt.plot(xs, ys, marker=MARKERS[i], label=label, markersize=MARKERSIZE,
-                     linewidth=LINEWIDTH, linestyle=LINESTYLES[i],
+            plt.scatter(xs, ys, marker=MARKERS[i], label=label,
                      zorder=MAIN_RESULT_ZORDERS[i], color=MAIN_RESULT_COLORS[i])
         if len(ys) > 0:
             max_y = max(max_y, max(ys))

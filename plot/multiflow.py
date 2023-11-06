@@ -165,6 +165,7 @@ if __name__ == '__main__':
                         help='max x, in s')
     parser.add_argument('--loss', default=0, type=int,
                         help='loss on near subpath in %% (default: 0)')
+    parser.add_argument('--marquee', action='store_true')
     parser.set_defaults(func=main)
 
     # subparsers = parser.add_subparsers(title='subcommands')
@@ -181,5 +182,8 @@ if __name__ == '__main__':
 
     # run_loss0p(args)  # quic vs quack
     # run_loss1p(args)  # pep vs quack
-    plot_legend(args, 0, 'quic', 'quack', 'multiflow_loss0p_legend.pdf')
-    plot_legend(args, 1, 'pep', 'quack', 'multiflow_loss1p_legend.pdf')
+    if args.marquee:
+        plot_legend(args, 0, 'quic', 'quack', 'multiflow_loss0p_legend.pdf')
+        plot_legend(args, 1, 'pep', 'quack', 'multiflow_loss1p_legend.pdf')
+    main(args)
+

@@ -162,7 +162,7 @@ def plot_graph(args, data, https, legend, pdf=None):
             label = LABEL_MAP[key]
         else:
             label = key
-        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], markersize=MARKERSIZE,
+        plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], markersize=MARKERSIZE*1.5,
                      label=label, color=COLOR_MAP[key], linewidth=LINEWIDTH,
                      capsize=5, linestyle=LINESTYLES[i], elinewidth=2)
         if len(xs) > 0:

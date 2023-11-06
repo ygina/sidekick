@@ -185,7 +185,11 @@ class SidecarNetwork():
         env = os.environ.copy()
         env['RUST_BACKTRACE'] = '1'
         env['RUST_LOG'] = 'info'
-        if style == 'power_sum':
+        if style == 'multi':
+            cmd = f'./target/release/sender_multi -i r1-eth1 -t {threshold} ' + \
+                  f'--quack-addr 10.0.2.10:5103 {frequency} --my-ip 10.0.2.1' + \
+                  f'--dst-ip 10.0.1.1 --dst-port 443'
+        elif style == 'power_sum':
             cmd = f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
                   f'--target-addr 10.0.2.10:5103 {frequency} --my-addr 10.0.2.1'
         elif style == 'strawman_a':
@@ -261,13 +265,12 @@ def run_multiflow(net, args, f1, f2, delay):
     tcp   -   -     -    o
     """
     assert args.n is not None
-    assert not (f1 == 'quack' and f2 == 'quack')
     assert not (f1 == 'tcp' and f2 == 'pep')
     assert not (f1 == 'pep' and f2 == 'tcp')
     if 'pep' in [f1, f2]:
         net.start_tcp_pep()
     if 'quack' in [f1, f2]:
-        net.start_quack_sender(args.frequency, args.threshold, style='power_sum')
+        net.start_quack_sender(args.frequency, args.threshold, style='multi')
 
     def make_cmd(bm):
         if bm in ['tcp', 'pep']:

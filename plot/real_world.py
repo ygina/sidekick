@@ -125,6 +125,7 @@ def plot_webrtc_graph(args, data,
     xs = [x / 10.0 for x in range(args.min_x, 1001)]
     for (i, key) in enumerate(keys):
         ys = [y / 1000000.0 for y in data[key]]
+        import pdb; pdb.set_trace()
         plt.plot(ys, xs, label=labels[i],
                  linewidth=LINEWIDTH, linestyle=LINESTYLES[i],
                  color=MAIN_RESULT_COLORS[i], markersize=MARKERSIZE)

@@ -219,16 +219,32 @@ def run(args, https, loss):
             (xs, ys) = execute_and_parse_data(args, bm, loss, key='bytes_in_flight')
             xy_bm.append((xs, ys, f'{bm}_BIF'))
 
+    label_map = {
+        'quic': 'CUBIC',
+        'quack': 'PACUBIC',
+        'pep_r1': 'Split CUBIC (Proxy)',
+        'pep_h2': 'Split CUBIC',
+    }
+
+    linestyle_map = {
+        'quic': LINESTYLES[0],
+        'quack': LINESTYLES[1],
+        'pep_r1': LINESTYLES[2],
+        'pep_h2': LINESTYLES[5],
+    }
+
     plt.clf()
-    plt.figure(figsize=(9, 6))
+    plt.figure(figsize=(9, 5))
     for (i, (xs, ys, bm)) in enumerate(xy_bm):
         ys = [y / 1.5 for y in ys]  # Convert kB to packets.
-        if bm in LABEL_MAP:
+        if bm in label_map:
+            label = label_map[bm]
+        elif bm in LABEL_MAP:
             label = LABEL_MAP[bm]
         else:
             label = bm
         plt.plot(xs, ys, label=label, color=COLOR_MAP[bm], linewidth=LINEWIDTH,
-                 linestyle=LINESTYLES[i])
+                 linestyle=linestyle_map[bm])
         print_average_cwnd(bm, xs, ys)
 
     plt.xlabel('Time Since Start (s)')
@@ -237,7 +253,9 @@ def run(args, https, loss):
         plt.xlim(0, args.max_x)
     if args.max_y is not None:
         plt.ylim(0, args.max_y)
-    plt.ylim(0)
+    else:
+        plt.ylim(0)
+    plt.yticks(ticks=range(0, 140, 20))
     plt.grid()
     if args.legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
@@ -247,13 +265,13 @@ def run(args, https, loss):
 
 def plot_legend(args, pdf='cwnd_legend.pdf'):
     pdf = f'{WORKDIR}/plot/graphs/{pdf}'
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=3, frameon=True)
-    bbox = Bbox.from_bounds(-1.7, 5.65, 12.5, 1.4)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=4, frameon=True)
+    bbox = Bbox.from_bounds(-3.2, 5.0, 15.5, 0.8)
     save_pdf(pdf, bbox_inches=bbox)
 
 if __name__ == '__main__':
     DEFAULT_LOSSES = ['1']
-    DEFAULT_PROTOCOLS = ['quic', 'quack', 'tcp', 'pep_h2', 'pep_r1']
+    DEFAULT_PROTOCOLS = ['quic', 'quack', 'pep_h2', 'pep_r1']
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--execute', action='store_true')

@@ -12,12 +12,12 @@ from common import *
 
 WORKDIR = os.environ['HOME'] + '/sidecar'
 
-def plot_graph(xs, data, keys, colors, xlabel, ylabel, legend, pdf=None):
+def plot_graph(xs, data, keys, colors, linestyles, xlabel, ylabel, legend, pdf=None):
     plt.figure(figsize=(6, 4))
     for (i, key) in enumerate(keys):
         if len(xs) != len(data[key]):
             import pdb; pdb.set_trace()
-        plt.plot(xs, data[key], label=key, color=colors[i])
+        plt.plot(xs, data[key], label=key, color=colors[i], linestyle=linestyles[i])
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.xlim(0)
@@ -39,6 +39,7 @@ def plot_num_candidates_vs_decode_time(args, pdf):
     data['PolyFactor'] = [4.011627,4.085793,4.238399,4.320376,4.41314,4.54784,4.656416,4.762687,4.87368,4.997019,5.127364,5.222205,5.348893,5.438783,5.546157,5.649644,5.782371,5.853962,5.950526,6.123299,6.230779,6.373078,6.428554,6.627189,6.739125,6.895649,6.934072,7.082421,7.170848,7.233888,7.38107,7.500699,7.612108,7.758209,7.914039,8.095923,8.042781,8.132017,8.322325,8.403114]
     plot_graph(xs, data, [x for x in sorted(data.keys())],
                colors=[COLOR_MAP['quack'], colors[5]],
+               linestyles=[LINESTYLES[1], LINESTYLES[0]],
                xlabel='Num Sent Packets',
                ylabel='Decode Time (ms)',
                legend=args.legend, pdf=pdf)
@@ -51,6 +52,7 @@ def plot_num_missing_vs_decode_time(args, pdf):
     data['b=8'] = [0.110077,0.238967,0.36906,0.510326,0.647589,0.772023,0.921055,1.036879,1.172135,1.31098,1.44418,1.579808,1.717533,1.852751,1.998262,2.121355,2.257078,2.401623,2.519603,2.654495,2.812686,2.951031,3.082817,3.236986,3.353193,3.498203,3.637827,3.779945,3.924769,4.067958]
     plot_graph(xs, data, [x for x in sorted(data.keys())],
                colors=[colors[6], COLOR_MAP['quack'], colors[7]],
+               linestyles=[LINESTYLES[2], LINESTYLES[1], LINESTYLES[3]],
                xlabel='Num Missing Packets',
                ylabel='Decode Time (ms)',
                legend=args.legend, pdf=pdf)
@@ -65,6 +67,7 @@ def plot_threshold_vs_encode_time(args, pdf):
         data[key] = [1000 * x for x in data[key]]
     plot_graph(xs, data, [x for x in sorted(data.keys())],
                colors=[colors[6], COLOR_MAP['quack'], colors[7]],
+               linestyles=[LINESTYLES[2], LINESTYLES[1], LINESTYLES[3]],
                xlabel='Threshold (pkts)',
                ylabel='Encode Time (ns/pkt)',
                legend=args.legend, pdf=pdf)
