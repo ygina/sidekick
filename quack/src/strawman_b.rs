@@ -1,3 +1,4 @@
+//! Strawman quACK implementation that echoes a sliding window of packet identifiers.
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 

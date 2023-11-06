@@ -1,3 +1,5 @@
+//! Strawman quACK implementation that echoes every packet identifier.
+
 // use std::ops::{Sub, SubAssign, MulAssign, AddAssign};
 // use std::fmt::{Debug, Display};
 // use crate::arithmetic::{

@@ -1,5 +1,5 @@
+//! 16-bit power sum quACK using the precomputation optimization.
 use crate::arithmetic::{ModularArithmetic, ModularInteger, MonicPolynomialEvaluator};
-use crate::Quack;
 use log::{debug, info, trace};
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
@@ -37,11 +37,11 @@ pub struct PowerTableQuack {
     count: u32,
 }
 
-impl Quack<u16> for PowerTableQuack {
+impl PowerTableQuack {
     // where T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
     // ModularInteger<u16>: ModularArithmetic<u16> + AddAssign + MulAssign + SubAssign
     // {
-    fn new(size: usize) -> Self {
+    pub fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
 
         // The i-th term corresponds to dividing by i+1 in modular arithemtic.
@@ -60,7 +60,7 @@ impl Quack<u16> for PowerTableQuack {
         }
     }
 
-    fn insert(&mut self, value: u16) {
+    pub fn insert(&mut self, value: u16) {
         trace!("insert {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::<u16>::new(value);
@@ -72,7 +72,7 @@ impl Quack<u16> for PowerTableQuack {
         self.last_value = value;
     }
 
-    fn remove(&mut self, value: u16) {
+    pub fn remove(&mut self, value: u16) {
         trace!("remove {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::<u16>::new(value);
@@ -83,22 +83,22 @@ impl Quack<u16> for PowerTableQuack {
         self.count -= 1;
     }
 
-    fn threshold(&self) -> usize {
+    pub fn threshold(&self) -> usize {
         self.power_sums.len()
     }
 
-    fn count(&self) -> u32 {
+    pub fn count(&self) -> u32 {
         self.count
     }
 
-    fn last_value(&self) -> u16 {
+    pub fn last_value(&self) -> u16 {
         self.last_value
     }
 
     /// Returns the missing identifiers from the log. Note that if there are
     /// collisions in the log of multiple identifiers, they will all appear.
     /// If the log is incomplete, there will be fewer than the number missing.
-    fn decode_with_log(&self, log: &[u16]) -> Vec<u16> {
+    pub fn decode_with_log(&self, log: &[u16]) -> Vec<u16> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!(
@@ -122,7 +122,7 @@ impl Quack<u16> for PowerTableQuack {
 
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
-    fn to_coeffs(&self) -> Vec<ModularInteger<u16>> {
+    pub fn to_coeffs(&self) -> Vec<ModularInteger<u16>> {
         let mut coeffs = (0..self.count())
             .map(|_| ModularInteger::zero())
             .collect::<Vec<_>>();
@@ -133,7 +133,7 @@ impl Quack<u16> for PowerTableQuack {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities. Writes coefficients
     /// into a pre-allocated buffer.
-    fn to_coeffs_preallocated(&self, coeffs: &mut Vec<ModularInteger<u16>>) {
+    pub fn to_coeffs_preallocated(&self, coeffs: &mut Vec<ModularInteger<u16>>) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
         for i in 1..size {

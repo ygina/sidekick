@@ -1,3 +1,4 @@
+//! Evaluator for polynomials in a single variable where the leading coefficient is 1.
 #[cfg(feature = "montgomery")]
 use crate::arithmetic::MontgomeryInteger;
 use crate::arithmetic::{ModularArithmetic, ModularInteger};

@@ -1,5 +1,5 @@
+//! 32-bit power sum quACK.
 use crate::arithmetic::{ModularArithmetic, ModularInteger, MonicPolynomialEvaluator};
-use crate::Quack;
 use log::{debug, info, trace};
 use serde::{Deserialize, Serialize};
 use std::fmt::{Debug, Display};
@@ -18,12 +18,12 @@ where
     count: u32,
 }
 
-impl<T> Quack<T> for PowerSumQuack<T>
+impl<T> PowerSumQuack<T>
 where
     T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
     ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign,
 {
-    fn new(size: usize) -> Self {
+    pub fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
 
         // The i-th term corresponds to dividing by i+1 in modular arithemtic.
@@ -41,7 +41,7 @@ where
         }
     }
 
-    fn insert(&mut self, value: T) {
+    pub fn insert(&mut self, value: T) {
         trace!("insert {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::<T>::new(value);
@@ -56,7 +56,7 @@ where
         self.last_value = x;
     }
 
-    fn remove(&mut self, value: T) {
+    pub fn remove(&mut self, value: T) {
         trace!("remove {}", value);
         let size = self.power_sums.len();
         let x = ModularInteger::<T>::new(value);
@@ -70,22 +70,22 @@ where
         self.count -= 1;
     }
 
-    fn last_value(&self) -> T {
+    pub fn last_value(&self) -> T {
         self.last_value.value()
     }
 
-    fn threshold(&self) -> usize {
+    pub fn threshold(&self) -> usize {
         self.power_sums.len()
     }
 
-    fn count(&self) -> u32 {
+    pub fn count(&self) -> u32 {
         self.count
     }
 
     /// Returns the missing identifiers from the log. Note that if there are
     /// collisions in the log of multiple identifiers, they will all appear.
     /// If the log is incomplete, there will be fewer than the number missing.
-    fn decode_with_log(&self, log: &[T]) -> Vec<T> {
+    pub fn decode_with_log(&self, log: &[T]) -> Vec<T> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!(
@@ -109,7 +109,7 @@ where
 
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities.
-    fn to_coeffs(&self) -> Vec<ModularInteger<T>> {
+    pub fn to_coeffs(&self) -> Vec<ModularInteger<T>> {
         let mut coeffs = (0..self.count())
             .map(|_| ModularInteger::zero())
             .collect::<Vec<_>>();
@@ -120,7 +120,7 @@ where
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities. Writes coefficients
     /// into a pre-allocated buffer.
-    fn to_coeffs_preallocated(&self, coeffs: &mut Vec<ModularInteger<T>>) {
+    pub fn to_coeffs_preallocated(&self, coeffs: &mut Vec<ModularInteger<T>>) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
         for i in 1..size {

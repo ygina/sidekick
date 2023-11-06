@@ -1,3 +1,4 @@
+//! 64-bit power sum quACK using the Montgomery multiplication optimization.
 use crate::arithmetic::{MonicPolynomialEvaluator, MontgomeryInteger};
 use log::{debug, info, trace};
 use serde::{Deserialize, Serialize};

@@ -1,35 +1,51 @@
+#![feature(doc_cfg)]
+
+//! The _quACK_ is a data structure for being able to refer to and efficiently
+//! acknowledge a set of opaque packets seen by a network intermediary. The
+//! recommended quACK implementation is the 32-bit power sum quACK with no
+//! features.
+//!
+//! In the quACK problem, a data sender transmits a multiset (meaning the same
+//! element can be transmitted more than once) of elements `S` (these
+//! correspond to packets). At any given time, a receiver (such as a proxy
+//! server) has received a subset `R \subseteq S` of the sent elements. We
+//! would like the receiver to communicate a small amount of information to the
+//! sender, who then efficiently decodes the missing elements---the set
+//! difference `S \ R`---knowing `S`. This small amount of information is called
+//! the _quACK_ and the problem is: what is in a quACK and how do we decode it?
+
+#[macro_use]
+mod macros;
+
+/// Efficient modular arithmetic and polynomial evaluation.
 pub mod arithmetic {
     mod evaluator;
     mod modint;
-    #[cfg(feature = "montgomery")]
-    mod montgomery;
 
     pub use evaluator::MonicPolynomialEvaluator;
     pub use modint::{ModularArithmetic, ModularInteger};
-    #[cfg(feature = "montgomery")]
-    pub use montgomery::MontgomeryInteger;
+
+    cfg_montgomery! {
+        mod montgomery;
+        pub use montgomery::MontgomeryInteger;
+    }
 }
 
-mod quack_internal;
-#[cfg(feature = "montgomery")]
-pub use quack_internal::MontgomeryQuack;
-pub use quack_internal::PowerSumQuack;
-#[cfg(feature = "power_table")]
-pub use quack_internal::PowerTableQuack;
-pub use quack_internal::StrawmanAQuack;
-pub use quack_internal::StrawmanBQuack;
-#[cfg(feature = "power_table")]
-pub(crate) use quack_internal::POWER_TABLE;
+mod psum;
+mod strawman_a;
+mod strawman_b;
 
-pub trait Quack<T> {
-    fn new(threshold: usize) -> Self;
-    fn insert(&mut self, value: T);
-    fn remove(&mut self, value: T);
-    fn threshold(&self) -> usize;
-    fn count(&self) -> u32;
-    fn last_value(&self) -> T;
+pub use psum::PowerSumQuack;
+pub use strawman_a::StrawmanAQuack;
+pub use strawman_b::StrawmanBQuack;
 
-    fn decode_with_log(&self, log: &[T]) -> Vec<T>;
-    fn to_coeffs(&self) -> Vec<arithmetic::ModularInteger<T>>;
-    fn to_coeffs_preallocated(&self, coeffs: &mut Vec<arithmetic::ModularInteger<T>>);
+cfg_montgomery! {
+    mod montgomery;
+    pub use montgomery::MontgomeryQuack;
+}
+
+cfg_power_table! {
+    mod ptable;
+    pub use ptable::PowerTableQuack;
+    pub(crate) use ptable::POWER_TABLE;
 }
