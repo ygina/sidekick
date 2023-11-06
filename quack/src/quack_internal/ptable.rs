@@ -17,14 +17,12 @@ pub fn init_pow_table() {
             return;
         }
     }
-    for x in 0..NUM_U16S {
+    for (x, row) in unsafe { POWER_TABLE.iter_mut() }.enumerate().take(NUM_U16S) {
         let x_mi = ModularInteger::new(x as u16);
         let mut xpow = ModularInteger::new(1);
-        for pow in 0..MEMOIZED_POWER {
-            unsafe {
-                POWER_TABLE[x][pow] = xpow;
-            }
-            xpow = xpow * x_mi;
+        for cell in row.iter_mut().take(MEMOIZED_POWER) {
+            *cell = xpow;
+            xpow *= x_mi;
         }
     }
 }
@@ -67,7 +65,7 @@ impl Quack<u16> for PowerTableQuack {
         let size = self.power_sums.len();
         let x = ModularInteger::<u16>::new(value);
         for i in 0..size {
-            self.power_sums[i] += unsafe { POWER_TABLE[x.value as usize][i + 1 as usize] };
+            self.power_sums[i] += unsafe { POWER_TABLE[x.value as usize][i + 1_usize] };
         }
         // TODO: handle count overflow
         self.count += 1;
@@ -79,7 +77,7 @@ impl Quack<u16> for PowerTableQuack {
         let size = self.power_sums.len();
         let x = ModularInteger::<u16>::new(value);
         for i in 0..size {
-            self.power_sums[i] -= unsafe { POWER_TABLE[x.value as usize][i + 1 as usize] };
+            self.power_sums[i] -= unsafe { POWER_TABLE[x.value as usize][i + 1_usize] };
         }
         // TODO: handle count overflow
         self.count -= 1;
@@ -100,7 +98,7 @@ impl Quack<u16> for PowerTableQuack {
     /// Returns the missing identifiers from the log. Note that if there are
     /// collisions in the log of multiple identifiers, they will all appear.
     /// If the log is incomplete, there will be fewer than the number missing.
-    fn decode_with_log(&self, log: &Vec<u16>) -> Vec<u16> {
+    fn decode_with_log(&self, log: &[u16]) -> Vec<u16> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!(
@@ -115,7 +113,7 @@ impl Quack<u16> for PowerTableQuack {
         let missing: Vec<u16> = log
             .iter()
             .filter(|&&x| MonicPolynomialEvaluator::eval_precompute(&coeffs, x).is_zero())
-            .map(|&x| x)
+            .copied()
             .collect();
         info!("found {}/{} missing packets", missing.len(), num_missing);
         debug!("missing = {:?}", missing);

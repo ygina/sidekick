@@ -85,7 +85,7 @@ where
     /// Returns the missing identifiers from the log. Note that if there are
     /// collisions in the log of multiple identifiers, they will all appear.
     /// If the log is incomplete, there will be fewer than the number missing.
-    fn decode_with_log(&self, log: &Vec<T>) -> Vec<T> {
+    fn decode_with_log(&self, log: &[T]) -> Vec<T> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!(
@@ -100,7 +100,7 @@ where
         let missing: Vec<T> = log
             .iter()
             .filter(|&&x| MonicPolynomialEvaluator::eval(&coeffs, x).is_zero())
-            .map(|&x| x)
+            .copied()
             .collect();
         info!("found {}/{} missing packets", missing.len(), num_missing);
         debug!("missing = {:?}", missing);

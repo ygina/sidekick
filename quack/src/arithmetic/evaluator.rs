@@ -29,8 +29,8 @@ where
         let mut result = x_mod;
         // result = x(...(x(x(x+a0)+a1)+...))
         // e.g., result = x(x+a0)+a1
-        for i in 0..(size - 1) {
-            result += coeffs[i];
+        for &coeff in coeffs.iter().take(size - 1) {
+            result += coeff;
             result *= x_mod;
         }
         result + coeffs[size - 1]
@@ -45,8 +45,8 @@ impl MonicPolynomialEvaluator<u64> {
         let mut result = x_mod;
         // result = x(...(x(x(x+a0)+a1)+...))
         // e.g., result = x(x+a0)+a1
-        for i in 0..(size - 1) {
-            result += coeffs[i];
+        for &coeff in coeffs.iter().take(size - 1) {
+            result += coeff;
             result *= x_mod;
         }
         result + coeffs[size - 1]
@@ -60,13 +60,13 @@ impl MonicPolynomialEvaluator<u16> {
         let x_modint = ModularInteger::<u16>::new(x);
         let mut result: u64 =
             unsafe { crate::POWER_TABLE[x_modint.value as usize][size] }.value() as u64;
-        for i in 0..(size - 1) {
-            result += (coeffs[i].value() as u64)
+        for (i, coeff) in coeffs.iter().enumerate().take(size - 1) {
+            result += (coeff.value() as u64)
                 * (unsafe { crate::POWER_TABLE[x_modint.value as usize][size - i - 1] }.value()
                     as u64);
         }
         result += coeffs[size - 1].value() as u64;
-        return ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16);
+        ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16)
     }
 }
 

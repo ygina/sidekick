@@ -74,7 +74,7 @@ impl MontgomeryQuack {
     /// Returns the missing identifiers from the log. Note that if there are
     /// collisions in the log of multiple identifiers, they will all appear.
     /// If the log is incomplete, there will be fewer than the number missing.
-    pub fn decode_with_log(&self, log: &Vec<u64>) -> Vec<u64> {
+    pub fn decode_with_log(&self, log: &[u64]) -> Vec<u64> {
         let num_packets = log.len();
         let num_missing = self.count();
         info!(
@@ -89,7 +89,7 @@ impl MontgomeryQuack {
         let missing: Vec<u64> = log
             .iter()
             .filter(|&&x| MonicPolynomialEvaluator::eval_montgomery(&coeffs, x).is_zero())
-            .map(|&x| x)
+            .copied()
             .collect();
         info!("found {}/{} missing packets", missing.len(), num_missing);
         debug!("missing = {:?}", missing);

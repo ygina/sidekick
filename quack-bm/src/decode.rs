@@ -21,15 +21,15 @@ fn benchmark_decode_strawman1a(num_packets: usize, num_drop: usize) -> Duration 
     let mut acc2 = HashMultiSet::new();
 
     // Insert all but num_drop random numbers into the second accumulator.
-    for j in 0..(num_packets - num_drop) {
-        acc2.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets - num_drop) {
+        acc2.insert(number);
     }
 
     let t1 = Instant::now();
     // Insert all random numbers into the first accumulator.
     // Then find the set difference.
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets) {
+        acc1.insert(number);
     }
     let dropped = acc1 - acc2;
     let t2 = Instant::now();
@@ -54,8 +54,8 @@ fn benchmark_decode_strawman2(num_packets: usize, num_drop: usize) -> Duration {
     let mut acc1 = Sha256::new();
 
     // Insert all but num_drop random numbers into the accumulator.
-    for i in 0..(num_packets - num_drop) {
-        acc1.update(numbers[i].to_be_bytes());
+    for number in numbers.iter().take(num_packets - num_drop) {
+        acc1.update(number.to_be_bytes());
     }
     acc1.finalize();
 
@@ -76,8 +76,8 @@ fn benchmark_decode_strawman2(num_packets: usize, num_drop: usize) -> Duration {
         // any SHA256 hash with this number of elements
         for _ in 0..num_hashes_to_calculate {
             let mut acc2 = Sha256::new();
-            for j in 0..(num_packets - num_drop) {
-                acc2.update(numbers[j].to_be_bytes());
+            for number in numbers.iter().take(num_packets - num_drop) {
+                acc2.update(number.to_be_bytes());
             }
             acc2.finalize();
         }
@@ -106,13 +106,13 @@ fn benchmark_decode_power_sum_factor_u32(
     let mut acc2 = PowerSumQuack::<u32>::new(size);
 
     // Insert all but num_drop random numbers into the second accumulator.
-    for j in 0..(num_packets - num_drop) {
-        acc2.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets - num_drop) {
+        acc2.insert(number);
     }
 
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets) {
+        acc1.insert(number);
     }
     acc1 -= acc2;
     let dropped = acc1.decode_by_factorization().unwrap();
@@ -144,13 +144,13 @@ fn benchmark_decode_power_sum_precompute_u16(
     let mut acc2 = PowerTableQuack::new(size);
 
     // Insert all but num_drop random numbers into the second accumulator.
-    for j in 0..(num_packets - num_drop) {
-        acc2.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets - num_drop) {
+        acc2.insert(number);
     }
 
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets) {
+        acc1.insert(number);
     }
     acc1 -= acc2;
     let dropped = acc1.decode_with_log(&numbers);
@@ -182,13 +182,13 @@ fn benchmark_decode_power_sum_montgomery_u64(
     let mut acc2 = MontgomeryQuack::new(size);
 
     // Insert all but num_drop random numbers into the second accumulator.
-    for j in 0..(num_packets - num_drop) {
-        acc2.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets - num_drop) {
+        acc2.insert(number);
     }
 
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets) {
+        acc1.insert(number);
     }
     acc1 -= acc2;
     let dropped = acc1.decode_with_log(&numbers);
@@ -226,13 +226,13 @@ where
     let mut acc2 = PowerSumQuack::<T>::new(size);
 
     // Insert all but num_drop random numbers into the second accumulator.
-    for j in 0..(num_packets - num_drop) {
-        acc2.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets - num_drop) {
+        acc2.insert(number);
     }
 
     let t1 = Instant::now();
-    for j in 0..num_packets {
-        acc1.insert(numbers[j]);
+    for &number in numbers.iter().take(num_packets) {
+        acc1.insert(number);
     }
     acc1 -= acc2;
     let dropped = acc1.decode_with_log(&numbers);

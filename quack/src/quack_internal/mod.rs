@@ -12,6 +12,6 @@ pub use psum::PowerSumQuack;
 #[cfg(feature = "power_table")]
 pub use ptable::PowerTableQuack;
 #[cfg(feature = "power_table")]
-pub(crate) use ptable::{init_pow_table, POWER_TABLE};
+pub(crate) use ptable::POWER_TABLE;
 pub use strawman_a::StrawmanAQuack;
 pub use strawman_b::StrawmanBQuack;

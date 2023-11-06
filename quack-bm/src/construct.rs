@@ -1,7 +1,6 @@
 use crate::common::*;
 use crate::QuackParams;
 
-use bincode;
 use log::info;
 use quack::{
     arithmetic::{ModularArithmetic, ModularInteger},
@@ -62,8 +61,8 @@ fn benchmark_construct_strawman2(num_packets: usize) -> Duration {
 
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
-    for i in 0..num_packets {
-        acc.update(numbers[i].to_be_bytes());
+    for number in numbers.iter().take(num_packets) {
+        acc.update(number.to_be_bytes());
     }
     let _array = acc.finalize();
     let t2 = Instant::now();

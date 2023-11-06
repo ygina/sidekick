@@ -5,7 +5,6 @@ use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A 63-bit prime.
 pub const MODULUS: u64 = 18446744073709551557;
-pub const R_INV: u64 = 14694863923124558020;
 pub const R_LOG2: u64 = 64;
 pub const NEG_MODULUS_INV: u64 = 14694863923124558067;
 
@@ -20,13 +19,14 @@ fn montgomery_redc(x: u128) -> u64 {
         return t.overflowing_sub(MODULUS).0;
     }
     if t < MODULUS {
-        return t;
+        t
+    } else {
+        t - MODULUS
     }
-    return t - MODULUS;
 }
 
 fn montgomery_multiply(x: u64, y: u64) -> u64 {
-    return montgomery_redc((x as u128) * (y as u128));
+    montgomery_redc((x as u128) * (y as u128))
 }
 
 /// 64-bit modular integer.
@@ -49,10 +49,8 @@ impl MontgomeryInteger {
     }
 
     pub fn new_do_conversion(n: u64) -> Self {
-        let r_mod_modulus: u64 = (((1 as u128) << (64 as u128)) % (MODULUS as u128)) as u64;
-        return MontgomeryInteger::new(
-            (((r_mod_modulus as u128) * (n as u128)) % (MODULUS as u128)) as u64,
-        );
+        let r_mod_modulus: u64 = (((1_u128) << (64_u128)) % (MODULUS as u128)) as u64;
+        MontgomeryInteger::new((((r_mod_modulus as u128) * (n as u128)) % (MODULUS as u128)) as u64)
     }
 
     pub fn value(&self) -> u64 {
