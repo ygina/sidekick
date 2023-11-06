@@ -2,7 +2,6 @@
 
 members = [
     "quack",
-    "quack-bm",
     "sidecar",
     "webrtc",
 ]
