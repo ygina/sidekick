@@ -1,7 +1,7 @@
-use std::fmt;
+use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
-use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
-use serde::{Serialize, Deserialize};
+use std::fmt;
+use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// A 63-bit prime.
 pub const MODULUS: u64 = 18446744073709551557;
@@ -50,7 +50,9 @@ impl MontgomeryInteger {
 
     pub fn new_do_conversion(n: u64) -> Self {
         let r_mod_modulus: u64 = (((1 as u128) << (64 as u128)) % (MODULUS as u128)) as u64;
-        return MontgomeryInteger::new((((r_mod_modulus as u128) * (n as u128)) % (MODULUS as u128)) as u64);
+        return MontgomeryInteger::new(
+            (((r_mod_modulus as u128) * (n as u128)) % (MODULUS as u128)) as u64,
+        );
     }
 
     pub fn value(&self) -> u64 {
@@ -75,9 +77,9 @@ impl fmt::Display for MontgomeryInteger {
 impl fmt::Debug for MontgomeryInteger {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("MontgomeryInteger")
-         .field("value", &self.value)
-         .field("modulus", &MODULUS)
-         .finish()
+            .field("value", &self.value)
+            .field("modulus", &MODULUS)
+            .finish()
     }
 }
 
@@ -100,7 +102,9 @@ impl Neg for MontgomeryInteger {
         if self.value == 0 {
             self
         } else {
-            Self { value: MODULUS - self.value }
+            Self {
+                value: MODULUS - self.value,
+            }
         }
     }
 }
@@ -184,7 +188,7 @@ impl MontgomeryInteger {
 
     /// n * inv(n) = n^(MODULUS-1) = 1 (mod MODULUS)
     pub fn inv(self) -> Self {
-        self.pow(MODULUS-2)
+        self.pow(MODULUS - 2)
     }
 }
 
@@ -199,6 +203,9 @@ mod test {
         assert_eq!(4_294_967_290, MontgomeryInteger::new(4_294_967_290));
         assert_eq!(0, MontgomeryInteger::new(0));
         assert_ne!(1, MontgomeryInteger::new_do_conversion(1));
-        assert_ne!(4_294_967_290, MontgomeryInteger::new_do_conversion(4_294_967_290));
+        assert_ne!(
+            4_294_967_290,
+            MontgomeryInteger::new_do_conversion(4_294_967_290)
+        );
     }
 }

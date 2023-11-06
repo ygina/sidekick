@@ -1,8 +1,7 @@
-use std::fmt;
+use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
-use std::ops::{Add, Sub, Mul, AddAssign, SubAssign, MulAssign, Neg};
-use serde::{Serialize, Deserialize};
-
+use std::fmt;
+use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 /// Modular integer.
 #[derive(Copy, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -29,13 +28,15 @@ impl<T: fmt::Display> fmt::Display for ModularInteger<T> {
     }
 }
 
-impl<T: fmt::Debug> fmt::Debug for ModularInteger<T> where
-ModularInteger<T>: ModularArithmetic<T> {
+impl<T: fmt::Debug> fmt::Debug for ModularInteger<T>
+where
+    ModularInteger<T>: ModularArithmetic<T>,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("ModularInteger")
-         .field("value", &self.value)
-         .field("modulus", &Self::modulus())
-         .finish()
+            .field("value", &self.value)
+            .field("modulus", &Self::modulus())
+            .finish()
     }
 }
 
@@ -45,7 +46,10 @@ impl<T: PartialEq> PartialEq<T> for ModularInteger<T> {
     }
 }
 
-impl<T> Add for ModularInteger<T> where ModularInteger<T>: AddAssign {
+impl<T> Add for ModularInteger<T>
+where
+    ModularInteger<T>: AddAssign,
+{
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
@@ -55,7 +59,10 @@ impl<T> Add for ModularInteger<T> where ModularInteger<T>: AddAssign {
     }
 }
 
-impl<T> Sub for ModularInteger<T> where ModularInteger<T>: SubAssign {
+impl<T> Sub for ModularInteger<T>
+where
+    ModularInteger<T>: SubAssign,
+{
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -65,7 +72,10 @@ impl<T> Sub for ModularInteger<T> where ModularInteger<T>: SubAssign {
     }
 }
 
-impl<T> Mul for ModularInteger<T> where ModularInteger<T>: MulAssign {
+impl<T> Mul for ModularInteger<T>
+where
+    ModularInteger<T>: MulAssign,
+{
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self::Output {
@@ -75,15 +85,20 @@ impl<T> Mul for ModularInteger<T> where ModularInteger<T>: MulAssign {
     }
 }
 
-impl<T> Neg for ModularInteger<T> where
-ModularInteger<T>: ModularArithmetic<T>, T: Sub<Output = T> {
+impl<T> Neg for ModularInteger<T>
+where
+    ModularInteger<T>: ModularArithmetic<T>,
+    T: Sub<Output = T>,
+{
     type Output = Self;
 
     fn neg(self) -> Self::Output {
         if self.is_zero() {
             self
         } else {
-            Self { value: Self::modulus() - self.value }
+            Self {
+                value: Self::modulus() - self.value,
+            }
         }
     }
 }
@@ -100,23 +115,31 @@ impl<T: Copy> ModularInteger<T> {
     }
 }
 
-impl<T> ModularInteger<T> where
-ModularInteger<T>: ModularArithmetic<T>, T: PartialOrd + Sub<Output = T> {
+impl<T> ModularInteger<T>
+where
+    ModularInteger<T>: ModularArithmetic<T>,
+    T: PartialOrd + Sub<Output = T>,
+{
     /// Creates a new integer modulo the largest T-bit prime.
     pub fn new(n: T) -> Self {
         if n >= Self::modulus() {
-            Self { value: n - Self::modulus() }
+            Self {
+                value: n - Self::modulus(),
+            }
         } else {
             Self { value: n }
         }
     }
 }
 
-impl<T> ModularInteger<T> where
-ModularInteger<T>: ModularArithmetic<T>, T: Sub<Output = T> {
+impl<T> ModularInteger<T>
+where
+    ModularInteger<T>: ModularArithmetic<T>,
+    T: Sub<Output = T>,
+{
     /// n * inv(n) = n^(MODULUS-1) = 1 (mod MODULUS)
     pub fn inv(self) -> Self {
-        self.pow(Self::modulus()-Self::two().value)
+        self.pow(Self::modulus() - Self::two().value)
     }
 }
 
@@ -161,8 +184,10 @@ impl ModularArithmetic<u32> for ModularInteger<u32> {
     }
 }
 
-impl AddAssign for ModularInteger<u32> where
-ModularInteger<u32>: ModularArithmetic<u32> {
+impl AddAssign for ModularInteger<u32>
+where
+    ModularInteger<u32>: ModularArithmetic<u32>,
+{
     fn add_assign(&mut self, rhs: Self) {
         let sum: u64 = (self.value as u64) + (rhs.value as u64);
         self.value = if sum >= Self::modulus_big() {
@@ -173,8 +198,10 @@ ModularInteger<u32>: ModularArithmetic<u32> {
     }
 }
 
-impl SubAssign for ModularInteger<u32> where
-ModularInteger<u32>: ModularArithmetic<u32> {
+impl SubAssign for ModularInteger<u32>
+where
+    ModularInteger<u32>: ModularArithmetic<u32>,
+{
     fn sub_assign(&mut self, rhs: Self) {
         let neg_rhs: u64 = Self::modulus_big() - (rhs.value as u64);
         let diff: u64 = (self.value as u64) + neg_rhs;
@@ -186,8 +213,10 @@ ModularInteger<u32>: ModularArithmetic<u32> {
     }
 }
 
-impl MulAssign for ModularInteger<u32> where
-ModularInteger<u32>: ModularArithmetic<u32> {
+impl MulAssign for ModularInteger<u32>
+where
+    ModularInteger<u32>: ModularArithmetic<u32>,
+{
     fn mul_assign(&mut self, rhs: Self) {
         let prod: u64 = (self.value as u64) * (rhs.value as u64);
         self.value = (prod % Self::modulus_big()) as u32;
@@ -235,8 +264,10 @@ impl ModularArithmetic<u64> for ModularInteger<u64> {
     }
 }
 
-impl AddAssign for ModularInteger<u64> where
-ModularInteger<u64>: ModularArithmetic<u64> {
+impl AddAssign for ModularInteger<u64>
+where
+    ModularInteger<u64>: ModularArithmetic<u64>,
+{
     fn add_assign(&mut self, rhs: Self) {
         let sum: u128 = (self.value as u128) + (rhs.value as u128);
         self.value = if sum >= Self::modulus_big() {
@@ -247,8 +278,10 @@ ModularInteger<u64>: ModularArithmetic<u64> {
     }
 }
 
-impl SubAssign for ModularInteger<u64> where
-ModularInteger<u64>: ModularArithmetic<u64> {
+impl SubAssign for ModularInteger<u64>
+where
+    ModularInteger<u64>: ModularArithmetic<u64>,
+{
     fn sub_assign(&mut self, rhs: Self) {
         let neg_rhs: u128 = Self::modulus_big() - (rhs.value as u128);
         let diff: u128 = (self.value as u128) + neg_rhs;
@@ -260,8 +293,10 @@ ModularInteger<u64>: ModularArithmetic<u64> {
     }
 }
 
-impl MulAssign for ModularInteger<u64> where
-ModularInteger<u64>: ModularArithmetic<u64> {
+impl MulAssign for ModularInteger<u64>
+where
+    ModularInteger<u64>: ModularArithmetic<u64>,
+{
     fn mul_assign(&mut self, rhs: Self) {
         let prod: u128 = (self.value as u128) * (rhs.value as u128);
         self.value = (prod % Self::modulus_big()) as u64;
@@ -309,8 +344,10 @@ impl ModularArithmetic<u16> for ModularInteger<u16> {
     }
 }
 
-impl AddAssign for ModularInteger<u16> where
-ModularInteger<u16>: ModularArithmetic<u16> {
+impl AddAssign for ModularInteger<u16>
+where
+    ModularInteger<u16>: ModularArithmetic<u16>,
+{
     fn add_assign(&mut self, rhs: Self) {
         let sum: u32 = (self.value as u32) + (rhs.value as u32);
         self.value = if sum >= Self::modulus_big() {
@@ -321,8 +358,10 @@ ModularInteger<u16>: ModularArithmetic<u16> {
     }
 }
 
-impl SubAssign for ModularInteger<u16> where
-ModularInteger<u16>: ModularArithmetic<u16> {
+impl SubAssign for ModularInteger<u16>
+where
+    ModularInteger<u16>: ModularArithmetic<u16>,
+{
     fn sub_assign(&mut self, rhs: Self) {
         let neg_rhs: u32 = Self::modulus_big() - (rhs.value as u32);
         let diff: u32 = (self.value as u32) + neg_rhs;
@@ -334,8 +373,10 @@ ModularInteger<u16>: ModularArithmetic<u16> {
     }
 }
 
-impl MulAssign for ModularInteger<u16> where
-ModularInteger<u16>: ModularArithmetic<u16> {
+impl MulAssign for ModularInteger<u16>
+where
+    ModularInteger<u16>: ModularArithmetic<u16>,
+{
     fn mul_assign(&mut self, rhs: Self) {
         let prod: u32 = (self.value as u32) * (rhs.value as u32);
         self.value = (prod % Self::modulus_big()) as u16;
@@ -413,75 +454,75 @@ mod test {
     fn test_add_u32() {
         let mut x = ModularInteger::<u32>::new(0);
         let y = ModularInteger::<u32>::new(1);
-        let z = ModularInteger::<u32>::new(ModularInteger::<u32>::modulus()-1);
+        let z = ModularInteger::<u32>::new(ModularInteger::<u32>::modulus() - 1);
         x += y;
         assert_eq!(x, 1);
         assert_eq!(y, 1);
         x += z;
         assert_eq!(x, 0);
-        assert_eq!(z, ModularInteger::<u32>::modulus()-1);
+        assert_eq!(z, ModularInteger::<u32>::modulus() - 1);
         x += y;
         x += y;
         x += z;
         assert_eq!(x, 1);
         assert_eq!(z + y, 0);
-        assert_eq!(z + z, ModularInteger::<u32>::modulus()-2);
+        assert_eq!(z + z, ModularInteger::<u32>::modulus() - 2);
     }
 
     #[test]
     fn test_add_u64() {
         let mut x = ModularInteger::<u64>::new(0);
         let y = ModularInteger::<u64>::new(1);
-        let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus()-1);
+        let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus() - 1);
         x += y;
         assert_eq!(x, 1);
         assert_eq!(y, 1);
         x += z;
         assert_eq!(x, 0);
-        assert_eq!(z, ModularInteger::<u64>::modulus()-1);
+        assert_eq!(z, ModularInteger::<u64>::modulus() - 1);
         x += y;
         x += y;
         x += z;
         assert_eq!(x, 1);
         assert_eq!(z + y, 0);
-        assert_eq!(z + z, ModularInteger::<u64>::modulus()-2);
+        assert_eq!(z + z, ModularInteger::<u64>::modulus() - 2);
     }
 
     #[test]
     fn test_add_u16() {
         let mut x = ModularInteger::<u16>::new(0);
         let y = ModularInteger::<u16>::new(1);
-        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus()-1);
+        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus() - 1);
         x += y;
         assert_eq!(x, 1);
         assert_eq!(y, 1);
         x += z;
         assert_eq!(x, 0);
-        assert_eq!(z, ModularInteger::<u16>::modulus()-1);
+        assert_eq!(z, ModularInteger::<u16>::modulus() - 1);
         x += y;
         x += y;
         x += z;
         assert_eq!(x, 1);
         assert_eq!(z + y, 0);
-        assert_eq!(z + z, ModularInteger::<u16>::modulus()-2);
+        assert_eq!(z + z, ModularInteger::<u16>::modulus() - 2);
     }
 
     #[test]
     fn test_sub_u32() {
         let mut x = ModularInteger::<u32>::new(0);
         let y = ModularInteger::<u32>::new(1);
-        let z = ModularInteger::<u32>::new(ModularInteger::<u32>::modulus()-1);
+        let z = ModularInteger::<u32>::new(ModularInteger::<u32>::modulus() - 1);
         x -= y;
-        assert_eq!(x, ModularInteger::<u32>::modulus()-1);
+        assert_eq!(x, ModularInteger::<u32>::modulus() - 1);
         assert_eq!(y, 1);
         x -= z;
         assert_eq!(x, 0);
-        assert_eq!(z, ModularInteger::<u32>::modulus()-1);
+        assert_eq!(z, ModularInteger::<u32>::modulus() - 1);
         x -= y;
         x -= y;
         x -= z;
-        assert_eq!(x, ModularInteger::<u32>::modulus()-1);
-        assert_eq!(z - y, ModularInteger::<u32>::modulus()-2);
+        assert_eq!(x, ModularInteger::<u32>::modulus() - 1);
+        assert_eq!(z - y, ModularInteger::<u32>::modulus() - 2);
         assert_eq!(z - z, 0);
     }
 
@@ -489,18 +530,18 @@ mod test {
     fn test_sub_u64() {
         let mut x = ModularInteger::<u64>::new(0);
         let y = ModularInteger::<u64>::new(1);
-        let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus()-1);
+        let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus() - 1);
         x -= y;
-        assert_eq!(x, ModularInteger::<u64>::modulus()-1);
+        assert_eq!(x, ModularInteger::<u64>::modulus() - 1);
         assert_eq!(y, 1);
         x -= z;
         assert_eq!(x, 0);
-        assert_eq!(z, ModularInteger::<u64>::modulus()-1);
+        assert_eq!(z, ModularInteger::<u64>::modulus() - 1);
         x -= y;
         x -= y;
         x -= z;
-        assert_eq!(x, ModularInteger::<u64>::modulus()-1);
-        assert_eq!(z - y, ModularInteger::<u64>::modulus()-2);
+        assert_eq!(x, ModularInteger::<u64>::modulus() - 1);
+        assert_eq!(z - y, ModularInteger::<u64>::modulus() - 2);
         assert_eq!(z - z, 0);
     }
 
@@ -508,18 +549,18 @@ mod test {
     fn test_sub_u16() {
         let mut x = ModularInteger::<u16>::new(0);
         let y = ModularInteger::<u16>::new(1);
-        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus()-1);
+        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus() - 1);
         x -= y;
-        assert_eq!(x, ModularInteger::<u16>::modulus()-1);
+        assert_eq!(x, ModularInteger::<u16>::modulus() - 1);
         assert_eq!(y, 1);
         x -= z;
         assert_eq!(x, 0);
-        assert_eq!(z, ModularInteger::<u16>::modulus()-1);
+        assert_eq!(z, ModularInteger::<u16>::modulus() - 1);
         x -= y;
         x -= y;
         x -= z;
-        assert_eq!(x, ModularInteger::<u16>::modulus()-1);
-        assert_eq!(z - y, ModularInteger::<u16>::modulus()-2);
+        assert_eq!(x, ModularInteger::<u16>::modulus() - 1);
+        assert_eq!(z - y, ModularInteger::<u16>::modulus() - 2);
         assert_eq!(z - z, 0);
     }
 
@@ -571,8 +612,8 @@ mod test {
         assert_eq!(x.pow(8), 740_208_280);
         assert_eq!(x.pow(9), 1_473_905_948);
         assert_eq!(x.pow(10), 732_167_187);
-        assert_eq!(x.pow(ModularInteger::<u32>::modulus()-2), 811_748_818);
-        assert_eq!(x.pow(ModularInteger::<u32>::modulus()-1), 1);
+        assert_eq!(x.pow(ModularInteger::<u32>::modulus() - 2), 811_748_818);
+        assert_eq!(x.pow(ModularInteger::<u32>::modulus() - 1), 1);
     }
 
     #[test]
@@ -582,7 +623,7 @@ mod test {
         assert_eq!(x.pow(1), 1_000);
         assert_eq!(x.pow(2), 1_000_000);
         assert_eq!(x.pow(3), 1_000_000_000);
-        assert_eq!(x.pow(ModularInteger::<u64>::modulus()-1), 1);
+        assert_eq!(x.pow(ModularInteger::<u64>::modulus() - 1), 1);
     }
 
     #[test]
@@ -592,28 +633,28 @@ mod test {
         assert_eq!(x.pow(1), 1000);
         assert_eq!(x.pow(2), 17185);
         assert_eq!(x.pow(3), 18498);
-        assert_eq!(x.pow(ModularInteger::<u16>::modulus()-1), 1);
+        assert_eq!(x.pow(ModularInteger::<u16>::modulus() - 1), 1);
     }
 
     #[test]
     fn test_inv() {
         let x = ModularInteger::<u32>::new(2);
         let y = ModularInteger::<u32>::new(1_000);
-        let z = ModularInteger::<u32>::new(ModularInteger::<u32>::modulus()-2);
+        let z = ModularInteger::<u32>::new(ModularInteger::<u32>::modulus() - 2);
         assert_eq!(x * x.inv(), 1);
         assert_eq!(y * y.inv(), 1);
         assert_eq!(z * z.inv(), 1);
 
         let x = ModularInteger::<u64>::new(2);
         let y = ModularInteger::<u64>::new(1_000);
-        let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus()-2);
+        let z = ModularInteger::<u64>::new(ModularInteger::<u64>::modulus() - 2);
         assert_eq!(x * x.inv(), 1);
         assert_eq!(y * y.inv(), 1);
         assert_eq!(z * z.inv(), 1);
 
         let x = ModularInteger::<u16>::new(2);
         let y = ModularInteger::<u16>::new(1_000);
-        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus()-2);
+        let z = ModularInteger::<u16>::new(ModularInteger::<u16>::modulus() - 2);
         assert_eq!(x * x.inv(), 1);
         assert_eq!(y * y.inv(), 1);
         assert_eq!(z * z.inv(), 1);

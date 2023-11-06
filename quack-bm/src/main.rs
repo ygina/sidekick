@@ -3,8 +3,8 @@ mod construct;
 mod construct_multi;
 mod decode;
 
-use common::*;
 use clap::Parser;
+use common::*;
 use log::debug;
 
 #[derive(Parser, Debug)]
@@ -51,7 +51,6 @@ struct Cli {
     quack: QuackParams,
 }
 
-
 fn main() {
     env_logger::init();
 
@@ -59,30 +58,21 @@ fn main() {
     debug!("args = {:?}", args);
     match args.benchmark {
         BenchmarkType::Construct => {
-            construct::run_benchmark(
-                args.quack_ty,
-                args.num_trials,
-                args.num_packets,
-                args.quack,
-            )
+            construct::run_benchmark(args.quack_ty, args.num_trials, args.num_packets, args.quack)
         }
-        BenchmarkType::ConstructMulti => {
-            construct_multi::run_benchmark(
-                args.quack_ty,
-                args.num_trials,
-                args.num_packets,
-                args.num_conns,
-                args.quack,
-            )
-        }
-        BenchmarkType::Decode => {
-            decode::run_benchmark(
-                args.quack_ty,
-                args.num_trials,
-                args.num_packets,
-                args.num_drop,
-                args.quack,
-            )
-        }
+        BenchmarkType::ConstructMulti => construct_multi::run_benchmark(
+            args.quack_ty,
+            args.num_trials,
+            args.num_packets,
+            args.num_conns,
+            args.quack,
+        ),
+        BenchmarkType::Decode => decode::run_benchmark(
+            args.quack_ty,
+            args.num_trials,
+            args.num_packets,
+            args.num_drop,
+            args.quack,
+        ),
     }
 }

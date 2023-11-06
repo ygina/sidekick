@@ -1,13 +1,16 @@
-use crate::QuackParams;
 use crate::common::*;
+use crate::QuackParams;
 
+use log::info;
+use quack::{
+    arithmetic::{ModularArithmetic, ModularInteger},
+    *,
+};
+use rand::distributions::{Distribution, Standard};
 use std::collections::HashMap;
 use std::fmt::{Debug, Display};
-use std::ops::{Sub, SubAssign, AddAssign, MulAssign};
-use std::time::{Instant, Duration};
-use log::info;
-use quack::{*, arithmetic::{ModularInteger, ModularArithmetic}};
-use rand::distributions::{Standard, Distribution};
+use std::ops::{AddAssign, MulAssign, Sub, SubAssign};
+use std::time::{Duration, Instant};
 
 type AddrKey = [u8; 12];
 
@@ -17,9 +20,11 @@ fn benchmark_construct_power_sum<T>(
     num_packets: usize,
     num_conns: usize,
 ) -> Duration
-where Standard: Distribution<T>,
-T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
-ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
+where
+    Standard: Distribution<T>,
+    T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
+    ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign,
+{
     let numbers = gen_numbers::<T>(num_packets);
     let conns = gen_numbers::<AddrKey>(num_conns);
     let conn_numbers = gen_numbers::<usize>(num_packets)
@@ -34,15 +39,18 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
     for (conn, number) in conn_numbers.into_iter() {
-        senders.entry(conn)
+        senders
+            .entry(conn)
             .or_insert(PowerSumQuack::new(size))
             .insert(number);
     }
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into {} Quacks (bits = {}, threshold = {}): {:?}",
-        num_packets, num_conns, num_bits_id, size, duration);
+    info!(
+        "Insert {} numbers into {} Quacks (bits = {}, threshold = {}): {:?}",
+        num_packets, num_conns, num_bits_id, size, duration
+    );
     duration
 }
 
@@ -61,11 +69,23 @@ pub fn run_benchmark(
         assert!(!params.precompute);
         let duration = match params.num_bits_id {
             16 => benchmark_construct_power_sum::<u16>(
-                params.threshold, params.num_bits_id, num_packets, num_conns),
+                params.threshold,
+                params.num_bits_id,
+                num_packets,
+                num_conns,
+            ),
             32 => benchmark_construct_power_sum::<u32>(
-                params.threshold, params.num_bits_id, num_packets, num_conns),
+                params.threshold,
+                params.num_bits_id,
+                num_packets,
+                num_conns,
+            ),
             64 => benchmark_construct_power_sum::<u64>(
-                params.threshold, params.num_bits_id, num_packets, num_conns),
+                params.threshold,
+                params.num_bits_id,
+                num_packets,
+                num_conns,
+            ),
             _ => unimplemented!(),
         };
         if i > 0 {

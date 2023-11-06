@@ -1,13 +1,13 @@
-use std::sync::{Arc, Mutex};
+use log::{debug, info, trace};
 use quack::*;
-use log::{trace, debug, info};
+use std::sync::{Arc, Mutex};
 use tokio;
 use tokio::net::UdpSocket;
 use tokio::sync::oneshot;
 
-use crate::{Quack, Socket};
+use crate::buffer::{Direction, UdpParser, BUFFER_SIZE};
 use crate::socket::SockAddr;
-use crate::buffer::{BUFFER_SIZE, Direction, UdpParser};
+use crate::{Quack, Socket};
 
 #[derive(Clone)]
 pub struct Sidecar {
@@ -77,7 +77,9 @@ impl Sidecar {
             loop {
                 let n = match sock.recvfrom(&mut addr, &mut buf) {
                     Ok(n) => n,
-                    Err(_) => { break; },
+                    Err(_) => {
+                        break;
+                    }
                 };
                 trace!("received {} bytes: {:?}", n, buf);
                 if Direction::Incoming != addr.sll_pkttype.into() {
@@ -119,7 +121,12 @@ impl Sidecar {
                     }
                     sc.insert_packet(id);
                     #[cfg(feature = "quack_log")]
-                    println!("quack {:?} {} {}", std::time::Instant::now(), id, sc.quack.count());
+                    println!(
+                        "quack {:?} {} {}",
+                        std::time::Instant::now(),
+                        id,
+                        sc.quack.count()
+                    );
                 }
             }
         });
@@ -144,7 +151,10 @@ impl Sidecar {
 
         // Loop over received packets
         let mut buf: [u8; BUFFER_SIZE] = [0; BUFFER_SIZE];
-        info!("tapping socket on fd={} interface={}", recvsock.fd, self.interface);
+        info!(
+            "tapping socket on fd={} interface={}",
+            recvsock.fd, self.interface
+        );
         let mut addr = SockAddr::new_sockaddr_ll();
         let ip_protocol = (libc::ETH_P_IP as u16).to_be();
         let mut mod_count = 0;
@@ -152,7 +162,9 @@ impl Sidecar {
             // TODO: don't duplicate code from start()
             let n = match recvsock.recvfrom(&mut addr, &mut buf) {
                 Ok(n) => n,
-                Err(_) => { break; },
+                Err(_) => {
+                    break;
+                }
             };
             trace!("received {} bytes: {:?}", n, buf);
             if Direction::Incoming != addr.sll_pkttype.into() {
@@ -191,7 +203,12 @@ impl Sidecar {
                 sendsock.send_to(&bytes, sendaddr).await.unwrap();
             }
             #[cfg(feature = "quack_log")]
-            println!("quack {:?} {} {}", std::time::Instant::now(), id, sc.quack.count());
+            println!(
+                "quack {:?} {} {}",
+                std::time::Instant::now(),
+                id,
+                sc.quack.count()
+            );
         }
         Ok(())
     }

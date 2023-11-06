@@ -1,14 +1,14 @@
-use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 
+use log::{info, trace};
 use quack::*;
 use tokio;
-use tokio::{sync::oneshot, time::Instant, net::UdpSocket};
-use log::{trace, info};
+use tokio::{net::UdpSocket, sync::oneshot, time::Instant};
 
-use crate::{Quack, Socket};
+use crate::buffer::{Direction, UdpParser, BUFFER_SIZE};
 use crate::socket::SockAddr;
-use crate::buffer::{BUFFER_SIZE, Direction, UdpParser};
+use crate::{Quack, Socket};
 
 type AddrKey = [u8; 12];
 
@@ -62,13 +62,12 @@ impl SidecarMulti {
             .map(|quack| *quack = PowerSumQuack::new(self.threshold));
     }
 
-    pub fn insert(
-        &mut self, addr_key: AddrKey, sidecar_id: u32,
-    ) -> &PowerSumQuack<u32> {
+    pub fn insert(&mut self, addr_key: AddrKey, sidecar_id: u32) -> &PowerSumQuack<u32> {
         // ***CYCLES START step 2 hash address key
         #[cfg(feature = "cycles")]
         let start2 = unsafe { core::arch::x86_64::_rdtsc() };
-        let entry = self.senders
+        let entry = self
+            .senders
             .entry(addr_key)
             .or_insert(PowerSumQuack::new(self.threshold));
         // ***CYCLES STOP step 2 hash address key
@@ -90,9 +89,7 @@ impl SidecarMulti {
         self.senders.get(&addr_key).as_ref().unwrap()
     }
 
-    pub fn quack(
-        &self, addr_key: &AddrKey,
-    ) -> Option<PowerSumQuack<u32>> {
+    pub fn quack(&self, addr_key: &AddrKey) -> Option<PowerSumQuack<u32>> {
         self.senders.get(addr_key).map(|quack| quack.clone())
     }
 
@@ -102,7 +99,9 @@ impl SidecarMulti {
 }
 
 fn process_one_packet(
-    n: isize, buf: &[u8; BUFFER_SIZE], addr: &libc::sockaddr_ll,
+    n: isize,
+    buf: &[u8; BUFFER_SIZE],
+    addr: &libc::sockaddr_ll,
     my_addr: [u8; 6],
 ) -> Action {
     if Direction::Incoming != addr.sll_pkttype.into() {
@@ -137,15 +136,24 @@ fn process_one_packet(
         let stop3 = core::arch::x86_64::_rdtsc();
         CYCLES[3] += stop3 - start3;
     }
-    Action::Insert { addr_key, sidecar_id }
+    Action::Insert {
+        addr_key,
+        sidecar_id,
+    }
 }
 
 #[cfg(any(feature = "cycles", feature = "cycles_summary"))]
 unsafe fn print_cycles_count_summary() {
     CYCLES_COUNT += 1;
     if CYCLES_COUNT % 1000 == 0 {
-        println!("{:?}", CYCLES.clone().into_iter().map(|cycles| cycles /
-            CYCLES_COUNT).collect::<Vec<_>>());
+        println!(
+            "{:?}",
+            CYCLES
+                .clone()
+                .into_iter()
+                .map(|cycles| cycles / CYCLES_COUNT)
+                .collect::<Vec<_>>()
+        );
     }
 }
 
@@ -182,12 +190,17 @@ pub fn start_sidecar_multi(
             let stop1 = unsafe { core::arch::x86_64::_rdtsc() };
             trace!("received {} bytes: {:?}", n, buf);
             match process_one_packet(n, &buf, &addr, my_addr) {
-                Action::Skip => { continue; }
+                Action::Skip => {
+                    continue;
+                }
                 Action::Reset { addr_key } => {
                     info!("resetting quacks {:?}", addr_key);
                     sc.lock().unwrap().senders = HashMap::new();
                 }
-                Action::Insert { addr_key, sidecar_id } => {
+                Action::Insert {
+                    addr_key,
+                    sidecar_id,
+                } => {
                     let mut sc = sc.lock().unwrap();
                     if let Some(tx) = tx.take() {
                         let now = Instant::now();
@@ -237,12 +250,17 @@ pub async fn start_sidecar_multi_frequency_pkts(
         let n = sock.recvfrom(&mut addr, &mut buf).unwrap();
         trace!("received {} bytes: {:?}", n, buf);
         match process_one_packet(n, &buf, &addr, my_addr) {
-            Action::Skip => { continue; }
+            Action::Skip => {
+                continue;
+            }
             Action::Reset { addr_key } => {
                 info!("resetting quacks {:?}", addr_key);
                 sc.lock().unwrap().senders = HashMap::new();
             }
-            Action::Insert { addr_key, sidecar_id } => {
+            Action::Insert {
+                addr_key,
+                sidecar_id,
+            } => {
                 let mut sc = sc.lock().unwrap();
                 let quack = sc.insert(addr_key, sidecar_id);
                 if quack.count() % frequency_pkts == 0 {

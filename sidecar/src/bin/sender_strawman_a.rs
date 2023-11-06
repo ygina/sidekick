@@ -4,10 +4,10 @@ use clap::Parser;
 use tokio;
 use tokio::net::UdpSocket;
 
-use sidecar::Socket;
-use sidecar::socket::SockAddr;
-use sidecar::buffer::{BUFFER_SIZE, Direction, UdpParser};
 use quack::StrawmanAQuack;
+use sidecar::buffer::{Direction, UdpParser, BUFFER_SIZE};
+use sidecar::socket::SockAddr;
+use sidecar::Socket;
 
 /// Sends quACKs in the sidecar protocol, receives data in the base protocol.
 #[derive(Parser)]
@@ -36,7 +36,9 @@ async fn main() -> Result<(), String> {
     loop {
         let n = match recv_sock.recvfrom(&mut addr, &mut buf) {
             Ok(n) => n,
-            Err(_) => { return Ok(()); }
+            Err(_) => {
+                return Ok(());
+            }
         };
         if Direction::Incoming != addr.sll_pkttype.into() {
             continue;

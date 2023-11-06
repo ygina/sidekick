@@ -10,16 +10,16 @@
 //! On receiving a timeout packet (sequence number is the max u32 integer),
 //! print packet statistics. Print the average, p95, and p99 latencies, where
 //! the latencies are how long the packet stayed in the queue. Print histogram.
+use std::collections::VecDeque;
 use std::io;
 use std::net::SocketAddr;
-use std::collections::VecDeque;
 use std::sync::Arc;
 
 use clap::Parser;
+use log::{debug, trace};
 use tokio;
-use log::{trace, debug};
 use tokio::net::UdpSocket;
-use tokio::time::{Instant, Duration};
+use tokio::time::{Duration, Instant};
 
 #[derive(Parser)]
 struct Cli {
@@ -46,9 +46,7 @@ struct Statistics {
 impl Statistics {
     /// Create a new histogram for adding duration values.
     fn new() -> Self {
-        Self {
-            values: Vec::new(),
-        }
+        Self { values: Vec::new() }
     }
 
     /// Add a new duration value.
@@ -65,19 +63,27 @@ impl Statistics {
         println!("Average: {:?}", values[(len as f64 * 0.50) as usize]);
         println!("p95: {:?}", values[(len as f64 * 0.95) as usize]);
         println!("p99: {:?}", values[(len as f64 * 0.99) as usize]);
-        let values_raw = values.into_iter()
+        let values_raw = values
+            .into_iter()
             .map(|duration| duration.as_secs() * 1000000000 + duration.subsec_nanos() as u64)
             .collect::<Vec<_>>();
         // Print 90% to 100% by 0.1%
-        println!("Latencies (ns) = {:?}", (900..1001)
-            .map(|percent| (percent as f64) / 1000.0)
-            .map(|percent| ((len as f64) * percent) as usize)
-            .map(|index| std::cmp::min(index, len - 1))
-            .map(|index| values_raw[index])
-            .collect::<Vec<_>>());
-        println!("Raw values = {:?}", self.values.iter()
-            .map(|duration| duration.as_secs() * 1000000000 + duration.subsec_nanos() as u64)
-            .collect::<Vec<_>>());
+        println!(
+            "Latencies (ns) = {:?}",
+            (900..1001)
+                .map(|percent| (percent as f64) / 1000.0)
+                .map(|percent| ((len as f64) * percent) as usize)
+                .map(|index| std::cmp::min(index, len - 1))
+                .map(|index| values_raw[index])
+                .collect::<Vec<_>>()
+        );
+        println!(
+            "Raw values = {:?}",
+            self.values
+                .iter()
+                .map(|duration| duration.as_secs() * 1000000000 + duration.subsec_nanos() as u64)
+                .collect::<Vec<_>>()
+        );
     }
 
     /// Print a histogram of the latency statistics.
@@ -96,7 +102,11 @@ struct Packet {
 
 impl Packet {
     fn new(seqno: u32) -> Self {
-        Self { seqno, time_recv: None, time_nack: None }
+        Self {
+            seqno,
+            time_recv: None,
+            time_nack: None,
+        }
     }
 }
 
@@ -110,9 +120,7 @@ struct BufferedPackets {
 }
 
 impl BufferedPackets {
-    async fn new(
-        sock: Arc<UdpSocket>, nack_frequency: Duration,
-    ) -> io::Result<Self> {
+    async fn new(sock: Arc<UdpSocket>, nack_frequency: Duration) -> io::Result<Self> {
         Ok(Self {
             send_sock: sock,
             nack_frequency,
@@ -168,9 +176,7 @@ impl BufferedPackets {
     /// been more than an RTT since the last NACK for that sequence number.
     /// It may be considerably more than an RTT for NACK retransmissions if
     /// this function is only called on receiving a packet.
-    async fn send_nacks(
-        &mut self, now: Instant, nack_addr: &SocketAddr,
-    ) -> io::Result<()> {
+    async fn send_nacks(&mut self, now: Instant, nack_addr: &SocketAddr) -> io::Result<()> {
         if self.buffer.is_empty() {
             return Ok(());
         }
@@ -197,7 +203,6 @@ impl BufferedPackets {
     }
 }
 
-
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> io::Result<()> {
     env_logger::init();
@@ -219,12 +224,7 @@ async fn main() -> io::Result<()> {
         loop {
             let (len, addr) = sock.recv_from(&mut buf).await?;
             assert_eq!(len, args.bytes);
-            let seqno = u32::from_be_bytes([
-                buf[0],
-                buf[1],
-                buf[2],
-                buf[3],
-            ]);
+            let seqno = u32::from_be_bytes([buf[0], buf[1], buf[2], buf[3]]);
             trace!("received seqno {} ({} bytes)", seqno, len);
             if seqno == TIMEOUT_SEQNO {
                 debug!("timeout message received");
@@ -249,7 +249,7 @@ async fn main() -> io::Result<()> {
 
         // Process remaining timeout messages.
         tokio::time::sleep(Duration::from_secs(1)).await;
-        while sock.try_recv(&mut buf).is_ok() {};
+        while sock.try_recv(&mut buf).is_ok() {}
     }
     Ok(())
 }

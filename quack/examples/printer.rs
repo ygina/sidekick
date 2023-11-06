@@ -1,7 +1,7 @@
+use bincode;
+use quack::{PowerSumQuack, Quack};
 use std::fs::File;
 use std::io::Write;
-use bincode;
-use quack::{Quack, PowerSumQuack};
 
 fn main() {
     let mut q = PowerSumQuack::<u32>::new(20);

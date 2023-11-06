@@ -6,9 +6,8 @@
 //     MonicPolynomialEvaluator,
 // };
 // use crate::Quack;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 // use log::{debug, info, trace};
-
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StrawmanAQuack {

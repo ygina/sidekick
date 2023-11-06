@@ -1,12 +1,12 @@
+use clap::Parser;
+use log::{debug, info, trace};
+use quack::Quack;
+use sidecar::Sidecar;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
-use clap::Parser;
-use sidecar::Sidecar;
 use tokio::net::UdpSocket;
-use tokio::time::{self, Duration};
 use tokio::sync::oneshot;
-use log::{trace, debug, info};
-use quack::Quack;
+use tokio::time::{self, Duration};
 
 /// Sends quACKs in the sidecar protocol, receives data in the base protocol.
 #[derive(Parser)]
@@ -41,10 +41,12 @@ async fn send_quacks(
     addr: SocketAddr,
     frequency_ms: u64,
 ) {
-    let socket = UdpSocket::bind("0.0.0.0:0").await.expect(
-        &format!("error binding to UDP socket"));
+    let socket = UdpSocket::bind("0.0.0.0:0")
+        .await
+        .expect(&format!("error binding to UDP socket"));
     if frequency_ms > 0 {
-        rx.await.expect("couldn't receive notice that 1st packet was sniffed");
+        rx.await
+            .expect("couldn't receive notice that 1st packet was sniffed");
         let mut interval = time::interval(Duration::from_millis(frequency_ms));
         // The first tick completes immediately
         interval.tick().await;
@@ -60,13 +62,10 @@ async fn send_quacks(
     }
 }
 
-async fn print_quacks(
-    sc: Arc<Mutex<Sidecar>>,
-    rx: oneshot::Receiver<()>,
-    frequency_ms: u64,
-) {
+async fn print_quacks(sc: Arc<Mutex<Sidecar>>, rx: oneshot::Receiver<()>, frequency_ms: u64) {
     if frequency_ms > 0 {
-        rx.await.expect("couldn't receive notice that 1st packet was sniffed");
+        rx.await
+            .expect("couldn't receive notice that 1st packet was sniffed");
         let mut interval = time::interval(Duration::from_millis(frequency_ms));
         // The first tick completes immediately
         interval.tick().await;
@@ -83,17 +82,17 @@ async fn main() -> Result<(), String> {
     env_logger::init();
 
     let args = Cli::parse();
-    debug!("interface={} threshold={} bits={}",
-        args.interface, args.threshold, args.num_bits_id);
-    debug!("frequency_ms={:?} frequency_pkts={:?} target_addr={:?}",
-        args.frequency_ms, args.frequency_pkts, args.target_addr);
+    debug!(
+        "interface={} threshold={} bits={}",
+        args.interface, args.threshold, args.num_bits_id
+    );
+    debug!(
+        "frequency_ms={:?} frequency_pkts={:?} target_addr={:?}",
+        args.frequency_ms, args.frequency_pkts, args.target_addr
+    );
 
     // Start the sidecar.
-    let mut sc = Sidecar::new(
-        &args.interface,
-        args.threshold,
-        args.num_bits_id,
-    );
+    let mut sc = Sidecar::new(&args.interface, args.threshold, args.num_bits_id);
 
     // Handle a snapshotted quACK at the specified frequency.
     if let Some(frequency_ms) = args.frequency_ms {
@@ -109,9 +108,9 @@ async fn main() -> Result<(), String> {
         }
     } else if let Some(frequency_pkts) = args.frequency_pkts {
         let addr = args.target_addr.expect("Address must be set");
-        sc.start_frequency_pkts(
-            args.my_addr.octets(), frequency_pkts, addr,
-        ).await.unwrap();
+        sc.start_frequency_pkts(args.my_addr.octets(), frequency_pkts, addr)
+            .await
+            .unwrap();
     }
     Ok(())
 }

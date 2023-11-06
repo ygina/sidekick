@@ -4,7 +4,7 @@ use libc::c_uchar;
 // The randomly-encrypted payload in a QUIC packet with a short header is at
 // offset 63.
 pub const ID_OFFSET: usize = 63;
-pub const BUFFER_SIZE: usize = ID_OFFSET+4;
+pub const BUFFER_SIZE: usize = ID_OFFSET + 4;
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum Direction {
@@ -45,22 +45,34 @@ impl UdpParser {
             return None;
         }
 
-        let src_mac = x[0..4].iter().map(|b| format!("{:x}", b))
-            .collect::<Vec<_>>().join(":");
-        let dst_mac = x[4..8].iter().map(|b| format!("{:x}", b))
-            .collect::<Vec<_>>().join(":");
+        let src_mac = x[0..4]
+            .iter()
+            .map(|b| format!("{:x}", b))
+            .collect::<Vec<_>>()
+            .join(":");
+        let dst_mac = x[4..8]
+            .iter()
+            .map(|b| format!("{:x}", b))
+            .collect::<Vec<_>>()
+            .join(":");
         let src_ip = format!("{}.{}.{}.{}", x[26], x[27], x[28], x[29]);
         let dst_ip = format!("{}.{}.{}.{}", x[30], x[31], x[32], x[33]);
         let src_port = u16::from_be_bytes([x[34], x[35]]);
         let dst_port = u16::from_be_bytes([x[36], x[37]]);
         let identifier = u32::from_be_bytes([
             x[ID_OFFSET],
-            x[ID_OFFSET+1],
-            x[ID_OFFSET+2],
-            x[ID_OFFSET+3],
+            x[ID_OFFSET + 1],
+            x[ID_OFFSET + 2],
+            x[ID_OFFSET + 3],
         ]);
         Some(UdpParser {
-            src_mac, dst_mac, src_ip, dst_ip, identifier, src_port, dst_port,
+            src_mac,
+            dst_mac,
+            src_ip,
+            dst_ip,
+            identifier,
+            src_port,
+            dst_port,
         })
     }
 
@@ -77,7 +89,9 @@ impl UdpParser {
 
     /// src_ip, src_port, dst_ip, dst_port
     pub fn parse_addr_key(x: &[u8; BUFFER_SIZE]) -> [u8; 12] {
-        [x[26], x[27], x[28], x[29], x[34], x[35], x[30], x[31], x[32], x[33], x[36], x[37]]
+        [
+            x[26], x[27], x[28], x[29], x[34], x[35], x[30], x[31], x[32], x[33], x[36], x[37],
+        ]
     }
 
     /// Returns the sidecar identifier assuming the buffer represents
@@ -85,9 +99,9 @@ impl UdpParser {
     pub fn parse_identifier(x: &[u8; BUFFER_SIZE]) -> u32 {
         u32::from_be_bytes([
             x[ID_OFFSET],
-            x[ID_OFFSET+1],
-            x[ID_OFFSET+2],
-            x[ID_OFFSET+3],
+            x[ID_OFFSET + 1],
+            x[ID_OFFSET + 2],
+            x[ID_OFFSET + 3],
         ])
     }
 }

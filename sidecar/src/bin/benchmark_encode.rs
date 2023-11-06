@@ -1,11 +1,11 @@
-use std::net::SocketAddr;
-use std::sync::{Arc, Mutex};
 use clap::Parser;
 use quack::Quack;
 use sidecar::Sidecar;
-use tokio::net::{UdpSocket};
-use tokio::time::{self, Instant, Duration};
 use signal_hook::{consts::SIGTERM, iterator::Signals};
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
+use tokio::net::UdpSocket;
+use tokio::time::{self, Duration, Instant};
 
 #[derive(Parser)]
 struct Cli {
@@ -50,15 +50,17 @@ async fn handle_signals(sc: Arc<Mutex<Sidecar>>, mut signals: Signals) {
 }
 
 impl Benchmark {
-    pub fn new(
-        sc: Sidecar, addr: SocketAddr, frequency_ms: u64,
-    ) -> Self {
+    pub fn new(sc: Sidecar, addr: SocketAddr, frequency_ms: u64) -> Self {
         let frequency = if frequency_ms == 0 {
             None
         } else {
             Some(Duration::from_millis(frequency_ms))
         };
-        Self { sc: Arc::new(Mutex::new(sc)), addr, frequency }
+        Self {
+            sc: Arc::new(Mutex::new(sc)),
+            addr,
+            frequency,
+        }
     }
 
     pub fn setup_signal_handler(&self) {
@@ -72,7 +74,7 @@ impl Benchmark {
         if let Some(frequency) = self.frequency {
             let socket = UdpSocket::bind("0.0.0.0:0").await.unwrap();
             let mut interval = time::interval(frequency);
-            interval.tick().await;  // The first tick completes immediately.
+            interval.tick().await; // The first tick completes immediately.
             loop {
                 interval.tick().await;
                 let quack = self.sc.lock().unwrap().quack();

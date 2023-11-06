@@ -1,19 +1,20 @@
-use crate::QuackParams;
 use crate::common::*;
+use crate::QuackParams;
 
-use std::fmt::{Debug, Display};
-use std::ops::{Sub, SubAssign, AddAssign, MulAssign};
-use std::time::{Instant, Duration};
-use log::info;
 use bincode;
-use quack::{*, arithmetic::{ModularInteger, ModularArithmetic}};
-use rand::distributions::{Standard, Distribution};
+use log::info;
+use quack::{
+    arithmetic::{ModularArithmetic, ModularInteger},
+    *,
+};
+use rand::distributions::{Distribution, Standard};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
+use std::fmt::{Debug, Display};
+use std::ops::{AddAssign, MulAssign, Sub, SubAssign};
+use std::time::{Duration, Instant};
 
-fn benchmark_construct_strawman1a(
-    num_packets: usize,
-) -> Duration {
+fn benchmark_construct_strawman1a(num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     let mut quack = StrawmanAQuack { sidecar_id: 0 };
@@ -27,15 +28,14 @@ fn benchmark_construct_strawman1a(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Serialize {} numbers into StrawmanAQuack: {:?}",
-        num_packets, duration);
+    info!(
+        "Serialize {} numbers into StrawmanAQuack: {:?}",
+        num_packets, duration
+    );
     duration
 }
 
-fn benchmark_construct_strawman1b(
-    threshold: usize,
-    num_packets: usize,
-) -> Duration {
+fn benchmark_construct_strawman1b(threshold: usize, num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     let mut quack = StrawmanBQuack::new(threshold);
@@ -49,14 +49,14 @@ fn benchmark_construct_strawman1b(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Serialize {} numbers into StrawmanBQuack with threshold {}: {:?}",
-        num_packets, threshold, duration);
+    info!(
+        "Serialize {} numbers into StrawmanBQuack with threshold {}: {:?}",
+        num_packets, threshold, duration
+    );
     duration
 }
 
-fn benchmark_construct_strawman2(
-    num_packets: usize,
-) -> Duration {
+fn benchmark_construct_strawman2(num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
     let mut acc = Sha256::new();
 
@@ -69,15 +69,14 @@ fn benchmark_construct_strawman2(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into a sha256 digest: {:?}",
-        num_packets, duration);
+    info!(
+        "Insert {} numbers into a sha256 digest: {:?}",
+        num_packets, duration
+    );
     duration
 }
 
-fn benchmark_construct_power_sum_precompute_u16(
-    threshold: usize,
-    num_packets: usize,
-) -> Duration {
+fn benchmark_construct_power_sum_precompute_u16(threshold: usize, num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u16>(num_packets);
 
     // Construct two empty Quacks.
@@ -92,15 +91,15 @@ fn benchmark_construct_power_sum_precompute_u16(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into 2 Quacks (bits = 16, \
-        threshold = {}): {:?}", num_packets, threshold, duration);
+    info!(
+        "Insert {} numbers into 2 Quacks (bits = 16, \
+        threshold = {}): {:?}",
+        num_packets, threshold, duration
+    );
     duration
 }
 
-fn benchmark_construct_power_sum_montgomery_u64(
-    threshold: usize,
-    num_packets: usize,
-) -> Duration {
+fn benchmark_construct_power_sum_montgomery_u64(threshold: usize, num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u64>(num_packets);
 
     // Construct an empty Quack.
@@ -115,8 +114,11 @@ fn benchmark_construct_power_sum_montgomery_u64(
     let t2 = Instant::now();
 
     let duration = t2 - t1;
-    info!("Insert {} numbers into a montgomery quACK (bits = 64, \
-        threshold = {}): {:?}", num_packets, threshold, duration);
+    info!(
+        "Insert {} numbers into a montgomery quACK (bits = 64, \
+        threshold = {}): {:?}",
+        num_packets, threshold, duration
+    );
     duration
 }
 
@@ -125,9 +127,11 @@ fn benchmark_construct_power_sum<T>(
     num_bits_id: usize,
     num_packets: usize,
 ) -> Duration
-where Standard: Distribution<T>,
-T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy + Serialize,
-ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
+where
+    Standard: Distribution<T>,
+    T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy + Serialize,
+    ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign,
+{
     let numbers = gen_numbers::<T>(num_packets);
 
     // Construct two empty Quacks.
@@ -147,12 +151,21 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
 
     let duration = t2 - t1;
     #[cfg(not(feature = "cycles"))]
-    info!("Insert {} numbers into a power sum quACK (bits = {}, \
-        threshold = {}): {:?}", num_packets, num_bits_id, threshold, duration);
+    info!(
+        "Insert {} numbers into a power sum quACK (bits = {}, \
+        threshold = {}): {:?}",
+        num_packets, num_bits_id, threshold, duration
+    );
     #[cfg(feature = "cycles")]
-    info!("Insert {} numbers into a power sum quACK (bits = {}, \
-        threshold = {}): {:?} ({} cycles/pkt)", num_packets, num_bits_id,
-        threshold, duration, (end - start) / (num_packets as u64));
+    info!(
+        "Insert {} numbers into a power sum quACK (bits = {}, \
+        threshold = {}): {:?} ({} cycles/pkt)",
+        num_packets,
+        num_bits_id,
+        threshold,
+        duration,
+        (end - start) / (num_packets as u64)
+    );
     duration
 }
 
@@ -170,31 +183,48 @@ pub fn run_benchmark(
             QuackType::Strawman1a => benchmark_construct_strawman1a(num_packets),
             QuackType::Strawman1b => benchmark_construct_strawman1b(params.threshold, num_packets),
             QuackType::Strawman2 => benchmark_construct_strawman2(num_packets),
-            QuackType::PowerSum =>  if params.precompute {
-                match params.num_bits_id {
-                16 => benchmark_construct_power_sum_precompute_u16(params.threshold, num_packets),
-                32 => todo!(),
-                64 => todo!(),
-                _ => unimplemented!(),
+            QuackType::PowerSum => {
+                if params.precompute {
+                    match params.num_bits_id {
+                        16 => benchmark_construct_power_sum_precompute_u16(
+                            params.threshold,
+                            num_packets,
+                        ),
+                        32 => todo!(),
+                        64 => todo!(),
+                        _ => unimplemented!(),
+                    }
+                } else if params.montgomery {
+                    match params.num_bits_id {
+                        16 => unimplemented!(),
+                        32 => unimplemented!(),
+                        64 => benchmark_construct_power_sum_montgomery_u64(
+                            params.threshold,
+                            num_packets,
+                        ),
+                        _ => unimplemented!(),
+                    }
+                } else {
+                    match params.num_bits_id {
+                        16 => benchmark_construct_power_sum::<u16>(
+                            params.threshold,
+                            params.num_bits_id,
+                            num_packets,
+                        ),
+                        32 => benchmark_construct_power_sum::<u32>(
+                            params.threshold,
+                            params.num_bits_id,
+                            num_packets,
+                        ),
+                        64 => benchmark_construct_power_sum::<u64>(
+                            params.threshold,
+                            params.num_bits_id,
+                            num_packets,
+                        ),
+                        _ => unimplemented!(),
+                    }
                 }
-            } else if params.montgomery {
-                match params.num_bits_id {
-                16 => unimplemented!(),
-                32 => unimplemented!(),
-                64 => benchmark_construct_power_sum_montgomery_u64(params.threshold, num_packets),
-                _ => unimplemented!(),
-                }
-            } else {
-                match params.num_bits_id {
-                16 => benchmark_construct_power_sum::<u16>(
-                    params.threshold, params.num_bits_id, num_packets),
-                32 => benchmark_construct_power_sum::<u32>(
-                    params.threshold, params.num_bits_id, num_packets),
-                64 => benchmark_construct_power_sum::<u64>(
-                    params.threshold, params.num_bits_id, num_packets),
-                _ => unimplemented!(),
-                }
-            },
+            }
         };
         if i > 0 {
             durations.push(duration);

@@ -1,15 +1,15 @@
+use clap::Parser;
+use log::{debug, info};
+use quack::Quack;
+use sidecar::{
+    sidecar_multi::{start_sidecar_multi, start_sidecar_multi_frequency_pkts},
+    SidecarMulti,
+};
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
-use clap::Parser;
-use sidecar::{
-    SidecarMulti,
-    sidecar_multi::{start_sidecar_multi, start_sidecar_multi_frequency_pkts},
-};
 use tokio::net::UdpSocket;
 use tokio::sync::oneshot;
 use tokio::time::{self, Duration, Instant};
-use log::{debug, info};
-use quack::Quack;
 
 /// Sends quACKs in the sidecar protocol, receives data in the base protocol.
 #[derive(Parser)]
@@ -53,12 +53,14 @@ async fn send_quacks_ms(
     quack_addr: SocketAddr,
     frequency_ms: u64,
 ) {
-    let socket = UdpSocket::bind("0.0.0.0:0").await.expect(
-        &format!("error binding to UDP socket"));
+    let socket = UdpSocket::bind("0.0.0.0:0")
+        .await
+        .expect(&format!("error binding to UDP socket"));
     let mut interval = time::interval(Duration::from_millis(frequency_ms));
     // The first tick completes immediately
     interval.tick().await;
-    rx.await.expect("couldn't receive notice that 1st packet was sniffed");
+    rx.await
+        .expect("couldn't receive notice that 1st packet was sniffed");
     loop {
         interval.tick().await;
         let sc = sc.lock().unwrap();
@@ -79,15 +81,13 @@ async fn main() -> Result<(), String> {
     env_logger::init();
 
     let args = Cli::parse();
-    info!("interface={} threshold={} bits={} frequency_ms={:?} frequency_pkts={:?}",
-        args.interface, args.threshold, args.num_bits_id, args.frequency_ms, args.frequency_pkts);
+    info!(
+        "interface={} threshold={} bits={} frequency_ms={:?} frequency_pkts={:?}",
+        args.interface, args.threshold, args.num_bits_id, args.frequency_ms, args.frequency_pkts
+    );
 
     // Start the sidecar.
-    let sc = SidecarMulti::new(
-        &args.interface,
-        args.threshold,
-        args.num_bits_id,
-    );
+    let sc = SidecarMulti::new(&args.interface, args.threshold, args.num_bits_id);
 
     // Get the target dst key. If the dst of the traffic matches this key,
     // send a quack.
@@ -116,9 +116,9 @@ async fn main() -> Result<(), String> {
         send_quacks_ms(sc, rx, dst_key, args.quack_addr, frequency_ms).await;
     } else if let Some(frequency_pkts) = args.frequency_pkts {
         assert!(frequency_pkts > 0);
-        start_sidecar_multi_frequency_pkts(
-            sc.clone(), my_addr, frequency_pkts, args.quack_addr,
-        ).await.unwrap();
+        start_sidecar_multi_frequency_pkts(sc.clone(), my_addr, frequency_pkts, args.quack_addr)
+            .await
+            .unwrap();
     }
     Ok(())
 }

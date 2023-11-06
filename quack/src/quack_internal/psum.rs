@@ -1,17 +1,15 @@
-use std::ops::{Sub, SubAssign, MulAssign, AddAssign};
-use std::fmt::{Debug, Display};
-use crate::arithmetic::{
-    ModularArithmetic,
-    ModularInteger,
-    MonicPolynomialEvaluator,
-};
+use crate::arithmetic::{ModularArithmetic, ModularInteger, MonicPolynomialEvaluator};
 use crate::Quack;
-use serde::{Serialize, Deserialize};
 use log::{debug, info, trace};
-
+use serde::{Deserialize, Serialize};
+use std::fmt::{Debug, Display};
+use std::ops::{AddAssign, MulAssign, Sub, SubAssign};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct PowerSumQuack<T> where ModularInteger<T>: ModularArithmetic<T> {
+pub struct PowerSumQuack<T>
+where
+    ModularInteger<T>: ModularArithmetic<T>,
+{
     // https://serde.rs/attr-skip-serializing.html
     #[serde(skip)]
     inverse_table: Vec<ModularInteger<T>>,
@@ -21,8 +19,10 @@ pub struct PowerSumQuack<T> where ModularInteger<T>: ModularArithmetic<T> {
 }
 
 impl<T> Quack<T> for PowerSumQuack<T>
-where T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
-ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
+where
+    T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
+    ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign,
+{
     fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
 
@@ -46,7 +46,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
         let size = self.power_sums.len();
         let x = ModularInteger::<T>::new(value);
         let mut y = x;
-        for i in 0..(size-1) {
+        for i in 0..(size - 1) {
             self.power_sums[i] += y;
             y *= x;
         }
@@ -61,7 +61,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
         let size = self.power_sums.len();
         let x = ModularInteger::<T>::new(value);
         let mut y = x;
-        for i in 0..(size-1) {
+        for i in 0..(size - 1) {
             self.power_sums[i] -= y;
             y *= x;
         }
@@ -88,17 +88,18 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     fn decode_with_log(&self, log: &Vec<T>) -> Vec<T> {
         let num_packets = log.len();
         let num_missing = self.count();
-        info!("decoding quACK: num_packets={}, num_missing={}",
-            num_packets, num_missing);
+        info!(
+            "decoding quACK: num_packets={}, num_missing={}",
+            num_packets, num_missing
+        );
         if num_missing == 0 {
             return vec![];
         }
         let coeffs = self.to_coeffs();
         trace!("coeffs = {:?}", coeffs);
-        let missing: Vec<T> = log.iter()
-            .filter(|&&x| {
-                MonicPolynomialEvaluator::eval(&coeffs, x).is_zero()
-            })
+        let missing: Vec<T> = log
+            .iter()
+            .filter(|&&x| MonicPolynomialEvaluator::eval(&coeffs, x).is_zero())
             .map(|&x| x)
             .collect();
         info!("found {}/{} missing packets", missing.len(), num_missing);
@@ -119,10 +120,7 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities. Writes coefficients
     /// into a pre-allocated buffer.
-    fn to_coeffs_preallocated(
-        &self,
-        coeffs: &mut Vec<ModularInteger<T>>,
-    ) {
+    fn to_coeffs_preallocated(&self, coeffs: &mut Vec<ModularInteger<T>>) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
         for i in 1..size {
@@ -135,11 +133,16 @@ ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign {
     }
 }
 
-impl<T> SubAssign for PowerSumQuack<T> where
-ModularInteger<T>: ModularArithmetic<T> + SubAssign + Copy {
+impl<T> SubAssign for PowerSumQuack<T>
+where
+    ModularInteger<T>: ModularArithmetic<T> + SubAssign + Copy,
+{
     fn sub_assign(&mut self, rhs: Self) {
-        assert_eq!(self.power_sums.len(), rhs.power_sums.len(),
-            "expected subtracted quacks to have the same number of sums");
+        assert_eq!(
+            self.power_sums.len(),
+            rhs.power_sums.len(),
+            "expected subtracted quacks to have the same number of sums"
+        );
         // TODO: actually, subtraction with underflow should be allowed in case
         // the count overflowed in the original quACK.
         assert!(self.count >= rhs.count, "subtract count with overflow");
@@ -152,8 +155,11 @@ ModularInteger<T>: ModularArithmetic<T> + SubAssign + Copy {
     }
 }
 
-impl<T> Sub for PowerSumQuack<T> where
-PowerSumQuack<T>: SubAssign, ModularInteger<T>: ModularArithmetic<T> {
+impl<T> Sub for PowerSumQuack<T>
+where
+    PowerSumQuack<T>: SubAssign,
+    ModularInteger<T>: ModularArithmetic<T>,
+{
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self::Output {
@@ -217,9 +223,10 @@ mod test {
         quack.insert(2072080394);
         quack.insert(748120679);
         assert_eq!(quack.count, 5);
-        assert_eq!(quack.power_sums, vec![
-            533685389, 1847039354, 2727275532, 1272499396, 2347942976,
-        ]);
+        assert_eq!(
+            quack.power_sums,
+            vec![533685389, 1847039354, 2727275532, 1272499396, 2347942976,]
+        );
     }
 
     #[test]
@@ -233,9 +240,10 @@ mod test {
         let mut coeffs = (0..5).map(|_| ModularInteger::<u32>::zero()).collect();
         quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs.len(), 5);
-        assert_eq!(coeffs, vec![
-            1567989721, 1613776244, 517289688, 17842621, 3562381446,
-        ]);
+        assert_eq!(
+            coeffs,
+            vec![1567989721, 1613776244, 517289688, 17842621, 3562381446,]
+        );
     }
 
     #[test]
@@ -455,7 +463,7 @@ mod test {
         q2.insert(1);
         q2.insert(3);
         q2.insert(4);
-        q2.power_sums[0] += ModularInteger::new(1);  // mess up the power sums
+        q2.power_sums[0] += ModularInteger::new(1); // mess up the power sums
 
         // Check the result
         let quack = q1 - q2;

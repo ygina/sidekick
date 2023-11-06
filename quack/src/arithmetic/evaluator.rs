@@ -1,25 +1,22 @@
-use std::ops::{Sub, AddAssign, MulAssign};
-use crate::arithmetic::{ModularArithmetic, ModularInteger};
 #[cfg(feature = "montgomery")]
 use crate::arithmetic::MontgomeryInteger;
+use crate::arithmetic::{ModularArithmetic, ModularInteger};
+use std::ops::{AddAssign, MulAssign, Sub};
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
 extern "C" {
-    fn factor_libpari(
-        roots: *mut u32,
-        coeffs: *const u32,
-        field: u32,
-        degree: usize,
-    ) -> i32;
+    fn factor_libpari(roots: *mut u32, coeffs: *const u32, field: u32, degree: usize) -> i32;
 }
 
 pub struct MonicPolynomialEvaluator<T> {
-    _phantom: std::marker::PhantomData<T>
+    _phantom: std::marker::PhantomData<T>,
 }
 
-impl<T: PartialOrd + Sub<Output = T>> MonicPolynomialEvaluator<T> where
-ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + Copy {
+impl<T: PartialOrd + Sub<Output = T>> MonicPolynomialEvaluator<T>
+where
+    ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + Copy,
+{
     /// Evaluate the univariate polynomial with the given coefficients using
     /// modular arithmetic, assuming all coefficients are modulo the same
     /// 32-bit prime. In the coefficient vector, the last element is the
@@ -58,23 +55,19 @@ impl MonicPolynomialEvaluator<u64> {
 
 #[cfg(feature = "power_table")]
 impl MonicPolynomialEvaluator<u16> {
-    pub fn eval_precompute(
-        coeffs: &Vec<ModularInteger<u16>>,
-        x: u16,
-    ) -> ModularInteger<u16> {
+    pub fn eval_precompute(coeffs: &Vec<ModularInteger<u16>>, x: u16) -> ModularInteger<u16> {
         let size = coeffs.len();
         let x_modint = ModularInteger::<u16>::new(x);
-        let mut result: u64 = unsafe {
-            crate::POWER_TABLE[x_modint.value as usize][size]
-        }.value() as u64;
+        let mut result: u64 =
+            unsafe { crate::POWER_TABLE[x_modint.value as usize][size] }.value() as u64;
         for i in 0..(size - 1) {
-            result += (coeffs[i].value() as u64) * (unsafe {
-                crate::POWER_TABLE[x_modint.value as usize][size - i - 1]
-            }.value() as u64);
+            result += (coeffs[i].value() as u64)
+                * (unsafe { crate::POWER_TABLE[x_modint.value as usize][size - i - 1] }.value()
+                    as u64);
         }
         result += coeffs[size - 1].value() as u64;
         return ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16);
-     }
+    }
 }
 
 impl MonicPolynomialEvaluator<u32> {
@@ -92,14 +85,8 @@ impl MonicPolynomialEvaluator<u32> {
         let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();
         coeffs.insert(0, 1);
         let mut roots: Vec<u32> = vec![0; coeffs.len() - 1];
-        if unsafe {
-            factor_libpari(
-                roots.as_mut_ptr(),
-                coeffs.as_ptr(),
-                modulus,
-                roots.len(),
-            )
-        } == 0 {
+        if unsafe { factor_libpari(roots.as_mut_ptr(), coeffs.as_ptr(), modulus, roots.len()) } == 0
+        {
             Ok(roots)
         } else {
             Err("could not factor polynomial".to_string())
@@ -118,8 +105,14 @@ mod test {
         // f(1) = 0
         // f(2) = 5
         // f(3) = 12
-        let coeffs = vec![ModularInteger::<u32>::new(2_), -ModularInteger::<u32>::new(3)];
-        assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 0), -ModularInteger::<u32>::new(3));
+        let coeffs = vec![
+            ModularInteger::<u32>::new(2_),
+            -ModularInteger::<u32>::new(3),
+        ];
+        assert_eq!(
+            MonicPolynomialEvaluator::eval(&coeffs, 0),
+            -ModularInteger::<u32>::new(3)
+        );
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 1), 0);
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 2), 5);
         assert_eq!(MonicPolynomialEvaluator::eval(&coeffs, 3), 12);
@@ -134,8 +127,14 @@ mod test {
         // f(2) = 5
         // f(3) = 12
         crate::quack_internal::init_pow_table();
-        let coeffs = vec![ModularInteger::<u16>::new(2_), -ModularInteger::<u16>::new(3)];
-        assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 0), -ModularInteger::<u16>::new(3));
+        let coeffs = vec![
+            ModularInteger::<u16>::new(2_),
+            -ModularInteger::<u16>::new(3),
+        ];
+        assert_eq!(
+            MonicPolynomialEvaluator::eval_precompute(&coeffs, 0),
+            -ModularInteger::<u16>::new(3)
+        );
         assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 1), 0);
         assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 2), 5);
         assert_eq!(MonicPolynomialEvaluator::eval_precompute(&coeffs, 3), 12);
@@ -165,7 +164,10 @@ mod test {
     fn test_factor() {
         // f(x) = x^2 + 2*x - 3
         // f(x) = 0 when x = -3, 1
-        let coeffs = vec![ModularInteger::<u32>::new(2), -ModularInteger::<u32>::new(3)];
+        let coeffs = vec![
+            ModularInteger::<u32>::new(2),
+            -ModularInteger::<u32>::new(3),
+        ];
         let mut roots = MonicPolynomialEvaluator::factor(&coeffs).unwrap();
         assert_eq!(roots.len(), 2);
         roots.sort();

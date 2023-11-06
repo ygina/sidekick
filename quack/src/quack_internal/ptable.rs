@@ -1,20 +1,15 @@
-use std::ops::{Sub, SubAssign};
-use std::fmt::Debug;
-use crate::arithmetic::{
-    ModularArithmetic,
-    ModularInteger,
-    MonicPolynomialEvaluator,
-};
+use crate::arithmetic::{ModularArithmetic, ModularInteger, MonicPolynomialEvaluator};
 use crate::Quack;
-use serde::{Serialize, Deserialize};
 use log::{debug, info, trace};
-
+use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
+use std::ops::{Sub, SubAssign};
 
 // https://stackoverflow.com/questions/13212212/creating-two-dimensional-arrays-in-rust
 pub const MEMOIZED_POWER: usize = 301;
 pub const NUM_U16S: usize = 1 << 16;
-pub static mut POWER_TABLE: [[ModularInteger<u16>; MEMOIZED_POWER]; NUM_U16S]
-    = [[ModularInteger { value: 0 }; MEMOIZED_POWER]; NUM_U16S];
+pub static mut POWER_TABLE: [[ModularInteger<u16>; MEMOIZED_POWER]; NUM_U16S] =
+    [[ModularInteger { value: 0 }; MEMOIZED_POWER]; NUM_U16S];
 
 pub fn init_pow_table() {
     unsafe {
@@ -45,9 +40,9 @@ pub struct PowerTableQuack {
 }
 
 impl Quack<u16> for PowerTableQuack {
-// where T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
-// ModularInteger<u16>: ModularArithmetic<u16> + AddAssign + MulAssign + SubAssign
-// {
+    // where T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
+    // ModularInteger<u16>: ModularArithmetic<u16> + AddAssign + MulAssign + SubAssign
+    // {
     fn new(size: usize) -> Self {
         debug!("new quACK of size {}", size);
 
@@ -72,7 +67,7 @@ impl Quack<u16> for PowerTableQuack {
         let size = self.power_sums.len();
         let x = ModularInteger::<u16>::new(value);
         for i in 0..size {
-            self.power_sums[i] += unsafe { POWER_TABLE[x.value as usize][i+1 as usize] };
+            self.power_sums[i] += unsafe { POWER_TABLE[x.value as usize][i + 1 as usize] };
         }
         // TODO: handle count overflow
         self.count += 1;
@@ -84,7 +79,7 @@ impl Quack<u16> for PowerTableQuack {
         let size = self.power_sums.len();
         let x = ModularInteger::<u16>::new(value);
         for i in 0..size {
-            self.power_sums[i] -= unsafe { POWER_TABLE[x.value as usize][i+1 as usize] };
+            self.power_sums[i] -= unsafe { POWER_TABLE[x.value as usize][i + 1 as usize] };
         }
         // TODO: handle count overflow
         self.count -= 1;
@@ -108,17 +103,18 @@ impl Quack<u16> for PowerTableQuack {
     fn decode_with_log(&self, log: &Vec<u16>) -> Vec<u16> {
         let num_packets = log.len();
         let num_missing = self.count();
-        info!("decoding quACK: num_packets={}, num_missing={}",
-            num_packets, num_missing);
+        info!(
+            "decoding quACK: num_packets={}, num_missing={}",
+            num_packets, num_missing
+        );
         if num_missing == 0 {
             return vec![];
         }
         let coeffs = self.to_coeffs();
         trace!("coeffs = {:?}", coeffs);
-        let missing: Vec<u16> = log.iter()
-            .filter(|&&x| {
-                MonicPolynomialEvaluator::eval_precompute(&coeffs, x).is_zero()
-            })
+        let missing: Vec<u16> = log
+            .iter()
+            .filter(|&&x| MonicPolynomialEvaluator::eval_precompute(&coeffs, x).is_zero())
             .map(|&x| x)
             .collect();
         info!("found {}/{} missing packets", missing.len(), num_missing);
@@ -139,10 +135,7 @@ impl Quack<u16> for PowerTableQuack {
     /// Convert n power sums to n polynomial coefficients (not including the
     /// leading 1 coefficient) using Newton's identities. Writes coefficients
     /// into a pre-allocated buffer.
-    fn to_coeffs_preallocated(
-        &self,
-        coeffs: &mut Vec<ModularInteger<u16>>,
-    ) {
+    fn to_coeffs_preallocated(&self, coeffs: &mut Vec<ModularInteger<u16>>) {
         let size = coeffs.len();
         coeffs[0] = -self.power_sums[0];
         for i in 1..size {
@@ -157,8 +150,11 @@ impl Quack<u16> for PowerTableQuack {
 
 impl SubAssign for PowerTableQuack {
     fn sub_assign(&mut self, rhs: Self) {
-        assert_eq!(self.power_sums.len(), rhs.power_sums.len(),
-            "expected subtracted quacks to have the same number of sums");
+        assert_eq!(
+            self.power_sums.len(),
+            rhs.power_sums.len(),
+            "expected subtracted quacks to have the same number of sums"
+        );
         // TODO: actually, subtraction with underflow should be allowed in case
         // the count overflowed in the original quACK.
         assert!(self.count >= rhs.count, "subtract count with overflow");
@@ -219,9 +215,7 @@ mod test {
         quack.insert(40);
         quack.insert(50);
         assert_eq!(quack.count, 5);
-        assert_eq!(quack.power_sums, vec![
-            150, 5500, 28437, 27371, 36687,
-        ]);
+        assert_eq!(quack.power_sums, vec![150, 5500, 28437, 27371, 36687,]);
     }
 
     #[test]
@@ -235,9 +229,7 @@ mod test {
         let mut coeffs = (0..5).map(|_| ModularInteger::zero()).collect();
         quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs.len(), 5);
-        assert_eq!(coeffs, vec![
-            65371, 8500, 37084, 53639, 55864,
-        ]);
+        assert_eq!(coeffs, vec![65371, 8500, 37084, 53639, 55864,]);
     }
 
     #[test]

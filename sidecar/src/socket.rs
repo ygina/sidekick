@@ -1,7 +1,7 @@
-use std::ffi::CString;
-use log::{debug, error};
-use libc::*;
 use crate::buffer::BUFFER_SIZE;
+use libc::*;
+use log::{debug, error};
+use std::ffi::CString;
 
 pub struct Socket {
     pub fd: i32,
@@ -47,21 +47,22 @@ impl Socket {
     /// Bind the sniffer to a specific interface.
     fn bind(&self, protocol: c_int) -> Result<(), String> {
         debug!("binding the socket to interface={}", self.interface);
-        let res = unsafe { setsockopt(
-            self.fd,
-            SOL_SOCKET,
-            SO_BINDTODEVICE,
-            self.interface_c.as_ptr() as _,
-            (self.interface.len() + 1) as _,
-        ) };
+        let res = unsafe {
+            setsockopt(
+                self.fd,
+                SOL_SOCKET,
+                SO_BINDTODEVICE,
+                self.interface_c.as_ptr() as _,
+                (self.interface.len() + 1) as _,
+            )
+        };
         if res < 0 {
             return Err(format!("setsockopt: {}", res));
         }
         let addr = sockaddr_ll {
             sll_family: AF_PACKET as u16,
             sll_protocol: protocol as u16,
-            sll_ifindex: unsafe {
-                if_nametoindex(self.interface_c.as_ptr()) } as i32,
+            sll_ifindex: unsafe { if_nametoindex(self.interface_c.as_ptr()) } as i32,
             sll_hatype: 0,
             sll_pkttype: 0,
             sll_halen: 0,
@@ -69,8 +70,7 @@ impl Socket {
         };
         let addr_ptr = (&addr) as *const sockaddr_ll;
         let addr_len = std::mem::size_of::<sockaddr_ll>();
-        let res = unsafe { bind(self.fd, addr_ptr as _, addr_len as u32)
-        };
+        let res = unsafe { bind(self.fd, addr_ptr as _, addr_len as u32) };
         if res < 0 {
             return Err(format!("setsockopt: {}", res));
         }
@@ -82,14 +82,17 @@ impl Socket {
         debug!("setting the network card to promiscuous mode");
         let mut ethreq = ifreq {
             ifr_name: [0; IF_NAMESIZE],
-            ifr_ifru: __c_anonymous_ifr_ifru {
-                ifru_flags: 0,
-            },
+            ifr_ifru: __c_anonymous_ifr_ifru { ifru_flags: 0 },
         };
         assert!(self.interface.len() <= IF_NAMESIZE); // <?
         ethreq.ifr_name[..self.interface.len()].clone_from_slice(
-            &self.interface_c.as_bytes().iter()
-                .map(|&byte| byte as i8).collect::<Vec<i8>>()[..]);
+            &self
+                .interface_c
+                .as_bytes()
+                .iter()
+                .map(|&byte| byte as i8)
+                .collect::<Vec<i8>>()[..],
+        );
         if unsafe { ioctl(self.fd, SIOCGIFFLAGS, &ethreq) } == -1 {
             return Err(String::from("ioctl 1"));
         }
@@ -102,9 +105,7 @@ impl Socket {
 
     /// Receive first `BUFFER_SIZE` packets of a buffer.
     pub fn recv(&self, buf: &[u8; BUFFER_SIZE]) -> Result<isize, String> {
-        let n = unsafe {
-            recv(self.fd, buf.as_ptr() as *mut c_void, buf.len(), 0)
-        };
+        let n = unsafe { recv(self.fd, buf.as_ptr() as *mut c_void, buf.len(), 0) };
         if n < 0 {
             error!("failed to recv: {}", n);
             return Err(format!("recv: {}", n));

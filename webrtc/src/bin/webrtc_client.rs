@@ -16,16 +16,16 @@ use std::io;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
-use clap::{ValueEnum, Parser};
-use log::{trace, debug, info};
+use clap::{Parser, ValueEnum};
+use log::{debug, info, trace};
+use quack::arithmetic::{ModularArithmetic, MonicPolynomialEvaluator};
+use quack::{PowerSumQuack, Quack, StrawmanAQuack, StrawmanBQuack};
 use rand::Rng;
 use tokio;
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc;
-use tokio::sync::Mutex;  // locked across calls to .await
-use tokio::time::{Instant, Duration};
-use quack::{StrawmanAQuack, StrawmanBQuack, PowerSumQuack, Quack};
-use quack::arithmetic::{MonicPolynomialEvaluator, ModularArithmetic};
+use tokio::sync::Mutex; // locked across calls to .await
+use tokio::time::{Duration, Instant};
 
 #[derive(ValueEnum, PartialEq, Debug, Clone, Copy)]
 #[clap(rename_all = "snake_case")]
@@ -74,7 +74,7 @@ const NACK_BUFFER_SIZE: usize = 4;
 /// sniffs from a raw socket.
 /// The randomly-encrypted payload in a QUIC packet with a short header is at
 /// offset 63, including the Ethernet (14), IP (20), UDP (8) headers.
-const ID_OFFSET: usize = 63 - (14+20+8);
+const ID_OFFSET: usize = 63 - (14 + 20 + 8);
 
 /// Max UDP payload size to expect.
 const MTU: usize = 1500;
@@ -93,9 +93,7 @@ struct PacketSender {
 }
 
 impl PacketSender {
-    async fn new(
-        sidecar: bool, channel: mpsc::Sender<(u32, u32)>,
-    ) -> io::Result<Self> {
+    async fn new(sidecar: bool, channel: mpsc::Sender<(u32, u32)>) -> io::Result<Self> {
         Ok(Self {
             sidecar,
             channel,
@@ -155,12 +153,7 @@ fn listen_for_nacks(sock: Arc<UdpSocket>, mut sender: PacketSender) {
         loop {
             let len = sock.recv(&mut buf).await.unwrap();
             assert_eq!(len, NACK_BUFFER_SIZE);
-            let seqno = u32::from_be_bytes([
-                buf[0],
-                buf[1],
-                buf[2],
-                buf[3],
-            ]);
+            let seqno = u32::from_be_bytes([buf[0], buf[1], buf[2], buf[3]]);
             debug!("retransmit {} from nack", seqno);
             sender.send(seqno).await.unwrap();
         }
@@ -171,7 +164,9 @@ fn listen_for_nacks(sock: Arc<UdpSocket>, mut sender: PacketSender) {
 /// every identifier) and retransmit packets when determined missing.
 fn listen_for_quacks_strawman_a(mut _sender: PacketSender, quack_port: u16) {
     tokio::spawn(async move {
-        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
+        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port))
+            .await
+            .unwrap();
         let mut buf = vec![0; MTU];
         loop {
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
@@ -186,7 +181,9 @@ fn listen_for_quacks_strawman_a(mut _sender: PacketSender, quack_port: u16) {
 /// missing.
 fn listen_for_quacks_strawman_b(mut _sender: PacketSender, quack_port: u16) {
     tokio::spawn(async move {
-        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
+        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port))
+            .await
+            .unwrap();
         let mut buf = vec![0; MTU];
         loop {
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
@@ -199,19 +196,21 @@ fn listen_for_quacks_strawman_b(mut _sender: PacketSender, quack_port: u16) {
 /// Spawn a thread that listens for sidecar quACKs using Strawman 1c (echo
 /// every identifier over TCP) and retransmit packets when determined missing.
 fn listen_for_quacks_strawman_c(mut _sender: PacketSender, _quack_port: u16) {
-    tokio::spawn(async move {
-        unimplemented!()
-    });
+    tokio::spawn(async move { unimplemented!() });
 }
 
 /// Spawn a thread that listens for sidecar quACKs using the power sum quACK
 /// and retransmit packets when determined missing.
 fn listen_for_quacks_power_sum(
-    mut sender: PacketSender, quack_port: u16, reset_addr: SocketAddr,
+    mut sender: PacketSender,
+    quack_port: u16,
+    reset_addr: SocketAddr,
     threshold: usize,
 ) {
     tokio::spawn(async move {
-        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port)).await.unwrap();
+        let sock = UdpSocket::bind(format!("0.0.0.0:{}", quack_port))
+            .await
+            .unwrap();
         let mut buf = vec![0; MTU];
         let mut my_quack: PowerSumQuack<u32> = PowerSumQuack::new(threshold);
         info!("listening for quacks on {:?}", sock.local_addr());
@@ -225,7 +224,11 @@ fn listen_for_quacks_power_sum(
             // has been received and the quack has changed.
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
             let quack: PowerSumQuack<u32> = bincode::deserialize(&buf[..len]).unwrap();
-            trace!("received quack count={} last_value={}", quack.count(), quack.last_value());
+            trace!(
+                "received quack count={} last_value={}",
+                quack.count(),
+                quack.last_value()
+            );
             if quack.last_value() == my_quack.last_value() {
                 continue;
             }
@@ -261,7 +264,10 @@ fn listen_for_quacks_power_sum(
                     true
                 };
                 if should_reset {
-                    info!("reset: reordered? {} retx? {} exceeds threshold? {}", reset0, reset1, reset2);
+                    info!(
+                        "reset: reordered? {} retx? {} exceeds threshold? {}",
+                        reset0, reset1, reset2
+                    );
                     sock.send_to(&[0], reset_addr).await.unwrap();
                     my_quack = PowerSumQuack::new(threshold);
                     *seqno_ids = vec![];
@@ -278,9 +284,13 @@ fn listen_for_quacks_power_sum(
 
             // If the number of missing packets exceeds the threshold, reset
             // the quack. If no packets are missing, continue on.
-            trace!("quack counts {} - {} (last values {} {})",
-                my_quack.count(), quack.count(),
-                my_quack.last_value(), quack.last_value());
+            trace!(
+                "quack counts {} - {} (last values {} {})",
+                my_quack.count(),
+                quack.count(),
+                my_quack.last_value(),
+                quack.last_value()
+            );
             let diff_quack = my_quack.clone() - quack;
             if diff_quack.count() == 0 {
                 seqno_ids.drain(..(last_index_inserted + 1));
@@ -315,7 +325,9 @@ fn listen_for_quacks_power_sum(
 /// Send a stream of packets at the specified frequency with the given payload.
 /// When the timeout is reached, send several timeout packets and return.
 async fn stream_data(
-    mut sender: PacketSender, timeout: Duration, frequency: Duration,
+    mut sender: PacketSender,
+    timeout: Duration,
+    frequency: Duration,
 ) -> io::Result<()> {
     let mut interval = tokio::time::interval(frequency);
     let start = Instant::now();
@@ -357,15 +369,9 @@ async fn main() -> io::Result<()> {
     listen_for_nacks(sock, sender.clone());
     if let Some(quack_style) = args.quack_style {
         match quack_style {
-            QuackStyle::StrawmanA => listen_for_quacks_strawman_a(
-                sender.clone(), args.quack_port,
-            ),
-            QuackStyle::StrawmanB => listen_for_quacks_strawman_b(
-                sender.clone(), args.quack_port,
-            ),
-            QuackStyle::StrawmanC => listen_for_quacks_strawman_c(
-                sender.clone(), args.quack_port,
-            ),
+            QuackStyle::StrawmanA => listen_for_quacks_strawman_a(sender.clone(), args.quack_port),
+            QuackStyle::StrawmanB => listen_for_quacks_strawman_b(sender.clone(), args.quack_port),
+            QuackStyle::StrawmanC => listen_for_quacks_strawman_c(sender.clone(), args.quack_port),
             QuackStyle::PowerSum => listen_for_quacks_power_sum(
                 sender.clone(),
                 args.quack_port,
@@ -378,6 +384,7 @@ async fn main() -> io::Result<()> {
         sender,
         Duration::from_secs(args.timeout),
         Duration::from_millis(args.frequency),
-    ).await?;
+    )
+    .await?;
     Ok(())
 }

@@ -5,10 +5,10 @@ use tokio;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
-use sidecar::Socket;
-use sidecar::socket::SockAddr;
-use sidecar::buffer::{BUFFER_SIZE, Direction, UdpParser};
 use quack::StrawmanAQuack;
+use sidecar::buffer::{Direction, UdpParser, BUFFER_SIZE};
+use sidecar::socket::SockAddr;
+use sidecar::Socket;
 
 /// Sends quACKs in the sidecar protocol, receives data in the base protocol.
 #[derive(Parser)]
@@ -31,8 +31,12 @@ async fn main() -> Result<(), String> {
     sock.set_promiscuous()?;
     let mut stream = loop {
         match TcpStream::connect(args.addr).await {
-            Ok(stream) => { break stream; }
-            Err(_) => { continue; }
+            Ok(stream) => {
+                break stream;
+            }
+            Err(_) => {
+                continue;
+            }
         }
     };
     stream.set_nodelay(true).unwrap();
@@ -43,7 +47,9 @@ async fn main() -> Result<(), String> {
     loop {
         let n = match sock.recvfrom(&mut addr, &mut buf) {
             Ok(n) => n,
-            Err(_) => { return Ok(()); }
+            Err(_) => {
+                return Ok(());
+            }
         };
         if Direction::Incoming != addr.sll_pkttype.into() {
             continue;

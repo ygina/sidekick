@@ -1,14 +1,14 @@
-use std::net::SocketAddr;
 use std::collections::VecDeque;
+use std::net::SocketAddr;
 
 use clap::Parser;
 use tokio;
 use tokio::net::UdpSocket;
 
-use sidecar::Socket;
-use sidecar::socket::SockAddr;
-use sidecar::buffer::{BUFFER_SIZE, Direction, UdpParser};
 use quack::StrawmanBQuack;
+use sidecar::buffer::{Direction, UdpParser, BUFFER_SIZE};
+use sidecar::socket::SockAddr;
+use sidecar::Socket;
 
 const DEFAULT_WINDOW_SIZE: usize = 20;
 
