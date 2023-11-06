@@ -12,7 +12,7 @@ Cargo.lock
 __pycache__/
 env/
 plot/*.pdf
-plot/graphs/*.pdf
+plot/graphs/
 qlog/
 results/
 ._.
@@ -22,3 +22,6 @@ results/
 deps/nginx*
 deps/pari*
 deps/pepsal*
+quiche-nginx/
+
+loss_tput.error
