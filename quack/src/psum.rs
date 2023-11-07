@@ -169,18 +169,19 @@ where
     }
 }
 
-#[cfg(feature = "libpari")]
-impl PowerSumQuack<u32> {
-    /// Returns the missing identifiers by factorization of the difference
-    /// quack. Returns None if unable to factor.
-    pub fn decode_by_factorization(&self) -> Option<Vec<u32>> {
-        if self.count == 0 {
-            return Some(vec![]);
-        }
-        let coeffs = self.to_coeffs();
-        match MonicPolynomialEvaluator::factor(&coeffs) {
-            Ok(roots) => Some(roots),
-            Err(_) => None,
+cfg_libpari! {
+    impl PowerSumQuack<u32> {
+        /// Returns the missing identifiers by factorization of the difference
+        /// quack. Returns None if unable to factor.
+        pub fn decode_by_factorization(&self) -> Option<Vec<u32>> {
+            if self.count == 0 {
+                return Some(vec![]);
+            }
+            let coeffs = self.to_coeffs();
+            match MonicPolynomialEvaluator::factor(&coeffs) {
+                Ok(roots) => Some(roots),
+                Err(_) => None,
+            }
         }
     }
 }

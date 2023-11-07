@@ -1,4 +1,5 @@
 #![feature(doc_cfg)]
+#![feature(const_trait_impl)]
 
 //! The _quACK_ is a data structure for being able to refer to and efficiently
 //! acknowledge a set of opaque packets seen by a network intermediary. The
@@ -19,33 +20,46 @@ mod macros;
 
 /// Efficient modular arithmetic and polynomial evaluation.
 pub mod arithmetic {
-    mod evaluator;
+    // mod evaluator;
     mod modint;
 
-    pub use evaluator::MonicPolynomialEvaluator;
+    // pub use evaluator::MonicPolynomialEvaluator;
     pub use modint::{ModularArithmetic, ModularInteger};
 
-    cfg_montgomery! {
-        mod montgomery;
-        pub use montgomery::MontgomeryInteger;
-    }
+    // cfg_montgomery! {
+    //     mod montgomery;
+    //     pub use montgomery::MontgomeryInteger;
+    // }
 }
 
-mod psum;
-mod strawman_a;
-mod strawman_b;
+// mod psum;
+// /// 32-bit power sum quACK.
+// pub use psum::PowerSumQuack;
+// /// 32-bit power sum quACK.
+// pub struct PowerSumQuackU32 {}
+// /// 64-bit power sum quACK.
+// pub struct PowerSumQuackU64 {}
+// /// 16-bit power sum quACK.
+// pub struct PowerSumQuackU16 {}
 
-pub use psum::PowerSumQuack;
-pub use strawman_a::StrawmanAQuack;
-pub use strawman_b::StrawmanBQuack;
+// cfg_strawmen! {
+//     mod strawman_a;
+//     mod strawman_b;
+//     /// Strawman quACK implementation that echoes every packet identifier.
+//     pub use strawman_a::StrawmanAQuack;
+//     /// Strawman quACK implementation that echoes a sliding window of packet identifiers.
+//     pub use strawman_b::StrawmanBQuack;
+// }
 
-cfg_montgomery! {
-    mod montgomery;
-    pub use montgomery::MontgomeryQuack;
-}
+// cfg_montgomery! {
+//     mod montgomery;
+//     /// 64-bit power sum quACK using the Montgomery multiplication optimization.
+//     pub use montgomery::MontgomeryQuack;
+// }
 
-cfg_power_table! {
-    mod ptable;
-    pub use ptable::PowerTableQuack;
-    pub(crate) use ptable::POWER_TABLE;
-}
+// cfg_power_table! {
+//     mod ptable;
+//     /// 16-bit power sum quACK using the precomputation optimization.
+//     pub use ptable::PowerTableQuack;
+//     pub(crate) use ptable::POWER_TABLE;
+// }

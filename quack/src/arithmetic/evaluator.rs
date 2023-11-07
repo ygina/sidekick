@@ -1,4 +1,3 @@
-//! Evaluator for polynomials in a single variable where the leading coefficient is 1.
 #[cfg(feature = "montgomery")]
 use crate::arithmetic::MontgomeryInteger;
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
@@ -10,6 +9,8 @@ extern "C" {
     fn factor_libpari(roots: *mut u32, coeffs: *const u32, field: u32, degree: usize) -> i32;
 }
 
+/// Evaluator for polynomials in a single variable where the leading coefficient
+/// is 1.
 pub struct MonicPolynomialEvaluator<T> {
     _phantom: std::marker::PhantomData<T>,
 }
@@ -38,59 +39,62 @@ where
     }
 }
 
-impl MonicPolynomialEvaluator<u64> {
-    #[cfg(feature = "montgomery")]
-    pub fn eval_montgomery(coeffs: &Vec<MontgomeryInteger>, x: u64) -> MontgomeryInteger {
-        let size = coeffs.len();
-        let x_mod = MontgomeryInteger::new(x);
-        let mut result = x_mod;
-        // result = x(...(x(x(x+a0)+a1)+...))
-        // e.g., result = x(x+a0)+a1
-        for &coeff in coeffs.iter().take(size - 1) {
-            result += coeff;
-            result *= x_mod;
+cfg_montgomery! {
+    impl MonicPolynomialEvaluator<u64> {
+        pub fn eval_montgomery(coeffs: &Vec<MontgomeryInteger>, x: u64) -> MontgomeryInteger {
+            let size = coeffs.len();
+            let x_mod = MontgomeryInteger::new(x);
+            let mut result = x_mod;
+            // result = x(...(x(x(x+a0)+a1)+...))
+            // e.g., result = x(x+a0)+a1
+            for &coeff in coeffs.iter().take(size - 1) {
+                result += coeff;
+                result *= x_mod;
+            }
+            result + coeffs[size - 1]
         }
-        result + coeffs[size - 1]
     }
 }
 
-#[cfg(feature = "power_table")]
-impl MonicPolynomialEvaluator<u16> {
-    pub fn eval_precompute(coeffs: &Vec<ModularInteger<u16>>, x: u16) -> ModularInteger<u16> {
-        let size = coeffs.len();
-        let x_modint = ModularInteger::<u16>::new(x);
-        let mut result: u64 =
-            unsafe { crate::POWER_TABLE[x_modint.value as usize][size] }.value() as u64;
-        for (i, coeff) in coeffs.iter().enumerate().take(size - 1) {
-            result += (coeff.value() as u64)
-                * (unsafe { crate::POWER_TABLE[x_modint.value as usize][size - i - 1] }.value()
-                    as u64);
+cfg_power_table! {
+    impl MonicPolynomialEvaluator<u16> {
+        pub fn eval_precompute(coeffs: &Vec<ModularInteger<u16>>, x: u16) -> ModularInteger<u16> {
+            let size = coeffs.len();
+            let x_modint = ModularInteger::<u16>::new(x);
+            let mut result: u64 =
+                unsafe { crate::POWER_TABLE[x_modint.value as usize][size] }.value() as u64;
+            for (i, coeff) in coeffs.iter().enumerate().take(size - 1) {
+                result += (coeff.value() as u64)
+                    * (unsafe { crate::POWER_TABLE[x_modint.value as usize][size - i - 1] }.value()
+                        as u64);
+            }
+            result += coeffs[size - 1].value() as u64;
+            ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16)
         }
-        result += coeffs[size - 1].value() as u64;
-        ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16)
     }
 }
 
-impl MonicPolynomialEvaluator<u32> {
-    /// Factors the given polynomial using modular arithmetic, assuming all
-    /// coefficients are modulo the same 32-bit prime.
-    ///
-    /// In the coefficient vector, the last element is the
-    /// constant term in the polynomial. The number of coefficients is the
-    /// degree of the polynomial. The leading coefficient is 1, and is not
-    /// included in the vector.
-    #[cfg(feature = "libpari")]
-    pub fn factor(coeffs: &Vec<ModularInteger<u32>>) -> Result<Vec<u32>, String> {
-        assert_ne!(coeffs.len(), 0);
-        let modulus = ModularInteger::<u32>::modulus();
-        let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();
-        coeffs.insert(0, 1);
-        let mut roots: Vec<u32> = vec![0; coeffs.len() - 1];
-        if unsafe { factor_libpari(roots.as_mut_ptr(), coeffs.as_ptr(), modulus, roots.len()) } == 0
-        {
-            Ok(roots)
-        } else {
-            Err("could not factor polynomial".to_string())
+cfg_libpari! {
+    impl MonicPolynomialEvaluator<u32> {
+        /// Factors the given polynomial using modular arithmetic, assuming all
+        /// coefficients are modulo the same 32-bit prime.
+        ///
+        /// In the coefficient vector, the last element is the
+        /// constant term in the polynomial. The number of coefficients is the
+        /// degree of the polynomial. The leading coefficient is 1, and is not
+        /// included in the vector.
+        pub fn factor(coeffs: &Vec<ModularInteger<u32>>) -> Result<Vec<u32>, String> {
+            assert_ne!(coeffs.len(), 0);
+            let modulus = ModularInteger::<u32>::modulus();
+            let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();
+            coeffs.insert(0, 1);
+            let mut roots: Vec<u32> = vec![0; coeffs.len() - 1];
+            if unsafe { factor_libpari(roots.as_mut_ptr(), coeffs.as_ptr(), modulus, roots.len()) } == 0
+            {
+                Ok(roots)
+            } else {
+                Err("could not factor polynomial".to_string())
+            }
         }
     }
 }

@@ -35,3 +35,15 @@ macro_rules! cfg_libpari {
         )*
     }
 }
+
+/// Enables code for strawmen quACKs.
+/// Use this macro instead of `cfg(strawmen)` to generate docs properly.
+macro_rules! cfg_strawmen {
+    ($($item:item)*) => {
+        $(
+            #[cfg(any(strawmen, doc))]
+            #[doc(cfg(strawmen))]
+            $item
+        )*
+    }
+}
