@@ -20,10 +20,10 @@ mod macros;
 
 /// Efficient modular arithmetic and polynomial evaluation.
 pub mod arithmetic {
-    // mod evaluator;
+    mod evaluator;
     mod modint;
 
-    // pub use evaluator::*;
+    pub use evaluator::*;
     pub use modint::{ModularArithmetic, ModularInteger};
 
     cfg_montgomery! {

@@ -102,16 +102,16 @@ impl ModularArithmetic for MontgomeryInteger {
     /// Performs the `*=` operation in the finite field.
     ///
     /// Multiplication in Montgomery form is seemingly more complicated. The
-    /// usual product of aR and bR does not represent the product of a and b
-    /// because it has an extra factor of R:
+    /// usual product of `aR` and `bR` does not represent the product of `a` and
+    /// `b` because it has an extra factor of `R`:
     /// `(aR mod N)(bR mod N) mod N = (abR)R mod N`.
     ///
-    /// Removing the extra factor of R can be done by multiplying by an integer
-    /// R' such that RR' = 1 mod N, that is, the modular inverse of R mod N.
-    /// [Montgomery reduction](https://en.wikipedia.org/wiki/Montgomery_modular_multiplication#The_REDC_algorithm),
+    /// Removing the extra factor of `R` can be done by multiplying by an
+    /// integer `R'` such that `RR' = 1 mod N`, that is, the modular inverse of
+    /// `R mod N`. [Montgomery reduction](https://en.wikipedia.org/wiki/Montgomery_modular_multiplication#The_REDC_algorithm),
     /// also known as REDC, is an algorithm that simultaneously computes the
-    /// product by R' and reduces modulo N more quickly than the naive method.
-    /// REDC focuses on making the number more divisible by R.
+    /// product by `R'` and reduces modulo `N` more quickly than the naive
+    /// method. REDC focuses on making the number more divisible by `R`.
     fn mul_assign(&mut self, rhs: Self) {
         let x = (self.value as u128) * (rhs.value as u128);  // T
         let m: u64 = (((x as u64) as u128) * N_NEGMODINV_R) as u64;  // cast as u64 to mod R
