@@ -8,7 +8,7 @@ use crate::arithmetic::{ModularArithmetic, ModularInteger};
 /// monic, meaning the leading coefficient is one, and this is not included in
 /// the vector. The number of elements in the vector is the degree of the
 /// polynomial.
-pub type CoefficientVector<T> = Vec<ModularInteger<T>>;
+pub type CoefficientVector<T> = Vec<T>;
 
 #[cfg(feature = "libpari")]
 #[link(name = "pari", kind = "dylib")]
@@ -24,7 +24,7 @@ extern "C" {
 ///
 /// The polynomial evaluated at `x`, in the same field.
 pub fn eval<T>(
-    coeffs: &CoefficientVector<T>,
+    coeffs: &CoefficientVector<ModularInteger<T>>,
     x: <ModularInteger<T> as ModularArithmetic>::SmallModulusType,
 ) -> ModularInteger<T>
 where
@@ -71,7 +71,7 @@ cfg_montgomery! {
 }
 
 // cfg_power_table! {
-//     pub fn eval_precompute(coeffs: &CoefficientVector<u16>, x: u16) -> ModularInteger<u16> {
+//     pub fn eval_precompute(coeffs: &CoefficientVector<ModularInteger<u16>>, x: u16) -> ModularInteger<u16> {
 //         let size = coeffs.len();
 //         let x_modint = ModularInteger::<u16>::new(x);
 //         let mut result: u64 =
@@ -97,7 +97,7 @@ cfg_libpari! {
     /// On success, a length-`n` vector of all `n` real integer roots of the
     /// degree-`n` polynomial are returned. If the polynomial cannot be
     /// factored, an error is returned instead.
-    pub fn factor(coeffs: &CoefficientVector<u32>) -> Result<Vec<u32>, String> {
+    pub fn factor(coeffs: &CoefficientVector<ModularInteger<u32>>) -> Result<Vec<u32>, String> {
         assert_ne!(coeffs.len(), 0);
         let modulus = ModularInteger::<u32>::modulus();
         let mut coeffs = coeffs.iter().map(|x| x.value()).collect::<Vec<_>>();

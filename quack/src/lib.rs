@@ -18,6 +18,21 @@
 #[macro_use]
 mod macros;
 
+/// The maximum number of multiplicative modular inverses that will be lazily
+/// computed.
+pub(crate) static mut MAX_THRESHOLD: usize = 20;
+
+/// The multiplicative modular inverses of the integers up to this threshold
+/// are precomputed, for more efficient divison, the first time a quACK needs
+/// to be decoded. This function MUST be called before the first decode if any
+/// initialized quACKs have a threshold greater than the default threshold of
+/// `20`. Otherwise, the code may panic when trying to access a modular inverse
+/// that is out of range. This function _should_ also be called if the known
+/// maximum threshold is less than the default, to improve cache performance.
+pub fn global_config_set_max_power_sum_threshold(threshold: usize) {
+    unsafe { MAX_THRESHOLD = threshold };
+}
+
 /// Efficient modular arithmetic and polynomial evaluation.
 pub mod arithmetic {
     mod evaluator;
@@ -34,12 +49,6 @@ pub mod arithmetic {
 
 mod psum;
 pub use psum::{PowerSumQuack, PowerSumQuackU32};
-// /// 32-bit power sum quACK.
-// pub struct PowerSumQuackU32 {}
-// /// 64-bit power sum quACK.
-// pub struct PowerSumQuackU64 {}
-// /// 16-bit power sum quACK.
-// pub struct PowerSumQuackU16 {}
 
 // cfg_strawmen! {
 //     mod strawman_a;
@@ -51,10 +60,9 @@ pub use psum::{PowerSumQuack, PowerSumQuackU32};
 // }
 
 cfg_montgomery! {
-//     mod montgomery;
-//     /// 64-bit power sum quACK using the Montgomery multiplication optimization.
+    mod montgomery;
     pub use psum::PowerSumQuackU64;
-//     pub use montgomery::MontgomeryQuack;
+    pub use montgomery::MontgomeryQuack;
 }
 
 cfg_power_table! {

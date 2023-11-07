@@ -1,11 +1,11 @@
 use crate::arithmetic::{self, CoefficientVector, ModularArithmetic, ModularInteger};
+use crate::MAX_THRESHOLD;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-static mut MAX_THRESHOLD: usize = 20;
-
-// The i-th term corresponds to dividing by i+1 in modular arithmetic.
+/// Multiplication by the `i`-th term corresponds to division by the integer
+/// `i + 1` in modular arithmetic.
 static INVERSE_TABLE_U32: Lazy<Vec<ModularInteger<u32>>> = Lazy::new(|| {
     let mut inverse_table = Vec::new();
     let mut index = ModularInteger::new(1);
@@ -40,6 +40,9 @@ pub struct PowerSumQuackU32 {
 pub trait PowerSumQuack {
     /// The type of element that can be inserted in the quACK.
     type Element;
+
+    /// The modular version of the elements in the quACK.
+    type ModularElement;
 
     /// Creates a new power sum quACK that can decode at most `threshold`
     /// number of elements.
@@ -109,11 +112,11 @@ pub trait PowerSumQuack {
     ///     ]);
     /// }
     /// ```
-    fn to_coeffs(&self) -> CoefficientVector<Self::Element>;
+    fn to_coeffs(&self) -> CoefficientVector<Self::ModularElement>;
 
     /// Similar to [to_coeffs](trait.PowerSumQuack.html#method.to_coeffs)
     /// but reuses the same vector allocation to return the coefficients.
-    fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::Element>);
+    fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::ModularElement>);
 
     /// Subtracts another power sum quACK from this power sum quACK.
     ///
@@ -164,6 +167,7 @@ pub trait PowerSumQuack {
 
 impl PowerSumQuack for PowerSumQuackU32 {
     type Element = u32;
+    type ModularElement = ModularInteger<Self::Element>;
 
     fn new(threshold: usize) -> Self {
         Self {
@@ -260,7 +264,7 @@ impl PowerSumQuack for PowerSumQuackU32 {
     ///     ]);
     /// }
     /// ```
-    fn to_coeffs(&self) -> CoefficientVector<Self::Element> {
+    fn to_coeffs(&self) -> CoefficientVector<Self::ModularElement> {
         let mut coeffs = (0..self.count())
             .map(|_| ModularInteger::new(0))
             .collect::<Vec<_>>();
@@ -268,7 +272,7 @@ impl PowerSumQuack for PowerSumQuackU32 {
         coeffs
     }
 
-    fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::Element>) {
+    fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::ModularElement>) {
         if coeffs.is_empty() {
             return;
         }
@@ -383,6 +387,7 @@ cfg_montgomery! {
 
     impl PowerSumQuack for PowerSumQuackU64 {
         type Element = u64;
+        type ModularElement = ModularInteger<Self::Element>;
 
         fn new(threshold: usize) -> Self {
             Self {
@@ -445,7 +450,7 @@ cfg_montgomery! {
                 .collect()
         }
 
-        fn to_coeffs(&self) -> CoefficientVector<Self::Element> {
+        fn to_coeffs(&self) -> CoefficientVector<Self::ModularElement> {
             let mut coeffs = (0..self.count())
                 .map(|_| ModularInteger::new(0))
                 .collect::<Vec<_>>();
@@ -453,7 +458,7 @@ cfg_montgomery! {
             coeffs
         }
 
-        fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::Element>) {
+        fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::ModularElement>) {
             if coeffs.is_empty() {
                 return;
             }
@@ -509,6 +514,7 @@ cfg_power_table! {
 
     impl PowerSumQuack for PowerSumQuackU16 {
         type Element = u16;
+        type ModularElement = ModularInteger<Self::Element>;
 
         fn new(threshold: usize) -> Self {
             Self {
@@ -572,7 +578,7 @@ cfg_power_table! {
                 .collect()
         }
 
-        fn to_coeffs(&self) -> CoefficientVector<Self::Element> {
+        fn to_coeffs(&self) -> CoefficientVector<Self::ModularElement> {
             let mut coeffs = (0..self.count())
                 .map(|_| ModularInteger::new(0))
                 .collect::<Vec<_>>();
@@ -580,7 +586,7 @@ cfg_power_table! {
             coeffs
         }
 
-        fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::Element>) {
+        fn to_coeffs_preallocated(&self, coeffs: &mut CoefficientVector<Self::ModularElement>) {
             if coeffs.is_empty() {
                 return;
             }
@@ -651,10 +657,13 @@ mod test {
     #[test]
     fn test_quack_to_coeffs_empty_u32() {
         let quack = PowerSumQuackU32::new(THRESHOLD);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<u32>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u32>>::new()
+        );
         let mut coeffs = vec![];
         quack.to_coeffs_preallocated(&mut coeffs);
-        assert_eq!(coeffs, CoefficientVector::<u32>::new());
+        assert_eq!(coeffs, CoefficientVector::<ModularInteger<u32>>::new());
     }
 
     #[test]
@@ -803,7 +812,10 @@ mod test {
         assert_eq!(quack.threshold(), THRESHOLD);
         assert_eq!(quack.count(), 0);
         assert_eq!(quack.last_value(), None);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<u32>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u32>>::new()
+        );
     }
 
     #[test]
@@ -952,10 +964,13 @@ mod test {
     #[cfg(feature = "power_table")]
     fn test_quack_to_coeffs_empty_u16() {
         let quack = PowerSumQuackU16::new(THRESHOLD);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<u16>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u16>>::new()
+        );
         let mut coeffs = vec![];
         quack.to_coeffs_preallocated(&mut coeffs);
-        assert_eq!(coeffs, CoefficientVector::<u16>::new());
+        assert_eq!(coeffs, CoefficientVector::<ModularInteger<u16>>::new());
     }
 
     #[test]
@@ -1111,7 +1126,10 @@ mod test {
         assert_eq!(quack.threshold(), THRESHOLD);
         assert_eq!(quack.count(), 0);
         assert_eq!(quack.last_value(), None);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<u16>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u16>>::new()
+        );
     }
 
     #[test]
@@ -1168,10 +1186,13 @@ mod test {
     #[cfg(feature = "montgomery")]
     fn test_quack_to_coeffs_empty_u64() {
         let quack = PowerSumQuackU64::new(THRESHOLD);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<u64>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u64>>::new()
+        );
         let mut coeffs = vec![];
         quack.to_coeffs_preallocated(&mut coeffs);
-        assert_eq!(coeffs, CoefficientVector::<u64>::new());
+        assert_eq!(coeffs, CoefficientVector::<ModularInteger<u64>>::new());
     }
 
     #[test]
@@ -1327,7 +1348,10 @@ mod test {
         assert_eq!(quack.threshold(), THRESHOLD);
         assert_eq!(quack.count(), 0);
         assert_eq!(quack.last_value(), None);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<u64>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u64>>::new()
+        );
     }
 
     #[test]
