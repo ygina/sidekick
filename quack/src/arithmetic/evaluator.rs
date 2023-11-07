@@ -1,6 +1,9 @@
 cfg_montgomery! {
     use crate::arithmetic::MontgomeryInteger;
 }
+cfg_power_table! {
+    use crate::precompute::POWER_TABLE;
+}
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
 
 /// The coefficient vector defines a univariate polynomial where the constant
@@ -45,7 +48,7 @@ where
 
 cfg_montgomery! {
     /// Evaluate the univariate polynomial at `x`, assuming that `x` and the
-    /// the coefficients are given in Montgomery form using the same moduli.
+    /// coefficients are given in 64-bit Montgomery form using the same moduli.
     ///
     /// Assumes all integers use the same prime modulus `N` and co-prime
     /// auxiliary modulus `R` in Montgomery form.
@@ -70,25 +73,36 @@ cfg_montgomery! {
     }
 }
 
-// cfg_power_table! {
-//     pub fn eval_precompute(coeffs: &CoefficientVector<ModularInteger<u16>>, x: u16) -> ModularInteger<u16> {
-//         let size = coeffs.len();
-//         let x_modint = ModularInteger::<u16>::new(x);
-//         let mut result: u64 =
-//             unsafe { crate::POWER_TABLE[x_modint.value as usize][size] }.value() as u64;
-//         for (i, coeff) in coeffs.iter().enumerate().take(size - 1) {
-//             result += (coeff.value() as u64)
-//                 * (unsafe { crate::POWER_TABLE[x_modint.value as usize][size - i - 1] }.value()
-//                     as u64);
-//         }
-//         result += coeffs[size - 1].value() as u64;
-//         ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16)
-//     }
-// }
+cfg_power_table! {
+    /// Evaluate the univariate polynomial at `x` in a 16-bit modular finite
+    /// field, using precomputed power tables.
+    ///
+    /// Assumes all integers are modulo the same prime. Should be faster than
+    /// [eval](fn.eval.html) for 16-bit integers.
+    ///
+    /// # Returns
+    ///
+    /// The polynomial evaluated at `x`, in the same field.
+    pub fn eval_precompute(
+        coeffs: &CoefficientVector<ModularInteger<u16>>,
+        x: u16,
+    ) -> ModularInteger<u16> {
+        let size = coeffs.len();
+        let x_mod = ModularInteger::<u16>::new(x);
+        let mut result: u64 =
+            POWER_TABLE[x_mod.value() as usize][size].value() as u64;
+        for (i, coeff) in coeffs.iter().enumerate().take(size - 1) {
+            let power = POWER_TABLE[x_mod.value() as usize][size - i - 1];
+            result += (coeff.value() as u64) * (power.value() as u64);
+        }
+        result += coeffs[size - 1].value() as u64;
+        ModularInteger::new((result % (ModularInteger::<u16>::modulus() as u64)) as u16)
+    }
+}
 
 cfg_libpari! {
-    /// Factor the univariate polynomial using modular arithmetic, returning
-    /// the roots.
+    /// Factor the univariate polynomial using 32-bit modular arithmetic,
+    /// returning the roots.
     ///
     /// Assumes all integers are modulo the same 32-bit prime.
     ///
@@ -137,30 +151,8 @@ mod test {
         assert_eq!(arithmetic::eval(&coeffs, 3), 12);
     }
 
-    // #[cfg(feature = "power_table")]
-    // #[test]
-    // fn test_eval_no_modulus_precompute() {
-    //     // f(x) = x^2 + 2*x - 3
-    //     // f(0) = -3
-    //     // f(1) = 0
-    //     // f(2) = 5
-    //     // f(3) = 12
-    //     crate::quack_internal::init_pow_table();
-    //     let coeffs = vec![
-    //         ModularInteger::<u16>::new(2),
-    //         ModularInteger::<u16>::new(3).neg(),
-    //     ];
-    //     assert_eq!(
-    //         arithmetic::eval_precompute(&coeffs, 0),
-    //         ModularInteger::<u16>::new(3).neg()
-    //     );
-    //     assert_eq!(arithmetic::eval_precompute(&coeffs, 1), 0);
-    //     assert_eq!(arithmetic::eval_precompute(&coeffs, 2), 5);
-    //     assert_eq!(arithmetic::eval_precompute(&coeffs, 3), 12);
-    // }
-
     #[test]
-    fn test_eval_with_modulus() {
+    fn test_eval_with_modulus_u32() {
         let r1: u64 = 95976998;
         let r2: u64 = 456975625;
         let r3: u64 = 1202781556;
@@ -181,6 +173,139 @@ mod test {
         assert_ne!(arithmetic::eval(&coeffs, (r1 as u32) + 1), 0);
         assert_ne!(arithmetic::eval(&coeffs, (r2 as u32) + 1), 0);
         assert_ne!(arithmetic::eval(&coeffs, (r3 as u32) + 1), 0);
+    }
+
+    #[test]
+    fn test_eval_with_modulus_u64() {
+        let r1: u128 = 9597699895976998;
+        let r2: u128 = 45697562545697562;
+        let r3: u128 = 12027815561202781;
+        let modulus = ModularInteger::<u64>::modulus_big();
+
+        let coeffs = vec![
+            ModularInteger::<u64>::new(((r1 + r2 + r3) % modulus) as u64).neg(),
+            ModularInteger::<u64>::new(((r1 * r2 + r2 * r3 + r1 * r3) % modulus) as u64),
+            ModularInteger::<u64>::new(((((r1 * r2) % modulus) * r3) % modulus) as u64).neg(),
+        ];
+
+        // Test zeros.
+        assert_eq!(arithmetic::eval(&coeffs, r1 as u64), 0);
+        assert_eq!(arithmetic::eval(&coeffs, r2 as u64), 0);
+        assert_eq!(arithmetic::eval(&coeffs, r3 as u64), 0);
+
+        // Test other points.
+        assert_ne!(arithmetic::eval(&coeffs, (r1 as u64) + 1), 0);
+        assert_ne!(arithmetic::eval(&coeffs, (r2 as u64) + 1), 0);
+        assert_ne!(arithmetic::eval(&coeffs, (r3 as u64) + 1), 0);
+    }
+
+    #[test]
+    fn test_eval_with_modulus_u16() {
+        let r1: u32 = 9597;
+        let r2: u32 = 45697;
+        let r3: u32 = 12027;
+        let modulus = ModularInteger::<u16>::modulus_big();
+
+        let coeffs = vec![
+            ModularInteger::<u16>::new(((r1 + r2 + r3) % modulus) as u16).neg(),
+            ModularInteger::<u16>::new(((r1 * r2 + r2 * r3 + r1 * r3) % modulus) as u16),
+            ModularInteger::<u16>::new(((((r1 * r2) % modulus) * r3) % modulus) as u16).neg(),
+        ];
+
+        // Test zeros.
+        assert_eq!(arithmetic::eval(&coeffs, r1 as u16), 0);
+        assert_eq!(arithmetic::eval(&coeffs, r2 as u16), 0);
+        assert_eq!(arithmetic::eval(&coeffs, r3 as u16), 0);
+
+        // Test other points.
+        assert_ne!(arithmetic::eval(&coeffs, (r1 as u16) + 1), 0);
+        assert_ne!(arithmetic::eval(&coeffs, (r2 as u16) + 1), 0);
+        assert_ne!(arithmetic::eval(&coeffs, (r3 as u16) + 1), 0);
+    }
+
+    #[test]
+    fn test_eval_montgomery() {
+        let r1: u128 = 9597699895976998;
+        let r2: u128 = 45697562545697562;
+        let r3: u128 = 12027815561202781;
+        let modulus = ModularInteger::<u64>::modulus_big();
+
+        let coeffs = vec![
+            MontgomeryInteger::new_do_conversion(((r1 + r2 + r3) % modulus) as u64).neg(),
+            MontgomeryInteger::new_do_conversion(((r1 * r2 + r2 * r3 + r1 * r3) % modulus) as u64),
+            MontgomeryInteger::new_do_conversion(((((r1 * r2) % modulus) * r3) % modulus) as u64)
+                .neg(),
+        ];
+
+        // Test zeros.
+        assert_eq!(
+            arithmetic::eval_montgomery(
+                &coeffs,
+                MontgomeryInteger::new_do_conversion(r1 as u64).value()
+            ),
+            0
+        );
+        assert_eq!(
+            arithmetic::eval_montgomery(
+                &coeffs,
+                MontgomeryInteger::new_do_conversion(r2 as u64).value()
+            ),
+            0
+        );
+        assert_eq!(
+            arithmetic::eval_montgomery(
+                &coeffs,
+                MontgomeryInteger::new_do_conversion(r3 as u64).value()
+            ),
+            0
+        );
+
+        // Test other points.
+        assert_ne!(
+            arithmetic::eval_montgomery(
+                &coeffs,
+                MontgomeryInteger::new_do_conversion((r1 as u64) + 1).value()
+            ),
+            0
+        );
+        assert_ne!(
+            arithmetic::eval_montgomery(
+                &coeffs,
+                MontgomeryInteger::new_do_conversion((r2 as u64) + 1).value()
+            ),
+            0
+        );
+        assert_ne!(
+            arithmetic::eval_montgomery(
+                &coeffs,
+                MontgomeryInteger::new_do_conversion((r3 as u64) + 1).value()
+            ),
+            0
+        );
+    }
+
+    #[test]
+    fn test_eval_precompute() {
+        let r1: u32 = 9597;
+        let r2: u32 = 45697;
+        let r3: u32 = 12027;
+        let modulus = ModularInteger::<u16>::modulus_big();
+
+        let coeffs = vec![
+            ModularInteger::<u16>::new(((r1 + r2 + r3) % modulus) as u16).neg(),
+            ModularInteger::<u16>::new(((r1 * r2 + r2 * r3 + r1 * r3) % modulus) as u16),
+            ModularInteger::<u16>::new(((((r1 * r2) % modulus) * r3) % modulus) as u16).neg(),
+        ];
+
+        // Test zeros.
+        assert_eq!(arithmetic::eval_precompute(&coeffs, r1 as u16), 0);
+        assert_eq!(arithmetic::eval_precompute(&coeffs, r2 as u16), 0);
+        assert_eq!(arithmetic::eval_precompute(&coeffs, r3 as u16), 0);
+
+        // Test other points.
+        assert_ne!(arithmetic::eval_precompute(&coeffs, (r1 as u16) + 1), 0);
+        assert_ne!(arithmetic::eval_precompute(&coeffs, (r2 as u16) + 1), 0);
+        assert_ne!(arithmetic::eval_precompute(&coeffs, (r3 as u16) + 1), 0);
     }
 
     #[cfg(feature = "libpari")]

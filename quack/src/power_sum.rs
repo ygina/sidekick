@@ -1,20 +1,15 @@
 use crate::arithmetic::{self, CoefficientVector, ModularArithmetic, ModularInteger};
-use crate::MAX_THRESHOLD;
-use once_cell::sync::Lazy;
+use crate::precompute::INVERSE_TABLE_U32;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-/// Multiplication by the `i`-th term corresponds to division by the integer
-/// `i + 1` in modular arithmetic.
-static INVERSE_TABLE_U32: Lazy<Vec<ModularInteger<u32>>> = Lazy::new(|| {
-    let mut inverse_table = Vec::new();
-    let mut index = ModularInteger::new(1);
-    for _ in 0..unsafe { MAX_THRESHOLD } {
-        inverse_table.push(index.inv());
-        index.add_assign(ModularInteger::new(1));
-    }
-    inverse_table
-});
+cfg_power_table! {
+    use crate::precompute::INVERSE_TABLE_U16;
+}
+
+cfg_montgomery! {
+    use crate::precompute::INVERSE_TABLE_U64;
+}
 
 /// 32-bit power sum quACK.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -365,18 +360,7 @@ cfg_libpari! {
     }
 }
 
-// The i-th term corresponds to dividing by i+1 in modular arithmetic.
 cfg_montgomery! {
-    static INVERSE_TABLE_U64: Lazy<Vec<ModularInteger<u64>>> = Lazy::new(|| {
-        let mut inverse_table = Vec::new();
-        let mut index = ModularInteger::new(1);
-        for _ in 0..unsafe { MAX_THRESHOLD } {
-            inverse_table.push(index.inv());
-            index.add_assign(ModularInteger::new(1));
-        }
-        inverse_table
-    });
-
     /// 64-bit power sum quACK.
     #[derive(Clone, Debug, Serialize, Deserialize)]
     pub struct PowerSumQuackU64 {
@@ -494,16 +478,6 @@ cfg_montgomery! {
 }
 
 cfg_power_table! {
-    static INVERSE_TABLE_U16: Lazy<Vec<ModularInteger<u16>>> = Lazy::new(|| {
-        let mut inverse_table = Vec::new();
-        let mut index = ModularInteger::new(1);
-        for _ in 0..unsafe { MAX_THRESHOLD } {
-            inverse_table.push(index.inv());
-            index.add_assign(ModularInteger::new(1));
-        }
-        inverse_table
-    });
-
     /// 16-bit power sum quACK.
     #[derive(Clone, Debug, Serialize, Deserialize)]
     pub struct PowerSumQuackU16 {

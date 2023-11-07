@@ -1,7 +1,13 @@
-//! Strawman quACK implementation that echoes a sliding window of packet identifiers.
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;
 
+/// Strawman quACK implementation that echoes every packet identifier.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct StrawmanAQuack {
+    pub sidecar_id: u32,
+}
+
+/// Strawman quACK implementation that echoes a sliding window of packet identifiers.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StrawmanBQuack {
     pub window: VecDeque<u32>,
@@ -17,8 +23,8 @@ impl StrawmanBQuack {
         }
     }
 
-    pub fn insert(&mut self, number: u32) {
-        self.window.push_back(number);
+    pub fn insert(&mut self, value: u32) {
+        self.window.push_back(value);
         if self.window.len() >= self.window_size {
             self.window.pop_front();
         }

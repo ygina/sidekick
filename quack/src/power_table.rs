@@ -1,28 +1,32 @@
-use crate::arithmetic::{self, MontgomeryInteger, ModularArithmetic, CoefficientVector};
+use crate::arithmetic::{self, ModularArithmetic, ModularInteger, CoefficientVector};
+use crate::precompute::{INVERSE_TABLE_U16, POWER_TABLE};
 use crate::PowerSumQuack;
-use crate::precompute::INVERSE_TABLE_MONTGOMERY;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-/// 64-bit power sum quACK using the Montgomery multiplication optimization.
+/// 16-bit power sum quACK using the precomputation optimization.
 ///
-/// Elements inserted into and removed from the quACK should already be in
-/// Montgomery form. Any elements of type [MontgomeryInteger](MontgomeryInteger)
-/// read from the quACK are also assumed to have a value in Montgomery form.
+/// The optimization precomputes the first few powers of integers in the 16-bit
+/// prime field. The number of powers computed can be set by the
+/// [global_config_set_max_power_sum_threshold](fn.global_config_set_max_power_sum_threshold.html)
+/// function. The optimization improves the performance of insertion, removal,
+/// and decoding by avoiding the need to compute powers on the fly. Precomputing
+/// powers becomes less feasible in terms of memory and less cache-friendly at
+/// larger bit widths.
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct MontgomeryQuack {
-    power_sums: Vec<MontgomeryInteger>,
-    last_value: Option<MontgomeryInteger>,
+pub struct PowerTableQuack {
+    power_sums: Vec<ModularInteger<u16>>,
+    last_value: Option<ModularInteger<u16>>,
     count: u32,
 }
 
-impl PowerSumQuack for MontgomeryQuack {
-    type Element = u64;
-    type ModularElement = MontgomeryInteger;
+impl PowerSumQuack for PowerTableQuack {
+    type Element = u16;
+    type ModularElement = ModularInteger<u16>;
 
     fn new(threshold: usize) -> Self {
         Self {
-            power_sums: (0..threshold).map(|_| MontgomeryInteger::new(0)).collect(),
+            power_sums: (0..threshold).map(|_| ModularInteger::new(0)).collect(),
             last_value: None,
             count: 0,
         }
@@ -36,32 +40,28 @@ impl PowerSumQuack for MontgomeryQuack {
         self.count
     }
 
-    fn last_value(&self) -> Option<Self::Element>  {
+    fn last_value(&self) -> Option<Self::Element> {
         self.last_value.map(|value| value.value())
     }
 
     fn insert(&mut self, value: Self::Element) {
         let size = self.power_sums.len();
-        let x = MontgomeryInteger::new(value);
-        let mut y = x;
-        for i in 0..(size - 1) {
-            self.power_sums[i].add_assign(y);
-            y.mul_assign(x);
+        let x = ModularInteger::new(value);
+        for i in 0..size {
+            self.power_sums[i].add_assign(
+                POWER_TABLE[x.value() as usize][i + 1]);
         }
-        self.power_sums[size - 1].add_assign(y);
         self.count = self.count.wrapping_add(1);
         self.last_value = Some(x);
     }
 
     fn remove(&mut self, value: Self::Element) {
         let size = self.power_sums.len();
-        let x = MontgomeryInteger::new(value);
-        let mut y = x;
-        for i in 0..(size - 1) {
-            self.power_sums[i].sub_assign(y);
-            y.mul_assign(x);
+        let x = ModularInteger::<Self::Element>::new(value);
+        for i in 0..size {
+            self.power_sums[i].sub_assign(
+                POWER_TABLE[x.value() as usize][i + 1]);
         }
-        self.power_sums[size - 1].sub_assign(y);
         self.count = self.count.wrapping_sub(1);
         if let Some(last_value) = self.last_value {
             if last_value.value() == value {
@@ -70,21 +70,20 @@ impl PowerSumQuack for MontgomeryQuack {
         }
     }
 
-    fn decode_with_log(&self, log: &[u64]) -> Vec<u64> {
+    fn decode_with_log(&self, log: &[Self::Element]) -> Vec<Self::Element> {
         if self.count() == 0 {
             return log.to_vec();
         }
-        assert!((self.count() as usize) <= self.threshold(), "number of elements must not exceed threshold");
         let coeffs = self.to_coeffs();
         log.iter()
-            .filter(|&&x| arithmetic::eval_montgomery(&coeffs, x).value() == 0)
+            .filter(|&&x| arithmetic::eval_precompute(&coeffs, x).value() == 0)
             .copied()
             .collect()
     }
 
     fn to_coeffs(&self) -> CoefficientVector<Self::ModularElement> {
         let mut coeffs = (0..self.count())
-            .map(|_| MontgomeryInteger::new(0))
+            .map(|_| ModularInteger::new(0))
             .collect::<Vec<_>>();
         self.to_coeffs_preallocated(&mut coeffs);
         coeffs
@@ -94,14 +93,13 @@ impl PowerSumQuack for MontgomeryQuack {
         if coeffs.is_empty() {
             return;
         }
-        assert_eq!(coeffs.len(), self.count() as usize, "length of coefficient vector must be the same as the number of elements");
         coeffs[0] = self.power_sums[0].neg();
         for i in 1..coeffs.len() {
             for j in 0..i {
                 coeffs[i] = coeffs[i].sub(self.power_sums[j].mul(coeffs[i - j - 1]));
             }
             coeffs[i].sub_assign(self.power_sums[i]);
-            coeffs[i].mul_assign(INVERSE_TABLE_MONTGOMERY[i]);
+            coeffs[i].mul_assign(INVERSE_TABLE_U16[i]);
         }
     }
 
@@ -132,16 +130,16 @@ mod test {
     const THRESHOLD: usize = 3;
 
     #[test]
-    fn test_quack_constructor() {
-        let quack = MontgomeryQuack::new(THRESHOLD);
+    fn test_quack_constructor_u16() {
+        let quack = PowerTableQuack::new(THRESHOLD);
         assert_eq!(quack.threshold(), THRESHOLD);
         assert_eq!(quack.count(), 0);
         assert_eq!(quack.last_value(), None);
     }
 
     #[test]
-    fn test_quack_insert_and_remove() {
-        let mut quack = MontgomeryQuack::new(THRESHOLD);
+    fn test_quack_insert_and_remove_u16() {
+        let mut quack = PowerTableQuack::new(THRESHOLD);
         quack.insert(10);
         assert_eq!(quack.count(), 1);
         assert_eq!(quack.last_value(), Some(10));
@@ -158,77 +156,80 @@ mod test {
     }
 
     #[test]
-    fn test_quack_to_coeffs_empty() {
-        let quack = MontgomeryQuack::new(THRESHOLD);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<MontgomeryInteger>::new());
+    fn test_quack_to_coeffs_empty_u16() {
+        let quack = PowerTableQuack::new(THRESHOLD);
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u16>>::new()
+        );
         let mut coeffs = vec![];
         quack.to_coeffs_preallocated(&mut coeffs);
-        assert_eq!(coeffs, CoefficientVector::<MontgomeryInteger>::new());
+        assert_eq!(coeffs, CoefficientVector::<ModularInteger<u16>>::new());
     }
 
     #[test]
-    fn test_quack_to_coeffs_small() {
-        const R1: u64 = 1;
-        const R2: u64 = 2;
+    fn test_quack_to_coeffs_small_u16() {
+        const R1: u16 = 1;
+        const R2: u16 = 2;
 
-        let mut quack = MontgomeryQuack::new(THRESHOLD);
-        quack.insert(MontgomeryInteger::new_do_conversion(R1).value());
-        quack.insert(MontgomeryInteger::new_do_conversion(R2).value());
+        let mut quack = PowerTableQuack::new(THRESHOLD);
+        quack.insert(R1);
+        quack.insert(R2);
         let expected = vec![
-            MontgomeryInteger::new_do_conversion(R1 + R2).neg().value(),
-            MontgomeryInteger::new_do_conversion(R1 * R2).value(),
+            ModularInteger::<u16>::new(R1 + R2).neg().value(),
+            ModularInteger::<u16>::new(R1 * R2).value(),
         ]; // x^2 - 3x + 2
 
         assert_eq!(quack.to_coeffs(), expected);
-        let mut coeffs = (0..quack.count()).map(|_| MontgomeryInteger::new(0)).collect();
+        let mut coeffs = (0..quack.count()).map(|_| ModularInteger::new(0)).collect();
         quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs, expected);
     }
 
     #[test]
-    fn test_quack_to_coeffs_big() {
-        const R1: u128 = 3616712547361671254;
-        const R2: u128 = 2333013068233301306;
-        const R3: u128 = 2234311686223431168;
-        let modulus = MontgomeryInteger::modulus_big();
+    fn test_quack_to_coeffs_big_u16() {
+        const R1: u32 = 36167;
+        const R2: u32 = 23330;
+        const R3: u32 = 22343;
+        let modulus = ModularInteger::<u16>::modulus_big();
 
-        let mut quack = MontgomeryQuack::new(THRESHOLD);
-        quack.insert(MontgomeryInteger::new_do_conversion(R1 as u64).value());
-        quack.insert(MontgomeryInteger::new_do_conversion(R2 as u64).value());
-        quack.insert(MontgomeryInteger::new_do_conversion(R3 as u64).value());
+        let mut quack = PowerTableQuack::new(THRESHOLD);
+        quack.insert(R1 as u16);
+        quack.insert(R2 as u16);
+        quack.insert(R3 as u16);
         let expected = vec![
-            MontgomeryInteger::new_do_conversion(((R1 + R2 + R3) % modulus) as u64)
+            ModularInteger::<u16>::new(((R1 + R2 + R3) % modulus) as u16)
                 .neg()
                 .value(),
-            MontgomeryInteger::new_do_conversion(((R1 * R2 % modulus + R2 * R3 + R1 * R3) % modulus) as u64)
+            ModularInteger::<u16>::new(((R1 * R2 % modulus + R2 * R3 + R1 * R3) % modulus) as u16)
                 .value(),
-            MontgomeryInteger::new_do_conversion(((((R1 * R2) % modulus) * R3) % modulus) as u64)
+            ModularInteger::<u16>::new(((((R1 * R2) % modulus) * R3) % modulus) as u16)
                 .neg()
                 .value(),
         ];
 
         assert_eq!(quack.to_coeffs(), expected);
-        let mut coeffs = (0..quack.count()).map(|_| MontgomeryInteger::new(0)).collect();
+        let mut coeffs = (0..quack.count()).map(|_| ModularInteger::new(0)).collect();
         quack.to_coeffs_preallocated(&mut coeffs);
         assert_eq!(coeffs, expected);
     }
 
     #[test]
-    fn test_decode_empty() {
-        let quack = MontgomeryQuack::new(THRESHOLD);
-        assert_eq!(quack.decode_with_log(&[]), Vec::<u64>::new());
+    fn test_decode_empty_u16() {
+        let quack = PowerTableQuack::new(THRESHOLD);
+        assert_eq!(quack.decode_with_log(&[]), vec![]);
         assert_eq!(quack.decode_with_log(&[1]), vec![1]);
     }
 
     #[test]
-    fn test_insert_and_decode() {
-        const R1: u64 = 3616712547361671254;
-        const R2: u64 = 2333013068233301306;
-        const R3: u64 = 2234311686223431168;
-        const R4: u64 = 448751902448751902;
-        const R5: u64 = 918748965918748965;
+    fn test_insert_and_decode_u16() {
+        const R1: u16 = 36167;
+        const R2: u16 = 23330;
+        const R3: u16 = 22343;
+        const R4: u16 = 44875;
+        const R5: u16 = 9187;
 
-        let mut quack = MontgomeryQuack::new(THRESHOLD);
+        let mut quack = PowerTableQuack::new(THRESHOLD);
         quack.insert(R1);
         quack.insert(R2);
         quack.insert(R3);
@@ -252,19 +253,19 @@ mod test {
 
         // not all roots are in log
         assert_eq!(quack.decode_with_log(&[R1, R2]), vec![R1, R2]);
-        assert_eq!(quack.decode_with_log(&[]), Vec::<u64>::new());
+        assert_eq!(quack.decode_with_log(&[]), vec![]);
         assert_eq!(quack.decode_with_log(&[R1, R2, R4]), vec![R1, R2]);
     }
 
     #[test]
-    fn test_remove_and_decode() {
-        const R1: u64 = 3616712547;
-        const R2: u64 = 2333013068;
-        const R3: u64 = 2234311686;
-        const R4: u64 = 448751902;
-        const R5: u64 = 918748965;
+    fn test_remove_and_decode_u16() {
+        const R1: u16 = 36167;
+        const R2: u16 = 23330;
+        const R3: u16 = 22343;
+        const R4: u16 = 44875;
+        const R5: u16 = 9187;
 
-        let mut quack = MontgomeryQuack::new(THRESHOLD);
+        let mut quack = PowerTableQuack::new(THRESHOLD);
         quack.insert(R5);
         quack.insert(R4);
         quack.insert(R3);
@@ -284,11 +285,11 @@ mod test {
     }
 
     #[test]
-    fn test_decode_with_multiplicity() {
-        const R1: u64 = 10;
-        const R2: u64 = 20;
+    fn test_decode_with_multiplicity_u16() {
+        const R1: u16 = 10;
+        const R2: u16 = 20;
 
-        let mut quack = MontgomeryQuack::new(THRESHOLD);
+        let mut quack = PowerTableQuack::new(THRESHOLD);
         quack.insert(R1);
         quack.insert(R1);
 
@@ -300,8 +301,8 @@ mod test {
     }
 
     #[test]
-    fn test_subtract_quacks_with_zero_difference() {
-        let mut q1 = MontgomeryQuack::new(THRESHOLD);
+    fn test_subtract_quacks_with_zero_difference_u16() {
+        let mut q1 = PowerTableQuack::new(THRESHOLD);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
@@ -312,19 +313,22 @@ mod test {
         assert_eq!(quack.threshold(), THRESHOLD);
         assert_eq!(quack.count(), 0);
         assert_eq!(quack.last_value(), None);
-        assert_eq!(quack.to_coeffs(), CoefficientVector::<MontgomeryInteger>::new());
+        assert_eq!(
+            quack.to_coeffs(),
+            CoefficientVector::<ModularInteger<u16>>::new()
+        );
     }
 
     #[test]
-    fn test_subtract_quacks_with_nonzero_difference() {
-        let mut q1 = MontgomeryQuack::new(THRESHOLD);
+    fn test_subtract_quacks_with_nonzero_difference_u16() {
+        let mut q1 = PowerTableQuack::new(THRESHOLD);
         q1.insert(1);
         q1.insert(2);
         q1.insert(3);
         q1.insert(4);
         q1.insert(5);
 
-        let mut q2 = MontgomeryQuack::new(THRESHOLD);
+        let mut q2 = PowerTableQuack::new(THRESHOLD);
         q2.insert(1);
         q2.insert(2);
 

@@ -18,20 +18,8 @@
 #[macro_use]
 mod macros;
 
-/// The maximum number of multiplicative modular inverses that will be lazily
-/// computed.
-pub(crate) static mut MAX_THRESHOLD: usize = 20;
-
-/// The multiplicative modular inverses of the integers up to this threshold
-/// are precomputed, for more efficient divison, the first time a quACK needs
-/// to be decoded. This function MUST be called before the first decode if any
-/// initialized quACKs have a threshold greater than the default threshold of
-/// `20`. Otherwise, the code may panic when trying to access a modular inverse
-/// that is out of range. This function _should_ also be called if the known
-/// maximum threshold is less than the default, to improve cache performance.
-pub fn global_config_set_max_power_sum_threshold(threshold: usize) {
-    unsafe { MAX_THRESHOLD = threshold };
-}
+pub(crate) mod precompute;
+pub use precompute::global_config_set_max_power_sum_threshold;
 
 /// Efficient modular arithmetic and polynomial evaluation.
 pub mod arithmetic {
@@ -47,28 +35,23 @@ pub mod arithmetic {
     }
 }
 
-mod psum;
-pub use psum::{PowerSumQuack, PowerSumQuackU32};
+mod power_sum;
+pub use power_sum::{PowerSumQuack, PowerSumQuackU32};
 
-// cfg_strawmen! {
-//     mod strawman_a;
-//     mod strawman_b;
-//     /// Strawman quACK implementation that echoes every packet identifier.
-//     pub use strawman_a::StrawmanAQuack;
-//     /// Strawman quACK implementation that echoes a sliding window of packet identifiers.
-//     pub use strawman_b::StrawmanBQuack;
-// }
+cfg_strawmen! {
+    mod strawmen;
+    pub use strawmen::StrawmanAQuack;
+    pub use strawmen::StrawmanBQuack;
+}
 
 cfg_montgomery! {
     mod montgomery;
-    pub use psum::PowerSumQuackU64;
+    pub use power_sum::PowerSumQuackU64;
     pub use montgomery::MontgomeryQuack;
 }
 
 cfg_power_table! {
-//     mod ptable;
-//     /// 16-bit power sum quACK using the precomputation optimization.
-    pub use psum::PowerSumQuackU16;
-//     pub use ptable::PowerTableQuack;
-//     pub(crate) use ptable::POWER_TABLE;
+    mod power_table;
+    pub use power_sum::PowerSumQuackU16;
+    pub use power_table::PowerTableQuack;
 }
