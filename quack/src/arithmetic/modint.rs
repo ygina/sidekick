@@ -8,7 +8,7 @@ use std::cmp::PartialEq;
 /// contains implementations for `u16`, `u32`, and `u64`.
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ModularInteger<T> {
-    pub(crate) value: T,
+    value: T,
 }
 
 /// Arithmetic operations and other properties of the modular integer field.
@@ -109,11 +109,13 @@ impl ModularArithmetic for ModularInteger<u32> {
     }
 
     /// The modulus prime of the finite field, `4_294_967_291`, as a `u32`.
+    /// This is the largest unsigned 32-bit prime.
     fn modulus() -> Self::SmallModulusType {
         4_294_967_291
     }
 
     /// The modulus prime of the finite field, `4_294_967_291`, as a `u64`.
+    /// This is the largest unsigned 32-bit prime.
     fn modulus_big() -> Self::BigModulusType {
         4_294_967_291
     }
@@ -193,16 +195,16 @@ impl ModularArithmetic for ModularInteger<u64> {
         }
     }
 
-    /// The modulus prime of the finite field, `9_223_372_036_854_775_783`,
-    /// as a `u64`.
+    /// The modulus prime of the finite field, `18_446_744_073_709_551_557`,
+    /// as a `u64`. This is the largest unsigned 64-bit prime.
     fn modulus() -> Self::SmallModulusType {
-        9_223_372_036_854_775_783
+        18_446_744_073_709_551_557
     }
 
-    /// The modulus prime of the finite field, `9_223_372_036_854_775_783`,
-    /// as a `u128`.
+    /// The modulus prime of the finite field, `18_446_744_073_709_551_557`,
+    /// as a `u128`. This is the largest unsigned 64-bit prime.
     fn modulus_big() -> Self::BigModulusType {
-        9_223_372_036_854_775_783
+        18_446_744_073_709_551_557
     }
 
     fn value(&self) -> Self::SmallModulusType {
@@ -281,11 +283,13 @@ impl ModularArithmetic for ModularInteger<u16> {
     }
 
     /// The modulus prime of the finite field, `65521`, as a `u16`.
+    /// This is the largest unsigned 16-bit prime.
     fn modulus() -> Self::SmallModulusType {
         65521
     }
 
     /// The modulus prime of the finite field, `65521`, as a `u32`.
+    /// This is the largest unsigned 16-bit prime.
     fn modulus_big() -> Self::BigModulusType {
         65521
     }
@@ -503,29 +507,53 @@ mod test {
 
     #[test]
     fn test_mul_u32() {
-        let x = ModularInteger::<u32>::new(1_000);
-        let y = ModularInteger::<u32>::new(4_294_968);
-        assert_eq!(x.mul(x), 1_000_000);
-        assert_eq!(x.mul(y), 709);
-        assert_eq!(y.mul(y), 4_160_573_470);
+        let x = 1_000;
+        let y = 4_294_968;
+        let mod_x = ModularInteger::<u32>::new(x);
+        let mod_y = ModularInteger::<u32>::new(y);
+        assert_eq!(mod_x.mul(mod_x), x * x);
+        assert_eq!(
+            mod_x.mul(mod_y),
+            ((x as u64 * y as u64) % (*U32_MODULUS as u64)) as u32
+        );
+        assert_eq!(
+            mod_y.mul(mod_y),
+            ((y as u64 * y as u64) % (*U32_MODULUS as u64)) as u32
+        );
     }
 
     #[test]
     fn test_mul_u64() {
-        let x = ModularInteger::<u64>::new(1_000);
-        let y = ModularInteger::<u64>::new(9223372036854776);
-        assert_eq!(x.mul(x), 1_000_000);
-        assert_eq!(x.mul(y), 217);
-        assert_eq!(y.mul(y), 7159338172331303494);
+        let x = 10_000;
+        let y = 9223372036854776;
+        let mod_x = ModularInteger::<u64>::new(x);
+        let mod_y = ModularInteger::<u64>::new(y);
+        assert_eq!(mod_x.mul(mod_x), x * x);
+        assert_eq!(
+            mod_x.mul(mod_y),
+            ((x as u128 * y as u128) % (*U64_MODULUS as u128)) as u64
+        );
+        assert_eq!(
+            mod_y.mul(mod_y),
+            ((y as u128 * y as u128) % (*U64_MODULUS as u128)) as u64
+        );
     }
 
     #[test]
     fn test_mul_u16() {
-        let x = ModularInteger::<u16>::new(10);
-        let y = ModularInteger::<u16>::new(6553);
-        assert_eq!(x.mul(x), 100);
-        assert_eq!(x.mul(y), 9);
-        assert_eq!(y.mul(y), 25554);
+        let x = 10;
+        let y = 6553;
+        let mod_x = ModularInteger::<u16>::new(x);
+        let mod_y = ModularInteger::<u16>::new(y);
+        assert_eq!(mod_x.mul(mod_x), x * x);
+        assert_eq!(
+            mod_x.mul(mod_y),
+            ((x as u32 * y as u32) % (*U16_MODULUS as u32)) as u16
+        );
+        assert_eq!(
+            mod_y.mul(mod_y),
+            ((y as u32 * y as u32) % (*U16_MODULUS as u32)) as u16
+        );
     }
 
     #[test]

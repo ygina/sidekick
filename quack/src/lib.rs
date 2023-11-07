@@ -23,13 +23,13 @@ pub mod arithmetic {
     // mod evaluator;
     mod modint;
 
-    // pub use evaluator::MonicPolynomialEvaluator;
+    // pub use evaluator::*;
     pub use modint::{ModularArithmetic, ModularInteger};
 
-    // cfg_montgomery! {
-    //     mod montgomery;
-    //     pub use montgomery::MontgomeryInteger;
-    // }
+    cfg_montgomery! {
+        mod montgomery;
+        pub use montgomery::MontgomeryInteger;
+    }
 }
 
 // mod psum;

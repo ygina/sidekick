@@ -5,8 +5,8 @@
 macro_rules! cfg_montgomery {
     ($($item:item)*) => {
         $(
-            #[cfg(any(montgomery, doc))]
-            #[doc(cfg(montgomery))]
+            #[cfg(any(feature = "montgomery", doc))]
+            #[doc(cfg(feature = "montgomery"))]
             $item
         )*
     }
@@ -17,8 +17,8 @@ macro_rules! cfg_montgomery {
 macro_rules! cfg_power_table {
     ($($item:item)*) => {
         $(
-            #[cfg(any(power_table, doc))]
-            #[doc(cfg(power_table))]
+            #[cfg(any(feature = "power_table", doc))]
+            #[doc(cfg(feature = "power_table"))]
             $item
         )*
     }
@@ -29,8 +29,8 @@ macro_rules! cfg_power_table {
 macro_rules! cfg_libpari {
     ($($item:item)*) => {
         $(
-            #[cfg(any(libpari, doc))]
-            #[doc(cfg(libpari))]
+            #[cfg(any(feature = "libpari", doc))]
+            #[doc(cfg(feature = "libpari"))]
             $item
         )*
     }
@@ -41,8 +41,8 @@ macro_rules! cfg_libpari {
 macro_rules! cfg_strawmen {
     ($($item:item)*) => {
         $(
-            #[cfg(any(strawmen, doc))]
-            #[doc(cfg(strawmen))]
+            #[cfg(any(feature = "strawmen", doc))]
+            #[doc(cfg(feature = "strawmen"))]
             $item
         )*
     }
