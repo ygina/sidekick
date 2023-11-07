@@ -32,9 +32,8 @@ pub mod arithmetic {
     }
 }
 
-// mod psum;
-// /// 32-bit power sum quACK.
-// pub use psum::PowerSumQuack;
+mod psum;
+pub use psum::{PowerSumQuack, PowerSumQuackU32};
 // /// 32-bit power sum quACK.
 // pub struct PowerSumQuackU32 {}
 // /// 64-bit power sum quACK.
@@ -51,15 +50,17 @@ pub mod arithmetic {
 //     pub use strawman_b::StrawmanBQuack;
 // }
 
-// cfg_montgomery! {
+cfg_montgomery! {
 //     mod montgomery;
 //     /// 64-bit power sum quACK using the Montgomery multiplication optimization.
+    pub use psum::PowerSumQuackU64;
 //     pub use montgomery::MontgomeryQuack;
-// }
+}
 
-// cfg_power_table! {
+cfg_power_table! {
 //     mod ptable;
 //     /// 16-bit power sum quACK using the precomputation optimization.
+    pub use psum::PowerSumQuackU16;
 //     pub use ptable::PowerTableQuack;
 //     pub(crate) use ptable::POWER_TABLE;
-// }
+}

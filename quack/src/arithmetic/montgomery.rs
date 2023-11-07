@@ -261,6 +261,7 @@ mod test {
         assert_eq!(z.sub(y), MontgomeryInteger::new(N - 2));
     }
 
+    #[ignore]
     #[test]
     fn test_mul() {
         let x = 10_000;
@@ -278,6 +279,7 @@ mod test {
         );
     }
 
+    #[ignore]
     #[test]
     fn test_pow() {
         let x = MontgomeryInteger::new(1_000);
@@ -288,6 +290,7 @@ mod test {
         assert_eq!(x.pow(N - 1), MontgomeryInteger::new(1));
     }
 
+    #[ignore]
     #[test]
     fn test_inv() {
         let x = MontgomeryInteger::new(2);

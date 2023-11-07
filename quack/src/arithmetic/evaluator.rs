@@ -1,5 +1,6 @@
-#[cfg(feature = "montgomery")]
-use crate::arithmetic::MontgomeryInteger;
+cfg_montgomery! {
+    use crate::arithmetic::MontgomeryInteger;
+}
 use crate::arithmetic::{ModularArithmetic, ModularInteger};
 
 /// The coefficient vector defines a univariate polynomial where the constant
