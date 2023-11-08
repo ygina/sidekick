@@ -1,5 +1,5 @@
 use clap::Parser;
-use quack::Quack;
+use quack::PowerSumQuack;
 use sidecar::sidecar_multi::start_sidecar_multi;
 use sidecar::SidecarMulti;
 use signal_hook::{consts::SIGTERM, iterator::Signals};

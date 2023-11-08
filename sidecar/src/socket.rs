@@ -121,6 +121,8 @@ impl Socket {
         buf: &mut [u8; BUFFER_SIZE],
     ) -> Result<isize, String> {
         let mut socklen = std::mem::size_of::<sockaddr_ll>() as u32;
+        // wrapping our own libc functions because nix-rust is buggy:
+        // https://github.com/nix-rust/nix/pull/1896
         let n = unsafe {
             recvfrom(
                 self.fd,

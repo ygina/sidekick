@@ -2,9 +2,11 @@
 name = "sidecar"
 version = "0.1.0"
 edition = "2021"
+description = ""
+readme = "README.md"
 
 [dependencies]
-quack = { path = "../quack" }
+quack = { path = "../quack", features = ["strawmen"] }
 clap = { version = "4.0.26", features = ["derive"] }
 bincode = "1.3.3"
 tokio = { version = "1", features = ["net", "sync", "rt", "time", "macros", "io-util"] }
@@ -28,11 +30,11 @@ benchmark = []
 cycles = []
 cycles_summary = []
 
-[[bin]]
+[[example]]
 name = "benchmark_encode"
 required-features = ["benchmark"]
 
-[[bin]]
+[[example]]
 name = "benchmark_encode_multi"
 required-features = ["benchmark"]
 

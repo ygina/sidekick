@@ -1,5 +1,4 @@
 use log::{debug, info, trace};
-use quack::*;
 use std::sync::{Arc, Mutex};
 use tokio;
 use tokio::net::UdpSocket;
@@ -7,7 +6,8 @@ use tokio::sync::oneshot;
 
 use crate::buffer::{Direction, UdpParser, BUFFER_SIZE};
 use crate::socket::SockAddr;
-use crate::{Quack, Socket};
+use crate::Socket;
+use quack::{PowerSumQuackU32, PowerSumQuack};
 
 #[derive(Clone)]
 pub struct Sidecar {
@@ -16,7 +16,7 @@ pub struct Sidecar {
     pub bits: usize,
     #[cfg(feature = "benchmark")]
     pub start_time: Option<tokio::time::Instant>,
-    quack: PowerSumQuack<u32>,
+    quack: PowerSumQuackU32,
     log: Vec<u32>,
 }
 
@@ -30,7 +30,7 @@ impl Sidecar {
             bits,
             #[cfg(feature = "benchmark")]
             start_time: None,
-            quack: PowerSumQuack::new(threshold),
+            quack: PowerSumQuackU32::new(threshold),
             log: vec![],
         }
     }
@@ -46,7 +46,7 @@ impl Sidecar {
 
     /// Reset the sidecar state.
     pub fn reset(&mut self) {
-        self.quack = PowerSumQuack::new(self.threshold);
+        self.quack = PowerSumQuackU32::new(self.threshold);
         self.log = vec![];
     }
 
@@ -207,19 +207,19 @@ impl Sidecar {
                 "quack {:?} {} {}",
                 std::time::Instant::now(),
                 id,
-                sc.quack.count()
+                self.quack.count()
             );
         }
         Ok(())
     }
 
     /// Snapshot the quACK.
-    pub fn quack(&self) -> PowerSumQuack<u32> {
+    pub fn quack(&self) -> PowerSumQuackU32 {
         self.quack.clone()
     }
 
     /// Snapshot the quACK and current log.
-    pub fn quack_with_log(&self) -> (PowerSumQuack<u32>, Vec<u32>) {
+    pub fn quack_with_log(&self) -> (PowerSumQuackU32, Vec<u32>) {
         // TODO: don't clone the log
         (self.quack.clone(), self.log.clone())
     }

@@ -2,13 +2,13 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use log::{info, trace};
-use quack::*;
 use tokio;
 use tokio::{net::UdpSocket, sync::oneshot, time::Instant};
 
 use crate::buffer::{Direction, UdpParser, BUFFER_SIZE};
 use crate::socket::SockAddr;
-use crate::{Quack, Socket};
+use crate::Socket;
+use quack::{PowerSumQuackU32, PowerSumQuack};
 
 type AddrKey = [u8; 12];
 
@@ -33,7 +33,7 @@ pub struct SidecarMulti {
     pub start_time: Option<Instant>,
 
     /// Map from UDP source and dest address to the quack
-    senders: HashMap<AddrKey, PowerSumQuack<u32>>,
+    senders: HashMap<AddrKey, PowerSumQuackU32>,
 }
 
 enum Action {
@@ -59,17 +59,17 @@ impl SidecarMulti {
     pub fn reset(&mut self, addr_key: &AddrKey) {
         self.senders
             .get_mut(addr_key)
-            .map(|quack| *quack = PowerSumQuack::new(self.threshold));
+            .map(|quack| *quack = PowerSumQuackU32::new(self.threshold));
     }
 
-    pub fn insert(&mut self, addr_key: AddrKey, sidecar_id: u32) -> &PowerSumQuack<u32> {
+    pub fn insert(&mut self, addr_key: AddrKey, sidecar_id: u32) -> &PowerSumQuackU32 {
         // ***CYCLES START step 2 hash address key
         #[cfg(feature = "cycles")]
         let start2 = unsafe { core::arch::x86_64::_rdtsc() };
         let entry = self
             .senders
             .entry(addr_key)
-            .or_insert(PowerSumQuack::new(self.threshold));
+            .or_insert(PowerSumQuackU32::new(self.threshold));
         // ***CYCLES STOP step 2 hash address key
         #[cfg(feature = "cycles")]
         unsafe {
@@ -89,11 +89,11 @@ impl SidecarMulti {
         self.senders.get(&addr_key).as_ref().unwrap()
     }
 
-    pub fn quack(&self, addr_key: &AddrKey) -> Option<PowerSumQuack<u32>> {
+    pub fn quack(&self, addr_key: &AddrKey) -> Option<PowerSumQuackU32> {
         self.senders.get(addr_key).map(|quack| quack.clone())
     }
 
-    pub fn senders(&self) -> &HashMap<AddrKey, PowerSumQuack<u32>> {
+    pub fn senders(&self) -> &HashMap<AddrKey, PowerSumQuackU32> {
         &self.senders
     }
 }

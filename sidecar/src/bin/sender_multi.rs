@@ -1,6 +1,6 @@
 use clap::Parser;
 use log::{debug, info};
-use quack::Quack;
+use quack::PowerSumQuack;
 use sidecar::{
     sidecar_multi::{start_sidecar_multi, start_sidecar_multi_frequency_pkts},
     SidecarMulti,

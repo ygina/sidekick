@@ -1,6 +1,6 @@
 use clap::Parser;
 use log::{debug, info, trace};
-use quack::Quack;
+use quack::PowerSumQuack;
 use sidecar::Sidecar;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
