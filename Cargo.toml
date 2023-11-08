@@ -3,6 +3,5 @@ resolver = "2"
 members = [
     "quack",
     "sidecar",
-    "webrtc",
+    "media_integration/media",
 ]
-

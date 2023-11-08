@@ -18,8 +18,8 @@ use std::sync::Arc;
 
 use clap::{Parser, ValueEnum};
 use log::{debug, info, trace};
-use quack::arithmetic::{ModularArithmetic, MonicPolynomialEvaluator};
-use quack::{PowerSumQuack, Quack, StrawmanAQuack, StrawmanBQuack};
+use quack::arithmetic::{self, ModularArithmetic};
+use quack::{PowerSumQuack, PowerSumQuackU32, StrawmanAQuack, StrawmanBQuack};
 use rand::Rng;
 use tokio;
 use tokio::net::UdpSocket;
@@ -83,7 +83,7 @@ const MTU: usize = 1500;
 /// than this threshold away has been received. So packet 4 is considered
 /// missing if packet 7 or greater has been received. If the last received
 /// value is 7, at most packets 5 and 6 can be considered indeterminate.
-const REORDER_THRESHOLD: u32 = 3;
+const _REORDER_THRESHOLD: u32 = 3;
 
 #[derive(Clone)]
 struct PacketSender {
@@ -212,7 +212,7 @@ fn listen_for_quacks_power_sum(
             .await
             .unwrap();
         let mut buf = vec![0; MTU];
-        let mut my_quack: PowerSumQuack<u32> = PowerSumQuack::new(threshold);
+        let mut my_quack: PowerSumQuackU32 = PowerSumQuackU32::new(threshold);
         info!("listening for quacks on {:?}", sock.local_addr());
 
         // Variables for sending quack resets.
@@ -223,9 +223,9 @@ fn listen_for_quacks_power_sum(
             // Deserialize the quACK and only process it if at least one packet
             // has been received and the quack has changed.
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
-            let quack: PowerSumQuack<u32> = bincode::deserialize(&buf[..len]).unwrap();
+            let quack: PowerSumQuackU32 = bincode::deserialize(&buf[..len]).unwrap();
             trace!(
-                "received quack count={} last_value={}",
+                "received quack count={} last_value={:?}",
                 quack.count(),
                 quack.last_value()
             );
@@ -238,7 +238,7 @@ fn listen_for_quacks_power_sum(
             let mut seqno_ids = sender.seqno_ids.lock().await;
             let mut last_index_inserted = None;
             for (i, &(_, id)) in seqno_ids.iter().enumerate() {
-                if id == quack.last_value() {
+                if Some(id) == quack.last_value() {
                     last_index_inserted = Some(i);
                     break;
                 }
@@ -269,7 +269,7 @@ fn listen_for_quacks_power_sum(
                         reset0, reset1, reset2
                     );
                     sock.send_to(&[0], reset_addr).await.unwrap();
-                    my_quack = PowerSumQuack::new(threshold);
+                    my_quack = PowerSumQuackU32::new(threshold);
                     *seqno_ids = vec![];
                     last_quack_reset = Some(now);
                 }
@@ -285,13 +285,14 @@ fn listen_for_quacks_power_sum(
             // If the number of missing packets exceeds the threshold, reset
             // the quack. If no packets are missing, continue on.
             trace!(
-                "quack counts {} - {} (last values {} {})",
+                "quack counts {} - {} (last values {:?} {:?})",
                 my_quack.count(),
                 quack.count(),
                 my_quack.last_value(),
                 quack.last_value()
             );
-            let diff_quack = my_quack.clone() - quack;
+            let mut diff_quack = my_quack.clone();
+            diff_quack.sub_assign(quack);
             if diff_quack.count() == 0 {
                 seqno_ids.drain(..(last_index_inserted + 1));
                 continue;
@@ -302,10 +303,10 @@ fn listen_for_quacks_power_sum(
             let coeffs = diff_quack.to_coeffs();
             let mut missing_seqno_ids = Vec::new();
             for &(seqno, id) in seqno_ids.iter() {
-                if id == diff_quack.last_value() {
+                if Some(id) == diff_quack.last_value() {
                     break;
                 }
-                if MonicPolynomialEvaluator::eval(&coeffs, id).is_zero() {
+                if arithmetic::eval(&coeffs, id).value() == 0 {
                     missing_seqno_ids.push((seqno, id));
                 }
             }

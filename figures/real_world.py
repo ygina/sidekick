@@ -157,5 +157,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     plot_retx_graph(args)
-    cdf_data = parse_data_cdf(args, filename=f'scripts/webrtc/{args.cdf_filename}')
+    cdf_data = parse_data_cdf(args, filename=f'media_integration/real_world/{args.cdf_filename}')
     plot_webrtc_graph(args, cdf_data)

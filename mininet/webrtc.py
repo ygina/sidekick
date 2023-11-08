@@ -8,16 +8,16 @@ from network import *
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 
-def start_webrtc_server(net, args, env):
-    cmd = './target/release/webrtc_server --port 5123 '
+def start_media_server(net, args, env):
+    cmd = './target/release/media_server --port 5123 '
     cmd += f'-b {args.client_bytes} '
     cmd += f'--rtt {2 * (args.delay1 + args.delay2)} '
     print(cmd)
     cmd = cmd.strip().split(' ')
     return net.h1.popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
 
-def start_webrtc_client(net, args, env):
-    cmd = './target/release/webrtc_client --server-addr 10.0.1.10:5123 '
+def start_media_client(net, args, env):
+    cmd = './target/release/media_client --server-addr 10.0.1.10:5123 '
     cmd += f'--timeout {args.timeout} '
     cmd += f'-b {args.client_bytes} '
     cmd += f'-f {args.client_frequency} '
@@ -38,9 +38,9 @@ def benchmark(net, args):
     env = os.environ.copy()
     env['RUST_LOG'] = 'quack=info,mio=info,debug'
     env['RUST_BACKTRACE'] = '1'
-    server = start_webrtc_server(net, args, env)
+    server = start_media_server(net, args, env)
     time.sleep(1)
-    client = start_webrtc_client(net, args, env)
+    client = start_media_client(net, args, env)
     print(f'client exitcode = {client.wait()}')
     print(f'server exitcode = {server.wait()}')
     flush_process(client)
