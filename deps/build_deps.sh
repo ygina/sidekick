@@ -40,14 +40,14 @@ sudo ldconfig
 }
 
 build_quiche () {
-cd $SIDECAR_HOME/quiche
+cd $SIDECAR_HOME/http3_integration/quiche
 make sidecar
 mkdir -p quiche/deps/boringssl/src/lib
 ln -f -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
 }
 
 build_curl () {
-cd $SIDECAR_HOME/curl
+cd $SIDECAR_HOME/http3_integration/curl
 autoreconf -fi
 ./configure LDFLAGS="-Wl,-rpath,$SIDECAR_HOME/quiche/target/release" \
         --with-openssl=$SIDECAR_HOME/quiche/quiche/deps/boringssl/src \
@@ -56,9 +56,9 @@ make -j$(nproc)
 }
 
 build_sidecurl () {
-cd $SIDECAR_HOME/curl/sidecurl
+cd $SIDECAR_HOME/http3_integration/curl/sidecurl
 make
-sudo ln -f -s $SIDECAR_HOME/curl/sidecurl/sidecurl /usr/bin/sidecurl
+sudo ln -f -s $SIDECAR_HOME/http3_integration/curl/sidecurl/sidecurl /usr/bin/sidecurl
 }
 
 build_pepsal () {
