@@ -12,6 +12,7 @@ once_cell = "1.18.0"
 [dev-dependencies]
 clap = { version = "4.0.26", features = ["derive"] }
 rand = "0.8.5"
+log = "0.4.17"
 env_logger = "0.9.3"
 multiset = "0.0.5"
 sha2 = "0.10.6"
@@ -22,9 +23,17 @@ cc = { version = "1.0.33", optional = true }
 
 [features]
 default = []
+
+# Enable decoding 32-bit power sum quACKs by factorization using the PARI library
 libpari = ["dep:cc"]
+
+# 16-bit power sum quACKs and the precomputation optimization
 power_table = []
+
+# 64-bit power sum quACKs and the Montgomery multiplication optimization
 montgomery = []
+
+# Strawman quACK data structures
 strawmen = []
 
 [[example]]

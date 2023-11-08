@@ -90,7 +90,7 @@ cfg_power_table! {
 
     pub static POWER_TABLE: Lazy<Vec<Vec<ModularInteger<u16>>>> = Lazy::new(|| {
         const NUM_U16S: usize = 1 << 16;
-        let threshold: usize = unsafe { MAX_THRESHOLD };
+        let threshold: usize = unsafe { MAX_THRESHOLD + 1 };
         let mut power_table = vec![vec![ModularInteger::new(0); threshold]; NUM_U16S];
         for (x, row) in power_table.iter_mut().enumerate().take(NUM_U16S) {
             let x_mi = ModularInteger::new(x as u16);

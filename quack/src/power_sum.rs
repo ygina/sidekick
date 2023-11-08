@@ -41,7 +41,9 @@ pub trait PowerSumQuack {
 
     /// Creates a new power sum quACK that can decode at most `threshold`
     /// number of elements.
-    fn new(threshold: usize) -> Self;
+    fn new(threshold: usize) -> Self
+    where
+        Self: Sized;
 
     /// The maximum number of elements that can be decoded by the quACK.
     fn threshold(&self) -> usize;
@@ -147,10 +149,9 @@ pub trait PowerSumQuack {
     ///
     ///     // Subtract the second quACK from the first and decode the elements.
     ///     quack1.sub_assign(quack2);
-    ///     // let mut roots = quack1.decode_with_log(&[1, 2, 3, 4, 5]);
-    ///     // roots.sort();
-    ///     // assert_eq!(quack1.count(), 3);
-    ///     // assert_eq!(roots, vec![1, 3, 4]);
+    ///     let mut roots = quack1.decode_with_log(&[1, 2, 3, 4, 5]);
+    ///     roots.sort();
+    ///     assert_eq!(roots, vec![1, 3, 4]);
     /// }
     /// ```
     fn sub_assign(&mut self, rhs: Self);
@@ -315,9 +316,9 @@ impl PowerSumQuack for PowerSumQuackU32 {
     ///
     ///     // Subtract the second quACK from the first and decode the elements.
     ///     quack1.sub_assign(quack2);
-    ///     // let mut roots = quack1.decode_with_log(&[1, 2, 3, 4, 5]);
-    ///     // roots.sort();
-    ///     // assert_eq!(roots, vec![1, 3, 4]);
+    ///     let mut roots = quack1.decode_with_log(&[1, 2, 3, 4, 5]);
+    ///     roots.sort();
+    ///     assert_eq!(roots, vec![1, 3, 4]);
     /// }
     /// ```
     fn sub_assign(&mut self, rhs: Self) {

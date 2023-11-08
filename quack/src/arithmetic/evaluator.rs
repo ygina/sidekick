@@ -224,6 +224,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature = "montgomery")]
     fn test_eval_montgomery() {
         let r1: u128 = 9597699895976998;
         let r2: u128 = 45697562545697562;
@@ -285,6 +286,7 @@ mod test {
     }
 
     #[test]
+    #[cfg(feature = "power_table")]
     fn test_eval_precompute() {
         let r1: u32 = 9597;
         let r2: u32 = 45697;

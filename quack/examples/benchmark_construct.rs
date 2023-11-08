@@ -1,18 +1,16 @@
+use std::fmt::Debug;
+use std::time::{Duration, Instant};
+
 use clap::{Parser, ValueEnum};
-use log::{debug, info, warn};
-use quack::{
-    arithmetic::{ModularArithmetic, ModularInteger},
-    *,
-};
+use log::{info, warn};
 use rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use std::fmt::{Debug, Display};
-use std::ops::{AddAssign, MulAssign, Sub, SubAssign};
-use std::time::{Duration, Instant};
+
+use quack::*;
 
 #[derive(Clone, ValueEnum, Debug, PartialEq, Eq)]
 pub enum QuackType {
@@ -49,12 +47,6 @@ struct Cli {
     /// Number of sent packets.
     #[arg(short = 'n', default_value_t = 1000)]
     num_packets: usize,
-    /// Number of dropped packets.
-    #[arg(short = 'd', long = "dropped", default_value_t = 20)]
-    num_drop: usize,
-    /// Number of connections.
-    #[arg(short = 'c', long = "connections", default_value_t = 1)]
-    num_conns: usize,
     /// Quack parameters.
     #[command(flatten)]
     quack: QuackParams,
@@ -84,7 +76,7 @@ where
     (0..num_packets).map(|_| rand::thread_rng().gen()).collect()
 }
 
-fn benchmark_construct_strawman1a(num_packets: usize) -> Duration {
+fn benchmark_strawman1a(num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     let mut quack = StrawmanAQuack { sidecar_id: 0 };
@@ -105,7 +97,7 @@ fn benchmark_construct_strawman1a(num_packets: usize) -> Duration {
     duration
 }
 
-fn benchmark_construct_strawman1b(threshold: usize, num_packets: usize) -> Duration {
+fn benchmark_strawman1b(threshold: usize, num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     let mut quack = StrawmanBQuack::new(threshold);
@@ -126,7 +118,7 @@ fn benchmark_construct_strawman1b(threshold: usize, num_packets: usize) -> Durat
     duration
 }
 
-fn benchmark_construct_strawman2(num_packets: usize) -> Duration {
+fn benchmark_strawman2(num_packets: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
     let mut acc = Sha256::new();
 
@@ -146,66 +138,11 @@ fn benchmark_construct_strawman2(num_packets: usize) -> Duration {
     duration
 }
 
-fn benchmark_construct_power_sum_precompute_u16(threshold: usize, num_packets: usize) -> Duration {
-    let numbers = gen_numbers::<u16>(num_packets);
-
-    // Construct two empty Quacks.
-    let mut quack = PowerTableQuack::new(threshold);
-
-    // Insert a bunch of random numbers into the accumulator.
-    let t1 = Instant::now();
-    for number in numbers {
-        quack.insert(number);
-    }
-    let _bytes = bincode::serialize(&quack);
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
-    info!(
-        "Insert {} numbers into 2 Quacks (bits = 16, \
-        threshold = {}): {:?}",
-        num_packets, threshold, duration
-    );
-    duration
-}
-
-fn benchmark_construct_power_sum_montgomery_u64(threshold: usize, num_packets: usize) -> Duration {
-    let numbers = gen_numbers::<u64>(num_packets);
-
-    // Construct an empty Quack.
-    let mut quack = MontgomeryQuack::new(threshold);
-
-    // Insert a bunch of random numbers into the accumulator.
-    let t1 = Instant::now();
-    for number in numbers {
-        quack.insert(number);
-    }
-    let _bytes = bincode::serialize(&quack);
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
-    info!(
-        "Insert {} numbers into a montgomery quACK (bits = 64, \
-        threshold = {}): {:?}",
-        num_packets, threshold, duration
-    );
-    duration
-}
-
-fn benchmark_construct_power_sum<T>(
-    threshold: usize,
-    num_bits_id: usize,
-    num_packets: usize,
-) -> Duration
+fn benchmark<T: PowerSumQuack + Serialize>(mut quack: T, name: &str, num_packets: usize) -> Duration
 where
-    Standard: Distribution<T>,
-    T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy + Serialize,
-    ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign,
+    Standard: Distribution<<T as PowerSumQuack>::Element>,
 {
-    let numbers = gen_numbers::<T>(num_packets);
-
-    // Construct two empty Quacks.
-    let mut quack = PowerSumQuack::<T>::new(threshold);
+    let numbers = gen_numbers(num_packets);
 
     // Insert a bunch of random numbers into the accumulator.
     let t1 = Instant::now();
@@ -222,91 +159,67 @@ where
     let duration = t2 - t1;
     #[cfg(not(feature = "cycles"))]
     info!(
-        "Insert {} numbers into a power sum quACK (bits = {}, \
-        threshold = {}): {:?}",
-        num_packets, num_bits_id, threshold, duration
+        "Insert {} numbers into a {} (threshold = {}): {:?}",
+        num_packets,
+        name,
+        quack.threshold(),
+        duration
     );
     #[cfg(feature = "cycles")]
     info!(
-        "Insert {} numbers into a power sum quACK (bits = {}, \
-        threshold = {}): {:?} ({} cycles/pkt)",
+        "Insert {} numbers into a {} (threshold = {}): {:?} ({} cycles/pkt)",
         num_packets,
-        num_bits_id,
-        threshold,
+        name,
+        quack.threshold(),
         duration,
         (end - start) / (num_packets as u64)
     );
     duration
 }
 
-pub fn run_benchmark(
-    quack_ty: QuackType,
-    num_trials: usize,
-    num_packets: usize,
-    params: QuackParams,
-) {
-    // Allocate buffer for benchmark durations.
-    let mut durations: Vec<Duration> = vec![];
+fn main() {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
-    for i in 0..(num_trials + 1) {
-        let duration = match quack_ty {
-            QuackType::Strawman1a => benchmark_construct_strawman1a(num_packets),
-            QuackType::Strawman1b => benchmark_construct_strawman1b(params.threshold, num_packets),
-            QuackType::Strawman2 => benchmark_construct_strawman2(num_packets),
+    let args = Cli::parse();
+    let n = args.num_packets;
+    let t = args.quack.threshold;
+    let b = args.quack.num_bits_id;
+
+    quack::global_config_set_max_power_sum_threshold(args.quack.threshold);
+
+    let mut durations: Vec<Duration> = vec![];
+    for i in 0..(args.num_trials + 1) {
+        let duration = match args.quack_ty {
+            QuackType::Strawman1a => benchmark_strawman1a(n),
+            QuackType::Strawman1b => benchmark_strawman1b(t, n),
+            QuackType::Strawman2 => benchmark_strawman2(n),
             QuackType::PowerSum => {
-                if params.precompute {
-                    match params.num_bits_id {
-                        16 => benchmark_construct_power_sum_precompute_u16(
-                            params.threshold,
-                            num_packets,
-                        ),
-                        32 => todo!(),
-                        64 => todo!(),
-                        _ => unimplemented!(),
+                if b == 16 {
+                    assert!(!args.quack.montgomery);
+                    if args.quack.precompute {
+                        benchmark(PowerTableQuack::new(t), "PowerTableQuack", n)
+                    } else {
+                        benchmark(PowerSumQuackU16::new(t), "PowerSumQuackU16", n)
                     }
-                } else if params.montgomery {
-                    match params.num_bits_id {
-                        16 => unimplemented!(),
-                        32 => unimplemented!(),
-                        64 => benchmark_construct_power_sum_montgomery_u64(
-                            params.threshold,
-                            num_packets,
-                        ),
-                        _ => unimplemented!(),
+                } else if b == 32 {
+                    assert!(!args.quack.montgomery);
+                    assert!(!args.quack.precompute);
+                    benchmark(PowerSumQuackU32::new(t), "PowerSumQuackU32", n)
+                } else if b == 64 {
+                    assert!(!args.quack.precompute);
+                    if args.quack.montgomery {
+                        benchmark(MontgomeryQuack::new(t), "MontgomeryQuack", n)
+                    } else {
+                        benchmark(PowerSumQuackU64::new(t), "PowerSumQuackU64", n)
                     }
                 } else {
-                    match params.num_bits_id {
-                        16 => benchmark_construct_power_sum::<u16>(
-                            params.threshold,
-                            params.num_bits_id,
-                            num_packets,
-                        ),
-                        32 => benchmark_construct_power_sum::<u32>(
-                            params.threshold,
-                            params.num_bits_id,
-                            num_packets,
-                        ),
-                        64 => benchmark_construct_power_sum::<u64>(
-                            params.threshold,
-                            params.num_bits_id,
-                            num_packets,
-                        ),
-                        _ => unimplemented!(),
-                    }
+                    unimplemented!("no other bit widths supported");
                 }
             }
         };
-        if i > 0 {
+        if i != 0 {
             durations.push(duration);
         }
     }
-    print_summary(durations, num_packets);
-}
-
-fn main() {
-    env_logger::init();
-
-    let args = Cli::parse();
-    debug!("args = {:?}", args);
-    run_benchmark(args.quack_ty, args.num_trials, args.num_packets, args.quack);
+    print_summary(durations, n)
 }

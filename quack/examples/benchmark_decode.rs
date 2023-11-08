@@ -1,18 +1,16 @@
+use std::fmt::Debug;
+use std::time::{Duration, Instant};
+
 use clap::{Parser, ValueEnum};
-use log::{debug, info, warn};
+use log::{info, warn};
 use multiset::HashMultiSet;
-use quack::{
-    arithmetic::{ModularArithmetic, ModularInteger},
-    *,
-};
 use rand::{
     distributions::{Distribution, Standard},
     Rng,
 };
 use sha2::{Digest, Sha256};
-use std::fmt::{Debug, Display};
-use std::ops::{AddAssign, MulAssign, Sub, SubAssign};
-use std::time::{Duration, Instant};
+
+use quack::*;
 
 #[derive(Parser, Debug)]
 pub struct QuackParams {
@@ -47,9 +45,6 @@ struct Cli {
     /// Number of dropped packets.
     #[arg(short = 'd', long = "dropped", default_value_t = 20)]
     num_drop: usize,
-    /// Number of connections.
-    #[arg(short = 'c', long = "connections", default_value_t = 1)]
-    num_conns: usize,
     /// Quack parameters.
     #[command(flatten)]
     quack: QuackParams,
@@ -87,7 +82,7 @@ where
     (0..num_packets).map(|_| rand::thread_rng().gen()).collect()
 }
 
-fn benchmark_decode_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
+fn benchmark_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     // Construct two empty Quacks.
@@ -123,7 +118,7 @@ fn benchmark_decode_strawman1a(num_packets: usize, num_drop: usize) -> Duration 
 
 const NUM_SUBSETS_LIMIT: u32 = 1000000;
 
-fn benchmark_decode_strawman2(num_packets: usize, num_drop: usize) -> Duration {
+fn benchmark_strawman2(num_packets: usize, num_drop: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
     let mut acc1 = Sha256::new();
 
@@ -168,16 +163,12 @@ fn benchmark_decode_strawman2(num_packets: usize, num_drop: usize) -> Duration {
     duration
 }
 
-fn benchmark_decode_power_sum_factor_u32(
-    size: usize,
-    num_packets: usize,
-    num_drop: usize,
-) -> Duration {
+fn benchmark_factor_u32(threshold: usize, num_packets: usize, num_drop: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     // Construct two empty Quacks.
-    let mut acc1 = PowerSumQuack::<u32>::new(size);
-    let mut acc2 = PowerSumQuack::<u32>::new(size);
+    let mut acc1 = PowerSumQuackU32::new(threshold);
+    let mut acc2 = PowerSumQuackU32::new(threshold);
 
     // Insert all but num_drop random numbers into the second accumulator.
     for &number in numbers.iter().take(num_packets - num_drop) {
@@ -188,15 +179,15 @@ fn benchmark_decode_power_sum_factor_u32(
     for &number in numbers.iter().take(num_packets) {
         acc1.insert(number);
     }
-    acc1 -= acc2;
+    acc1.sub_assign(acc2);
     let dropped = acc1.decode_by_factorization().unwrap();
     let t2 = Instant::now();
 
     let duration = t2 - t1;
     info!(
-        "Decode time (bits = 32, threshold = {}, num_packets={}, \
+        "Decode time PowerSumQuackU32 + factor (threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}",
-        size,
+        threshold,
         num_packets,
         dropped.len() - num_drop,
         num_drop,
@@ -206,98 +197,18 @@ fn benchmark_decode_power_sum_factor_u32(
     duration
 }
 
-fn benchmark_decode_power_sum_precompute_u16(
-    size: usize,
-    num_packets: usize,
-    num_drop: usize,
-) -> Duration {
-    let numbers = gen_numbers::<u16>(num_packets);
-
-    // Construct two empty Quacks.
-    let mut acc1 = PowerTableQuack::new(size);
-    let mut acc2 = PowerTableQuack::new(size);
-
-    // Insert all but num_drop random numbers into the second accumulator.
-    for &number in numbers.iter().take(num_packets - num_drop) {
-        acc2.insert(number);
-    }
-
-    let t1 = Instant::now();
-    for &number in numbers.iter().take(num_packets) {
-        acc1.insert(number);
-    }
-    acc1 -= acc2;
-    let dropped = acc1.decode_with_log(&numbers);
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
-    info!(
-        "Decode time (bits = 32, threshold = {}, num_packets={}, \
-        false_positives = {}, dropped = {}): {:?}",
-        size,
-        num_packets,
-        dropped.len() - num_drop,
-        num_drop,
-        duration
-    );
-    assert!(dropped.len() >= num_drop);
-    duration
-}
-
-fn benchmark_decode_power_sum_montgomery_u64(
-    size: usize,
-    num_packets: usize,
-    num_drop: usize,
-) -> Duration {
-    let numbers = gen_numbers::<u64>(num_packets);
-
-    // Construct two empty Quacks.
-    let mut acc1 = MontgomeryQuack::new(size);
-    let mut acc2 = MontgomeryQuack::new(size);
-
-    // Insert all but num_drop random numbers into the second accumulator.
-    for &number in numbers.iter().take(num_packets - num_drop) {
-        acc2.insert(number);
-    }
-
-    let t1 = Instant::now();
-    for &number in numbers.iter().take(num_packets) {
-        acc1.insert(number);
-    }
-    acc1 -= acc2;
-    let dropped = acc1.decode_with_log(&numbers);
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
-    info!(
-        "Decode time (bits = 64, threshold = {}, num_packets={}, \
-        false_positives = {}, dropped = {}): {:?}",
-        size,
-        num_packets,
-        dropped.len() - num_drop,
-        num_drop,
-        duration
-    );
-    assert!(dropped.len() >= num_drop);
-    duration
-}
-
-fn benchmark_decode_power_sum<T>(
-    size: usize,
-    num_bits_id: usize,
+fn benchmark<T: PowerSumQuack>(
+    mut acc1: T,
+    mut acc2: T,
+    name: &str,
     num_packets: usize,
     num_drop: usize,
 ) -> Duration
 where
-    Standard: Distribution<T>,
-    T: Debug + Display + Default + PartialOrd + Sub<Output = T> + Copy,
-    ModularInteger<T>: ModularArithmetic<T> + AddAssign + MulAssign + SubAssign,
+    Standard: Distribution<<T as PowerSumQuack>::Element>,
+    <T as PowerSumQuack>::Element: Copy,
 {
-    let numbers = gen_numbers::<T>(num_packets);
-
-    // Construct two empty Quacks.
-    let mut acc1 = PowerSumQuack::<T>::new(size);
-    let mut acc2 = PowerSumQuack::<T>::new(size);
+    let numbers = gen_numbers(num_packets);
 
     // Insert all but num_drop random numbers into the second accumulator.
     for &number in numbers.iter().take(num_packets - num_drop) {
@@ -308,16 +219,16 @@ where
     for &number in numbers.iter().take(num_packets) {
         acc1.insert(number);
     }
-    acc1 -= acc2;
+    acc1.sub_assign(acc2);
     let dropped = acc1.decode_with_log(&numbers);
     let t2 = Instant::now();
 
     let duration = t2 - t1;
     info!(
-        "Decode time (bits = {}, threshold = {}, num_packets={}, \
+        "Decode time {} (threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}",
-        num_bits_id,
-        size,
+        name,
+        acc1.threshold(),
         num_packets,
         dropped.len() - num_drop,
         num_drop,
@@ -327,97 +238,86 @@ where
     duration
 }
 
-pub fn run_benchmark(
-    quack_ty: QuackType,
-    num_trials: usize,
-    num_packets: usize,
-    num_drop: usize,
-    params: QuackParams,
-) {
-    // Allocate buffer for benchmark durations.
-    let mut durations: Vec<Duration> = vec![];
+fn main() {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
-    for i in 0..(num_trials + 1) {
-        let duration = match quack_ty {
-            QuackType::Strawman1a => benchmark_decode_strawman1a(num_packets, num_drop),
+    let args = Cli::parse();
+    let n = args.num_packets;
+    let t = args.quack.threshold;
+    let b = args.quack.num_bits_id;
+    let m = args.num_drop;
+
+    quack::global_config_set_max_power_sum_threshold(args.quack.threshold);
+
+    let mut durations: Vec<Duration> = vec![];
+    for i in 0..(args.num_trials + 1) {
+        let duration = match args.quack_ty {
+            QuackType::Strawman1a => benchmark_strawman1a(n, m),
             QuackType::Strawman1b => unimplemented!(),
-            QuackType::Strawman2 => benchmark_decode_strawman2(num_packets, num_drop),
+            QuackType::Strawman2 => benchmark_strawman2(n, m),
             QuackType::PowerSum => {
-                if params.factor {
-                    match params.num_bits_id {
-                        16 => todo!(),
-                        32 => benchmark_decode_power_sum_factor_u32(
-                            params.threshold,
-                            num_packets,
-                            num_drop,
-                        ),
-                        64 => todo!(),
-                        _ => unimplemented!(),
+                if b == 16 {
+                    assert!(!args.quack.montgomery);
+                    assert!(!args.quack.factor);
+                    if args.quack.precompute {
+                        benchmark(
+                            PowerTableQuack::new(t),
+                            PowerTableQuack::new(t),
+                            "PowerTableQuack",
+                            n,
+                            m,
+                        )
+                    } else {
+                        benchmark(
+                            PowerSumQuackU16::new(t),
+                            PowerSumQuackU16::new(t),
+                            "PowerSumQuackU16",
+                            n,
+                            m,
+                        )
                     }
-                } else if params.precompute {
-                    match params.num_bits_id {
-                        16 => benchmark_decode_power_sum_precompute_u16(
-                            params.threshold,
-                            num_packets,
-                            num_drop,
-                        ),
-                        32 => todo!(),
-                        64 => todo!(),
-                        _ => unimplemented!(),
+                } else if b == 32 {
+                    assert!(!args.quack.montgomery);
+                    assert!(!args.quack.precompute);
+                    if args.quack.factor {
+                        benchmark_factor_u32(t, n, m)
+                    } else {
+                        benchmark(
+                            PowerSumQuackU32::new(t),
+                            PowerSumQuackU32::new(t),
+                            "PowerSumQuackU32",
+                            n,
+                            m,
+                        )
                     }
-                } else if params.montgomery {
-                    match params.num_bits_id {
-                        16 => unimplemented!(),
-                        32 => unimplemented!(),
-                        64 => benchmark_decode_power_sum_montgomery_u64(
-                            params.threshold,
-                            num_packets,
-                            num_drop,
-                        ),
-                        _ => unimplemented!(),
+                } else if b == 64 {
+                    assert!(!args.quack.precompute);
+                    assert!(!args.quack.factor);
+                    if args.quack.montgomery {
+                        benchmark(
+                            MontgomeryQuack::new(t),
+                            MontgomeryQuack::new(t),
+                            "MontgomeryQuack",
+                            n,
+                            m,
+                        )
+                    } else {
+                        benchmark(
+                            PowerSumQuackU64::new(t),
+                            PowerSumQuackU64::new(t),
+                            "PowerSumQuackU64",
+                            n,
+                            m,
+                        )
                     }
                 } else {
-                    match params.num_bits_id {
-                        16 => benchmark_decode_power_sum::<u16>(
-                            params.threshold,
-                            params.num_bits_id,
-                            num_packets,
-                            num_drop,
-                        ),
-                        32 => benchmark_decode_power_sum::<u32>(
-                            params.threshold,
-                            params.num_bits_id,
-                            num_packets,
-                            num_drop,
-                        ),
-                        64 => benchmark_decode_power_sum::<u64>(
-                            params.threshold,
-                            params.num_bits_id,
-                            num_packets,
-                            num_drop,
-                        ),
-                        _ => unimplemented!(),
-                    }
+                    unimplemented!("no other bit widths supported");
                 }
             }
         };
-        if i > 0 {
+        if i != 0 {
             durations.push(duration);
         }
     }
-    print_summary(durations, num_packets);
-}
-
-fn main() {
-    env_logger::init();
-
-    let args = Cli::parse();
-    debug!("args = {:?}", args);
-    run_benchmark(
-        args.quack_ty,
-        args.num_trials,
-        args.num_packets,
-        args.num_drop,
-        args.quack,
-    );
+    print_summary(durations, n)
 }
