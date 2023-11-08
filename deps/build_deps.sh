@@ -16,17 +16,17 @@ export SIDECAR_HOME=$HOME/sidecar
 build_nginx () {
 cd $SIDECAR_HOME/deps/nginx-1.16.1
 mkdir -p logs
-patch -N -r- -p01 < $SIDECAR_HOME/quiche-nginx/nginx/nginx-1.16.patch
+patch -N -r- -p01 < $SIDECAR_HOME/deps/quiche-nginx/nginx/nginx-1.16.patch
 sed -i 's\ffi"\ffi,power_sum"\g' auto/lib/quiche/make
 cp $SIDECAR_HOME/deps/ngx_http_v3_module* src/http/v3/
 ./configure                                 \
    --prefix=$PWD                           \
-   --build="quiche-$(git --git-dir=$SIDECAR_HOME/quiche-nginx/.git rev-parse --short HEAD)" \
+   --build="quiche-$(git --git-dir=$SIDECAR_HOME/deps/quiche-nginx/.git rev-parse --short HEAD)" \
    --with-http_ssl_module                  \
    --with-http_v2_module                   \
    --with-http_v3_module                   \
-   --with-openssl=$SIDECAR_HOME/quiche-nginx/quiche/deps/boringssl \
-   --with-quiche=$SIDECAR_HOME/quiche-nginx
+   --with-openssl=$SIDECAR_HOME/deps/quiche-nginx/quiche/deps/boringssl \
+   --with-quiche=$SIDECAR_HOME/deps/quiche-nginx
 make -j$(nproc)
 sudo ln -f -s $(pwd)/objs/nginx /usr/bin/nginx
 }

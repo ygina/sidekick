@@ -39,12 +39,10 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # hit 1
 source "$HOME/.cargo/env"
 
 # build a separate quiche directory for nginx to link to (vs curl)
-cd $SIDECAR_HOME
-git clone git@github.com:ygina/quiche.git quiche-nginx
+cd $SIDECAR_HOME/deps/
+git clone --recurse-submodules git@github.com:ygina/quiche.git quiche-nginx
 cd quiche-nginx
 git checkout sidecar
-git submodule init
-git submodule update
 
 # Download external dependencies
 cd $SIDECAR_HOME/deps

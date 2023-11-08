@@ -22,6 +22,6 @@ results/
 deps/nginx*
 deps/pari*
 deps/pepsal*
-quiche-nginx/
+deps/quiche-nginx/
 
 loss_tput.error
