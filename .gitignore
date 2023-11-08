@@ -11,8 +11,8 @@ Cargo.lock
 
 __pycache__/
 env/
-plot/*.pdf
-plot/graphs/
+figures/*.pdf
+figures/graphs/
 qlog/
 results/
 ._.

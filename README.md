@@ -49,7 +49,7 @@ Check that `nginx`, `sidecurl`, and `pepsal` are on your path.
 Setup the Python virtual environment for plotting data:
 
 ```
-$ cd $SIDECAR_HOME/plot
+$ cd $SIDECAR_HOME/figures
 $ virtualenv env
 $ source env/bin/activate
 $ pip3 install -r requirements.txt

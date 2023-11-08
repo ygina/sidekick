@@ -28,11 +28,11 @@ pip3 install mininet
 # plotting scripts
 sudo pip install virtualenv
 sudo pip install virtualenvwrapper
-cd $SIDECAR_HOME/plot
+cd $SIDECAR_HOME/figures
 virtualenv -p python3 env
 source env/bin/activate
 pip install -r requirements.txt
-echo "source $HOME/sidecar/plot/env/bin/activate" >> ~/.bashrc
+echo "source $HOME/sidecar/figures/env/bin/activate" >> ~/.bashrc
 
 # rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # hit 1
