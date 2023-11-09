@@ -21,6 +21,7 @@ rustup default nightly
 Build various dependencies.
 
 ```
+cd $HOME/sidecar/deps
 ./build_deps.sh 0  # nginx (http3 server)
 ./build_deps.sh 1  # pari (quack "libpari" feature for modular factorization)
 ./build_deps.sh 2  # quiche (http3 client)

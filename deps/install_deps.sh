@@ -8,7 +8,7 @@ set -e
 cd $SIDECAR_HOME
 git submodule init
 git submodule update
-cd $SIDECAR_HOME/quiche
+cd $SIDECAR_HOME/http3_integration/quiche
 git submodule init
 git submodule update
 
