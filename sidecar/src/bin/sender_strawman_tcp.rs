@@ -1,7 +1,6 @@
 use std::net::SocketAddr;
 
 use clap::Parser;
-use tokio;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 

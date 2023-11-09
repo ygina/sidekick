@@ -1,6 +1,5 @@
 use clap::Parser;
-use log::{debug, info};
-use quack::PowerSumQuack;
+use log::info;
 use sidecar::{
     sidecar_multi::{start_sidecar_multi, start_sidecar_multi_frequency_pkts},
     SidecarMulti,
@@ -55,7 +54,7 @@ async fn send_quacks_ms(
 ) {
     let socket = UdpSocket::bind("0.0.0.0:0")
         .await
-        .expect(&format!("error binding to UDP socket"));
+        .expect("error binding to UDP socket");
     let mut interval = time::interval(Duration::from_millis(frequency_ms));
     // The first tick completes immediately
     interval.tick().await;
@@ -63,16 +62,18 @@ async fn send_quacks_ms(
         .expect("couldn't receive notice that 1st packet was sniffed");
     loop {
         interval.tick().await;
-        let sc = sc.lock().unwrap();
-        for (key, quack) in sc.senders().iter() {
-            if &key[6..] == &dst_key {
-                let bytes = bincode::serialize(&quack).unwrap();
-                debug!("quack {} key {:?}", quack.count(), key);
-                socket.send_to(&bytes, quack_addr).await.unwrap();
-                break;
-            }
+        let quacks = {
+            sc.lock()
+                .unwrap()
+                .senders()
+                .iter()
+                .filter(|(key, _)| key[6..] == dst_key)
+                .map(|(_, quack)| bincode::serialize(&quack).unwrap())
+                .collect::<Vec<Vec<u8>>>()
+        };
+        for quack in quacks {
+            socket.send_to(&quack, quack_addr).await.unwrap();
         }
-        drop(sc);
     }
 }
 

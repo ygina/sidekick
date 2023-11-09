@@ -21,7 +21,6 @@ use log::{debug, info, trace};
 use quack::arithmetic::{self, ModularArithmetic};
 use quack::{PowerSumQuack, PowerSumQuackU32, StrawmanAQuack, StrawmanBQuack};
 use rand::Rng;
-use tokio;
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc;
 use tokio::sync::Mutex; // locked across calls to .await
@@ -168,6 +167,7 @@ fn listen_for_quacks_strawman_a(mut _sender: PacketSender, quack_port: u16) {
             .await
             .unwrap();
         let mut buf = vec![0; MTU];
+        #[allow(clippy::never_loop)]
         loop {
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
             let _quack: StrawmanAQuack = bincode::deserialize(&buf[..len]).unwrap();
@@ -185,6 +185,7 @@ fn listen_for_quacks_strawman_b(mut _sender: PacketSender, quack_port: u16) {
             .await
             .unwrap();
         let mut buf = vec![0; MTU];
+        #[allow(clippy::never_loop)]
         loop {
             let (len, _) = sock.recv_from(&mut buf).await.unwrap();
             let _quack: StrawmanBQuack = bincode::deserialize(&buf[..len]).unwrap();

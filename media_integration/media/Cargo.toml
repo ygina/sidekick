@@ -8,7 +8,7 @@ clap = { version = "4.0.26", features = ["derive"] }
 tokio = { version = "1", features = ["net", "sync", "rt", "time", "macros", "io-util"] }
 log = "0.4.17"
 rand = "0.8.5"
-quack = { path = "../../quack" }
+quack = { path = "../../quack", features = ["strawmen"] }
 env_logger = "0.9.3"
 bincode = "1.3.3"
 

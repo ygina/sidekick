@@ -17,7 +17,6 @@ use std::sync::Arc;
 
 use clap::Parser;
 use log::{debug, trace};
-use tokio;
 use tokio::net::UdpSocket;
 use tokio::time::{Duration, Instant};
 

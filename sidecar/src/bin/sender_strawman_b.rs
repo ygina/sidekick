@@ -2,7 +2,6 @@ use std::collections::VecDeque;
 use std::net::SocketAddr;
 
 use clap::Parser;
-use tokio;
 use tokio::net::UdpSocket;
 
 use quack::StrawmanBQuack;

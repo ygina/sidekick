@@ -18,9 +18,9 @@ pub const PACKET_HOST: c_uchar = 0;
 pub const PACKET_OTHERHOST: c_uchar = 3;
 pub const PACKET_OUTGOING: c_uchar = 4;
 
-impl Into<Direction> for c_uchar {
-    fn into(self) -> Direction {
-        match self {
+impl From<c_uchar> for Direction {
+    fn from(val: c_uchar) -> Self {
+        match val {
             PACKET_HOST | PACKET_OTHERHOST => Direction::Incoming,
             PACKET_OUTGOING => Direction::Outgoing,
             _ => Direction::Unknown,

@@ -1,6 +1,5 @@
 use log::{debug, info, trace};
 use std::sync::{Arc, Mutex};
-use tokio;
 use tokio::net::UdpSocket;
 use tokio::sync::oneshot;
 
@@ -74,13 +73,7 @@ impl Sidecar {
             let mut addr = SockAddr::new_sockaddr_ll();
             let ip_protocol = (libc::ETH_P_IP as u16).to_be();
             let mut tx = Some(tx);
-            loop {
-                let n = match sock.recvfrom(&mut addr, &mut buf) {
-                    Ok(n) => n,
-                    Err(_) => {
-                        break;
-                    }
-                };
+            while let Ok(n) = sock.recvfrom(&mut addr, &mut buf) {
                 trace!("received {} bytes: {:?}", n, buf);
                 if Direction::Incoming != addr.sll_pkttype.into() {
                     continue;
@@ -158,14 +151,7 @@ impl Sidecar {
         let mut addr = SockAddr::new_sockaddr_ll();
         let ip_protocol = (libc::ETH_P_IP as u16).to_be();
         let mut mod_count = 0;
-        loop {
-            // TODO: don't duplicate code from start()
-            let n = match recvsock.recvfrom(&mut addr, &mut buf) {
-                Ok(n) => n,
-                Err(_) => {
-                    break;
-                }
-            };
+        while let Ok(n) = recvsock.recvfrom(&mut addr, &mut buf) {
             trace!("received {} bytes: {:?}", n, buf);
             if Direction::Incoming != addr.sll_pkttype.into() {
                 continue;

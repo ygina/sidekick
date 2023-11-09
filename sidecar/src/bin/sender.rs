@@ -43,7 +43,7 @@ async fn send_quacks(
 ) {
     let socket = UdpSocket::bind("0.0.0.0:0")
         .await
-        .expect(&format!("error binding to UDP socket"));
+        .expect("error binding to UDP socket");
     if frequency_ms > 0 {
         rx.await
             .expect("couldn't receive notice that 1st packet was sniffed");
@@ -55,7 +55,7 @@ async fn send_quacks(
             let quack = sc.lock().unwrap().quack();
             let bytes = bincode::serialize(&quack).unwrap();
             trace!("quack {}", quack.count());
-            if let Err(_) = socket.send_to(&bytes, addr).await {
+            if socket.send_to(&bytes, addr).await.is_err() {
                 break;
             }
         }

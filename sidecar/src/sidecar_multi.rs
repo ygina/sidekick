@@ -57,9 +57,9 @@ impl SidecarMulti {
     }
 
     pub fn reset(&mut self, addr_key: &AddrKey) {
-        self.senders
-            .get_mut(addr_key)
-            .map(|quack| *quack = PowerSumQuackU32::new(self.threshold));
+        if let Some(quack) = self.senders.get_mut(addr_key) {
+            *quack = PowerSumQuackU32::new(self.threshold);
+        }
     }
 
     pub fn insert(&mut self, addr_key: AddrKey, sidecar_id: u32) -> &PowerSumQuackU32 {
@@ -90,7 +90,7 @@ impl SidecarMulti {
     }
 
     pub fn quack(&self, addr_key: &AddrKey) -> Option<PowerSumQuackU32> {
-        self.senders.get(addr_key).map(|quack| quack.clone())
+        self.senders.get(addr_key).cloned()
     }
 
     pub fn senders(&self) -> &HashMap<AddrKey, PowerSumQuackU32> {
@@ -117,7 +117,7 @@ fn process_one_packet(
     // Reset the quack if the dst IP is our own (and not for another e2e quic
     // connection).
     let addr_key = UdpParser::parse_addr_key(buf);
-    if &addr_key[6..12] == my_addr {
+    if addr_key[6..12] == my_addr {
         return Action::Reset { addr_key };
     }
 
@@ -129,7 +129,7 @@ fn process_one_packet(
     // ***CYCLES START step 3 parse identifier
     #[cfg(feature = "cycles")]
     let start3 = unsafe { core::arch::x86_64::_rdtsc() };
-    let sidecar_id = UdpParser::parse_identifier(&buf);
+    let sidecar_id = UdpParser::parse_identifier(buf);
     // ***CYCLES STOP step 3 parse identifier
     #[cfg(feature = "cycles")]
     unsafe {
@@ -261,12 +261,18 @@ pub async fn start_sidecar_multi_frequency_pkts(
                 addr_key,
                 sidecar_id,
             } => {
-                let mut sc = sc.lock().unwrap();
-                let quack = sc.insert(addr_key, sidecar_id);
-                if quack.count() % frequency_pkts == 0 {
-                    let bytes = bincode::serialize(&quack).unwrap();
-                    trace!("quack {} {:?}", quack.count(), addr_key);
-                    sendsock.send_to(&bytes, sendaddr).await.unwrap();
+                let quack = {
+                    let mut sc = sc.lock().unwrap();
+                    let quack = sc.insert(addr_key, sidecar_id);
+                    if quack.count() % frequency_pkts == 0 {
+                        trace!("quack {} {:?}", quack.count(), addr_key);
+                        Some(bincode::serialize(&quack).unwrap())
+                    } else {
+                        None
+                    }
+                };
+                if let Some(quack) = quack {
+                    sendsock.send_to(&quack, sendaddr).await.unwrap();
                 }
             }
         }
