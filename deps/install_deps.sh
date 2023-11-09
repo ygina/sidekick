@@ -8,7 +8,7 @@ set -e
 cd $SIDECAR_HOME
 git submodule init
 git submodule update
-cd $SIDECAR_HOME/http3_integration/quiche
+cd $SIDECAR_HOME/quiche
 git submodule init
 git submodule update
 
@@ -30,13 +30,9 @@ sudo pip install virtualenv
 sudo pip install virtualenvwrapper
 cd $SIDECAR_HOME/figures
 virtualenv -p python3 env
-source env/bin/activate
-pip install -r requirements.txt
-echo "source $HOME/sidecar/figures/env/bin/activate" >> ~/.bashrc
 
 # rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # hit 1
-source "$HOME/.cargo/env"
 
 # build a separate quiche directory for nginx to link to (vs curl)
 cd $SIDECAR_HOME/deps/

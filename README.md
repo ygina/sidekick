@@ -24,26 +24,6 @@ webserver. Run an HTTP/1.1 or HTTP/3 (QUIC) client on h2 from the mininet CLI:
 > h2 python3 mininet/client.py -n 100k --http 1 --trials 1
 ```
 
-## Dependencies
-
-Clone the repository:
-
-```
-$ git clone git@github.com:ygina/sidecar.git
-$ cd sidecar
-$ git checkout experiments
-```
-
-Download, build, and install dependencies:
-
-```
-$ ./deps/install_deps.sh
-$ source "$HOME/.cargo/env"
-$ ./deps/build_deps.sh all
-```
-
-Check that `nginx`, `sidecurl`, and `pepsal` are on your path.
-
 ## Experiments
 
 Setup the Python virtual environment for plotting data:

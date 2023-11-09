@@ -4,7 +4,7 @@ if [ $# -ne 1 ]; then
 	echo "0 = nginx"
 	echo "1 = pari"
 	echo "2 = quiche"
-	echo "3 = curl"
+	echo "3 = libcurl"
 	echo "4 = sidecurl"
 	echo "5 = pepsal"
 	echo "6 = sidecar"	
@@ -46,12 +46,12 @@ mkdir -p quiche/deps/boringssl/src/lib
 ln -f -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
 }
 
-build_curl () {
+build_libcurl () {
 cd $SIDECAR_HOME/http3_integration/curl
 autoreconf -fi
-./configure LDFLAGS="-Wl,-rpath,$SIDECAR_HOME/quiche/target/release" \
-        --with-openssl=$SIDECAR_HOME/quiche/quiche/deps/boringssl/src \
-        --with-quiche=$SIDECAR_HOME/quiche/target/release
+./configure LDFLAGS="-Wl,-rpath,$SIDECAR_HOME/http3_integration/quiche/target/release" \
+        --with-openssl=$SIDECAR_HOME/http3_integration/quiche/quiche/deps/boringssl/src \
+        --with-quiche=$SIDECAR_HOME/http3_integration/quiche/target/release
 make -j$(nproc)
 }
 
@@ -80,7 +80,7 @@ if [ $1 == "all" ]; then
 	build_nginx
 	build_pari
 	build_quiche
-	build_curl
+	build_libcurl
 	build_sidecurl
 	build_pepsal
 	build_sidecar
@@ -91,7 +91,7 @@ elif [ $1 -eq 1 ]; then
 elif [ $1 -eq 2 ]; then
 	build_quiche
 elif [ $1 -eq 3 ]; then
-	build_curl
+	build_libcurl
 elif [ $1 -eq 4 ]; then
 	build_sidecurl
 elif [ $1 -eq 5 ]; then

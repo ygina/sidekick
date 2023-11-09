@@ -90,8 +90,8 @@ impl Socket {
                 .interface_c
                 .as_bytes()
                 .iter()
-                .map(|&byte| byte as i8)
-                .collect::<Vec<i8>>()[..],
+                .map(|&byte| byte as _)
+                .collect::<Vec<_>>()[..],
         );
         if unsafe { ioctl(self.fd, SIOCGIFFLAGS, &ethreq) } == -1 {
             return Err(String::from("ioctl 1"));
