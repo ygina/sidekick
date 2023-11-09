@@ -8,7 +8,7 @@ use tokio::{net::UdpSocket, sync::oneshot, time::Instant};
 use crate::buffer::{Direction, UdpParser, BUFFER_SIZE};
 use crate::socket::SockAddr;
 use crate::Socket;
-use quack::{PowerSumQuackU32, PowerSumQuack};
+use quack::{PowerSumQuack, PowerSumQuackU32};
 
 type AddrKey = [u8; 12];
 

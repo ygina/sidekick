@@ -2,7 +2,7 @@ use clap::Parser;
 use quack::PowerSumQuack;
 use sidecar::Sidecar;
 use signal_hook::{consts::SIGTERM, iterator::Signals};
-use std::net::{SocketAddr, Ipv4Addr};
+use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
 use tokio::net::UdpSocket;
 use tokio::time::{self, Duration, Instant};
@@ -73,7 +73,10 @@ impl Benchmark {
 
     pub async fn start(&mut self, my_ipv4_addr: [u8; 4]) {
         // Wait for the first packet to arrive.
-        Sidecar::start(self.sc.clone(), my_ipv4_addr).unwrap().await.unwrap();
+        Sidecar::start(self.sc.clone(), my_ipv4_addr)
+            .unwrap()
+            .await
+            .unwrap();
         if let Some(frequency) = self.frequency {
             let socket = UdpSocket::bind("0.0.0.0:0").await.unwrap();
             let mut interval = time::interval(frequency);
@@ -100,11 +103,13 @@ async fn main() -> Result<(), String> {
     let sc = Sidecar::new(&args.interface, args.threshold, 32);
     let mut benchmark = Benchmark::new(sc, args.addr, args.frequency);
     benchmark.setup_signal_handler();
-    benchmark.start([
-        args.my_ip.octets()[0],
-        args.my_ip.octets()[1],
-        args.my_ip.octets()[2],
-        args.my_ip.octets()[3],
-    ]).await;
+    benchmark
+        .start([
+            args.my_ip.octets()[0],
+            args.my_ip.octets()[1],
+            args.my_ip.octets()[2],
+            args.my_ip.octets()[3],
+        ])
+        .await;
     Ok(())
 }
