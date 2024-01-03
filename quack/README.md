@@ -9,7 +9,7 @@ This crate contains the recommended 32-bit power sum quACK implementation and,
 if feature-enabled, strawmen and power sum quACKs in different bit widths with
 various optimizations.
 
-* Build: `cargo +nightly build --release`
+* Build: `cargo +nightly build --release --all-features --examples`
 * Test: `cargo +nightly test --all-features`
 * Documentation: `cargo +nightly doc --all-features`
 

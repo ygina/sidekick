@@ -3,8 +3,12 @@ from collections import defaultdict
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.transforms import Bbox
+import os
+import sys
 import seaborn as sns
 import statistics
+import argparse
+import subprocess
 
 # Plot markers.
 MARKERS = 'PXD*o^v<>.'
@@ -116,3 +120,32 @@ class DataPoint:
         self.maxval = arr[-1]
         self.avg = statistics.mean(arr)
         self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
+
+DEFAULT_SIDECAR_HOME = os.environ['HOME'] + '/sidecar'
+parser = argparse.ArgumentParser()
+parser.add_argument('--execute', action='store_true',
+                    help='Execute benchmarks for missing data points')
+parser.add_argument('--workdir',
+                    default=DEFAULT_SIDECAR_HOME,
+                    help='Working directory (default: $HOME/sidecar)')
+parser.add_argument('--outdir',
+                    default=f'{DEFAULT_SIDECAR_HOME}/figures/output',
+                    help='Output directory for plots (default: $HOME/sidecar/figures/output)')
+parser.add_argument('--logdir',
+                    default=f'{DEFAULT_SIDECAR_HOME}/results',
+                    help='Log directory for data (default: $HOME/sidecar/results)')
+parser.add_argument('--legend', type=int, default=1,
+                    help='Whether to plot a legend [0|1]. (default: 1)')
+
+def execute_experiment(cmd, filename, cwd=DEFAULT_SIDECAR_HOME):
+    print(' '.join(cmd))
+    p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, env=dict(os.environ, RUST_LOG='warn'))
+    with open(filename, 'ab') as f:
+        f.write(' '.join(cmd).encode('utf-8'))
+        f.write(b'\n')
+        for line in p.stdout:
+            sys.stdout.buffer.write(line)
+            sys.stdout.buffer.flush()
+            f.write(line)
+    p.wait()
