@@ -1,18 +1,12 @@
-import argparse
-import subprocess
 import os
 import re
-import sys
-import os.path
 import statistics
-from os import path
 from collections import defaultdict
 from common import *
 
 TARGET_XS = [x for x in range(0, 10, 1)] + \
             [x for x in range(10, 100, 10)] + \
             [x for x in range(100, 1100, 100)]
-WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def collect_ys_mean(ys):
     y = statistics.mean(ys)
@@ -70,7 +64,7 @@ def parse_data(filename, key, trials, max_x, n, data_key='time_total'):
 
         # Either we're done with this min_ack_delay or read another data point
         if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
-            'factor' in line or 'unaccounted' in line:
+            'factor' in line or 'unaccounted' in line or 'sudo' in line:
             continue
         elif '[sidecar] h1-eth0' in line and exitcode == 0:
             line = line.split()
@@ -131,17 +125,9 @@ def maybe_collect_missing_data(filename, key, args):
                 cmd += ['quack']
             else:
                 cmd += [key]
-            print(' '.join(cmd))
-            p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
-            with open(filename, 'ab') as f:
-                f.write(bytes(' '.join(cmd) + '\n', 'utf-8'))
-                for line in p.stdout:
-                    f.write(line)
-                    sys.stdout.buffer.write(line)
-                    sys.stdout.buffer.flush()
+            execute_experiment(cmd, filename, cwd=args.workdir)
 
-def plot_graph(data, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=None, pdf=None):
+def plot_graph(outdir, data, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=None, pdf=None):
     max_x = max_x
     max_y = 0
     plt.figure(figsize=(8, 6))
@@ -169,9 +155,9 @@ def plot_graph(data, legend, max_x, ylabel, xlabel='min_ack_delay', ylim=None, p
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2)
     plt.title(pdf)
     if pdf:
-        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+        save_pdf(f'{outdir}/{pdf}')
 
-def plot_marquee_graph(data, legend, max_y, pdf=None):
+def plot_marquee_graph(outdir, data, legend, max_y, pdf=None):
     https = ['quic', 'quack_15ms_50', 'quack_30ms_100', 'quack_60ms_200']
     max_y = max_y
     max_x = 0
@@ -198,7 +184,7 @@ def plot_marquee_graph(data, legend, max_y, pdf=None):
     if legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, fontsize=FONTSIZE)
     if pdf:
-        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+        save_pdf(f'{outdir}/{pdf}')
 
 def collect_data(xs, ys, median):
     """
@@ -229,9 +215,6 @@ def collect_data(xs, ys, median):
 if __name__ == '__main__':
     DEFAULT_PROTOCOLS = ['quic', 'quack_15ms_50', 'quack_30ms_100', 'quack_60ms_200']
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--execute', action='store_true',
-        help='whether to execute benchmarks to collect missing data points')
     parser.add_argument('-n', default='10M',
         help='data size (default: 10M)')
     parser.add_argument('--http', action='extend', nargs='+', default=[],
@@ -241,16 +224,16 @@ if __name__ == '__main__':
     parser.add_argument('--loss', default='0', type=str,
         help='Loss percentage on the near subpath (default: 0)')
     parser.add_argument('--max-x', default=800, type=int,
-        help='maximum minimum ack delay to plot (default: 1000)')
+        help='maximum minimum ack delay to plot (default: 800)')
     parser.add_argument('--median', action='store_true',
         help='use the median instead of the mean')
-    parser.add_argument('--legend', type=bool, default=True,
-        help='Whether to plot a legend [0|1]. (default: 1)')
+    parser.add_argument('--marquee', action='store_true',
+        help='Plot the marquee graph Figure 4c.')
     args = parser.parse_args()
 
     # Create the directory that holds the results.
     https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
-    path = f'{WORKDIR}/results/min_ack_delay/{args.n}/loss{args.loss}'
+    path = f'{args.logdir}/min_ack_delay/{args.n}/loss{args.loss}'
     os.system(f'mkdir -p {path}')
 
     # Parse results data, and collect missing data points if specified.
@@ -268,13 +251,17 @@ if __name__ == '__main__':
         data_all[key] = (data_tput[key][1], data_pkts[key][1], None)
 
     # Plot data.
-    pdf = f'min_ack_delay_loss{args.loss}_{args.n}'
-    # plot_graph(data_pkts, https, args.legend, args.max_x, ylabel='h1-eth0 tx_packets', pdf=f'{pdf}_tx_packets.pdf')
-    # plot_graph(data_tput, https, args.legend, args.max_x, ylabel='Goodput (Mbit/s)', pdf=f'{pdf}_goodput.pdf')
-
-    # ACK reduction marquee graph
-    marquee_data = {}
-    for key in data_all:
-        (xs, ys, _) = data_all[key]
-        marquee_data[key] = (ys, xs)
-    plot_marquee_graph(marquee_data, args.legend, max_y=args.max_x, pdf=f'{pdf}.pdf')
+    if args.marquee:
+        # ACK reduction marquee graph
+        marquee_data = {}
+        for key in data_all:
+            (xs, ys, _) = data_all[key]
+            marquee_data[key] = (ys, xs)
+        plot_marquee_graph(args.outdir, marquee_data, args.legend,
+            max_y=args.max_x, pdf=f'fig4c_ack_reduction.pdf')
+    else:
+        pdf = f'min_ack_delay_loss{args.loss}_{args.n}'
+        plot_graph(args.outdir, data_pkts, https, args.legend, args.max_x,
+            ylabel='h1-eth0 tx_packets', pdf=f'{pdf}_tx_packets.pdf')
+        plot_graph(args.outdir, data_tput, https, args.legend, args.max_x,
+            ylabel='Goodput (Mbit/s)', pdf=f'{pdf}_goodput.pdf')

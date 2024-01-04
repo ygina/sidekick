@@ -123,7 +123,7 @@ class SidecarNetwork():
         home_dir = os.environ['HOME']
 
         # Set the minimum and maximum ack delay
-        nginx_conf = f'{home_dir}/sidecar/webserver/nginx.conf'
+        nginx_conf = f'{home_dir}/sidecar/http3_integration/webserver/nginx.conf'
         with open(nginx_conf, 'r') as f:
             lines = f.readlines()
         for (i, line) in enumerate(lines):
@@ -136,7 +136,7 @@ class SidecarNetwork():
 
         # Start the webserver
         popen(self.h1, f'nginx -c {nginx_conf}')
-        self.h1.cmd("python3 webserver/server.py >> h1.log 2>&1 &")
+        self.h1.cmd("python3 http3_integration/webserver/server.py >> h1.log 2>&1 &")
         while True:
             with open('h1.log', 'r') as f:
                 if 'Starting httpd' in f.read():

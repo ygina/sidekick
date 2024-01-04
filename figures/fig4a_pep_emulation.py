@@ -18,13 +18,11 @@ TARGET_XS = [x for x in range(200, 1100, 200)] + \
 #             [x for x in range(20000, 100000, 5000)] + \
 #             [100000]
 
-def execute_cmd(workdir, loss, http_version, trials, data_size, bw2):
-    results_file = f'{workdir}/results/loss{loss}p/{http_version}.txt'
-    subprocess.Popen(['mkdir', '-p', f'results/loss{loss}p'], cwd=workdir).wait()
+def create_cmd(loss, http_version, trials, data_size, bw2):
     cmd = ['sudo', '-E', 'python3', 'mininet/main.py',
         '--loss2', str(loss), '--delay1', '25',
         '-t', str(trials), '--bw2', str(bw2), '-n', f'{data_size}k',
-        '--stderr', os.environ['HOME'] + '/sidecar/error.log']
+        '--stderr', 'error.log']
     match = re.match(r'quack_(.+(ms|p))_(\d+)', http_version)
     if match is not None:
         cmd += ['--frequency', match.group(1)]
@@ -32,23 +30,14 @@ def execute_cmd(workdir, loss, http_version, trials, data_size, bw2):
         cmd += ['quack']
     else:
         cmd += [http_version]
-    print(cmd)
-    p = subprocess.Popen(cmd, cwd=workdir, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT)
-    with open(results_file, 'ab') as f:
-        for line in p.stdout:
-            sys.stdout.buffer.write(line)
-            sys.stdout.buffer.flush()
-            f.write(line)
-    p.wait()
+    return cmd
 
-def parse_data(args, loss, http_version, normalize=True,
-               data_key='time_total'):
+def parse_data(args, loss, http_version, data_key='time_total'):
     """
     Parses the median keyed time and the data size.
     ([data_size], [time_total])
     """
-    filename = get_filename(loss, http_version)
+    filename = get_filename(args.logdir, loss, http_version)
     with open(filename) as f:
         lines = f.read().split('\n')
     xy_map = {}
@@ -74,7 +63,7 @@ def parse_data(args, loss, http_version, normalize=True,
         if key_index is None:
             continue
         if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
-            'factor' in line or 'unaccounted' in line:
+            'factor' in line or 'unaccounted' in line or 'sudo' in line:
             # Done reading data for this data_size
             if len(data) > 0:
                 if data_size not in xy_map:
@@ -109,7 +98,8 @@ def parse_data(args, loss, http_version, normalize=True,
             missing_xs.append(x)
         if args.execute:
             for x in missing_xs:
-                execute_cmd(args.workdir, loss, http_version, args.trials, x, args.bw2)
+                cmd = create_cmd(loss, http_version, args.trials, x, args.bw2)
+                execute_experiment(cmd, filename, cwd=args.workdir)
         elif len(missing_xs) > 0:
             print(f'missing {len(missing_xs)} xs: {missing_xs}')
     try:
@@ -119,12 +109,13 @@ def parse_data(args, loss, http_version, normalize=True,
             if len(y) < args.trials:
                 missing = args.trials - len(y)
                 if args.execute:
-                    execute_cmd(args.workdir, loss, http_version, missing, x, args.bw2)
+                    cmd = create_cmd(loss, http_version, missing, x, args.bw2)
+                    execute_experiment(cmd, filename, cwd=args.workdir)
                 else:
                     print(f'{x}k missing {missing}/{args.trials}')
             xs[i] /= 1000.  # convert kilobyte to megabyte
             # convert seconds to megabit / s
-            y = DataPoint(y, normalize=(xs[i]*8) if normalize else None)
+            y = DataPoint(y, normalize=xs[i]*8)
             # if 'quic' in filename or 'quack' in filename:
             #     if y.stdev is not None and y.stdev > 0.1:
             #         print(f'ABNORMAL x={x} stdev={y.stdev} f={filename}')
@@ -134,32 +125,29 @@ def parse_data(args, loss, http_version, normalize=True,
         raise e
     return (xs, ys)
 
-def get_filename(loss, http):
+def get_filename(logdir, loss, http):
     """
     Args:
     - loss: <number>
     - http: tcp, quic, pep, quack
     """
-    return '../results/loss{}p/{}.txt'.format(loss, http)
+    results = f'{logdir}/loss{loss}p'
+    filename = f'{results}/{http}.txt'
+    os.system(f'mkdir -p {results}')
+    os.system(f'touch {filename}')
+    return filename
 
 def plot_graph(args, loss, pdf, http_versions,
                data_key='time_total',
                use_median=True,
-               normalize=True):
+               marquee_labels=False):
     data = {}
     for http_version in http_versions:
-        filename = get_filename(loss, http_version)
-        if not path.exists(filename):
-            print('Path does not exist: {}'.format(filename))
-            open(filename, 'w')
-            continue
-        try:
-            data[http_version] = parse_data(args, loss, http_version,
-                                            normalize, data_key=data_key)
-        except Exception as e:
-            print('Error parsing: {}'.format(filename))
-            print(e)
+        filename = get_filename(args.logdir, loss, http_version)
+        data[http_version] = parse_data(args, loss, http_version,
+                                        data_key=data_key)
     plt.clf()
+    plt.figure(figsize=(6, 4))
     for (i, label) in enumerate(http_versions):
         if label not in data:
             continue
@@ -168,50 +156,12 @@ def plot_graph(args, loss, pdf, http_versions,
             ys = [y.p50 for y in ys_raw]
             yerr_lower = [y.p50 - y.p25 for y in ys_raw]
             yerr_upper = [y.p75 - y.p50 for y in ys_raw]
-            plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
-                label=label, marker=MARKERS[i])
+            yerr = (yerr_lower, yerr_upper)
+            if marquee_labels:
+                label = 'QUIC E2E' if i == 0 else MAIN_RESULT_LABELS[i]
         else:
             ys = [y.avg for y in ys_raw]
             yerr = [y.stdev if y.stdev is not None else 0 for y in ys_raw]
-            plt.errorbar(xs, ys, yerr=yerr, label=label, marker=MARKERS[i])
-        # print(label)
-        # print(xs)
-        # print(ys)
-    plt.xlabel('Data Size (MByte)')
-    if normalize:
-        plt.ylabel('Goodput (MByte/s)')
-    else:
-        plt.ylabel('{} (s)'.format(data_key))
-    if args.legend:
-        plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize=FONTSIZE)
-    statistic = 'median' if use_median else 'mean'
-    if pdf is not None:
-        save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
-
-def plot_marquee_graph(args, loss, pdf, http_versions, data_key='time_total'):
-    data = {}
-    for http_version in http_versions:
-        filename = get_filename(loss, http_version)
-        if not path.exists(filename):
-            print('Path does not exist: {}'.format(filename))
-            open(filename, 'w')
-            continue
-        try:
-            data[http_version] = parse_data(args, loss, http_version,
-                                            normalize=True, data_key=data_key)
-        except Exception as e:
-            print('Error parsing: {}'.format(filename))
-            print(e)
-    plt.clf()
-    plt.figure(figsize=(6, 4))
-    for (i, label) in enumerate(http_versions):
-        if label not in data:
-            continue
-        (xs, ys_raw) = data[label]
-        ys = [y.p50 for y in ys_raw]
-        yerr_lower = [y.p50 - y.p25 for y in ys_raw]
-        yerr_upper = [y.p75 - y.p50 for y in ys_raw]
-        label = 'QUIC E2E' if i == 0 else MAIN_RESULT_LABELS[i]
         plt.errorbar(xs, ys, yerr=(yerr_lower, yerr_upper), capsize=5,
             label=label, marker=MARKERS[i], linewidth=LINEWIDTH,
             linestyle=LINESTYLES[i], zorder=MAIN_RESULT_ZORDERS[i],
@@ -220,7 +170,7 @@ def plot_marquee_graph(args, loss, pdf, http_versions, data_key='time_total'):
         # print(xs)
         # print(ys)
     plt.xlabel('Upload Data Size (MByte)', fontsize=FONTSIZE)
-    plt.ylabel('Goodput (Mbit/s)', fontsize=FONTSIZE)
+    plt.ylabel('Goodput (MByte/s)', fontsize=FONTSIZE)
     plt.xticks(fontsize=FONTSIZE)
     plt.yticks(ticks=[0, 2, 4, 6, 8], fontsize=FONTSIZE)
     plt.grid()
@@ -228,26 +178,17 @@ def plot_marquee_graph(args, loss, pdf, http_versions, data_key='time_total'):
     plt.ylim(0)
     if args.legend:
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=2, fontsize=FONTSIZE)
-    save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
+    if pdf is not None:
+        save_pdf(f'{args.outdir}/{pdf}')
 
 if __name__ == '__main__':
     DEFAULT_LOSSES = [0, 1]
-    # DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
-    DEFAULT_PROTOCOLS = ['quic', 'quack_30ms_10', 'quack_60ms_20', 'quack_120ms_40']
+    DEFAULT_PROTOCOLS = ['quack', 'pep', 'quic', 'tcp']
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--execute', action='store_true',
-                        help='Execute benchmarks for missing data points')
-    parser.add_argument('--legend', type=bool, default=True,
-                        help='Whether to plot a legend [0|1]. (default: 1)')
     parser.add_argument('-t', '--trials', default=20, type=int,
                         help='Number of trials to plot (default: 20)')
     parser.add_argument('--max-x', default='50000', type=int,
                         help='Maximum x to plot, in kB (default: 50000)')
-    parser.add_argument('--mean', action='store_true',
-                        help='Plot mean graphs')
-    parser.add_argument('--median', action='store_true',
-                        help='Plot median graphs')
     parser.add_argument('--loss', action='extend', nargs='+', default=[],
                         type=int,
                         help=f'Loss percentages to plot. '
@@ -256,20 +197,26 @@ if __name__ == '__main__':
                         help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
     parser.add_argument('--bw2', type=int, default=100,
                         help='Bandwidth of link 2 (default: 100).')
-    parser.add_argument('--workdir',
-                        default=os.environ['HOME'] + '/sidecar',
-                        help='Working directory (default: $HOME/sidecar)')
+    parser.add_argument('--mean', action='store_true',
+                        help='Plot mean graphs')
+    parser.add_argument('--median', action='store_true',
+                        help='Plot median graphs')
     parser.add_argument('--marquee', action='store_true',
-                        help='Plot the marquee graph.')
+                        help='Plot the marquee graph Figure 4a.')
     args = parser.parse_args()
+
+    if args.marquee:
+        https = ['quic', 'quack_30ms_10', 'quack_60ms_20', 'quack_120ms_40']
+        plot_graph(args, loss=1, pdf=f'fig4a_pep_emulation.pdf',
+            http_versions=https, use_median=True, marquee_labels=True)
 
     losses = DEFAULT_LOSSES if len(args.loss) == 0 else args.loss
     https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
 
     for loss in losses:
-        if args.marquee:
-            plot_marquee_graph(args, loss=loss, pdf=f'median_loss{loss}p.pdf', http_versions=https)
         if args.median:
-            plot_graph(args, loss=loss, pdf=f'median_loss{loss}p.pdf', http_versions=https, use_median=True)
+            plot_graph(args, loss=loss, pdf=f'median_loss{loss}p.pdf',
+                http_versions=https, use_median=True)
         if args.mean:
-            plot_graph(args, loss=loss, pdf=f'mean_loss{loss}p.pdf', http_versions=https, use_median=False)
+            plot_graph(args, loss=loss, pdf=f'mean_loss{loss}p.pdf',
+                http_versions=https, use_median=False)
