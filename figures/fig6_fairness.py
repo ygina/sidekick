@@ -1,42 +1,14 @@
-import argparse
-import subprocess
 import os
 import re
-import sys
-import os.path
 import statistics
-from os import path
 from collections import defaultdict
 from common import *
 
 TARGET_XS = {}
-# [x for x in range(0, 30, 2)] + \
-# TARGET_XS['tcp'] =  [x for x in range(0, 20, 5)] + \
-#                     [x for x in range(20, 40, 10)] + \
-#                     [x for x in range(40, 100, 20)] + \
-#                     [x for x in range(100, 1000, 100)]
-# TARGET_XS['quic'] = [x for x in range(0, 20, 5)] + \
-#                     [x for x in range(20, 40, 10)] + \
-#                     [x for x in range(40, 100, 20)] + \
-#                     [x for x in range(100, 500, 20)] + \
-#                     [x for x in range(500, 1000, 100)]
-# # TARGET_XS['tcp'] = [0]
-# # TARGET_XS['quic'] = [0]
-# TARGET_XS['quack'] = [x for x in range(0, 1000, 100)]
-# TARGET_XS['pep'] = TARGET_XS['quack']
 TARGET_XS['pep'] = [x for x in range(0, 1000, 50)]
 TARGET_XS['quack'] = [x for x in range(0, 1000, 50)]
-TARGET_XS['quack_old'] = TARGET_XS['quack']
-# TARGET_XS['quic'] = [0, 5, 10, 15, 20, 30, 40, 50, 100]
-# TARGET_XS['quic'] += [200, 400, 800]
-# TARGET_XS['tcp'] = TARGET_XS['quic']
-TARGET_XS['quic'] = [0, 25, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
-TARGET_XS['tcp'] = TARGET_XS['quic']
-
-WORKDIR = os.environ['HOME'] + '/sidecar'
-
-def empty_list():
-    return []
+TARGET_XS['quic'] = [0, 25, 50, 100, 150, 200, 300, 400, 500]
+TARGET_XS['tcp'] = [0, 25, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
 
 def collect_ys_mean(ys, n):
     assert n[-1] == 'M'
@@ -65,7 +37,7 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
     loss = None
     key_index = None
     exitcode_index = None
-    data = defaultdict(empty_list)
+    data = defaultdict(lambda: [])
 
     with open(filename) as f:
         lines = f.read().split('\n')
@@ -92,7 +64,7 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
 
         # Either we're done with this loss percentage or read another data point
         if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
-            'factor' in line or 'unaccounted' in line:
+            'factor' in line or 'unaccounted' in line or 'sudo' in line:
             key_index = None
             exitcode_index = None
             pass
@@ -144,14 +116,7 @@ def maybe_collect_missing_data(filename, key, args):
             cmd += ['quack']
         else:
             cmd += [key]
-        print(' '.join(cmd))
-        p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT)
-        with open(filename, 'ab') as f:
-            for line in p.stdout:
-                f.write(line)
-                sys.stdout.buffer.write(line)
-                sys.stdout.buffer.flush()
+        execute_experiment(cmd, filename, cwd=args.workdir)
 
 def plot_graph(args, data, https, legend, pdf=None):
     max_x = 0
@@ -176,10 +141,10 @@ def plot_graph(args, data, https, legend, pdf=None):
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4)
     # plt.title(pdf)
     if pdf:
-        save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+        save_pdf(f'{args.outdir}/{pdf}')
 
 def plot_legend(args, data, https, pdf):
-    pdf = f'{WORKDIR}/plot/graphs/{pdf}'
+    pdf = f'{args.outdir}/{pdf}'
     plot_graph(args, data, https, legend=False)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.3), ncol=4, frameon=True)
     bbox = Bbox.from_bounds(0.5, 4.55, 14.35, 0.95)
@@ -188,15 +153,12 @@ def plot_legend(args, data, https, pdf):
 if __name__ == '__main__':
     DEFAULT_PROTOCOLS = ['quic', 'quack', 'tcp', 'pep']
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--execute', action='store_true',
-        help='whether to execute benchmarks to collect missing data points')
     parser.add_argument('-n', default='10M',
         help='data size (default: 10M)')
     parser.add_argument('--http', action='extend', nargs='+', default=[],
         help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
-    parser.add_argument('-t', '--trials', default=1, type=int,
-        help='number of trials per data point (default: 1)')
+    parser.add_argument('-t', '--trials', default=10, type=int,
+        help='number of trials per data point (default: 10)')
     parser.add_argument('--bw', default=100, type=int,
         help='bandwidth of near subpath link in Mbps (default: 100)')
     parser.add_argument('--max-x', default=800, type=int,
@@ -213,13 +175,11 @@ if __name__ == '__main__':
         help='additional arguments to append to the mininet/main.py command if executing.')
     parser.add_argument('--mean', action='store_true',
         help='use the mean instead of the median')
-    parser.add_argument('--legend', type=int, default=1,
-        help='Whether to plot a legend [0|1]. (default: 1)')
     args = parser.parse_args()
 
     # Create the directory that holds the results.
     https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
-    path = f'{WORKDIR}/results/loss_tput/bw{args.bw}/{args.n}/{args.delay1}ms_{args.delay2}ms'
+    path = f'{args.logdir}/loss_tput/bw{args.bw}/{args.n}/{args.delay1}ms_{args.delay2}ms'
     os.system(f'mkdir -p {path}')
 
     # Parse results data, and collect missing data points if specified.
@@ -252,6 +212,6 @@ if __name__ == '__main__':
         data[key] = (new_xs, new_ys, new_yerrs)
 
     # Plot data.
-    pdf = f'loss_bw{args.bw}_{args.n}_delay_{args.delay1}ms_{args.delay2}ms.pdf'
+    pdf = f'fig6_loss_bw{args.bw}_{args.n}_delay_{args.delay1}ms_{args.delay2}ms.pdf'
     plot_graph(args, data, https, args.legend, pdf=pdf)
-    plot_legend(args, data, https, pdf='legend.pdf')
+    plot_legend(args, data, https, pdf='fig6_legend.pdf')

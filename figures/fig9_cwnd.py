@@ -1,15 +1,10 @@
-import argparse
-import subprocess
 import os
 import re
-import sys
-import os.path
 import statistics
 from os import path
 from common import *
 
 KEYS = ['cwnd', 'bytes_in_flight']
-WORKDIR = os.environ['HOME'] + '/sidecar'
 
 def parse_quic_data(filename):
     with open(filename) as f:
@@ -114,9 +109,9 @@ def parse_tcp_data_ss(filename):
 
     return (xs, ys)
 
-def get_filename(exp_name, time_s, http, delay, loss):
-    filename = f'cwnd_{exp_name}_{http}_{time_s}s_delay{delay}_loss{loss}p.out'
-    directory = f'{WORKDIR}/results/cwnd/'
+def get_filename(args, http, loss):
+    filename = f'cwnd_{args.name}_{http}_{args.time}s_delay{args.min_ack_delay}_loss{loss}p.out'
+    directory = f'{args.logdir}/cwnd/'
     os.system(f'mkdir -p {directory}')
     return f'{directory}{filename}'
 
@@ -133,7 +128,7 @@ def parse_data(args, bm, filename, key):
             return parse_tcp_data_ss(filename)
 
 def execute_and_parse_data(args, bm, loss, key='cwnd'):
-    filename = get_filename(args.name, args.time, bm, args.min_ack_delay, loss)
+    filename = get_filename(args, bm, loss)
     print(filename)
     (xs, ys) = parse_data(args, bm, filename, key)
     if len(xs) > 0 and len(ys) > 0:
@@ -174,13 +169,7 @@ def execute_and_parse_data(args, bm, loss, key='cwnd'):
             cmd += ['--pep', 'monitor', '--ss', str(args.time), 'r1']
 
     cmd += args.args
-    print(' '.join(cmd))
-    p = subprocess.Popen(cmd, cwd=WORKDIR, stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT)
-    with open(filename, 'wb') as f:
-        for line in p.stdout:
-            f.write(line)
-    p.wait()
+    execute_experiment(cmd, filename, cwd=args.workdir)
     return parse_data(args, bm, filename, key)
 
 def print_average_cwnd(bm, xs, ys):
@@ -261,10 +250,10 @@ def run(args, https, loss):
         plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.5), ncol=2)
     pdf = f'cwnd_{args.name}_{args.time}s_delay{args.min_ack_delay}_loss{loss}p.pdf'
     # plt.title(pdf)
-    save_pdf(f'{WORKDIR}/plot/graphs/{pdf}')
+    save_pdf(f'{args.outdir}/{pdf}')
 
 def plot_legend(args, pdf='cwnd_legend.pdf'):
-    pdf = f'{WORKDIR}/plot/graphs/{pdf}'
+    pdf = f'{args.outdir}/{pdf}'
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.4), ncol=4, frameon=True)
     bbox = Bbox.from_bounds(-3.2, 5.0, 15.5, 0.8)
     save_pdf(pdf, bbox_inches=bbox)
@@ -273,8 +262,6 @@ if __name__ == '__main__':
     DEFAULT_LOSSES = ['1']
     DEFAULT_PROTOCOLS = ['quic', 'quack', 'pep_h2', 'pep_r1']
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--execute', action='store_true')
     parser.add_argument('-b', '--bytes_in_flight', action='store_true')
     parser.add_argument('--time', default=60, type=int, metavar='S',
         help='time to run each experiment, in seconds (default: 60)')
@@ -286,8 +273,6 @@ if __name__ == '__main__':
         help='additional arguments to append to the mininet/net.py command if executing.')
     parser.add_argument('--iperf', action='store_true', help="use iperf instead of ss")
     parser.add_argument('--name', required=True, help="experiment name e.g. retx, ackr")
-    parser.add_argument('--legend', type=int, default=1,
-        help='Whether to plot a legend [0|1]. (default: 1)')
 
     ############################################################################
     # QUIC/QuACK configuration

@@ -1,12 +1,5 @@
-import argparse
-import subprocess
-import os
-import sys
 import re
-import os.path
-import statistics
 import numpy as np
-from os import path
 from collections import defaultdict
 from common import *
 
@@ -18,7 +11,7 @@ DEFAULT_DATA_SIZES = [1000, 10000, 50000]
 def plot_retx_graph(args,
                     https=DEFAULT_PROTOCOLS_RETX,
                     data_sizes=DEFAULT_DATA_SIZES,
-                    pdf='real_world_retx.pdf'):
+                    pdf='fig8a_real_world_retx.pdf'):
     data = defaultdict(lambda: {})
     # Add the total times, in seconds, to these arrays when collected.
     # The first 10, 10, and 6 data points for each data size were collected
@@ -86,7 +79,7 @@ def plot_retx_graph(args,
     ax.set_ylim(0)
     ax.grid(axis='y')
     if pdf is not None:
-        save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
+        save_pdf(f'{args.outdir}/{pdf}')
 
 def parse_data_cdf(args, filename):
     with open(f'{args.workdir}/{filename}') as f:
@@ -119,7 +112,7 @@ def parse_data_cdf(args, filename):
 def plot_webrtc_graph(args, data,
                       keys=['base', 'quack'],
                       labels=['Simple E2E', 'Sidekick'],
-                      pdf='real_world_webrtc.pdf'):
+                      pdf='fig8a_real_world_webrtc.pdf'):
     plt.clf()
     plt.figure(figsize=(6, 4.8))
     xs = [x / 10.0 for x in range(args.min_x, 1001)]
@@ -143,16 +136,10 @@ def plot_webrtc_graph(args, data,
     plt.ylim(min_x, 100.5)
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=2, fontsize=FONTSIZE)
     if pdf:
-        save_pdf(f'{args.workdir}/plot/graphs/{pdf}')
+        save_pdf(f'{args.outdir}/{pdf}')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--legend', type=bool, default=True,
-                        help='Whether to plot a legend [0|1]. (default: 1)')
     parser.add_argument('--min-x', type=int, default=800, help='(default: 800)')
-    parser.add_argument('--workdir',
-                        default=os.environ['HOME'] + '/sidecar',
-                        help='Working directory (default: $HOME/sidecar)')
     parser.add_argument('--cdf-filename', default='raw_data_server_2:11PM')
     args = parser.parse_args()
 
