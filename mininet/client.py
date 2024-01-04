@@ -52,10 +52,10 @@ def run_quic_client(args):
     cmd += f'--threshold {args.threshold} '
     if args.quack_reset:
         cmd += '--quack-reset '
-    if args.sidecar_mtu:
-        cmd += '--sidecar-mtu '
     if args.quack_style:
         cmd += f'--quack-style {args.quack_style} '
+    if args.disable_mtu_fix:
+        cmd += '--disable-mtu-fix '
     if args.min_ack_delay is not None:
         cmd += f'--min-ack-delay {args.min_ack_delay} '
     if args.max_ack_delay is not None:
@@ -94,8 +94,8 @@ if __name__ == '__main__':
                       help='Min delay between acks. (default: 0)')
     quic.add_argument('--max-ack-delay', type=int, default=25, metavar='MS',
                       help='Max delay between acks. (default: 25)')
-    quic.add_argument('--sidecar-mtu', type=bool, default=True,
-                      help='Send packets only if cwnd > mtu [0|1] (default: 1)')
+    quic.add_argument('--disable-mtu-fix', action='store_true',
+                      help='Disable fix that sends packets only if cwnd > mtu')
     quic.add_argument('--quack-reset', type=bool, default=True,
                       help='Whether to send quack reset messages [0|1] (default: 1)')
     quic.add_argument('--quack-style', default='power_sum',

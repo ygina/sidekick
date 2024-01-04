@@ -20,7 +20,8 @@ def benchmark(net, args, proxy, quic, client):
     if quic:
         h2_cmd += f' --min-ack-delay {args.client_min_ack_delay} '
         h2_cmd += f' --max-ack-delay {max(args.client_max_ack_delay, args.min_ack_delay)} '
-        h2_cmd += f' --sidecar-mtu {int(args.sidecar_mtu)} '
+        if args.disable_mtu_fix:
+            h2_cmd += ' --disable-mtu-fix '
     net.h2.cmdPrint(h2_cmd)
 
 def benchmark_tcp(net, args):
@@ -50,10 +51,11 @@ def benchmark_quack(net, args):
     h2_cmd += f'quic '
     h2_cmd += f'--min-ack-delay {args.client_min_ack_delay} '
     h2_cmd += f'--max-ack-delay {max(args.client_max_ack_delay, args.min_ack_delay)} '
-    h2_cmd += f'--sidecar-mtu {int(args.sidecar_mtu)} '
     h2_cmd += f'--threshold {args.threshold} '
     h2_cmd += f'--quack-reset {int(args.quack_reset)} '
     h2_cmd += f'--quack-style {args.style} '
+    if args.disable_mtu_fix:
+        h2_cmd += '--disable-mtu-fix '
 
     net.h2.cmdPrint(h2_cmd)
     for _ in range(loops):
@@ -148,9 +150,8 @@ if __name__ == '__main__':
     quic.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
         help='Maximum delay between acks, in ms (default: 25 or the '
              'min_ack_delay, whichever is larger)')
-    quic.add_argument('--sidecar-mtu', type=bool, default=True,
-        metavar='ENABLED',
-        help='Send packets only if cwnd > mtu [0|1] (default: 1)')
+    quic.add_argument('--disable-mtu-fix', action='store_true',
+        help='Disable fix that sends packets only if cwnd > mtu')
 
     ############################################################################
     # QuACK client benchmark
@@ -161,9 +162,8 @@ if __name__ == '__main__':
     quack.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
         help='Maximum delay between acks, in ms (default: 25 or the server\'s '
              'min_ack_delay, whichever is larger)')
-    quack.add_argument('--sidecar-mtu', type=bool, default=True,
-        metavar='ENABLED',
-        help='Send packets only if cwnd > mtu [0|1] (default: 1)')
+    quack.add_argument('--disable-mtu-fix', action='store_true',
+        help='Disable fix that sends packets only if cwnd > mtu')
     quack.add_argument('--quack-reset', type=bool, default=True,
         metavar='ENABLED',
         help='Whether to send quack reset messages [0|1] (default: 1)')
