@@ -31,7 +31,7 @@ plt.style.use('seaborn-v0_8-white')
 prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
 COLOR_MAP = {}
-COLOR_MAP['quack'] = colors[0]
+COLOR_MAP['quack'] = COLOR_MAP['quack_30ms_10'] = colors[0]
 COLOR_MAP['pep'] = colors[2]
 COLOR_MAP['quic'] = colors[1]
 COLOR_MAP['tcp'] = colors[3]
@@ -101,6 +101,7 @@ LABEL_MAP['pep_r1'] = 'TCP+PEP(proxy)'
 LABEL_MAP['pep_h2'] = 'TCP+PEP'
 LABEL_MAP['quack-2ms-r'] = LABEL_MAP['quack']
 LABEL_MAP['quack-2ms-rm'] = LABEL_MAP['quack']
+LABEL_MAP['quack_30ms_10'] = LABEL_MAP['quack']
 
 FONTSIZE = 18
 
