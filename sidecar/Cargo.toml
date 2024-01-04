@@ -28,7 +28,6 @@ benchmark = []
 
 # Benchmark cycles.
 cycles = []
-cycles_summary = []
 
 [[example]]
 name = "benchmark_encode"

@@ -61,7 +61,6 @@ def run_benchmark(net, args, binary):
           max (ns/packet)
         * Load generator: target tput (packets/s); tput (packets/s)
     """
-    # load_generator = net.h2.popen(f'./target/release/load_generator --warmup {args.warmup} --tput {args.tput}'.split(' '))
     clients = start_iperf(net, args)
     time.sleep(args.warmup)
     if args.disable_sidecar:
@@ -70,7 +69,7 @@ def run_benchmark(net, args, binary):
     else:
         env = os.environ.copy()
         # env['RUST_LOG'] = 'debug'
-        benchmark_cmd = f'taskset -c {args.cores - 1} ./target/release/{binary} --threshold {args.threshold} --frequency {args.frequency}'
+        benchmark_cmd = f'taskset -c {args.cores - 1} ./target/release/examples/{binary} --threshold {args.threshold} --frequency {args.frequency}'
         sclog(benchmark_cmd)
         r1 = net.r1.popen(benchmark_cmd.split(' '),
             stderr=subprocess.STDOUT, stdout=subprocess.PIPE, env=env)
@@ -149,7 +148,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     os.system('pkill -9 -f iperf')
-    os.system('pkill -9 -f ./target/release/benchmark')
+    os.system('pkill -9 -f ./target/release/examples/benchmark')
     num_client_cores = math.ceil(1.0 * args.num_clients / args.clients_per_core)
     total_num_cores = num_client_cores + 1
     if total_num_cores > args.cores:

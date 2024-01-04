@@ -14,9 +14,9 @@ type AddrKey = [u8; 12];
 
 const IP_PROTOCOL: u16 = (libc::ETH_P_IP as u16).to_be();
 
-#[cfg(any(feature = "cycles", feature = "cycles_summary"))]
+#[cfg(any(feature = "cycles"))]
 static mut CYCLES_COUNT: u64 = 0;
-#[cfg(any(feature = "cycles", feature = "cycles_summary"))]
+#[cfg(any(feature = "cycles"))]
 static mut CYCLES: [u64; 5] = [0; 5];
 
 #[derive(Clone)]
@@ -142,17 +142,24 @@ fn process_one_packet(
     }
 }
 
-#[cfg(any(feature = "cycles", feature = "cycles_summary"))]
+#[cfg(any(feature = "cycles"))]
 unsafe fn print_cycles_count_summary() {
     CYCLES_COUNT += 1;
-    if CYCLES_COUNT % 1000 == 0 {
+    if CYCLES_COUNT % 10000 == 0 {
+        let cycles_norm = CYCLES
+            .clone()
+            .into_iter()
+            .map(|cycles| cycles / CYCLES_COUNT)
+            .collect::<Vec<_>>();
         println!(
             "{:?}",
-            CYCLES
-                .clone()
-                .into_iter()
-                .map(|cycles| cycles / CYCLES_COUNT)
-                .collect::<Vec<_>>()
+            [
+                cycles_norm[1],  // sniff packet
+                cycles_norm[2],  // table lookup
+                cycles_norm[3],  // parse id
+                cycles_norm[4],  // encode id
+                cycles_norm[0] - cycles_norm.iter().skip(1).sum::<u64>(),  // other
+            ],
         );
     }
 }
@@ -179,7 +186,7 @@ pub fn start_sidecar_multi(
 
         loop {
             // ***CYCLES START step 0 total
-            #[cfg(feature = "cycles_summary")]
+            #[cfg(feature = "cycles")]
             let start0 = unsafe { core::arch::x86_64::_rdtsc() };
             // ***CYCLES START step 1 sniff packet
             #[cfg(feature = "cycles")]
@@ -214,7 +221,7 @@ pub fn start_sidecar_multi(
                 }
             }
             // ***CYCLES STOP step 0 total
-            #[cfg(feature = "cycles_summary")]
+            #[cfg(feature = "cycles")]
             unsafe {
                 let stop0 = core::arch::x86_64::_rdtsc();
                 CYCLES[0] += stop0 - start0;
