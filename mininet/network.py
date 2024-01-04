@@ -31,15 +31,21 @@ class NetStatistics():
             self.rx_bytes[iface] = self.get(host, iface, 'rx_bytes')
 
     def stop_and_print(self):
-        ifaces = self.iface_to_host.keys()
+        # ifaces = self.iface_to_host.keys()
+        iface_to_str = {
+            'h2-eth0': 'DS->proxy',
+            'r1-eth1': 'DS<-proxy',
+            'r1-eth0': 'proxy->DR',
+            'h1-eth0': 'proxy<-DR'
+        }
         sclog('            tx_packets    tx_bytes  rx_packets    rx_bytes')
-        for iface in ifaces:
+        for iface in ['h2-eth0', 'r1-eth1', 'r1-eth0', 'h1-eth0']:
             host = self.iface_to_host[iface]
             tx_packets = self.get(host, iface, 'tx_packets') - self.tx_packets[iface]
             tx_bytes = self.get(host, iface, 'tx_bytes') - self.tx_bytes[iface]
             rx_packets = self.get(host, iface, 'rx_packets') - self.rx_packets[iface]
             rx_bytes = self.get(host, iface, 'rx_bytes') - self.rx_bytes[iface]
-            sclog(f'{iface:<10}{tx_packets:>12}{tx_bytes:>12}{rx_packets:>12}{rx_bytes:>12}')
+            sclog(f'{iface_to_str[iface]:<10}{tx_packets:>12}{tx_bytes:>12}{rx_packets:>12}{rx_bytes:>12}')
 
 
 class SidecarNetwork():
