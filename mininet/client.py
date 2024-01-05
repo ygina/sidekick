@@ -59,6 +59,22 @@ def run_quic_client(args):
         cmd += f'--min-ack-delay {args.min_ack_delay} '
     if args.max_ack_delay is not None:
         cmd += f'--max-ack-delay {args.max_ack_delay} '
+    if args.mark_acked is not None:
+        cmd += f'--mark-acked {int(args.mark_acked)} '
+    if args.mark_lost_and_retx is not None:
+        cmd += f'--mark-lost-and-retx {int(args.mark_lost_and_retx)} '
+    if args.update_cwnd is not None:
+        cmd += f'--update-cwnd {int(args.update_cwnd)} '
+    if args.near_delay is not None:
+        cmd += f'--near-delay {args.near_delay} '
+    if args.e2e_delay is not None:
+        cmd += f'--e2e-delay {args.e2e_delay} '
+    if args.reset_port is not None:
+        cmd += f'--reset-port {args.reset_port} '
+    if args.reset_threshold is not None:
+        cmd += f'--reset-threshold {args.reset_threshold} '
+    if args.reorder_threshold is not None:
+        cmd += f'--reorder-threshold {args.reorder_threshold} '
     run_client(args, cmd, '--http3')
 
 
@@ -102,6 +118,14 @@ if __name__ == '__main__':
                       choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
     quic.add_argument('--qlog', action='store_true',
                       help='Store qlogs at $HOME/sidecar/qlog')
+    quic.add_argument('--mark-acked', type=bool)
+    quic.add_argument('--mark-lost-and-retx', type=bool)
+    quic.add_argument('--update-cwnd', type=bool)
+    quic.add_argument('--near-delay', type=int, metavar='MS')
+    quic.add_argument('--e2e-delay', type=int, metavar='MS')
+    quic.add_argument('--reset-port', type=int)
+    quic.add_argument('--reset-threshold', type=int, metavar='MS')
+    quic.add_argument('--reorder-threshold', type=int, metavar='PKTS')
     quic.set_defaults(func=run_quic_client)
     args = parser.parse_args()
 

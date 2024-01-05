@@ -54,8 +54,21 @@ def benchmark_quack(net, args):
     h2_cmd += f'--threshold {args.threshold} '
     h2_cmd += f'--quack-reset {int(args.quack_reset)} '
     h2_cmd += f'--quack-style {args.style} '
+    h2_cmd += f'--near-delay {args.delay2} '
+    h2_cmd += f'--e2e-delay {args.delay1 + args.delay2} '
+    h2_cmd += f'--reset-threshold {args.delay2 * 10} '  # 10x near delay
     if args.disable_mtu_fix:
         h2_cmd += '--disable-mtu-fix '
+    if args.mark_acked is not None:
+        h2_cmd += f'--mark-acked {int(args.mark_acked)} '
+    if args.mark_lost_and_retx is not None:
+        h2_cmd += f'--mark-lost-and-retx {int(args.mark_lost_and_retx)} '
+    if args.update_cwnd is not None:
+        h2_cmd += f'--update-cwnd {int(args.update_cwnd)} '
+    if args.reset_port is not None:
+        h2_cmd += f'--reset-port {args.reset_port} '
+    if args.reorder_threshold is not None:
+        h2_cmd += f'--reorder-threshold {args.reorder_threshold} '
 
     net.h2.cmdPrint(h2_cmd)
     for _ in range(loops):
@@ -169,6 +182,11 @@ if __name__ == '__main__':
         help='Whether to send quack reset messages [0|1] (default: 1)')
     quack.add_argument('--style', default='power_sum',
         choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
+    quack.add_argument('--mark-acked', type=bool)
+    quack.add_argument('--mark-lost-and-retx', type=bool)
+    quack.add_argument('--update-cwnd', type=bool)
+    quack.add_argument('--reset-port', type=int)
+    quack.add_argument('--reorder-threshold', type=int, metavar='PKTS')
 
     ############################################################################
     # Multiflow experiments

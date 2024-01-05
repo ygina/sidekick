@@ -114,8 +114,8 @@ def maybe_collect_missing_data(filename, key, args):
         for _ in range(num_missing):
             cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '--delay1', '1',
                    '--delay2', '25', '--bw1', '100', '--bw2', '10', '-t', '1',
-                   '--loss1', '0', '--loss2', str(args.loss),
-                   '-n', args.n, '--print-statistics',
+                   '--loss1', '0', '--loss2', str(args.loss), '-n', args.n,
+                   '--print-statistics', '--mark-acked', '1',
                    '--min-ack-delay', str(min_ack_delay)]
             match = re.match(r'quack_(.+(ms|p))_(\d+)', key)
             if match is not None:
