@@ -49,9 +49,8 @@ def run_quic_client(args):
         cmd += '/home/gina/sidecar/curl/sidecurl/tcpsidecurl '
     else:
         cmd += 'sidecurl '
-    cmd += f'--threshold {args.threshold} '
-    if args.quack_reset:
-        cmd += '--quack-reset '
+    cmd += f'--sidecar {args.threshold} '
+    cmd += f'--enable-reset {int(args.quack_reset)} '
     if args.quack_style:
         cmd += f'--quack-style {args.quack_style} '
     if args.disable_mtu_fix:
