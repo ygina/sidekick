@@ -26,7 +26,7 @@ export QUICHE_HOME=$HOME/sidecar/http3_integration/quiche
 ## Figure 2
 
 ```
-python figures/fig2_microbenchmarks.py --logdir $HOME/sidecar/nsdi --execute
+python figures/fig2_microbenchmarks.py --logdir $SIDECAR_HOME/nsdi --execute
 ```
 
 ## Figure 4
@@ -34,31 +34,31 @@ python figures/fig2_microbenchmarks.py --logdir $HOME/sidecar/nsdi --execute
 ### Figure 4a
 
 ```
-python figures/fig4a_pep_emulation.py --marquee --logdir $HOME/sidecar/nsdi --execute [-t 1]
+python figures/fig4a_pep_emulation.py --marquee --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 4b
 
 ```
-python figures/fig4b_low_latency_media.py --logdir $HOME/sidecar/nsdi --execute [-t 1]
+python figures/fig4b_low_latency_media.py --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 4c
 
 ```
-python figures/fig4c_ack_reduction.py --marquee --logdir $HOME/sidecar/nsdi --execute
+python figures/fig4c_ack_reduction.py --marquee --logdir $SIDECAR_HOME/nsdi --execute
 ```
 
 ## Figure 5
 
 ```
-python figures/fig5_baseline_bar.py --legend 0 --logdir $HOME/sidecar/nsdi --execute [-t 1]
+python figures/fig5_baseline_bar.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
 ```
 
 ## Figure 6
 
 ```
-python figures/fig6_fairness.py --legend 0 --logdir $HOME/sidecar/nsdi --execute [-t 1]
+python figures/fig6_fairness.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
 ```
 
 ## Table 6
