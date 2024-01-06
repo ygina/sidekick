@@ -82,7 +82,7 @@ where
     (0..num_packets).map(|_| rand::thread_rng().gen()).collect()
 }
 
-fn benchmark_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
+fn _benchmark_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
     let numbers = gen_numbers::<u32>(num_packets);
 
     // Construct two empty Quacks.
@@ -252,8 +252,8 @@ fn main() {
     let mut durations: Vec<Duration> = vec![];
     for i in 0..(args.num_trials + 1) {
         let duration = match args.quack_ty {
-            QuackType::Strawman1a => benchmark_strawman1a(n, m),
-            QuackType::Strawman1b => unimplemented!(),
+            QuackType::Strawman1a => unimplemented!("decoding R is trivial because the identifiers are unmodified"),
+            QuackType::Strawman1b => unimplemented!("decoding R is trivial because the identifiers are unmodified"),
             QuackType::Strawman2 => benchmark_strawman2(n, m),
             QuackType::PowerSum => {
                 if b == 16 {
