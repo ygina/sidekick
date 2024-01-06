@@ -66,7 +66,7 @@ def parse_data(filename, key, trials, max_x, n, data_key='time_total'):
         if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
             'factor' in line or 'unaccounted' in line or 'sudo' in line:
             continue
-        elif '[sidecar] h1-eth0' in line and exitcode == 0:
+        elif exitcode == 0 and ('[sidecar] proxy<-DR' in line or '[sidecar] h1-eth0' in line):
             line = line.split()
             data_pkts[min_ack_delay].append(int(line[2]))
             min_ack_delay = None
@@ -115,7 +115,7 @@ def maybe_collect_missing_data(filename, key, args):
             cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '--delay1', '1',
                    '--delay2', '25', '--bw1', '100', '--bw2', '10', '-t', '1',
                    '--loss1', '0', '--loss2', str(args.loss), '-n', args.n,
-                   '--print-statistics', '--mark-acked', '1',
+                   '--print-statistics',
                    '--min-ack-delay', str(min_ack_delay)]
             match = re.match(r'quack_(.+(ms|p))_(\d+)', key)
             if match is not None:
@@ -123,6 +123,7 @@ def maybe_collect_missing_data(filename, key, args):
                 cmd += ['--threshold', match.group(3)]
                 cmd += ['--timeout', '60']
                 cmd += ['quack']
+                cmd += ['--mark-acked', '1']
             else:
                 cmd += [key]
             execute_experiment(cmd, filename, cwd=args.workdir)
