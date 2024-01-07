@@ -69,6 +69,17 @@ sudo -E python3 mininet/benchmark_encode.py --length 25 single -n 1 --tput 50000
 sudo -E python3 mininet/benchmark_encode.py --length 1468 single -n 1 --tput 50000
 ```
 
+### Proxy CPU Overheads Max Throughput
+
+Note you will need at least 16 cores to achieve enough load, such as an
+m4.4xlarge AWS instance.
+
+```
+cargo b --release --example benchmark_encode_multi --features benchmark
+python figures/cpu.py --payload 25 --execute
+python figures/cpu.py --payload 1468 --execute
+```
+
 ## Figure 7
 
 For each experiment, collect the `time_total`, and the `tx_packets` and `tx_bytes`
