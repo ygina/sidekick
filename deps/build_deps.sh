@@ -73,7 +73,8 @@ sudo make install
 
 build_sidecar () {
 cd $SIDECAR_HOME
-cargo build --release --features libpari
+cargo build --release
+cargo build --release --examples --all-features
 }
 
 if [ $1 == "all" ]; then
