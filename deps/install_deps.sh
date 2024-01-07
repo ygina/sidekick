@@ -33,6 +33,8 @@ virtualenv -p python3 env
 
 # rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # hit 1
+source $HOME/.cargo/env
+rustup default nightly-2023-11-03
 
 # build a separate quiche directory for nginx to link to (vs curl)
 cd $SIDECAR_HOME/deps/
