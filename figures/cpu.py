@@ -126,9 +126,9 @@ if __name__ == '__main__':
     parser.add_argument('--timeout', default=10, type=int, help='(default: 10)')
     parser.add_argument('--num-clients', default=15, type=int,
         help='number of clients, should be number of cores minus one (default: 15)')
-    parser.add_argument('--initial-rate', default=400000, type=int,
+    parser.add_argument('--initial-rate', default=100000, type=int,
         help='initial target rate per client, in packets per second. should be '
-             'larger than the highest achievable rate (default: 400000)')
+             'larger than the highest achievable rate (default: 100000)')
     parser.add_argument('--prefix', default='', type=str,
         help='results filename prefix (default = \'\')')
     args = parser.parse_args()
