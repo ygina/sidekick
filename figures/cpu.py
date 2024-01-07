@@ -60,17 +60,17 @@ def parse_data(filename, payload, threshold, args):
         line = line.strip()
 
         # Parse the target and achieved rates
-        m = re.search(r'Rate \(packets/s\): ([\d\.]+)', line)
+        m = re.search(r'Target rate is ([\d\.]+) packets/s', line)
+        if m is not None:
+            target_rate = int(m.group(1))
+            continue
+        m = re.search(r'Combined rate \(packets/s\): ([\d\.]+)', line)
         if m is not None:
             achieved_rate = float(m.group(1))
-            continue
-        m = re.search(r'Target combined rate \(packets/s\): ([\d\.]+)', line)
-        if m is not None:
-            target_rate = float(m.group(1))
             assert parsed.next_target_rate() * parsed.num_clients == target_rate
             parsed.add_achieved_rate(achieved_rate)
             target_rate = None
-            achieved_rate = None
+            continue
     # print([x for x in zip(parsed.target_rates, parsed.achieved_rates)])
     return parsed
 
@@ -108,7 +108,7 @@ def parse_and_maybe_collect_missing_data(filename, payload, threshold, args):
                 f.write(line)
                 sys.stdout.buffer.write(line)
                 sys.stdout.buffer.flush()
-                m = re.search(r'Rate \(packets/s\): ([\d\.]+)', line.decode('utf-8'))
+                m = re.search(r'Combined rate \(packets/s\): ([\d\.]+)', line.decode('utf-8'))
                 if m is not None:
                     achieved_rate = float(m.group(1))
                     parsed.add_achieved_rate(achieved_rate)

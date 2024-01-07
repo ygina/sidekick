@@ -49,8 +49,8 @@ async fn handle_signals(sc: Arc<Mutex<SidecarMulti>>, mut signals: Signals) {
             let total_us: u128 = total.as_micros();
             let rate_pps: f64 = avg_count as f64 * 1000000.0 / total_us as f64;
             let rate_mbits: f64 = rate_pps * 1500.0 * 8.0 / 1000000.0;
-            println!("Average rate (packets/s): {:.3}", rate_pps);
-            println!("Average rate (Mbit/s): {:.3}", rate_mbits);
+            println!("Average rate (packets/s/client): {:.3}", rate_pps);
+            println!("Average rate (Mbit/s/client): {:.3}", rate_mbits);
             println!(
                 "Combined rate (packets/s): {:.3}",
                 rate_pps * (senders.len() as f64)
