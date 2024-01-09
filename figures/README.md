@@ -19,8 +19,14 @@ export QUICHE_HOME=$HOME/sidecar/http3_integration/quiche
 ## Table 3
 
 ```
-./target/release/benchmark_construct [strawman1a|strawman1b|strawman2|power-sum] -n 1000 -t 20 -b 32
-./target/release/benchmark_decode [strawman1a|strawman1b|strawman2|power-sum] -n 1000 -t 20 -b 32
+cargo b --release --examples --all-features
+export RUST_LOG=warn
+./target/release/examples/benchmark_construct strawman1a
+./target/release/examples/benchmark_construct strawman1b
+./target/release/examples/benchmark_construct strawman2
+./target/release/examples/benchmark_construct power-sum
+./target/release/examples/benchmark_decode strawman2 --trials 1
+./target/release/examples/benchmark_decode power-sum
 ```
 
 ## Figure 2
@@ -76,8 +82,8 @@ m4.4xlarge AWS instance.
 
 ```
 cargo b --release --example benchmark_encode_multi --features benchmark
-python figures/cpu.py --payload 25 --execute
-python figures/cpu.py --payload 1468 --execute
+python figures/cpu.py --payload 25 --num-clients 15 --execute
+python figures/cpu.py --payload 1468 --num-clients 15 --execute
 ```
 
 ## Figure 7

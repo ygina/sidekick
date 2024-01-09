@@ -120,8 +120,8 @@ def parse_and_maybe_collect_missing_data(filename, payload, threshold, args):
 
 if __name__ == '__main__':
     parser.add_argument('--payload', required=True, type=int, help=f'payload size')
-    parser.add_argument('--threshold', '-t', type=int, default=20,
-        help=f'(default: 20)')
+    parser.add_argument('--threshold', '-t', type=int, default=10,
+        help=f'(default: 10)')
     parser.add_argument('--warmup', default=5, type=int, help='(default: 5)')
     parser.add_argument('--timeout', default=10, type=int, help='(default: 10)')
     parser.add_argument('--num-clients', default=15, type=int,

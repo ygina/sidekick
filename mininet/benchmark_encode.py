@@ -118,8 +118,8 @@ if __name__ == '__main__':
     sidecar_config = parser.add_argument_group('sidecar_config')
     sidecar_config.add_argument('--frequency', type=int, default=0,
         help='Quack frequency in ms (default: 0)')
-    sidecar_config.add_argument('--threshold', type=int, default=20, metavar='PACKETS',
-        help='Quack threshold (default: 20)')
+    sidecar_config.add_argument('--threshold', type=int, default=10, metavar='PACKETS',
+        help='Quack threshold (default: 10)')
 
     ############################################################################
     # Single quack

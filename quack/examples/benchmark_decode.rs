@@ -15,7 +15,7 @@ use quack::*;
 #[derive(Parser, Debug)]
 pub struct QuackParams {
     /// The threshold number of dropped packets.
-    #[arg(long, short = 't', default_value_t = 20)]
+    #[arg(long, short = 't', default_value_t = 10)]
     threshold: usize,
     /// Number of identifier bits.
     #[arg(long = "bits", short = 'b', default_value_t = 32)]
@@ -37,13 +37,13 @@ struct Cli {
     #[arg(value_enum)]
     quack_ty: QuackType,
     /// Number of trials.
-    #[arg(long = "trials", default_value_t = 10)]
+    #[arg(long = "trials", default_value_t = 1000)]
     num_trials: usize,
-    /// Number of sent packets.
-    #[arg(short = 'n', default_value_t = 1000)]
+    /// Number of packets sent between quACKs.
+    #[arg(short = 'n', default_value_t = 25)]
     num_packets: usize,
     /// Number of dropped packets.
-    #[arg(short = 'd', long = "dropped", default_value_t = 20)]
+    #[arg(short = 'd', long = "dropped", default_value_t = 10)]
     num_drop: usize,
     /// Quack parameters.
     #[command(flatten)]
