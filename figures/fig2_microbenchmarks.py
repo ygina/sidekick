@@ -35,11 +35,11 @@ def parse_decode_output(filename, x_regex, expected_xs):
             continue
         match = re.match(r'.*avg = (\S+)', line)
         if match is not None:
-            y = match.group(1)  # convert to ms
+            y = match.group(1)  # convert to μs
             if 'ms' in y:
-                x_to_y[x] = float(y[:-2])
+                x_to_y[x] = float(y[:-2]) * 1000
             elif 'µs' in y:
-                x_to_y[x] = float(y[:-2]) / 1000.
+                x_to_y[x] = float(y[:-2])
             else:
                 print(y)
                 raise Exception
@@ -68,11 +68,11 @@ def parse_construct_output(filename, x_regex, expected_xs):
                 raise Exception
     return [x_to_y[x] for x in expected_xs]
 
-def plot_num_candidates_vs_decode_time(args, pdf):
+def plot_num_candidates_vs_decode_time_method(args, pdf):
     results = f'{args.logdir}/quack/num_candidates_vs_decode_time'
     os.system(f'mkdir -p {results}')
 
-    xs = [x for x in range(1000, 40001, 1000)]
+    xs = [x for x in range(1000, 50001, 1000)]
     keys = ['PlugInRoots', 'PolyFactor']
 
     # m = 20, n = 0 to 40k, t = 20, b = 32 bits
@@ -105,14 +105,54 @@ def plot_num_candidates_vs_decode_time(args, pdf):
                colors=[COLOR_MAP['quack'], colors[5]],
                linestyles=[LINESTYLES[1], LINESTYLES[0]],
                xlabel='Num Sent Packets',
-               ylabel='Decode Time (ms)',
+               ylabel='Decode Time (μs)',
+               legend=args.legend, pdf=pdf)
+
+def plot_num_candidates_vs_decode_time(args, pdf):
+    results = f'{args.logdir}/quack/num_candidates_vs_decode_time'
+    os.system(f'mkdir -p {results}')
+
+    xs = [x for x in range(10, 301, 5)]
+    num_bits = [16, 32, 64]
+
+    data = {}
+    x_regex = r'.*-n (\d+)'
+    for key in num_bits:
+        key_str = f'b={int(key/8)}'
+        filename = f'{results}/{key}.txt'
+        ys = parse_decode_output(filename, x_regex, xs)
+        if None not in ys:
+            data[key_str] = ys
+            continue
+        if not args.execute:
+            print(f'{filename} {len(xs) - ys.count(None)}/{len(xs)} points')
+            return
+        for (i, x) in enumerate(xs):
+            if ys[i] is None:
+                cmd = ['./target/release/examples/benchmark_decode', 'power-sum']
+                cmd += ['-d', '10', '-t', '10', '--trials', str(args.trials)]
+                cmd += ['-b', str(key), '-n', str(x)]
+                if key == 16:
+                    cmd += ['--precompute']
+                elif key == 64:
+                    cmd += ['--montgomery']
+                execute_experiment(cmd, filename, cwd=args.workdir)
+        data[key_str] = parse_decode_output(filename, x_regex, xs)
+        assert len(data[key_str]) == len(xs)
+
+    plot_graph(xs, data, ['b=2', 'b=4', 'b=8'],
+               outdir=args.outdir,
+               colors=[colors[6], COLOR_MAP['quack'], colors[7]],
+               linestyles=[LINESTYLES[2], LINESTYLES[1], LINESTYLES[3]],
+               xlabel='Num Sent Packets',
+               ylabel='Decode Time (μs)',
                legend=args.legend, pdf=pdf)
 
 def plot_num_missing_vs_decode_time(args, pdf):
     results = f'{args.logdir}/quack/num_missing_vs_decode_time'
     os.system(f'mkdir -p {results}')
 
-    xs = [x for x in range(10, 310, 10)]
+    xs = [x for x in range(5, 301, 5)]
     num_bits = [16, 32, 64]
 
     data = {}
@@ -130,7 +170,7 @@ def plot_num_missing_vs_decode_time(args, pdf):
         for (i, x) in enumerate(xs):
             if ys[i] is None:
                 cmd = ['./target/release/examples/benchmark_decode', 'power-sum']
-                cmd += ['-n', '1000', '--trials', str(args.trials)]
+                cmd += ['-n', '300', '--trials', str(args.trials)]
                 cmd += ['-d', str(x), '-t', str(x)]
                 cmd += ['-b', str(key)]
                 if key == 16:
@@ -149,7 +189,7 @@ def plot_num_missing_vs_decode_time(args, pdf):
                colors=[colors[6], COLOR_MAP['quack'], colors[7]],
                linestyles=[LINESTYLES[2], LINESTYLES[1], LINESTYLES[3]],
                xlabel='Num Missing Packets',
-               ylabel='Decode Time (ms)',
+               ylabel='Decode Time (μs)',
                legend=args.legend, pdf=pdf)
 
 def plot_threshold_vs_encode_time(args, pdf):
@@ -174,7 +214,7 @@ def plot_threshold_vs_encode_time(args, pdf):
         for (i, x) in enumerate(xs):
             if ys[i] is None:
                 cmd = ['./target/release/examples/benchmark_construct', 'power-sum']
-                cmd += ['-n', '1000', '--trials', str(args.trials)]
+                cmd += ['-e', '1000', '--trials', str(args.trials)]
                 cmd += ['-t', str(x)]
                 cmd += ['-b', str(key)]
                 if key == 16:
@@ -189,7 +229,7 @@ def plot_threshold_vs_encode_time(args, pdf):
     # data['b=4'] = [0.0,0.054,0.112,0.180,0.238,0.297,0.364,0.424,0.490,0.551,0.614,0.668,0.731,0.805,0.859,0.924,0.981,1.04,1.11,1.163,1.235,1.293,1.351,1.423,1.482,1.538,1.602,1.656,1.726,1.788,1.851]
     # data['b=8'] = [0,0.050,0.109,0.163,0.224,0.294,0.345,0.406,0.460,0.514,0.584,0.633,0.698,0.750,0.811,0.867,0.932,0.981,1.042,1.102,1.156,1.225,1.274,1.35,1.396,1.45,1.513,1.563,1.618,1.678,1.742]
     for key in data:
-        data[key] = [1000 * x for x in data[key]]
+        data[key] = [x for x in data[key]]
     plot_graph(xs, data, [x for x in sorted(data.keys())],
                outdir=args.outdir,
                colors=[colors[6], COLOR_MAP['quack'], colors[7]],
@@ -199,8 +239,8 @@ def plot_threshold_vs_encode_time(args, pdf):
                legend=args.legend, pdf=pdf)
 
 if __name__ == '__main__':
-    parser.add_argument('-t', '--trials', default=10, type=int,
-                        help='Number of trials (default: 10)')
+    parser.add_argument('-t', '--trials', default=100, type=int,
+                        help='Number of trials (default: 100)')
     args = parser.parse_args()
 
     plot_num_candidates_vs_decode_time(args, pdf='fig2a_quack_num_candidates_vs_decode_time.pdf')
