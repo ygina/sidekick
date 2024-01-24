@@ -67,7 +67,9 @@ python figures/fig5_baseline_bar.py --legend 0 --logdir $SIDECAR_HOME/nsdi --exe
 python figures/fig6_fairness.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
 ```
 
-## Table 6
+## Section 6.4 Proxy CPU Overheads
+
+### Table 6
 
 ```
 cargo b --release --example benchmark_encode_multi --features benchmark,cycles
@@ -75,7 +77,7 @@ sudo -E python3 mininet/benchmark_encode.py --length 25 single -n 1 --tput 50000
 sudo -E python3 mininet/benchmark_encode.py --length 1468 single -n 1 --tput 50000
 ```
 
-### Proxy CPU Overheads Max Throughput
+#### Max Throughput
 
 Note you will need at least 16 cores to achieve enough load, such as an
 m4.4xlarge AWS instance.
@@ -86,9 +88,10 @@ python figures/cpu.py --payload 25 --num-clients 15 --execute
 python figures/cpu.py --payload 1468 --num-clients 15 --execute
 ```
 
-## Figure 7
+## Section 6.5 Link Overheads
 
-For each experiment, collect the `time_total`, and the `tx_packets` and `tx_bytes`
+For each experiment in Figure 7, collect the `time_total`, and the `tx_packets`
+and `tx_bytes`
 from DS->proxy, DS<-proxy, and proxy<-DR (the 1st, 2nd, and 4th rows). Calculate
 the goodput by dividing the data size 10 MBytes from the total time.
 
@@ -124,6 +127,13 @@ sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 
 cd $QUICHE_HOME && make sidecar && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style power_sum
 
+```
+
+### QuACK vs ACK Cycles
+
+```
+cd $QUICHE_HOME && make cycles && cd $SIDECAR_HOME
+sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 quack
 ```
 
 ## Figure 8
