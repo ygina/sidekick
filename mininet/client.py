@@ -46,7 +46,7 @@ def run_quic_client(args):
         cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
     cmd += 'RUST_LOG=debug RUST_BACKTRACE=1 '
     if args.quack_style == 'strawman_c':
-        cmd += '/home/gina/sidecar/curl/sidecurl/tcpsidecurl '
+        cmd += '/home/gina/sidecar/http3_integration/curl/sidecurl/tcpsidecurl '
     else:
         cmd += 'sidecurl '
     cmd += f'--sidecar {args.threshold} '
