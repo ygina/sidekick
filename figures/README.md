@@ -16,7 +16,9 @@ export SIDECAR_HOME=$HOME/sidecar
 export QUICHE_HOME=$HOME/sidecar/http3_integration/quiche
 ```
 
-## Table 3
+## Section 3.5 Microbenchmarks
+
+### Table 3
 
 ```
 cargo b --release --examples --all-features
@@ -29,13 +31,13 @@ export RUST_LOG=warn
 ./target/release/examples/benchmark_decode power-sum
 ```
 
-## Figure 2
+### Figure 2
 
 ```
 python figures/fig2_microbenchmarks.py --logdir $SIDECAR_HOME/nsdi --execute
 ```
 
-## Figure 4
+## Section 6.2 Performance Comparison to Baseline
 
 ### Figure 4a
 
@@ -55,13 +57,15 @@ python figures/fig4b_low_latency_media.py --logdir $SIDECAR_HOME/nsdi --execute 
 python figures/fig4c_ack_reduction.py --marquee --logdir $SIDECAR_HOME/nsdi --execute
 ```
 
-## Figure 5
+## Section 6.3 Fairness Evaluation
+
+### Figure 5
 
 ```
 python figures/fig5_baseline_bar.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
 ```
 
-## Figure 6
+### Figure 6
 
 ```
 python figures/fig6_fairness.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
@@ -136,4 +140,6 @@ cd $QUICHE_HOME && make cycles && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 quack
 ```
 
-## Figure 8
+## Section 6.6 End-to-End Real World Experiments
+
+### Figure 8

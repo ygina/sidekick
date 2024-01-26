@@ -1,98 +1,51 @@
-# Sidecar
-```
- ________                                  ________                   ________
-|        | h1-eth0                r1-eth0 |   r1   | r1-eth1 h2-eth0 |   h2   |
-|        |<-------------------------------|--------|- - - - - - - - -|        |
-|   h1   |                                |   ↑    |                 |   ↑    |
-|sidecar |                                |sidecar |- - - - - - - - >|sidecar |
-|________|                                |________|                 |________|
-Data receiver                               Proxy                   Data sender
-                                         QuACK sender            QuACK receiver
- 10.0.1.10                            10.0.1.1   10.0.2.1             10.0.2.10
-```
+# Sidekick
 
-The following command is run from the `sidecar/` directory. Start the mininet
-instance, which sets up the topology above and runs an NGINX/Python webserver
-on h1:
-```
-$ sudo -E python3 mininet/net.py
-```
+Sidekick protocols are a method for in-network assistance of opaque transport
+protocols that leaves the transport protocol unmodified on the wire and free
+to evolve. The sidekick protocol is spoken on an adjacent connection between
+an end host and a PEP. Sidekick PEPs report their observations on packets in
+the base connection, and end hosts use this information to influence decisions
+about how and when to send or resend packets, approximating some of the
+performance benefits of traditional PEPs.
 
-The client POSTs an HTTP request with a payload of the specified size to the
-webserver. Run an HTTP/1.1 or HTTP/3 (QUIC) client on h2 from the mininet CLI:
-```
-> h2 python3 mininet/client.py -n 100k --http 1 --trials 1
-```
-
-## Experiments
-
-Setup the Python virtual environment for plotting data:
+The repository is organized as follows:
 
 ```
-$ cd $SIDECAR_HOME/figures
-$ virtualenv env
-$ source env/bin/activate
-$ pip3 install -r requirements.txt
+deps/               # scripts for building and installing dependencies
+figures/            # scripts for running/graphing experiments in the NSDI '24 paper
+http3_integration/  # HTTP/3 file upload client integration
+|__curl/
+|__quiche/
+media_integration/  # low-latency media client integration
+mininet/            # two-hop network emulation environment
+quack/              # library and microbenchmarks for the quack data structure
+sidecar/            # sidekick binary implementations for middleboxes
+visualizer/         # web visualizer for sidecar-related quiche debug logs
 ```
 
-### Figure 4 Baseline Bar Graphs
+## Getting Started
 
-Check the baseline experiment, using a data size such as `10M`:
+To reproduce the experiments in the NSDI '24 paper,
+_[Sidekick: In-Network Assistance for Secure End-to-End Transport Protocols]()_,
+first build and install all dependencies according to the instructions
+[here](https://github.com/ygina/sidecar/tree/main/deps).
+Our experiments were run on an m4.xlarge AWS instance with a 4-CPU Intel Xeon
+E5 processor and 16 GB memory, running Ubuntu 22.04, but it should be possible
+to adapt the instructions for any Linux machine. Each figure in the paper has
+a corresponding script, and the instructions can be found
+[here](https://github.com/ygina/sidecar/tree/main/figures).
 
-* pep: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp --pep -n 10M`
-* quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -s 2ms --quack-reset -n 10M`
-* tcp: `sudo -E python3 mininet/net.py -t 1 --benchmark tcp -n 10M`
-* quack: `sudo -E python3 mininet/net.py -t 1 --benchmark quic -n 10M`
+For a more minimal installation, install [Rust](https://www.rust-lang.org/tools/install)
+and [mininet](https://mininet.org/download/). Build the media server and client
+using `cargo build --release` and run the low-latency media experiment in
+emulation using `python figures/fig4b_low_latency_media.py --execute -t 1`.
+You may need to install some Python and other system dependencies as well.
 
-The goodput is 10MB divided by the total time of the request. To change
-the loss percentage on the near subpath, use the `--loss2` parameter.
-To plot the graph (and execute the data points), run `python3 baseline_bar.py -t 1 --execute`.
-
-### Figure 5 Baseline Line Graphs
-
-```
-python3 data_size_vs_total_time.py --mean --median -t 1 --execute
-```
-
-### Figure 6 Congestion Control Behavior
-
-We have to recompile `quiche` to log congestion window updates because
-that is how we gather data points for QUIC. This just adds the `cwnd_log`
-feature to the compilation command. For TCP, we use `ss`.
+## BibTeX
 
 ```
-$ cd $SIDECAR_HOME/quiche
-$ cargo build --package quiche --release --features ffi,pkg-config-meta,qlog,cwnd_log
+TODO
 ```
 
-Run a single instance of each category that lasts at least 30 seconds, and plot.
-
-```
-python3 time_vs_cwnd.py --max-x 30 --quic-n 35M --quack-n 35M --tcp 35 --loss 0 --execute
-python3 time_vs_cwnd.py --max-x 30 --quic-n 5M --quack-n 35M --tcp 35 --loss 1 --execute
-```
-
-Make sure to recompile `quiche` for other experiments so you don't
-log like crazy:
-
-```
-$ cd $SIDECAR_HOME/quiche
-$ make sidecar
-```
-
-### Figure 7 Retransmission Behavior
-
-```
-python3 loss_vs_tput.py --max-x 800 -n 25M -t 1 --execute
-```
-
-### Figure 8 Multiflow Fairness
-
-```
-python3 multiflow.py -n 60M --max-x 60 --execute loss1p
-python3 multiflow.py -n 60M --max-x 60 --execute loss0p
-```
-
-### Table 3 Analyzing Different Bit Widths
-
+## Quacknowledgements
 
