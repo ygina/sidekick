@@ -52,20 +52,61 @@ struct Cli {
     quack: QuackParams,
 }
 
-pub fn print_summary(d: Vec<Duration>, num_packets: usize) {
+struct Timer {
+    t: Instant,
+    cycles: u64,
+}
+
+impl Timer {
+    fn start() -> Timer {
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        let t = Instant::now();
+        let cycles = unsafe { core::arch::x86_64::_rdtsc() };
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        Timer { t, cycles }
+    }
+
+    fn stop(&self) -> (Duration, u64) {
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        let cycles = unsafe { core::arch::x86_64::_rdtsc() };
+        let t = Instant::now();
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        (t - self.t, cycles - self.cycles)
+    }
+}
+
+pub fn print_summary(d: Vec<Duration>, cycles: Vec<u64>, num_packets: usize) {
     let size = d.len() as u32;
-    let avg = if d.is_empty() {
-        Duration::new(0, 0)
+    let (avg_time, avg_cycles) = if d.is_empty() {
+        (Duration::new(0, 0), 0)
     } else {
-        d.into_iter().sum::<Duration>() / size
+        let avg_time = d.into_iter().sum::<Duration>() / size;
+        let avg_cycles = cycles.into_iter().sum::<u64>() / (size as u64);
+        (avg_time, avg_cycles)
     };
-    warn!("SUMMARY: num_trials = {}, avg = {:?}", size, avg);
-    let d_per_packet = avg / num_packets as u32;
-    let ns_per_packet = d_per_packet.as_secs() * 1000000000 + d_per_packet.subsec_nanos() as u64;
-    let packets_per_s = 1000000000 / ns_per_packet;
     warn!(
-        "SUMMARY (per-packet): {:?}/packet = {} packets/s",
-        d_per_packet, packets_per_s
+        "SUMMARY: num_trials = {}, avg_cycles = {}, avg = {:?}",
+        size, avg_cycles, avg_time
+    );
+    let d_per_packet = avg_time / num_packets as u32;
+    let cycles_per_packet = avg_cycles / num_packets as u64;
+    let ns_per_packet = d_per_packet.as_secs() * 1000000000 + d_per_packet.subsec_nanos() as u64;
+    let packets_per_s = if ns_per_packet == 0 {
+        "NaN".to_string()
+    } else {
+        (1000000000 / ns_per_packet).to_string()
+    };
+    warn!(
+        "SUMMARY (per-packet): {:?}/packet = {} packets/s = {} cycles/packet",
+        d_per_packet, packets_per_s, cycles_per_packet,
     )
 }
 
@@ -76,105 +117,99 @@ where
     (0..num_packets).map(|_| rand::thread_rng().gen()).collect()
 }
 
-fn benchmark_strawman1a(num_packets: usize) -> Duration {
+fn benchmark_strawman1a(num_packets: usize) -> (Duration, u64) {
     let numbers = gen_numbers::<u32>(num_packets);
 
     let mut quack = StrawmanAQuack { sidecar_id: 0 };
 
     // Insert a bunch of random numbers into the accumulator.
-    let t1 = Instant::now();
+    let t = Timer::start();
     for number in numbers {
         quack.sidecar_id = number;
         let _bytes = bincode::serialize(&quack).unwrap();
     }
-    let t2 = Instant::now();
 
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!(
-        "Serialize {} numbers into StrawmanAQuack: {:?}",
-        num_packets, duration
+        "Serialize {} numbers into StrawmanAQuack: {:?} ({} cycles/pkt)",
+        num_packets,
+        duration,
+        cycles / (num_packets as u64),
     );
-    duration
+    (duration, cycles)
 }
 
-fn benchmark_strawman1b(threshold: usize, num_packets: usize) -> Duration {
+fn benchmark_strawman1b(threshold: usize, num_packets: usize) -> (Duration, u64) {
     let numbers = gen_numbers::<u32>(num_packets);
 
     let mut quack = StrawmanBQuack::new(threshold);
 
     // Insert a bunch of random numbers into the accumulator.
-    let t1 = Instant::now();
+    let t = Timer::start();
     for number in numbers {
         quack.insert(number);
         let _bytes = bincode::serialize(&quack).unwrap();
     }
-    let t2 = Instant::now();
 
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!(
-        "Serialize {} numbers into StrawmanBQuack with threshold {}: {:?}",
-        num_packets, threshold, duration
+        "Serialize {} numbers into StrawmanBQuack with threshold {}: {:?} ({} cycles/pkt)",
+        num_packets,
+        threshold,
+        duration,
+        cycles / (num_packets as u64),
     );
-    duration
+    (duration, cycles)
 }
 
-fn benchmark_strawman2(num_packets: usize) -> Duration {
+fn benchmark_strawman2(num_packets: usize) -> (Duration, u64) {
     let numbers = gen_numbers::<u32>(num_packets);
     let mut acc = Sha256::new();
 
     // Insert a bunch of random numbers into the accumulator.
-    let t1 = Instant::now();
+    let t = Timer::start();
     for number in numbers.iter().take(num_packets) {
         acc.update(number.to_be_bytes());
     }
     let _array = acc.finalize();
-    let t2 = Instant::now();
 
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!(
-        "Insert {} numbers into a sha256 digest: {:?}",
-        num_packets, duration
+        "Insert {} numbers into a sha256 digest: {:?} ({} cycles/pkt)",
+        num_packets,
+        duration,
+        cycles / (num_packets as u64),
     );
-    duration
+    (duration, cycles)
 }
 
-fn benchmark<T: PowerSumQuack + Serialize>(mut quack: T, name: &str, num_packets: usize) -> Duration
+fn benchmark<T: PowerSumQuack + Serialize>(
+    mut quack: T,
+    name: &str,
+    num_packets: usize,
+) -> (Duration, u64)
 where
     Standard: Distribution<<T as PowerSumQuack>::Element>,
 {
     let numbers = gen_numbers(num_packets);
 
     // Insert a bunch of random numbers into the accumulator.
-    let t1 = Instant::now();
-    #[cfg(feature = "cycles")]
-    let start = unsafe { core::arch::x86_64::_rdtsc() };
+    let t = Timer::start();
     for number in numbers {
         quack.insert(number);
     }
-    #[cfg(feature = "cycles")]
-    let end = unsafe { core::arch::x86_64::_rdtsc() };
     let _bytes = bincode::serialize(&quack);
-    let t2 = Instant::now();
 
-    let duration = t2 - t1;
-    #[cfg(not(feature = "cycles"))]
-    info!(
-        "Insert {} numbers into a {} (threshold = {}): {:?}",
-        num_packets,
-        name,
-        quack.threshold(),
-        duration
-    );
-    #[cfg(feature = "cycles")]
+    let (duration, cycles) = t.stop();
     info!(
         "Insert {} numbers into a {} (threshold = {}): {:?} ({} cycles/pkt)",
         num_packets,
         name,
         quack.threshold(),
         duration,
-        (end - start) / (num_packets as u64)
+        cycles / (num_packets as u64)
     );
-    duration
+    (duration, cycles)
 }
 
 fn main() {
@@ -188,8 +223,9 @@ fn main() {
     quack::global_config_set_max_power_sum_threshold(args.quack.threshold);
 
     let mut durations: Vec<Duration> = vec![];
+    let mut cycles_vec: Vec<u64> = vec![];
     for i in 0..(args.num_trials + 1) {
-        let duration = match args.quack_ty {
+        let (duration, cycles) = match args.quack_ty {
             QuackType::Strawman1a => benchmark_strawman1a(n),
             QuackType::Strawman1b => benchmark_strawman1b(t, n),
             QuackType::Strawman2 => benchmark_strawman2(n),
@@ -219,7 +255,8 @@ fn main() {
         };
         if i != 0 {
             durations.push(duration);
+            cycles_vec.push(cycles);
         }
     }
-    print_summary(durations, n)
+    print_summary(durations, cycles_vec, n)
 }

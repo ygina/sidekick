@@ -58,20 +58,57 @@ pub enum QuackType {
     PowerSum,
 }
 
-pub fn print_summary(d: Vec<Duration>, num_packets: usize) {
+struct Timer {
+    t: Instant,
+    cycles: u64,
+}
+
+impl Timer {
+    fn start() -> Timer {
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        let t = Instant::now();
+        let cycles = unsafe { core::arch::x86_64::_rdtsc() };
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        Timer { t, cycles }
+    }
+
+    fn stop(&self) -> (Duration, u64) {
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        let cycles = unsafe { core::arch::x86_64::_rdtsc() };
+        let t = Instant::now();
+        unsafe {
+            core::arch::x86_64::_mm_lfence();
+        }
+        (t - self.t, cycles - self.cycles)
+    }
+}
+
+pub fn print_summary(d: Vec<Duration>, cycles: Vec<u64>, num_packets: usize) {
     let size = d.len() as u32;
-    let avg = if d.is_empty() {
-        Duration::new(0, 0)
+    let (avg_time, avg_cycles) = if d.is_empty() {
+        (Duration::new(0, 0), 0)
     } else {
-        d.into_iter().sum::<Duration>() / size
+        let avg_time = d.into_iter().sum::<Duration>() / size;
+        let avg_cycles = cycles.into_iter().sum::<u64>() / (size as u64);
+        (avg_time, avg_cycles)
     };
-    warn!("SUMMARY: num_trials = {}, avg = {:?}", size, avg);
-    let d_per_packet = avg / num_packets as u32;
+    warn!(
+        "SUMMARY: num_trials = {}, avg_cycles = {}, avg = {:?}",
+        size, avg_cycles, avg_time,
+    );
+    let d_per_packet = avg_time / num_packets as u32;
+    let cycles_per_packet = avg_cycles / num_packets as u64;
     let ns_per_packet = d_per_packet.as_secs() * 1000000000 + d_per_packet.subsec_nanos() as u64;
     let packets_per_s = 1000000000 / ns_per_packet;
     warn!(
-        "SUMMARY (per-packet): {:?}/packet = {} packets/s",
-        d_per_packet, packets_per_s
+        "SUMMARY (per-packet): {:?}/packet = {} packets/s = {} cycles/packet",
+        d_per_packet, packets_per_s, cycles_per_packet,
     )
 }
 
@@ -82,7 +119,7 @@ where
     (0..num_packets).map(|_| rand::thread_rng().gen()).collect()
 }
 
-fn _benchmark_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
+fn _benchmark_strawman1a(num_packets: usize, num_drop: usize) -> (Duration, u64) {
     let numbers = gen_numbers::<u32>(num_packets);
 
     // Construct two empty Quacks.
@@ -94,16 +131,14 @@ fn _benchmark_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
         acc2.insert(number);
     }
 
-    let t1 = Instant::now();
+    let t = Timer::start();
     // Insert all random numbers into the first accumulator.
     // Then find the set difference.
     for &number in numbers.iter().take(num_packets) {
         acc1.insert(number);
     }
     let dropped = acc1 - acc2;
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!(
         "Decode time (num_packets={}, \
         false_positives = {}, dropped = {}): {:?}",
@@ -113,12 +148,12 @@ fn _benchmark_strawman1a(num_packets: usize, num_drop: usize) -> Duration {
         duration
     );
     assert_eq!(dropped.len(), num_drop);
-    duration
+    (duration, cycles)
 }
 
 const NUM_SUBSETS_LIMIT: u32 = 1000000;
 
-fn benchmark_strawman2(num_packets: usize, num_drop: usize) -> Duration {
+fn benchmark_strawman2(num_packets: usize, num_drop: usize) -> (Duration, u64) {
     let numbers = gen_numbers::<u32>(num_packets);
     let mut acc1 = Sha256::new();
 
@@ -133,7 +168,7 @@ fn benchmark_strawman2(num_packets: usize, num_drop: usize) -> Duration {
     let _r = num_drop as u32;
     // let num_subsets = (n-r+1..=n).product();
 
-    let t1 = Instant::now();
+    let t = Timer::start();
     if num_drop > 0 {
         // For every subset of size "num_packets - num_drop"
         // Calculate the SHA256 hash
@@ -151,19 +186,16 @@ fn benchmark_strawman2(num_packets: usize, num_drop: usize) -> Duration {
             acc2.finalize();
         }
     }
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!("Decode time (num_packets={}): {:?}", num_packets, duration);
     info!(
         "Calculated {} hashes, expected {}C{}",
         NUM_SUBSETS_LIMIT, num_packets, num_drop
     );
-
-    duration
+    (duration, cycles)
 }
 
-fn benchmark_factor_u32(threshold: usize, num_packets: usize, num_drop: usize) -> Duration {
+fn benchmark_factor_u32(threshold: usize, num_packets: usize, num_drop: usize) -> (Duration, u64) {
     let numbers = gen_numbers::<u32>(num_packets);
 
     // Construct two empty Quacks.
@@ -175,15 +207,13 @@ fn benchmark_factor_u32(threshold: usize, num_packets: usize, num_drop: usize) -
         acc2.insert(number);
     }
 
-    let t1 = Instant::now();
+    let t = Timer::start();
     for &number in numbers.iter().take(num_packets) {
         acc1.insert(number);
     }
     acc1.sub_assign(acc2);
     let dropped = acc1.decode_by_factorization().unwrap();
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!(
         "Decode time PowerSumQuackU32 + factor (threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}",
@@ -194,7 +224,7 @@ fn benchmark_factor_u32(threshold: usize, num_packets: usize, num_drop: usize) -
         duration
     );
     assert_eq!(dropped.len(), num_drop);
-    duration
+    (duration, cycles)
 }
 
 fn benchmark<T: PowerSumQuack>(
@@ -203,7 +233,7 @@ fn benchmark<T: PowerSumQuack>(
     name: &str,
     num_packets: usize,
     num_drop: usize,
-) -> Duration
+) -> (Duration, u64)
 where
     Standard: Distribution<<T as PowerSumQuack>::Element>,
     <T as PowerSumQuack>::Element: Copy,
@@ -215,15 +245,13 @@ where
         acc2.insert(number);
     }
 
-    let t1 = Instant::now();
+    let t = Timer::start();
     for &number in numbers.iter().take(num_packets) {
         acc1.insert(number);
     }
     acc1.sub_assign(acc2);
     let dropped = acc1.decode_with_log(&numbers);
-    let t2 = Instant::now();
-
-    let duration = t2 - t1;
+    let (duration, cycles) = t.stop();
     info!(
         "Decode time {} (threshold = {}, num_packets={}, \
         false_positives = {}, dropped = {}): {:?}",
@@ -235,7 +263,7 @@ where
         duration
     );
     assert!(dropped.len() >= num_drop);
-    duration
+    (duration, cycles)
 }
 
 fn main() {
@@ -250,10 +278,15 @@ fn main() {
     quack::global_config_set_max_power_sum_threshold(args.quack.threshold);
 
     let mut durations: Vec<Duration> = vec![];
+    let mut cycles_vec: Vec<u64> = vec![];
     for i in 0..(args.num_trials + 1) {
-        let duration = match args.quack_ty {
-            QuackType::Strawman1a => unimplemented!("decoding R is trivial because the identifiers are unmodified"),
-            QuackType::Strawman1b => unimplemented!("decoding R is trivial because the identifiers are unmodified"),
+        let (duration, cycles) = match args.quack_ty {
+            QuackType::Strawman1a => {
+                unimplemented!("decoding R is trivial because the identifiers are unmodified")
+            }
+            QuackType::Strawman1b => {
+                unimplemented!("decoding R is trivial because the identifiers are unmodified")
+            }
             QuackType::Strawman2 => benchmark_strawman2(n, m),
             QuackType::PowerSum => {
                 if b == 16 {
@@ -317,7 +350,8 @@ fn main() {
         };
         if i != 0 {
             durations.push(duration);
+            cycles_vec.push(cycles);
         }
     }
-    print_summary(durations, n)
+    print_summary(durations, cycles_vec, n)
 }
