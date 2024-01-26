@@ -6,3 +6,6 @@
 	path = http3_integration/quiche
 	url = git@github.com:ygina/quiche.git
 	branch = sidecar
+[submodule "quack"]
+	path = quack
+	url = git@github.com:ygina/quack.git
