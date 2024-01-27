@@ -143,3 +143,8 @@ sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 -
 ## Section 6.6 End-to-End Real World Experiments
 
 ### Figure 8
+
+Collect real-world data from the [HTTP/3 file upload application](https://github.com/ygina/sidecar/tree/main/http3_integration)
+and copy it into `fig8_real_world.py`. Also collect data from the
+[low-latency media application](https://github.com/ygina/sidecar/tree/main/media_integration)
+and pass the output filename as an argument to `fig8_real_world.py`.
