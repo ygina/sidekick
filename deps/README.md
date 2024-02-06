@@ -15,7 +15,6 @@ source env/bin/activate
 pip install -r requirements.txt
 source "$HOME/.cargo/env"
 echo "source $HOME/sidecar/figures/env/bin/activate" >> ~/.bashrc  # optional
-rustup default nightly
 ```
 
 Build various dependencies.
