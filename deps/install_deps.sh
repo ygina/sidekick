@@ -1,5 +1,5 @@
 #!/bin/bash
-export SIDECAR_HOME=$HOME/sidecar
+export SIDECAR_HOME=$HOME/sidekick
 
 # exit if any errors
 set -e

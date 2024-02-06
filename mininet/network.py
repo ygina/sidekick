@@ -129,7 +129,7 @@ class SidecarNetwork():
         home_dir = os.environ['HOME']
 
         # Set the minimum and maximum ack delay
-        nginx_conf = f'{home_dir}/sidecar/http3_integration/webserver/nginx.conf'
+        nginx_conf = f'{home_dir}/sidekick/http3_integration/webserver/nginx.conf'
         with open(nginx_conf, 'r') as f:
             lines = f.readlines()
         for (i, line) in enumerate(lines):
@@ -186,7 +186,7 @@ class SidecarNetwork():
         else:
             raise 'Invalid frequency: {}'.format(frequency)
 
-        self.r1.cmd(f'kill $(pidof sidecar)')
+        self.r1.cmd(f'kill $(pidof sidekick)')
         # Does ./target/release/sender exist?
         env = os.environ.copy()
         env['RUST_BACKTRACE'] = '1'
@@ -297,7 +297,7 @@ def run_multiflow(net, args, f1, f2, delay):
     f2_cmd = make_cmd(f2)
 
     home_dir = os.environ['HOME']
-    prefix = f'{home_dir}/sidecar/results/multiflow/loss{args.loss2}p'
+    prefix = f'{home_dir}/sidekick/results/multiflow/loss{args.loss2}p'
     pcap_file = f'{prefix}/{f1}_{f2}_{args.n}_delay{args.delay}s_bw{args.bw2}.pcap'
     os.system(f'mkdir -p {prefix}')
     os.system(f'rm -f {pcap_file}')

@@ -19,8 +19,8 @@ http3_integration/  # HTTP/3 file upload client integration
 media_integration/  # low-latency media client integration
 mininet/            # two-hop network emulation environment
 quack/              # library and microbenchmarks for the quack data structure
-sidecar/            # sidekick binary implementations for middleboxes
-visualizer/         # web visualizer for sidecar-related quiche debug logs
+sidekick/           # sidekick binary implementations for middleboxes
+visualizer/         # web visualizer for sidekick-related quiche debug logs
 ```
 
 ## Getting Started
@@ -28,12 +28,12 @@ visualizer/         # web visualizer for sidecar-related quiche debug logs
 To reproduce the experiments in the NSDI '24 paper,
 _[Sidekick: In-Network Assistance for Secure End-to-End Transport Protocols]()_,
 first build and install all dependencies according to the instructions
-[here](https://github.com/ygina/sidecar/tree/main/deps).
+[here](https://github.com/ygina/sidekick/tree/main/deps).
 Our experiments were run on an m4.xlarge AWS instance with a 4-CPU Intel Xeon
 E5 processor and 16 GB memory, running Ubuntu 22.04, but it should be possible
 to adapt the instructions for any Linux machine. Each figure in the paper has
 a corresponding script, and the instructions can be found
-[here](https://github.com/ygina/sidecar/tree/main/figures).
+[here](https://github.com/ygina/sidekick/tree/main/figures).
 
 For a more minimal installation, install [Rust](https://www.rust-lang.org/tools/install)
 and [mininet](https://mininet.org/download/). Build the media server and client

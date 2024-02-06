@@ -27,10 +27,6 @@ def run_client(args, base_command, http_flag):
         cmd += f'-o {args.stdout} 2>>{args.stderr} '
         sclog(cmd)
         cmd += f'-w \"{fmt}\" '
-        # cmd = f"/usr/bin/time -f\"0\t\t0\t\t0\t\t\t%e\t0\t200\" "+\
-        #       f"/home/gina/quiche-sidecar/target/release/quiche-client "+\
-        #       f"--max-data 100000000 "+\
-        #       f"--no-verify https://10.0.1.10:443 --body {f.name} > /dev/null"
         header = 'time_connect\ttime_appconnect\ttime_starttransfer\ttime_total\texitcode\tresponse_code\tsize_upload\tsize_download\terrormsg'
         print(header)
         for _ in range(args.trials):
@@ -43,10 +39,10 @@ def run_tcp_client(args):
 def run_quic_client(args):
     cmd = ''
     if args.qlog:
-        cmd += 'QLOGDIR=/home/gina/sidecar/qlog '
+        cmd += 'QLOGDIR=/home/gina/sidekick/qlog '
     cmd += 'RUST_LOG=debug RUST_BACKTRACE=1 '
     if args.quack_style == 'strawman_c':
-        cmd += '/home/gina/sidecar/http3_integration/curl/sidecurl/tcpsidecurl '
+        cmd += '/home/gina/sidekick/http3_integration/curl/sidecurl/tcpsidecurl '
     else:
         cmd += 'sidecurl '
     cmd += f'--sidecar {args.threshold} '
@@ -117,7 +113,7 @@ if __name__ == '__main__':
                       help='Style of quack to send/receive (default: power_sum)',
                       choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
     quic.add_argument('--qlog', action='store_true',
-                      help='Store qlogs at $HOME/sidecar/qlog')
+                      help='Store qlogs at $HOME/sidekick/qlog')
     quic.add_argument('--mark-acked', type=bool)
     quic.add_argument('--mark-lost-and-retx', type=bool)
     quic.add_argument('--update-cwnd', type=bool)

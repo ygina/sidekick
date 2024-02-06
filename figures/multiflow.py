@@ -12,7 +12,7 @@ from collections import defaultdict
 from os import path
 from common import *
 
-WORKDIR = os.environ['HOME'] + '/sidecar'
+WORKDIR = os.environ['HOME'] + '/sidekick'
 GRANULARITY = None
 X_MAX = None
 

@@ -16,7 +16,7 @@ TARGET_XS['retx'] = [x for x in range(0, 20, 2)] + \
                     [x for x in range(20, 500, 10)]
 TARGET_XS['ackr'] = [x for x in range(0, 20, 2)] + \
                     [x for x in range(20, 500, 10)]
-WORKDIR = os.environ['HOME'] + '/sidecar'
+WORKDIR = os.environ['HOME'] + '/sidekick'
 
 def calculate_threshold(frequency, bdp_multiplier):
     return math.ceil(frequency * 0.833 * bdp_multiplier)

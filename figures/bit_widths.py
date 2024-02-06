@@ -5,7 +5,7 @@ import sys
 import subprocess
 from common import *
 
-WORKDIR = os.environ['HOME'] + '/sidecar'
+WORKDIR = os.environ['HOME'] + '/sidekick'
 BIT_WIDTHS = [16, 32, 63]
 BRANCHES = {}
 BRANCHES[16] = 'masot-16-bit-precomputed'

@@ -14,10 +14,10 @@ if [ $# -ne 1 ]; then
 fi
 
 if [ $2 == "base" ]; then
-	$HOME/sidecar/target/release/media_client --server-addr $SERVER_IP_PORT \
+	$HOME/sidekick/target/release/media_client --server-addr $SERVER_IP_PORT \
 		--timeout $TIMEOUT
 elif [ $2 == "quack" ]; then
-	$HOME/sidecar/target/release/media_client --server-addr $SERVER_IP_PORT \
+	$HOME/sidekick/target/release/media_client --server-addr $SERVER_IP_PORT \
 		--timeout $TIMEOUT --threshold $QUACK_THRESHOLD \
 		--quack-port $QUACK_LISTEN_PORT --quack-style power_sum
 else

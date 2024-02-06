@@ -6,14 +6,12 @@ the script executes the experiments and adds the data to the log files.
 
 ## Dependencies
 
-Setup a Python virtual environment and install plotting dependencies.
+Activate the Python virtual environment and set environment variables.
 
 ```
-python3 -m venv env
 source env/bin/activate
-pip install -r requirements.txt
-export SIDECAR_HOME=$HOME/sidecar
-export QUICHE_HOME=$HOME/sidecar/http3_integration/quiche
+export SIDECAR_HOME=$HOME/sidekick
+export QUICHE_HOME=$SIDECAR_HOME/http3_integration/quiche
 ```
 
 ## Section 3.5 Microbenchmarks
@@ -144,7 +142,7 @@ sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 -
 
 ### Figure 8
 
-Collect real-world data from the [HTTP/3 file upload application](https://github.com/ygina/sidecar/tree/main/http3_integration)
+Collect real-world data from the [HTTP/3 file upload application](https://github.com/ygina/sidekick/tree/main/http3_integration)
 and copy it into `fig8_real_world.py`. Also collect data from the
-[low-latency media application](https://github.com/ygina/sidecar/tree/main/media_integration)
+[low-latency media application](https://github.com/ygina/sidekick/tree/main/media_integration)
 and pass the output filename as an argument to `fig8_real_world.py`.

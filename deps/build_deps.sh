@@ -7,11 +7,11 @@ if [ $# -ne 1 ]; then
 	echo "3 = libcurl"
 	echo "4 = sidecurl"
 	echo "5 = pepsal"
-	echo "6 = sidecar"	
+	echo "6 = sidekick"
 	exit 1
 fi
 
-export SIDECAR_HOME=$HOME/sidecar
+export SIDECAR_HOME=$HOME/sidekick
 
 build_nginx () {
 cd $SIDECAR_HOME/deps/nginx-1.16.1
@@ -71,7 +71,7 @@ make
 sudo make install
 }
 
-build_sidecar () {
+build_sidekick () {
 cd $SIDECAR_HOME
 cargo build --release
 cargo build --release --examples --all-features
@@ -84,7 +84,7 @@ if [ $1 == "all" ]; then
 	build_libcurl
 	build_sidecurl
 	build_pepsal
-	build_sidecar
+	build_sidekick
 elif [ $1 -eq 0 ]; then
 	build_nginx
 elif [ $1 -eq 1 ]; then
@@ -98,7 +98,7 @@ elif [ $1 -eq 4 ]; then
 elif [ $1 -eq 5 ]; then
 	build_pepsal
 elif [ $1 -eq 6 ]; then
-	build_sidecar
+	build_sidekick
 else
 	echo "USAGE: $0 [all|0|1|2|3|4|5|6]"
 	echo "0 = nginx"
@@ -107,6 +107,6 @@ else
 	echo "3 = curl"
 	echo "4 = sidecurl"
 	echo "5 = pepsal"
-	echo "6 = sidecar"	
+	echo "6 = sidekick"	
 fi
 
