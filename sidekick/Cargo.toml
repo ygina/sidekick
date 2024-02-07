@@ -1,5 +1,5 @@
 [package]
-name = "sidecar"
+name = "sidekick"
 version = "0.1.0"
 edition = "2021"
 description = ""
@@ -20,7 +20,7 @@ rand = "0.8.5"
 [features]
 default = []
 
-# Log the sidecar identifier when it is inserted in a quACK.
+# Log the sidekick identifier when it is inserted in a quACK.
 quack_log = []
 
 # Benchmark performance.

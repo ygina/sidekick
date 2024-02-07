@@ -45,7 +45,7 @@ def run_quic_client(args):
         cmd += '/home/gina/sidekick/http3_integration/curl/sidecurl/tcpsidecurl '
     else:
         cmd += 'sidecurl '
-    cmd += f'--sidecar {args.threshold} '
+    cmd += f'--sidekick {args.threshold} '
     cmd += f'--enable-reset {int(args.quack_reset)} '
     if args.quack_style:
         cmd += f'--quack-style {args.quack_style} '

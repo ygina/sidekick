@@ -5,13 +5,13 @@ use clap::Parser;
 use tokio::net::UdpSocket;
 
 use quack::StrawmanBQuack;
-use sidecar::buffer::{Direction, UdpParser, BUFFER_SIZE};
-use sidecar::socket::SockAddr;
-use sidecar::Socket;
+use sidekick::buffer::{Direction, UdpParser, BUFFER_SIZE};
+use sidekick::socket::SockAddr;
+use sidekick::Socket;
 
 const DEFAULT_WINDOW_SIZE: usize = 20;
 
-/// Sends quACKs in the sidecar protocol, receives data in the base protocol.
+/// Sends quACKs in the sidekick protocol, receives data in the base protocol.
 #[derive(Parser)]
 struct Cli {
     /// Interface to listen on e.g., `eth1'.
@@ -53,8 +53,8 @@ async fn main() -> Result<(), String> {
         if n != (BUFFER_SIZE as _) {
             continue;
         }
-        let sidecar_id = UdpParser::parse_identifier(&buf);
-        window.push_back(sidecar_id);
+        let sidekick_id = UdpParser::parse_identifier(&buf);
+        window.push_back(sidekick_id);
         if window.len() > args.n {
             window.pop_front();
         }

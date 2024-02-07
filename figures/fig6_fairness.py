@@ -74,7 +74,7 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
                 key_index = None
                 exitcode_index = None
                 continue
-            if '[sidecar]' in line:
+            if '[sidekick]' in line:
                 continue
             if exitcode_index is not None and int(line[exitcode_index]) != 0:
                 continue

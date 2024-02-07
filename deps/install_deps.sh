@@ -39,7 +39,7 @@ source $HOME/.cargo/env
 cd $SIDECAR_HOME/deps/
 git clone --recurse-submodules git@github.com:ygina/quiche.git quiche-nginx
 cd quiche-nginx
-git checkout sidecar
+git checkout sidekick
 
 # Download external dependencies
 cd $SIDECAR_HOME/deps

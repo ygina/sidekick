@@ -27,7 +27,7 @@ cd $HOME/sidekick/deps
 ./build_deps.sh 3  # libcurl (http3 client)
 ./build_deps.sh 4  # sidecurl (http3 client)
 ./build_deps.sh 5  # pepsal (TCP PEP baseline)
-./build_deps.sh 6  # sidecar (experimental binaries)
+./build_deps.sh 6  # sidekick (experimental binaries)
 ```
 
 Check that `nginx`, `sidecurl`, and `pepsal` are on your path.

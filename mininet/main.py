@@ -47,7 +47,7 @@ def benchmark_quack(net, args):
         loops = args.trials - 1
         h2_cmd += '-t 1 '
 
-    # Add sidecar-specific flags
+    # Add sidekick-specific flags
     h2_cmd += f'quic '
     h2_cmd += f'--min-ack-delay {args.client_min_ack_delay} '
     h2_cmd += f'--max-ack-delay {max(args.client_max_ack_delay, args.min_ack_delay)} '
@@ -80,7 +80,7 @@ def benchmark_quack(net, args):
 if __name__ == '__main__':
     setLogLevel('info')
 
-    parser = argparse.ArgumentParser(prog='Sidecar')
+    parser = argparse.ArgumentParser(prog='Sidekick')
     subparsers = parser.add_subparsers(required=True)
     cli = subparsers.add_parser('cli')
     cli.set_defaults(ty='cli')
@@ -117,8 +117,8 @@ if __name__ == '__main__':
         help='Enable TCP segment offloading (tso) and generic '
              'segment offloading (gso). By default, both are '
              'enabled [0|1] (default: 1)')
-    proto_config.add_argument('-s', '--sidecar', action='store_true',
-        help='Enables the sidecar and sends the quack with the specified '
+    proto_config.add_argument('-s', '--sidekick', action='store_true',
+        help='Enables the sidekick and sends the quack with the specified '
              'frequency.')
     proto_config.add_argument('--frequency', default='30ms',
         help='Quack frequency, in terms of ms or packets e.g., 2ms or 2p '
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     ############################################################################
     # QUIC client benchmark
     quic = subparsers.add_parser('quic')
-    quic.set_defaults(ty='benchmark', benchmark=benchmark_quic, sidecar=False)
+    quic.set_defaults(ty='benchmark', benchmark=benchmark_quic, sidekick=False)
     quic.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
         help='Minimum delay between acks, in ms (default: 0)')
     quic.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     ############################################################################
     # QuACK client benchmark
     quack = subparsers.add_parser('quack')
-    quack.set_defaults(ty='benchmark', benchmark=benchmark_quack, sidecar=True)
+    quack.set_defaults(ty='benchmark', benchmark=benchmark_quack, sidekick=True)
     quack.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
         help='Minimum delay between acks, in ms (default: 0)')
     quack.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
@@ -218,14 +218,14 @@ if __name__ == '__main__':
              'TCP connection to h1.')
 
     args = parser.parse_args()
-    net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
+    net = SidekickNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
         args.bw1, args.bw2, args.qdisc)
     net.start_webserver(args.min_ack_delay, args.max_ack_delay)
     sclog(f'Link1 delay={args.delay1} loss={args.loss1} bw={args.bw1}')
     sclog(f'Link2 delay={args.delay2} loss={args.loss2} bw={args.bw2}')
     if args.pep:
         net.start_tcp_pep()
-    if args.sidecar:
+    if args.sidekick:
         net.start_quack_sender(args.frequency, args.threshold, args.style)
     net.set_segmentation_offloading(args.tso)
     clean_logs()
@@ -240,7 +240,7 @@ if __name__ == '__main__':
         elif args.iperf_r1 is not None:
             run_iperf(net, args.iperf_r1, host='r1')
     elif args.ty == 'multiflow':
-        assert not args.pep and not args.sidecar
+        assert not args.pep and not args.sidekick
         run_multiflow(net, args, args.flow1, args.flow2, args.delay)
     elif args.ty == 'cli':
         CLI(net.net)

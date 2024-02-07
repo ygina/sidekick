@@ -66,10 +66,10 @@ struct Cli {
 /// NACKs just have 4 bytes for the sequence number.
 const NACK_BUFFER_SIZE: usize = 4;
 
-/// The sidecar sniffs at a certain offset in QUIC packets such that those
-/// bytes are randomly-encrypted. I don't want to edit the sidecar code
+/// The sidekick sniffs at a certain offset in QUIC packets such that those
+/// bytes are randomly-encrypted. I don't want to edit the sidekick code
 /// currently so I will set the sequence numbers here in the same offset.
-/// The sidecar offset also includes the Ethernet/IP/UDP headers since it
+/// The sidekick offset also includes the Ethernet/IP/UDP headers since it
 /// sniffs from a raw socket.
 /// The randomly-encrypted payload in a QUIC packet with a short header is at
 /// offset 63, including the Ethernet (14), IP (20), UDP (8) headers.
@@ -86,15 +86,15 @@ const _REORDER_THRESHOLD: u32 = 3;
 
 #[derive(Clone)]
 struct PacketSender {
-    sidecar: bool,
+    sidekick: bool,
     channel: mpsc::Sender<(u32, u32)>,
     seqno_ids: Arc<Mutex<Vec<(u32, u32)>>>,
 }
 
 impl PacketSender {
-    async fn new(sidecar: bool, channel: mpsc::Sender<(u32, u32)>) -> io::Result<Self> {
+    async fn new(sidekick: bool, channel: mpsc::Sender<(u32, u32)>) -> io::Result<Self> {
         Ok(Self {
-            sidecar,
+            sidekick,
             channel,
             seqno_ids: Arc::new(Mutex::new(Vec::new())),
         })
@@ -106,7 +106,7 @@ impl PacketSender {
 
         // Add the new packet to the buffer and send the packet.
         // (may be some harmless reordering here)
-        if self.sidecar {
+        if self.sidekick {
             self.seqno_ids.lock().await.push((seqno, id));
         }
         self.channel.send((seqno, id)).await.unwrap();
@@ -159,7 +159,7 @@ fn listen_for_nacks(sock: Arc<UdpSocket>, mut sender: PacketSender) {
     });
 }
 
-/// Spawn a thread that listens for sidecar quACKs using Strawman 1a (echo
+/// Spawn a thread that listens for sidekick quACKs using Strawman 1a (echo
 /// every identifier) and retransmit packets when determined missing.
 fn listen_for_quacks_strawman_a(mut _sender: PacketSender, quack_port: u16) {
     tokio::spawn(async move {
@@ -176,7 +176,7 @@ fn listen_for_quacks_strawman_a(mut _sender: PacketSender, quack_port: u16) {
     });
 }
 
-/// Spawn a thread that listens for sidecar quACKs using Strawman 1b (echo a
+/// Spawn a thread that listens for sidekick quACKs using Strawman 1b (echo a
 /// sliding window of identifiers) and retransmit packets when determined
 /// missing.
 fn listen_for_quacks_strawman_b(mut _sender: PacketSender, quack_port: u16) {
@@ -194,13 +194,13 @@ fn listen_for_quacks_strawman_b(mut _sender: PacketSender, quack_port: u16) {
     });
 }
 
-/// Spawn a thread that listens for sidecar quACKs using Strawman 1c (echo
+/// Spawn a thread that listens for sidekick quACKs using Strawman 1c (echo
 /// every identifier over TCP) and retransmit packets when determined missing.
 fn listen_for_quacks_strawman_c(mut _sender: PacketSender, _quack_port: u16) {
     tokio::spawn(async move { unimplemented!() });
 }
 
-/// Spawn a thread that listens for sidecar quACKs using the power sum quACK
+/// Spawn a thread that listens for sidekick quACKs using the power sum quACK
 /// and retransmit packets when determined missing.
 fn listen_for_quacks_power_sum(
     mut sender: PacketSender,
@@ -218,7 +218,7 @@ fn listen_for_quacks_power_sum(
 
         // Variables for sending quack resets.
         let mut last_quack_reset = None;
-        let sidecar_reset_threshold = Duration::from_millis(100);
+        let sidekick_reset_threshold = Duration::from_millis(100);
 
         loop {
             // Deserialize the quACK and only process it if at least one packet
@@ -260,7 +260,7 @@ fn listen_for_quacks_power_sum(
             let reset2 = my_quack.count() > quack.count() + threshold as u32;
             if reset0 || reset1 || reset2 {
                 let should_reset = if let Some(last_quack_reset) = last_quack_reset {
-                    now > last_quack_reset + sidecar_reset_threshold
+                    now > last_quack_reset + sidekick_reset_threshold
                 } else {
                     true
                 };

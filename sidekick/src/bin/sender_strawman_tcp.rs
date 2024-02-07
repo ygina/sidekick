@@ -5,11 +5,11 @@ use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 
 use quack::StrawmanAQuack;
-use sidecar::buffer::{Direction, UdpParser, BUFFER_SIZE};
-use sidecar::socket::SockAddr;
-use sidecar::Socket;
+use sidekick::buffer::{Direction, UdpParser, BUFFER_SIZE};
+use sidekick::socket::SockAddr;
+use sidekick::Socket;
 
-/// Sends quACKs in the sidecar protocol, receives data in the base protocol.
+/// Sends quACKs in the sidekick protocol, receives data in the base protocol.
 #[derive(Parser)]
 struct Cli {
     /// Interface to listen on e.g., `eth1'.
@@ -63,7 +63,7 @@ async fn main() -> Result<(), String> {
             continue;
         }
         let quack = StrawmanAQuack {
-            sidecar_id: UdpParser::parse_identifier(&buf),
+            sidekick_id: UdpParser::parse_identifier(&buf),
         };
         let bytes = bincode::serialize(&quack).unwrap();
         stream.write_all(&bytes).await.unwrap();

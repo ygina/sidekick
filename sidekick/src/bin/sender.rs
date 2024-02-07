@@ -1,14 +1,14 @@
 use clap::Parser;
 use log::{debug, info, trace};
 use quack::PowerSumQuack;
-use sidecar::Sidecar;
+use sidekick::Sidekick;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
 use tokio::net::UdpSocket;
 use tokio::sync::oneshot;
 use tokio::time::{self, Duration};
 
-/// Sends quACKs in the sidecar protocol, receives data in the base protocol.
+/// Sends quACKs in the sidekick protocol, receives data in the base protocol.
 #[derive(Parser)]
 struct Cli {
     /// Interface to listen on e.g., `eth1'.
@@ -36,7 +36,7 @@ struct Cli {
 }
 
 async fn send_quacks(
-    sc: Arc<Mutex<Sidecar>>,
+    sc: Arc<Mutex<Sidekick>>,
     rx: oneshot::Receiver<()>,
     addr: SocketAddr,
     frequency_ms: u64,
@@ -62,7 +62,7 @@ async fn send_quacks(
     }
 }
 
-async fn print_quacks(sc: Arc<Mutex<Sidecar>>, rx: oneshot::Receiver<()>, frequency_ms: u64) {
+async fn print_quacks(sc: Arc<Mutex<Sidekick>>, rx: oneshot::Receiver<()>, frequency_ms: u64) {
     if frequency_ms > 0 {
         rx.await
             .expect("couldn't receive notice that 1st packet was sniffed");
@@ -91,14 +91,14 @@ async fn main() -> Result<(), String> {
         args.frequency_ms, args.frequency_pkts, args.target_addr
     );
 
-    // Start the sidecar.
-    let mut sc = Sidecar::new(&args.interface, args.threshold, args.num_bits_id);
+    // Start the sidekick.
+    let mut sc = Sidekick::new(&args.interface, args.threshold, args.num_bits_id);
 
     // Handle a snapshotted quACK at the specified frequency.
     if let Some(frequency_ms) = args.frequency_ms {
         info!("my ipv4 address is {:?}", args.my_addr);
         let sc = Arc::new(Mutex::new(sc));
-        let rx = Sidecar::start(sc.clone(), args.my_addr.octets())?;
+        let rx = Sidekick::start(sc.clone(), args.my_addr.octets())?;
         if let Some(addr) = args.target_addr {
             info!("quACKing to {:?}", addr);
             send_quacks(sc, rx, addr, frequency_ms).await;

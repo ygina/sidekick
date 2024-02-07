@@ -20,7 +20,7 @@ static mut CYCLES_COUNT: u64 = 0;
 static mut CYCLES: [u64; 5] = [0; 5];
 
 #[derive(Clone)]
-pub struct SidecarMulti {
+pub struct SidekickMulti {
     /// Interface to listen on
     pub interface: String,
 
@@ -39,11 +39,11 @@ pub struct SidecarMulti {
 enum Action {
     Skip,
     Reset { addr_key: AddrKey },
-    Insert { addr_key: AddrKey, sidecar_id: u32 },
+    Insert { addr_key: AddrKey, sidekick_id: u32 },
 }
 
-impl SidecarMulti {
-    /// Create a new sidecar.
+impl SidekickMulti {
+    /// Create a new sidekick.
     pub fn new(interface: &str, threshold: usize, bits: usize) -> Self {
         assert_eq!(bits, 32, "ERROR: <num_bits_id> must be 32");
         Self {
@@ -62,7 +62,7 @@ impl SidecarMulti {
         }
     }
 
-    pub fn insert(&mut self, addr_key: AddrKey, sidecar_id: u32) -> &PowerSumQuackU32 {
+    pub fn insert(&mut self, addr_key: AddrKey, sidekick_id: u32) -> &PowerSumQuackU32 {
         // ***CYCLES START step 2 hash address key
         #[cfg(feature = "cycles")]
         let start2 = unsafe { core::arch::x86_64::_rdtsc() };
@@ -79,7 +79,7 @@ impl SidecarMulti {
         // ***CYCLES START step 4 insert id into quack
         #[cfg(feature = "cycles")]
         let start4 = unsafe { core::arch::x86_64::_rdtsc() };
-        entry.insert(sidecar_id);
+        entry.insert(sidekick_id);
         // ***CYCLES STOP step 4 insert id into quack
         #[cfg(feature = "cycles")]
         unsafe {
@@ -129,7 +129,7 @@ fn process_one_packet(
     // ***CYCLES START step 3 parse identifier
     #[cfg(feature = "cycles")]
     let start3 = unsafe { core::arch::x86_64::_rdtsc() };
-    let sidecar_id = UdpParser::parse_identifier(buf);
+    let sidekick_id = UdpParser::parse_identifier(buf);
     // ***CYCLES STOP step 3 parse identifier
     #[cfg(feature = "cycles")]
     unsafe {
@@ -138,7 +138,7 @@ fn process_one_packet(
     }
     Action::Insert {
         addr_key,
-        sidecar_id,
+        sidekick_id,
     }
 }
 
@@ -168,8 +168,8 @@ unsafe fn print_cycles_count_summary() {
 /// quack for every source socket address and accumulates the packets for that
 /// connection. Returns a channel that indicates the start time of when the
 /// first packet is sniffed.
-pub fn start_sidecar_multi(
-    sc: Arc<Mutex<SidecarMulti>>,
+pub fn start_sidekick_multi(
+    sc: Arc<Mutex<SidekickMulti>>,
     my_addr: [u8; 6],
 ) -> Result<oneshot::Receiver<Instant>, String> {
     let interface = sc.lock().unwrap().interface.clone();
@@ -206,7 +206,7 @@ pub fn start_sidecar_multi(
                 }
                 Action::Insert {
                     addr_key,
-                    sidecar_id,
+                    sidekick_id,
                 } => {
                     let mut sc = sc.lock().unwrap();
                     if let Some(tx) = tx.take() {
@@ -217,7 +217,7 @@ pub fn start_sidecar_multi(
                             sc.start_time = Some(now);
                         }
                     }
-                    sc.insert(addr_key, sidecar_id);
+                    sc.insert(addr_key, sidekick_id);
                 }
             }
             // ***CYCLES STOP step 0 total
@@ -237,8 +237,8 @@ pub fn start_sidecar_multi(
     Ok(rx)
 }
 
-pub async fn start_sidecar_multi_frequency_pkts(
-    sc: Arc<Mutex<SidecarMulti>>,
+pub async fn start_sidekick_multi_frequency_pkts(
+    sc: Arc<Mutex<SidekickMulti>>,
     my_addr: [u8; 6],
     frequency_pkts: u32,
     sendaddr: std::net::SocketAddr,
@@ -266,11 +266,11 @@ pub async fn start_sidecar_multi_frequency_pkts(
             }
             Action::Insert {
                 addr_key,
-                sidecar_id,
+                sidekick_id,
             } => {
                 let quack = {
                     let mut sc = sc.lock().unwrap();
-                    let quack = sc.insert(addr_key, sidecar_id);
+                    let quack = sc.insert(addr_key, sidekick_id);
                     if quack.count() % frequency_pkts == 0 {
                         trace!("quack {} {:?}", quack.count(), addr_key);
                         Some(bincode::serialize(&quack).unwrap())

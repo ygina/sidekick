@@ -1,11 +1,11 @@
 [submodule "curl"]
 	path = http3_integration/curl
 	url = git@github.com:ygina/curl.git
-	branch = sidecar
+	branch = sidekick
 [submodule "quiche"]
 	path = http3_integration/quiche
 	url = git@github.com:ygina/quiche.git
-	branch = sidecar
+	branch = sidekick
 [submodule "quack"]
 	path = quack
 	url = git@github.com:ygina/quack.git

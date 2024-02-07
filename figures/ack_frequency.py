@@ -84,7 +84,7 @@ def parse_data(filename, key, trials, max_x, n, exp):
             continue
 
         # Either we're done with this frequency or read another data point
-        if '[sidecar]' in line and 'tx_packets' in line:
+        if '[sidekick]' in line and 'tx_packets' in line:
             key_index = None
             continue
         else:

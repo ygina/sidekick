@@ -1,6 +1,6 @@
 use clap::Parser;
 use quack::PowerSumQuack;
-use sidecar::Sidecar;
+use sidekick::Sidekick;
 use signal_hook::{consts::SIGTERM, iterator::Signals};
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
@@ -27,12 +27,12 @@ struct Cli {
 }
 
 pub struct Benchmark {
-    pub sc: Arc<Mutex<Sidecar>>,
+    pub sc: Arc<Mutex<Sidekick>>,
     pub addr: SocketAddr,
     pub frequency: Option<Duration>,
 }
 
-async fn handle_signals(sc: Arc<Mutex<Sidecar>>, mut signals: Signals) {
+async fn handle_signals(sc: Arc<Mutex<Sidekick>>, mut signals: Signals) {
     for _ in &mut signals {
         let sc = sc.lock().unwrap();
         if let Some(start_time) = sc.start_time {
@@ -53,7 +53,7 @@ async fn handle_signals(sc: Arc<Mutex<Sidecar>>, mut signals: Signals) {
 }
 
 impl Benchmark {
-    pub fn new(sc: Sidecar, addr: SocketAddr, frequency_ms: u64) -> Self {
+    pub fn new(sc: Sidekick, addr: SocketAddr, frequency_ms: u64) -> Self {
         let frequency = if frequency_ms == 0 {
             None
         } else {
@@ -73,7 +73,7 @@ impl Benchmark {
 
     pub async fn start(&mut self, my_ipv4_addr: [u8; 4]) {
         // Wait for the first packet to arrive.
-        Sidecar::start(self.sc.clone(), my_ipv4_addr)
+        Sidekick::start(self.sc.clone(), my_ipv4_addr)
             .unwrap()
             .await
             .unwrap();
@@ -100,7 +100,7 @@ async fn main() -> Result<(), String> {
     env_logger::init();
 
     let args = Cli::parse();
-    let sc = Sidecar::new(&args.interface, args.threshold, 32);
+    let sc = Sidekick::new(&args.interface, args.threshold, 32);
     let mut benchmark = Benchmark::new(sc, args.addr, args.frequency);
     benchmark.setup_signal_handler();
     benchmark

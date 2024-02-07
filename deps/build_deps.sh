@@ -41,7 +41,7 @@ sudo ldconfig
 
 build_quiche () {
 cd $SIDECAR_HOME/http3_integration/quiche
-make sidecar
+make sidekick
 mkdir -p quiche/deps/boringssl/src/lib
 ln -f -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
 }

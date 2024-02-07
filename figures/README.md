@@ -103,7 +103,7 @@ paper are calculated relative to the first row.
 ### Figure 7a
 
 ```
-cd $QUICHE_HOME && make sidecar && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --print-statistics quic
 cd $QUICHE_HOME && make strawman_a && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style strawman_a
@@ -111,14 +111,14 @@ cd $QUICHE_HOME && make strawman_b && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style strawman_b
 cd $QUICHE_HOME && make strawman_c && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style strawman_c
-cd $QUICHE_HOME && make sidecar && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style power_sum
 ```
 
 ### Figure 7b
 
 ```
-cd $QUICHE_HOME && make sidecar && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --min-ack-delay 10 --print-statistics quic
 cd $QUICHE_HOME && make strawman_a && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style strawman_a
@@ -126,7 +126,7 @@ cd $QUICHE_HOME && make strawman_b && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style strawman_b
 cd $QUICHE_HOME && make strawman_c && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style strawman_c
-cd $QUICHE_HOME && make sidecar && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style power_sum
 
 ```

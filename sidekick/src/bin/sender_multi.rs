@@ -1,8 +1,8 @@
 use clap::Parser;
 use log::info;
-use sidecar::{
-    sidecar_multi::{start_sidecar_multi, start_sidecar_multi_frequency_pkts},
-    SidecarMulti,
+use sidekick::{
+    sidekick_multi::{start_sidekick_multi, start_sidekick_multi_frequency_pkts},
+    SidekickMulti,
 };
 use std::net::{Ipv4Addr, SocketAddr};
 use std::sync::{Arc, Mutex};
@@ -10,7 +10,7 @@ use tokio::net::UdpSocket;
 use tokio::sync::oneshot;
 use tokio::time::{self, Duration, Instant};
 
-/// Sends quACKs in the sidecar protocol, receives data in the base protocol.
+/// Sends quACKs in the sidekick protocol, receives data in the base protocol.
 #[derive(Parser)]
 struct Cli {
     /// Interface to listen on e.g., `eth1'.
@@ -46,7 +46,7 @@ struct Cli {
 }
 
 async fn send_quacks_ms(
-    sc: Arc<Mutex<SidecarMulti>>,
+    sc: Arc<Mutex<SidekickMulti>>,
     rx: oneshot::Receiver<Instant>,
     dst_key: [u8; 6],
     quack_addr: SocketAddr,
@@ -87,8 +87,8 @@ async fn main() -> Result<(), String> {
         args.interface, args.threshold, args.num_bits_id, args.frequency_ms, args.frequency_pkts
     );
 
-    // Start the sidecar.
-    let sc = SidecarMulti::new(&args.interface, args.threshold, args.num_bits_id);
+    // Start the sidekick.
+    let sc = SidekickMulti::new(&args.interface, args.threshold, args.num_bits_id);
 
     // Get the target dst key. If the dst of the traffic matches this key,
     // send a quack.
@@ -113,11 +113,11 @@ async fn main() -> Result<(), String> {
     let sc = Arc::new(Mutex::new(sc));
     if let Some(frequency_ms) = args.frequency_ms {
         assert!(frequency_ms > 0);
-        let rx = start_sidecar_multi(sc.clone(), my_addr)?;
+        let rx = start_sidekick_multi(sc.clone(), my_addr)?;
         send_quacks_ms(sc, rx, dst_key, args.quack_addr, frequency_ms).await;
     } else if let Some(frequency_pkts) = args.frequency_pkts {
         assert!(frequency_pkts > 0);
-        start_sidecar_multi_frequency_pkts(sc.clone(), my_addr, frequency_pkts, args.quack_addr)
+        start_sidekick_multi_frequency_pkts(sc.clone(), my_addr, frequency_pkts, args.quack_addr)
             .await
             .unwrap();
     }

@@ -48,7 +48,7 @@ class NetStatistics():
             sclog(f'{iface_to_str[iface]:<10}{tx_packets:>12}{tx_bytes:>12}{rx_packets:>12}{rx_bytes:>12}')
 
 
-class SidecarNetwork():
+class SidekickNetwork():
     def __init__(self, delay1, delay2, loss1, loss2, bw1, bw2, qdisc):
         self.net = Mininet(controller=None, link=TCLink)
 
@@ -171,12 +171,12 @@ class SidecarNetwork():
 
     def start_quack_sender(self, frequency, threshold, style):
         """
-        - `frequency`: frequency of the sidecar sender e.g. 2ms or 2p
+        - `frequency`: frequency of the sidekick sender e.g. 2ms or 2p
         - `threshold`: quACK threshold
         - `style`: power_sum, strawman_a, strawman_b, OR strawman_c
         """
         print('', file=sys.stderr)
-        sclog('Starting the QUIC sidecar sender on r1...')
+        sclog('Starting the QUIC sidekick sender on r1...')
         if 'ms' in frequency:
             frequency = re.match(r'(\d+)ms', frequency).group(1)
             frequency = f'--frequency-ms {frequency}'

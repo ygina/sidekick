@@ -11,7 +11,7 @@ def ip(digit):
     return f'10.0.{int(digit)}.10/24'
 
 def sclog(val):
-    print(f'[sidecar] {val}', file=sys.stderr);
+    print(f'[sidekick] {val}', file=sys.stderr);
 
 def popen(host, cmd):
     p = host.popen(cmd.split(' '))

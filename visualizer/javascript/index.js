@@ -5,8 +5,8 @@ var data = [];
 var paused = true;
 
 class Action {
-  constructor(sidecarId, reason) {
-    this.sidecarId = sidecarId;
+  constructor(sidekickId, reason) {
+    this.sidekickId = sidekickId;
     this.reason = reason;
   }
 }
@@ -19,8 +19,8 @@ class Match {
     this.actions = []
   }
 
-  addAction(sidecarId, reason) {
-    this.actions.push(new Action(sidecarId, reason))
+  addAction(sidekickId, reason) {
+    this.actions.push(new Action(sidekickId, reason))
   }
 }
 
@@ -51,8 +51,8 @@ function parseTextKey(text, key, minTime) {
 }
 
 // Parse all lines that begin with quack_log and return an array of arrays
-// [secondsSinceStart, sidecarId, reasonInt]. Possible reasons include:
-// sent, quacked, acked, detect_lost_packets, sidecar_detect_lost_packets.
+// [secondsSinceStart, sidekickId, reasonInt]. Possible reasons include:
+// sent, quacked, acked, detect_lost_packets, sidekick_detect_lost_packets.
 async function parseFile(file) {
   const text = (await file.text()).split('\n')
   const re = /quack_log Instant { tv_sec: (\d+), tv_nsec: (\d+) } (\d+) \((\S+)\).*/
@@ -62,9 +62,9 @@ async function parseFile(file) {
     const match = re.exec(line)
     if (match) {
       const instant = parseInt(match[1]) + parseInt(match[2]) / 10**9;
-      const sidecar_id = match[3];
+      const sidekick_id = match[3];
       const reason = match[4];
-      return [instant, sidecar_id, reason]
+      return [instant, sidekick_id, reason]
     } else {
       return null
     }
@@ -124,10 +124,10 @@ function combineActions(matches) {
 }
 
 // Creates a span element for the given reason.
-function createSpan(sidecarId) {
+function createSpan(sidekickId) {
   const span = document.createElement("span");
-  span.id = sidecarId;
-  span.alt = sidecarId;
+  span.id = sidekickId;
+  span.alt = sidekickId;
   span.innerHTML = "&#9733;";
   span.classList.add("box");
   span.classList.add("sent");
@@ -143,12 +143,12 @@ function applyFrame(index) {
   setInstantData(frame.instant, frame.cwnd, frame.pktsInFlight)
   frame.actions.forEach(function(action) {
     if (action.reason == "sent") {
-      const span = createSpan(action.sidecarId);
+      const span = createSpan(action.sidekickId);
       const container = document.getElementById('container');
       container.appendChild(span);
       container.appendChild(document.createTextNode(' '))
     } else {
-      document.getElementById(action.sidecarId).classList.add(action.reason)
+      document.getElementById(action.sidekickId).classList.add(action.reason)
     }
   })
 }
@@ -159,9 +159,9 @@ function removeFrame(index) {
   setInstantData(prevFrame.instant, prevFrame.cwnd, prevFrame.pktsInFlight)
   frame.actions.forEach(function(action) {
     if (action.reason == "sent") {
-      document.getElementById(action.sidecarId).remove()
+      document.getElementById(action.sidekickId).remove()
     } else {
-      document.getElementById(action.sidecarId).classList.remove(action.reason)
+      document.getElementById(action.sidekickId).classList.remove(action.reason)
     }
   })
 }

@@ -9,7 +9,7 @@ use crate::Socket;
 use quack::{PowerSumQuack, PowerSumQuackU32};
 
 #[derive(Clone)]
-pub struct Sidecar {
+pub struct Sidekick {
     pub interface: String,
     pub threshold: usize,
     pub bits: usize,
@@ -19,8 +19,8 @@ pub struct Sidecar {
     log: Vec<u32>,
 }
 
-impl Sidecar {
-    /// Create a new sidecar.
+impl Sidekick {
+    /// Create a new sidekick.
     pub fn new(interface: &str, threshold: usize, bits: usize) -> Self {
         assert_eq!(bits, 32, "ERROR: <num_bits_id> must be 32");
         Self {
@@ -43,20 +43,20 @@ impl Sidecar {
         }
     }
 
-    /// Reset the sidecar state.
+    /// Reset the sidekick state.
     pub fn reset(&mut self) {
         self.quack = PowerSumQuackU32::new(self.threshold);
         self.log = vec![];
     }
 
     /// Start the raw socket that listens to the specified interface and
-    /// accumulates those packets in a quACK. If the sidecar is a quACK sender,
-    /// only listens for incoming packets. If the sidecar is a quACK receiver,
+    /// accumulates those packets in a quACK. If the sidekick is a quACK sender,
+    /// only listens for incoming packets. If the sidekick is a quACK receiver,
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     /// Returns a channel that indicates when the first packet is sniffed.
     pub fn start(
-        sc: Arc<Mutex<Sidecar>>,
+        sc: Arc<Mutex<Sidekick>>,
         my_ipv4_addr: [u8; 4],
     ) -> Result<oneshot::Receiver<()>, String> {
         let interface = sc.lock().unwrap().interface.clone();
@@ -127,8 +127,8 @@ impl Sidecar {
     }
 
     /// Start the raw socket that listens to the specified interface and
-    /// accumulates those packets in a quACK. If the sidecar is a quACK sender,
-    /// only listens for incoming packets. If the sidecar is a quACK receiver,
+    /// accumulates those packets in a quACK. If the sidekick is a quACK sender,
+    /// only listens for incoming packets. If the sidekick is a quACK receiver,
     /// only listens for outgoing packets, and additionally logs the packet
     /// identifiers.
     /// Returns a channel that indicates when the first packet is sniffed.

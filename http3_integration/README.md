@@ -13,7 +13,7 @@ information in quACKs to influence QUIC, the base protocol.
 
 The `nginx` server integration is based off an [unofficial patch](https://github.com/cloudflare/quiche/tree/master/nginx)
 from Cloudflare that provides support for HTTP/3.
-It uses [our fork of quiche](https://github.com/ygina/quiche/tree/sidecar)
+It uses [our fork of quiche](https://github.com/ygina/quiche/tree/sidekick)
 mainly to implement a [QUIC extension](https://datatracker.ietf.org/doc/html/draft-ietf-quic-ack-frequency)
 for changing an endpoint's acknowledgement frequency. The `nginx` webserver
 forwards data from POST requests to a separate Python webserver to ensure the

@@ -21,7 +21,7 @@ def start_media_client(net, args, env):
     cmd += f'--timeout {args.timeout} '
     cmd += f'-b {args.client_bytes} '
     cmd += f'-f {args.client_frequency} '
-    if args.sidecar:
+    if args.sidekick:
         cmd += f'--reset-addr 10.0.2.1:1234 '
         cmd += f'--quack-port 5103 '
         cmd += f'--quack-style {args.style} --threshold {args.threshold} '
@@ -49,7 +49,7 @@ def benchmark(net, args):
 if __name__ == '__main__':
     setLogLevel('info')
 
-    parser = argparse.ArgumentParser(prog='Sidecar')
+    parser = argparse.ArgumentParser(prog='Sidekick')
     subparsers = parser.add_subparsers(required=True)
     cli = subparsers.add_parser('cli')
     cli.set_defaults(cli=True)
@@ -73,10 +73,10 @@ if __name__ == '__main__':
         help='queuing discipline [tbf|cake|codel|red|grenville|none]')
 
     ############################################################################
-    # Sidecar Configurations
+    # Sidekick Configurations
     sc_config = parser.add_argument_group('sc_config')
-    sc_config.add_argument('--sidecar', action='store_true',
-        help='Enable the sidecar')
+    sc_config.add_argument('--sidekick', action='store_true',
+        help='Enable the sidekick')
     sc_config.add_argument('--style', default='power_sum',
         choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
     sc_config.add_argument('--frequency', default='10ms',
@@ -100,17 +100,17 @@ if __name__ == '__main__':
     ############################################################################
     # Baseline benchmark
     base = subparsers.add_parser('base')
-    base.set_defaults(sidecar=False, cli=False)
+    base.set_defaults(sidekick=False, cli=False)
 
     ############################################################################
     # QuACK benchmark
     quack = subparsers.add_parser('quack')
-    quack.set_defaults(sidecar=True, cli=False)
+    quack.set_defaults(sidekick=True, cli=False)
 
     args = parser.parse_args()
-    net = SidecarNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
+    net = SidekickNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
         args.bw1, args.bw2, args.qdisc)
-    if args.sidecar:
+    if args.sidekick:
         net.start_quack_sender(args.frequency, args.threshold, args.style)
     clean_logs()
 

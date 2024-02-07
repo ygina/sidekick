@@ -94,7 +94,7 @@ impl UdpParser {
         ]
     }
 
-    /// Returns the sidecar identifier assuming the buffer represents
+    /// Returns the sidekick identifier assuming the buffer represents
     /// a QUIC UDP packet.
     pub fn parse_identifier(x: &[u8; BUFFER_SIZE]) -> u32 {
         u32::from_be_bytes([

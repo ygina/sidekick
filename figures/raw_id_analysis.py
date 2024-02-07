@@ -231,7 +231,7 @@ def run(args):
     plot_graph(xs, ys, args.n, args.loss, args.t, args.bw)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='make sure to compile quiche with "quack_log" and "cwnd_log" feature, and sidecar with "quack_log" feature')
+    parser = argparse.ArgumentParser(description='make sure to compile quiche with "quack_log" and "cwnd_log" feature, and sidekick with "quack_log" feature')
     parser.add_argument('--execute', action='store_true')
     parser.add_argument('-f', help='force execute', action='store_true')
     parser.add_argument('-n', help='data size (default: 10M)', default='10M')

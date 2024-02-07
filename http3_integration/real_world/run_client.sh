@@ -27,8 +27,8 @@ if [ $2 == "base" ]; then
 elif [ $2 == "quack" ]; then
 	sidecurl --http3 --insecure --data-binary @$1 $SERVER_URL --max-time $TIMEOUT \
 	    -w '\ntime_total: %{time_total} (%{exitcode} %{response_code} %{size_upload} %{size_download}: (%{errormsg}))\n' \
-	    --sidecar $QUACK_THRESHOLD --quack-style power_sum \
-	    --enable-reset 1 --sidecar-mtu \
+	    --sidekick $QUACK_THRESHOLD --quack-style power_sum \
+	    --enable-reset 1 --sidekick-mtu \
 	    --min-ack-delay 0 --max-ack-delay 25 \
 	    --near-delay $NEAR_DELAY_MS --e2e-delay $E2E_DELAY_MS \
 	    --reset-threshold $RESET_THRESHOLD_MS

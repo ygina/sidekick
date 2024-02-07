@@ -39,9 +39,9 @@ def print_loadgen_output(clients):
             sclog('...')
     sys.stdout.buffer.flush()
 
-def print_sidecar_output(sidecar):
+def print_sidekick_output(sidekick):
     while True:
-        line = sidecar.stdout.readline()
+        line = sidekick.stdout.readline()
         if b'DONE' in line:
             break
         sys.stdout.buffer.write(line)
@@ -63,7 +63,7 @@ def run_benchmark(net, args, binary):
     """
     clients = start_iperf(net, args)
     time.sleep(args.warmup)
-    if args.disable_sidecar:
+    if args.disable_sidekick:
         time.sleep(args.timeout)
         print_loadgen_output(clients)
     else:
@@ -76,7 +76,7 @@ def run_benchmark(net, args, binary):
         time.sleep(args.timeout)
         r1.terminate()
         print_loadgen_output(clients)
-        print_sidecar_output(r1)
+        print_sidekick_output(r1)
     target_pps = args.tput * args.num_clients
     if 'multi' not in binary:
         print(f'\nTarget combined rate (packets/s): {round(target_pps, 3)}')
@@ -100,25 +100,25 @@ if __name__ == '__main__':
         help='Timeout, in seconds (default: 5)')
     parser.add_argument('--cores', '-c', type=int, default=multiprocessing.cpu_count(),
         help='Number of cores, to partition iperf servers/clients and the '
-             'sidecar. On an m5.xlarge, a core can run two clients, one server '
-             'generating load at max 100k packets/s, or the sidecar. The last '
-            f'core is assigned to the sidecar. (default: {multiprocessing.cpu_count()})')
-    parser.add_argument('--disable-sidecar', action='store_true',
-        help='Disable the sidecar to test only iperf load generator')
+             'sidekick. On an m5.xlarge, a core can run two clients, one server '
+             'generating load at max 100k packets/s, or the sidekick. The last '
+            f'core is assigned to the sidekick. (default: {multiprocessing.cpu_count()})')
+    parser.add_argument('--disable-sidekick', action='store_true',
+        help='Disable the sidekick to test only iperf load generator')
 
     ############################################################################
     # Load generator configurations
     loadgen_config = parser.add_argument_group('loadgen_config')
     loadgen_config.add_argument('--length', '-l', default=25, type=int, metavar='BYTES',
         help='Target load generator packet length, the -l option in iperf3. '
-             'Minimum is 25 bytes to ensure parsing sidecar ID. (default: 25)')
+             'Minimum is 25 bytes to ensure parsing sidekick ID. (default: 25)')
 
     ############################################################################
     # Sidecar configurations
-    sidecar_config = parser.add_argument_group('sidecar_config')
-    sidecar_config.add_argument('--frequency', type=int, default=0,
+    sidekick_config = parser.add_argument_group('sidekick_config')
+    sidekick_config.add_argument('--frequency', type=int, default=0,
         help='Quack frequency in ms (default: 0)')
-    sidecar_config.add_argument('--threshold', type=int, default=10, metavar='PACKETS',
+    sidekick_config.add_argument('--threshold', type=int, default=10, metavar='PACKETS',
         help='Quack threshold (default: 10)')
 
     ############################################################################

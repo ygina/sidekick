@@ -2,6 +2,6 @@
 resolver = "2"
 members = [
     "quack",
-    "sidecar",
+    "sidekick",
     "media_integration/media",
 ]
