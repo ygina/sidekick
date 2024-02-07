@@ -1,14 +1,14 @@
 #!/bin/bash
-export SIDECAR_HOME=$HOME/sidekick
+export SIDEKICK_HOME=$HOME/sidekick
 
 # exit if any errors
 set -e
 
 # git submodules
-cd $SIDECAR_HOME
+cd $SIDEKICK_HOME
 git submodule init
 git submodule update
-cd $SIDECAR_HOME/http3_integration/quiche
+cd $SIDEKICK_HOME/http3_integration/quiche
 git submodule init
 git submodule update
 
@@ -28,7 +28,7 @@ pip3 install mininet
 # plotting scripts
 sudo pip install virtualenv
 sudo pip install virtualenvwrapper
-cd $SIDECAR_HOME/figures
+cd $SIDEKICK_HOME/figures
 virtualenv -p python3 env
 
 # rust
@@ -36,13 +36,13 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # hit 1
 source $HOME/.cargo/env
 
 # build a separate quiche directory for nginx to link to (vs curl)
-cd $SIDECAR_HOME/deps/
+cd $SIDEKICK_HOME/deps/
 git clone --recurse-submodules git@github.com:ygina/quiche.git quiche-nginx
 cd quiche-nginx
 git checkout sidekick
 
 # Download external dependencies
-cd $SIDECAR_HOME/deps
+cd $SIDEKICK_HOME/deps
 curl -O https://nginx.org/download/nginx-1.16.1.tar.gz
 tar xvzf nginx-1.16.1.tar.gz
 wget https://pari.math.u-bordeaux.fr/pub/pari/unix/pari-2.15.2.tar.gz

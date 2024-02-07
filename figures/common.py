@@ -122,23 +122,23 @@ class DataPoint:
         self.avg = statistics.mean(arr)
         self.stdev = None if len(arr) == 1 else statistics.stdev(arr)
 
-DEFAULT_SIDECAR_HOME = os.environ['HOME'] + '/sidekick'
+DEFAULT_SIDEKICK_HOME = os.environ['HOME'] + '/sidekick'
 parser = argparse.ArgumentParser()
 parser.add_argument('--execute', action='store_true',
                     help='Execute benchmarks for missing data points')
 parser.add_argument('--workdir',
-                    default=DEFAULT_SIDECAR_HOME,
+                    default=DEFAULT_SIDEKICK_HOME,
                     help='Working directory (default: $HOME/sidekick)')
 parser.add_argument('--outdir',
-                    default=f'{DEFAULT_SIDECAR_HOME}/figures/output',
+                    default=f'{DEFAULT_SIDEKICK_HOME}/figures/output',
                     help='Output directory for plots (default: $HOME/sidekick/figures/output)')
 parser.add_argument('--logdir',
-                    default=f'{DEFAULT_SIDECAR_HOME}/results',
+                    default=f'{DEFAULT_SIDEKICK_HOME}/results',
                     help='Log directory for data (default: $HOME/sidekick/results)')
 parser.add_argument('--legend', type=int, default=1,
                     help='Whether to plot a legend [0|1]. (default: 1)')
 
-def execute_experiment(cmd, filename, cwd=DEFAULT_SIDECAR_HOME):
+def execute_experiment(cmd, filename, cwd=DEFAULT_SIDEKICK_HOME):
     print(' '.join(cmd))
     p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT, env=dict(os.environ, RUST_LOG='warn'))

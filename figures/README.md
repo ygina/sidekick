@@ -10,8 +10,8 @@ Activate the Python virtual environment and set environment variables.
 
 ```
 source env/bin/activate
-export SIDECAR_HOME=$HOME/sidekick
-export QUICHE_HOME=$SIDECAR_HOME/http3_integration/quiche
+export SIDEKICK_HOME=$HOME/sidekick
+export QUICHE_HOME=$SIDEKICK_HOME/http3_integration/quiche
 ```
 
 ## Section 3.5 Microbenchmarks
@@ -32,7 +32,7 @@ export RUST_LOG=warn
 ### Figure 2
 
 ```
-python figures/fig2_microbenchmarks.py --logdir $SIDECAR_HOME/nsdi --execute
+python figures/fig2_microbenchmarks.py --logdir $SIDEKICK_HOME/nsdi --execute
 ```
 
 ## Section 6.2 Performance Comparison to Baseline
@@ -40,19 +40,19 @@ python figures/fig2_microbenchmarks.py --logdir $SIDECAR_HOME/nsdi --execute
 ### Figure 4a
 
 ```
-python figures/fig4a_pep_emulation.py --marquee --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
+python figures/fig4a_pep_emulation.py --marquee --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 4b
 
 ```
-python figures/fig4b_low_latency_media.py --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
+python figures/fig4b_low_latency_media.py --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 4c
 
 ```
-python figures/fig4c_ack_reduction.py --marquee --logdir $SIDECAR_HOME/nsdi --execute
+python figures/fig4c_ack_reduction.py --marquee --logdir $SIDEKICK_HOME/nsdi --execute
 ```
 
 ## Section 6.3 Fairness Evaluation
@@ -60,13 +60,13 @@ python figures/fig4c_ack_reduction.py --marquee --logdir $SIDECAR_HOME/nsdi --ex
 ### Figure 5
 
 ```
-python figures/fig5_baseline_bar.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
+python figures/fig5_baseline_bar.py --legend 0 --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 6
 
 ```
-python figures/fig6_fairness.py --legend 0 --logdir $SIDECAR_HOME/nsdi --execute [-t 1]
+python figures/fig6_fairness.py --legend 0 --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
 ```
 
 ## Section 6.4 Proxy CPU Overheads
@@ -103,30 +103,30 @@ paper are calculated relative to the first row.
 ### Figure 7a
 
 ```
-cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --print-statistics quic
-cd $QUICHE_HOME && make strawman_a && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make strawman_a && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style strawman_a
-cd $QUICHE_HOME && make strawman_b && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make strawman_b && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style strawman_b
-cd $QUICHE_HOME && make strawman_c && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make strawman_c && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style strawman_c
-cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 --print-statistics quack --style power_sum
 ```
 
 ### Figure 7b
 
 ```
-cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --min-ack-delay 10 --print-statistics quic
-cd $QUICHE_HOME && make strawman_a && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make strawman_a && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style strawman_a
-cd $QUICHE_HOME && make strawman_b && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make strawman_b && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style strawman_b
-cd $QUICHE_HOME && make strawman_c && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make strawman_c && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style strawman_c
-cd $QUICHE_HOME && make sidekick && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make sidekick && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 --bw2 10 -n 10M --frequency 10ms --threshold 40 --min-ack-delay 500 --print-statistics --timeout 20 quack --style power_sum
 
 ```
@@ -134,7 +134,7 @@ sudo -E python3 mininet/main.py -t 1 --loss2 0 --delay1 1 --delay2 25 --bw1 100 
 ### QuACK vs ACK Cycles
 
 ```
-cd $QUICHE_HOME && make cycles && cd $SIDECAR_HOME
+cd $QUICHE_HOME && make cycles && cd $SIDEKICK_HOME
 sudo -E python3 mininet/main.py -t 1 --loss2 1 --delay1 25 --delay2 1 --bw1 10 --bw2 100 -n 10M --frequency 30ms --threshold 10 quack
 ```
 

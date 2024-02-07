@@ -11,28 +11,28 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
-export SIDECAR_HOME=$HOME/sidekick
+export SIDEKICK_HOME=$HOME/sidekick
 
 build_nginx () {
-cd $SIDECAR_HOME/deps/nginx-1.16.1
+cd $SIDEKICK_HOME/deps/nginx-1.16.1
 mkdir -p logs
-patch -N -r- -p01 < $SIDECAR_HOME/deps/quiche-nginx/nginx/nginx-1.16.patch
+patch -N -r- -p01 < $SIDEKICK_HOME/deps/quiche-nginx/nginx/nginx-1.16.patch
 sed -i 's\ffi"\ffi,power_sum"\g' auto/lib/quiche/make
-cp $SIDECAR_HOME/deps/ngx_http_v3_module* src/http/v3/
+cp $SIDEKICK_HOME/deps/ngx_http_v3_module* src/http/v3/
 ./configure                                 \
    --prefix=$PWD                           \
-   --build="quiche-$(git --git-dir=$SIDECAR_HOME/deps/quiche-nginx/.git rev-parse --short HEAD)" \
+   --build="quiche-$(git --git-dir=$SIDEKICK_HOME/deps/quiche-nginx/.git rev-parse --short HEAD)" \
    --with-http_ssl_module                  \
    --with-http_v2_module                   \
    --with-http_v3_module                   \
-   --with-openssl=$SIDECAR_HOME/deps/quiche-nginx/quiche/deps/boringssl \
-   --with-quiche=$SIDECAR_HOME/deps/quiche-nginx
+   --with-openssl=$SIDEKICK_HOME/deps/quiche-nginx/quiche/deps/boringssl \
+   --with-quiche=$SIDEKICK_HOME/deps/quiche-nginx
 make -j$(nproc)
 sudo ln -f -s $(pwd)/objs/nginx /usr/bin/nginx
 }
 
 build_pari () {
-cd $SIDECAR_HOME/deps/pari-2.15.2
+cd $SIDEKICK_HOME/deps/pari-2.15.2
 ./Configure
 make -j$(nproc) all
 sudo make install
@@ -40,29 +40,29 @@ sudo ldconfig
 }
 
 build_quiche () {
-cd $SIDECAR_HOME/http3_integration/quiche
+cd $SIDEKICK_HOME/http3_integration/quiche
 make sidekick
 mkdir -p quiche/deps/boringssl/src/lib
 ln -f -vnf $(find target/release -name libcrypto.a -o -name libssl.a) quiche/deps/boringssl/src/lib/
 }
 
 build_libcurl () {
-cd $SIDECAR_HOME/http3_integration/curl
+cd $SIDEKICK_HOME/http3_integration/curl
 autoreconf -fi
-./configure LDFLAGS="-Wl,-rpath,$SIDECAR_HOME/http3_integration/quiche/target/release" \
-        --with-openssl=$SIDECAR_HOME/http3_integration/quiche/quiche/deps/boringssl/src \
-        --with-quiche=$SIDECAR_HOME/http3_integration/quiche/target/release
+./configure LDFLAGS="-Wl,-rpath,$SIDEKICK_HOME/http3_integration/quiche/target/release" \
+        --with-openssl=$SIDEKICK_HOME/http3_integration/quiche/quiche/deps/boringssl/src \
+        --with-quiche=$SIDEKICK_HOME/http3_integration/quiche/target/release
 make -j$(nproc)
 }
 
 build_sidecurl () {
-cd $SIDECAR_HOME/http3_integration/curl/sidecurl
+cd $SIDEKICK_HOME/http3_integration/curl/sidecurl
 make
-sudo ln -f -s $SIDECAR_HOME/http3_integration/curl/sidecurl/sidecurl /usr/bin/sidecurl
+sudo ln -f -s $SIDEKICK_HOME/http3_integration/curl/sidecurl/sidecurl /usr/bin/sidecurl
 }
 
 build_pepsal () {
-cd $SIDECAR_HOME/deps/pepsal
+cd $SIDEKICK_HOME/deps/pepsal
 autoupdate
 autoreconf --install
 autoconf
@@ -72,7 +72,7 @@ sudo make install
 }
 
 build_sidekick () {
-cd $SIDECAR_HOME
+cd $SIDEKICK_HOME
 cargo build --release
 cargo build --release --examples --all-features
 }
