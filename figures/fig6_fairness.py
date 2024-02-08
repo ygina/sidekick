@@ -76,7 +76,12 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
                 continue
             if '[sidekick]' in line:
                 continue
-            if exitcode_index is not None and int(line[exitcode_index]) != 0:
+            try:
+                if exitcode_index is not None and int(line[exitcode_index]) != 0:
+                    continue
+            except:
+                key_index = None
+                exitcode_index = None
                 continue
             data[loss].append(float(line[key_index]))
 
