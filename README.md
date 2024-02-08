@@ -31,7 +31,9 @@ first build and install all dependencies according to the instructions
 [here](https://github.com/ygina/sidekick/tree/main/deps).
 Our experiments were run on an m4.xlarge AWS instance with a 4-CPU Intel Xeon
 E5 processor and 16 GB memory, running Ubuntu 22.04, but it should be possible
-to adapt the instructions for any Linux machine. Each figure in the paper has
+to adapt the instructions for any Linux machine. (These experiments have also
+been tested on a [CloudLab](https://cloudlab.us/) d710 node running Ubuntu 22.04.)
+Each figure in the paper has
 a corresponding script, and the instructions can be found
 [here](https://github.com/ygina/sidekick/tree/main/figures).
 
