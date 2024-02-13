@@ -80,6 +80,7 @@ def plot_num_candidates_vs_decode_time_method(args, pdf):
     x_regex = r'.*-n (\d+)'
     for key in keys:
         filename = f'{results}/{key}.txt'
+        print(filename)
         ys = parse_decode_output(filename, x_regex, xs)
         if None not in ys:
             data[key] = ys
@@ -120,6 +121,7 @@ def plot_num_candidates_vs_decode_time(args, pdf):
     for key in num_bits:
         key_str = f'b={int(key/8)}'
         filename = f'{results}/{key}.txt'
+        print(filename)
         ys = parse_decode_output(filename, x_regex, xs)
         if None not in ys:
             data[key_str] = ys
@@ -160,6 +162,7 @@ def plot_num_missing_vs_decode_time(args, pdf):
     for key in num_bits:
         key_str = f'b={int(key/8)}'
         filename = f'{results}/{key}.txt'
+        print(filename)
         ys = parse_decode_output(filename, x_regex, xs)
         if None not in ys:
             data[key_str] = ys
@@ -204,6 +207,7 @@ def plot_threshold_vs_encode_time(args, pdf):
     for key in num_bits:
         key_str = f'b={int(key/8)}'
         filename = f'{results}/{key}.txt'
+        print(filename)
         ys = parse_construct_output(filename, x_regex, xs)
         if None not in ys:
             data[key_str] = ys
