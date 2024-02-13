@@ -10,6 +10,10 @@ import statistics
 import argparse
 import subprocess
 
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 # Plot markers.
 MARKERS = 'PXD*o^v<>.'
 
