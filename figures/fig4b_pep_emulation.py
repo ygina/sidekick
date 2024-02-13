@@ -170,7 +170,7 @@ def plot_graph(args, loss, pdf, http_versions,
         # print(xs)
         # print(ys)
     plt.xlabel('Upload Data Size (MByte)', fontsize=FONTSIZE)
-    plt.ylabel('Goodput (MByte/s)', fontsize=FONTSIZE)
+    plt.ylabel('Goodput (Mbit/s)', fontsize=FONTSIZE)
     plt.xticks(fontsize=FONTSIZE)
     plt.yticks(ticks=[0, 2, 4, 6, 8], fontsize=FONTSIZE)
     plt.grid()
