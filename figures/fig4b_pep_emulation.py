@@ -207,7 +207,7 @@ if __name__ == '__main__':
 
     if args.marquee:
         https = ['quic', 'quack_30ms_10', 'quack_60ms_20', 'quack_120ms_40']
-        plot_graph(args, loss=1, pdf=f'fig4a_pep_emulation.pdf',
+        plot_graph(args, loss=1, pdf=f'fig4b_pep_emulation.pdf',
             http_versions=https, use_median=True, marquee_labels=True)
 
     losses = DEFAULT_LOSSES if len(args.loss) == 0 else args.loss

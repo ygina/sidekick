@@ -11,7 +11,7 @@ DEFAULT_DATA_SIZES = [1000, 10000, 50000]
 def plot_retx_graph(args,
                     https=DEFAULT_PROTOCOLS_RETX,
                     data_sizes=DEFAULT_DATA_SIZES,
-                    pdf='fig8a_real_world_retx.pdf'):
+                    pdf='fig8_real_world_retx.pdf'):
     data = defaultdict(lambda: {})
     # Add the total times, in seconds, to these arrays when collected.
     # The first 10, 10, and 6 data points for each data size were collected
@@ -112,7 +112,7 @@ def parse_data_cdf(args, filename):
 def plot_webrtc_graph(args, data,
                       keys=['base', 'quack'],
                       labels=['Simple E2E', 'Sidekick'],
-                      pdf='fig8a_real_world_webrtc.pdf'):
+                      pdf='fig8_real_world_webrtc.pdf'):
     plt.clf()
     plt.figure(figsize=(6, 4.8))
     xs = [x / 10.0 for x in range(args.min_x, 1001)]

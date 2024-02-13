@@ -40,13 +40,13 @@ python figures/fig2_microbenchmarks.py --logdir $SIDEKICK_HOME/nsdi --execute
 ### Figure 4a
 
 ```
-python figures/fig4a_pep_emulation.py --marquee --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
+python figures/fig4a_low_latency_media.py --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 4b
 
 ```
-python figures/fig4b_low_latency_media.py --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
+python figures/fig4b_pep_emulation.py --marquee --logdir $SIDEKICK_HOME/nsdi --execute [-t 1]
 ```
 
 ### Figure 4c

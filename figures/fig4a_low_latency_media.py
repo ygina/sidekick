@@ -77,7 +77,7 @@ def maybe_collect_missing_data(filename, key, args):
         execute_experiment(cmd, filename, cwd=args.workdir)
 
 if __name__ == '__main__':
-    DEFAULT_PDF = f'fig4b_low_latency_media.pdf'
+    DEFAULT_PDF = f'fig4a_low_latency_media.pdf'
     DEFAULT_KEYS = ['base', 'quack_2p_8', 'quack_4p_16', 'quack_8p_32']
 
     parser.add_argument('--timeout', default=60, type=int,
