@@ -66,7 +66,7 @@ def parse_data(filename, key, trials, max_x, n, data_key='time_total'):
         if line == '' or '***' in line or '/tmp' in line or 'No' in line or \
             'factor' in line or 'unaccounted' in line or 'sudo' in line:
             continue
-        elif exitcode == 0 and ('[sidekick] proxy<-DR' in line or '[sidekick] h1-eth0' in line):
+        elif exitcode == 0 and ('] proxy<-DR' in line or '] h1-eth0' in line):
             line = line.split()
             data_pkts[min_ack_delay].append(int(line[2]))
             min_ack_delay = None
