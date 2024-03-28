@@ -26,7 +26,7 @@ visualizer/         # web visualizer for sidekick-related quiche debug logs
 ## Getting Started
 
 To reproduce the experiments in the NSDI '24 paper,
-_[Sidekick: In-Network Assistance for Secure End-to-End Transport Protocols]()_,
+_[Sidekick: In-Network Assistance for Secure End-to-End Transport Protocols](https://ginayuan.com/papers/nsdi24-sidekick.pdf)_,
 first build and install all dependencies according to the instructions
 [here](https://github.com/ygina/sidekick/tree/main/deps).
 Our experiments were run on an m4.xlarge AWS instance with a 4-CPU Intel Xeon
