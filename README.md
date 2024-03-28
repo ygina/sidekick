@@ -1,5 +1,9 @@
 # Sidekick
 
+<p align="center">
+  <img alt="The data sender sends packets using an opaque base protocol to the data receiver. The middlebox, which is on the path, sends quACKs via the sidekick protocol to the data sender" src="/img/model.png" width="500" />
+</p>
+
 Sidekick protocols are a method for in-network assistance of opaque transport
 protocols that leaves the transport protocol unmodified on the wire and free
 to evolve. The sidekick protocol is spoken on an adjacent connection between
