@@ -51,3 +51,7 @@ TODO
 
 ## Quacknowledgements
 
+This work was supported in part by NSF grants 2045714, 2039070, 2028733, 1931750, 1918056, 1763256,
+and DGE1656518, DARPA contract HR001120C0107, a Stanford Graduate Fellowship, a Sloan Research
+Fellowship, and by Google, VMware, Dropbox, Amazon, and Meta Platforms.
+
