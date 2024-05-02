@@ -5,8 +5,9 @@ from collections import defaultdict
 from common import *
 
 TARGET_XS = {}
-TARGET_XS['pep'] = [x for x in range(0, 1000, 50)]
-TARGET_XS['quack'] = [x for x in range(0, 1000, 50)]
+TARGET_XS['pep'] = [x for x in range(0, 1050, 50)]
+TARGET_XS['quack'] = [x for x in range(0, 850, 50)]
+TARGET_XS['quack_pacubic'] = TARGET_XS['quack'] + [850, 900, 950, 1000]
 TARGET_XS['quic'] = [0, 25, 50, 100, 150, 200, 300, 400, 500]
 TARGET_XS['tcp'] = [0, 25, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
 
@@ -132,8 +133,9 @@ def plot_graph(args, data, https, legend, pdf=None):
             label = LABEL_MAP[key]
         else:
             label = key
+        color = None if key not in COLOR_MAP else COLOR_MAP[key]
         plt.errorbar(xs, ys, yerr=yerr, marker=MARKERS[i], markersize=MARKERSIZE*1.5,
-                     label=label, color=COLOR_MAP[key], linewidth=LINEWIDTH,
+                     label=label, color=color, linewidth=LINEWIDTH,
                      capsize=5, linestyle=LINESTYLES[i], elinewidth=2)
         if len(xs) > 0:
             max_x = max(max_x, max(xs))
@@ -156,7 +158,7 @@ def plot_legend(args, data, https, pdf):
     save_pdf(pdf, bbox_inches=bbox)
 
 if __name__ == '__main__':
-    DEFAULT_PROTOCOLS = ['quic', 'quack', 'tcp', 'pep']
+    DEFAULT_PROTOCOLS = ['quic', 'quack', 'tcp', 'pep', 'quack_pacubic']
 
     parser.add_argument('-n', default='10M',
         help='data size (default: 10M)')
