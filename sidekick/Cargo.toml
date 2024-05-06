@@ -52,3 +52,6 @@ name = "sender_strawman_b"
 [[bin]]
 name = "sender_strawman_tcp"
 
+[[bin]]
+name = "buffer_proxy"
+

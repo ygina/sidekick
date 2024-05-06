@@ -210,6 +210,16 @@ class SidekickNetwork():
         sclog(cmd)
         self.r1.popen(cmd.split(' '), stdout=sys.stdout, stderr=sys.stderr, env=env)
 
+    def start_buffering_proxy(self):
+        print('', file=sys.stderr)
+        sclog('Starting buffering proxy on r1...')
+        cmd = './target/release/buffer_proxy -i r1-eth1'
+        env = os.environ.copy()
+        env['RUST_BACKTRACE'] = '1'
+        env['RUST_LOG'] = 'info'
+        sclog(cmd)
+        self.r1.popen(cmd.split(' '), stdout=sys.stdout, stderr=sys.stderr, env=env)
+
     def stop(self):
         if self.net is not None:
             self.net.stop()

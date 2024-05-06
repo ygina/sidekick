@@ -100,18 +100,25 @@ if __name__ == '__main__':
     ############################################################################
     # Baseline benchmark
     base = subparsers.add_parser('base')
-    base.set_defaults(sidekick=False, cli=False)
+    base.set_defaults(sidekick=False, cli=False, buffering=False)
 
     ############################################################################
     # QuACK benchmark
     quack = subparsers.add_parser('quack')
-    quack.set_defaults(sidekick=True, cli=False)
+    quack.set_defaults(sidekick=True, cli=False, buffering=False)
+
+    ############################################################################
+    # QuACK benchmark with buffering
+    quack = subparsers.add_parser('quack_buffer')
+    quack.set_defaults(sidekick=False, cli=False, buffering=True)
 
     args = parser.parse_args()
     net = SidekickNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
         args.bw1, args.bw2, args.qdisc)
     if args.sidekick:
         net.start_quack_sender(args.frequency, args.threshold, args.style)
+    if args.buffering:
+        net.start_buffering_proxy()
     clean_logs()
 
     if args.cli:
