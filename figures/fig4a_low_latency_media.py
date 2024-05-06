@@ -64,7 +64,13 @@ def maybe_collect_missing_data(filename, key, args):
         return
 
     cmd = ['sudo', '-E', 'python3', 'mininet/webrtc.py']
-    cmd += ['--timeout', str(args.timeout), '--loss2', str(args.loss)]
+    cmd += ['--timeout', str(args.timeout)]
+    if args.flip:
+        cmd += ['--loss1', str(args.loss), '--loss2', '0']
+        cmd += ['--delay1', '1', '--delay2', '25']
+        cmd += ['--bw1', '100', '--bw2', '10']
+    else:
+        cmd += ['--loss2', str(args.loss)]
     match = re.match(r'quack_(.+(ms|p))_(\d+)', key)
     if match is not None:
         cmd += ['--frequency', match.group(1)]
@@ -90,6 +96,8 @@ if __name__ == '__main__':
         help='Loss percentage on the near subpath (default: 3.6)')
     parser.add_argument('--min-x', type=int, default=860,
         help='Min x value to plot the CDF at, in tenths of a percentile.')
+    parser.add_argument('--flip', action='store_true',
+        help='Flip the properties of the near and far path segments')
     args = parser.parse_args()
 
     keys = DEFAULT_KEYS if len(args.http) == 0 else args.http
