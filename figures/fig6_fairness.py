@@ -6,8 +6,8 @@ from common import *
 
 TARGET_XS = {}
 TARGET_XS['pep'] = [x for x in range(0, 1050, 50)]
+TARGET_XS['quack_pacubic'] = [x for x in range(0, 1050, 50)]
 TARGET_XS['quack'] = [x for x in range(0, 850, 50)]
-TARGET_XS['quack_pacubic'] = TARGET_XS['quack'] + [850, 900, 950, 1000]
 TARGET_XS['quic'] = [0, 25, 50, 100, 150, 200, 300, 400, 500]
 TARGET_XS['tcp'] = [0, 25, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800]
 
@@ -34,7 +34,7 @@ def collect_ys_median(ys, n):
     yerr = (y-p25, p75-y)
     return (y, yerr)
 
-def parse_data(filename, key, trials, max_x, data_key='time_total'):
+def parse_data(filename, key, trials, max_x, far_loss, data_key='time_total'):
     loss = None
     key_index = None
     exitcode_index = None
@@ -46,7 +46,10 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
         line = line.strip()
 
         # Get the current loss percentage in hundredths of a percent
-        m = re.search(r'Link2.*loss=(\S+) .*', line)
+        if far_loss:
+            m = re.search(r'Link1.*loss=(\S+) .*', line)
+        else:
+            m = re.search(r'Link2.*loss=(\S+) .*', line)
         if m is not None:
             loss = round(float(m.group(1)) * 100.0)
             continue
@@ -92,7 +95,7 @@ def parse_data(filename, key, trials, max_x, data_key='time_total'):
     return (xs, ys)
 
 def maybe_collect_missing_data(filename, key, args):
-    (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
+    (xs, ys) = parse_data(filename, key, args.trials, args.max_x, args.far_loss)
 
     missing_losses = []
     for i in range(len(xs)):
@@ -113,8 +116,12 @@ def maybe_collect_missing_data(filename, key, args):
         if missing == 0:
             continue
         cmd = ['sudo', '-E', 'python3', 'mininet/main.py', '-n', args.n,
-               '--loss2', loss, '-t', str(missing), '--bw2', str(args.bw),
-               '--stderr', 'loss_tput.error', '--timeout', '600']
+               '--bw1', str(args.bw1), '--bw2', str(args.bw2), '-t', str(missing),
+               '--stderr', 'loss_tput.error', '--timeout', '120']
+        if args.far_loss:
+            cmd += ['--loss1', loss, '--loss2', '0']
+        else:
+            cmd += ['--loss1', '0', '--loss2', loss]
         cmd += ['--delay1', str(args.delay1), '--delay2', str(args.delay2)]
         cmd += ['--frequency', args.frequency, '--threshold', str(args.threshold)]
         cmd += args.args
@@ -166,8 +173,10 @@ if __name__ == '__main__':
         help=f'HTTP versions. (default: {DEFAULT_PROTOCOLS})')
     parser.add_argument('-t', '--trials', default=10, type=int,
         help='number of trials per data point (default: 10)')
-    parser.add_argument('--bw', default=100, type=int,
-        help='bandwidth of near subpath link in Mbps (default: 100)')
+    parser.add_argument('--bw1', default=10, type=int,
+        help='bandwidth of far path segment in Mbps (default: 10)')
+    parser.add_argument('--bw2', default=100, type=int,
+        help='bandwidth of near path segment in Mbps (default: 100)')
     parser.add_argument('--max-x', default=800, type=int,
         help='maximum loss perecentage in hundredths of a percentage (default: 800)')
     parser.add_argument('--delay1', default=25, type=int,
@@ -182,11 +191,13 @@ if __name__ == '__main__':
         help='additional arguments to append to the mininet/main.py command if executing.')
     parser.add_argument('--mean', action='store_true',
         help='use the mean instead of the median')
+    parser.add_argument('--far-loss', action='store_true',
+        help='vary loss on the far path segment instead of the near one')
     args = parser.parse_args()
 
     # Create the directory that holds the results.
     https = DEFAULT_PROTOCOLS if len(args.http) == 0 else args.http
-    path = f'{args.logdir}/loss_tput/bw{args.bw}/{args.n}/{args.delay1}ms_{args.delay2}ms'
+    path = f'{args.logdir}/loss_tput/bw{args.bw2}/{args.n}/{args.delay1}ms_{args.delay2}ms'
     os.system(f'mkdir -p {path}')
 
     # Parse results data, and collect missing data points if specified.
@@ -196,7 +207,7 @@ if __name__ == '__main__':
         print(filename)
         os.system(f'touch {filename}')
         maybe_collect_missing_data(filename, key, args)
-        (xs, ys) = parse_data(filename, key, args.trials, args.max_x)
+        (xs, ys) = parse_data(filename, key, args.trials, args.max_x, args.far_loss)
         new_xs = []
         new_ys = []
         if args.mean:
@@ -219,6 +230,6 @@ if __name__ == '__main__':
         data[key] = (new_xs, new_ys, new_yerrs)
 
     # Plot data.
-    pdf = f'fig6_loss_bw{args.bw}_{args.n}_delay_{args.delay1}ms_{args.delay2}ms.pdf'
+    pdf = f'fig6_loss_bw{args.bw2}_{args.n}_delay_{args.delay1}ms_{args.delay2}ms.pdf'
     plot_graph(args, data, https, args.legend, pdf=pdf)
     plot_legend(args, data, https, pdf='fig6_legend.pdf')

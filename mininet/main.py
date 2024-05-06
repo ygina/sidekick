@@ -92,7 +92,7 @@ if __name__ == '__main__':
         help='1/2 RTT between h1 and r1 (default: 25)')
     net_config.add_argument('--delay2', type=int, default=1, metavar='MS',
         help='1/2 RTT between r1 and h2 (default: 1)')
-    net_config.add_argument('--loss1', type=int, default=0, metavar='PERCENT',
+    net_config.add_argument('--loss1', type=str, default='0', metavar='PERCENT',
         help='loss (in %%) between h1 and r1 (default: 0)')
     net_config.add_argument('--loss2', type=str, default='1', metavar='PERCENT',
         help='loss (in %%) between r1 and h2 (default: 1)')
