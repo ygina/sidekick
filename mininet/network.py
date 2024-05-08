@@ -169,14 +169,21 @@ class SidekickNetwork():
         popen(self.r1, 'iptables -t mangle -A PREROUTING -i r1-eth0 -p tcp -j TPROXY --on-port 5000 --tproxy-mark 1')
         self.r1.cmd('pepsal -v >> r1.log 2>&1 &')
 
-    def start_quack_sender(self, frequency, threshold, style):
+    def start_quack_sender(self, frequency, threshold, style,
+                           quack_sender_host, quack_sender_iface,
+                           quack_sender_ipaddr, quack_receiver_sockaddr):
         """
         - `frequency`: frequency of the sidekick sender e.g. 2ms or 2p
         - `threshold`: quACK threshold
         - `style`: power_sum, strawman_a, strawman_b, OR strawman_c
+        - `quack_sender_host`: the mininet host of the quack sender e.g. net.r1
+        - `quack_sender_iface`: the iface to listen on of the quack sender e.g. 'r1-eth1'
+        - `quack_sender_ipaddr`: the ip address of the quack sender, referenced
+          against the dst ip of the sniffed udp packets for resets e.g. '10.0.2.1'
+        - `quack_receiver_sockaddr`: address to send quacks to e.g. '10.0.2.10:5103'
         """
         print('', file=sys.stderr)
-        sclog('Starting the QUIC sidekick sender on r1...')
+        sclog(f'Starting the QUIC sidekick sender on {quack_sender_host.name}...')
         if 'ms' in frequency:
             frequency = re.match(r'(\d+)ms', frequency).group(1)
             frequency = f'--frequency-ms {frequency}'
@@ -186,29 +193,29 @@ class SidekickNetwork():
         else:
             raise 'Invalid frequency: {}'.format(frequency)
 
-        self.r1.cmd(f'kill $(pidof sidekick)')
+        quack_sender_host.cmd(f'kill $(pidof sidekick)')
         # Does ./target/release/sender exist?
         env = os.environ.copy()
         env['RUST_BACKTRACE'] = '1'
         env['RUST_LOG'] = 'info'
         if style == 'multi':
-            cmd = f'./target/release/sender_multi -i r1-eth1 -t {threshold} ' + \
-                  f'--quack-addr 10.0.2.10:5103 {frequency} --my-ip 10.0.2.1' + \
+            cmd = f'./target/release/sender_multi -i {quack_sender_iface} -t {threshold} ' + \
+                  f'--quack-addr {quack_receiver_sockaddr} {frequency} --my-ip {quack_sender_ipaddr}' + \
                   f'--dst-ip 10.0.1.1 --dst-port 443'
         elif style == 'power_sum':
-            cmd = f'./target/release/sender -i r1-eth1 -t {threshold} ' + \
-                  f'--target-addr 10.0.2.10:5103 {frequency} --my-addr 10.0.2.1'
+            cmd = f'./target/release/sender -i {quack_sender_iface} -t {threshold} ' + \
+                  f'--target-addr {quack_receiver_sockaddr} {frequency} --my-addr {quack_sender_ipaddr}'
         elif style == 'strawman_a':
             cmd = f'./target/release/sender_strawman_a ' + \
-                  f'-i r1-eth1 --addr 10.0.2.10:5103'
+                  f'-i {quack_sender_iface} --addr {quack_receiver_sockaddr}'
         elif style == 'strawman_b':
             cmd = f'./target/release/sender_strawman_b ' + \
-                  f'-i r1-eth1 --addr 10.0.2.10:5103 -n 4'
+                  f'-i {quack_sender_iface} --addr {quack_receiver_sockaddr} -n 4'
         elif style == 'strawman_c':
             cmd = f'./target/release/sender_strawman_tcp ' + \
-                  f'-i r1-eth1 --addr 10.0.2.10:5103'
+                  f'-i {quack_sender_iface} --addr {quack_receiver_sockaddr}'
         sclog(cmd)
-        self.r1.popen(cmd.split(' '), stdout=sys.stdout, stderr=sys.stderr, env=env)
+        quack_sender_host.popen(cmd.split(' '), stdout=sys.stdout, stderr=sys.stderr, env=env)
 
     def start_buffering_proxy(self):
         print('', file=sys.stderr)
@@ -286,7 +293,11 @@ def run_multiflow(net, args, f1, f2, delay):
     if 'pep' in [f1, f2]:
         net.start_tcp_pep()
     if 'quack' in [f1, f2]:
-        net.start_quack_sender(args.frequency, args.threshold, style='multi')
+        net.start_quack_sender(args.frequency, args.threshold, style='multi',
+                               quack_sender_host=net.r1,
+                               quack_sender_iface='r1-eth1',
+                               quack_sender_ipaddr='10.0.2.1',
+                               quack_receiver_sockaddr='10.0.2.10:5103')
 
     def make_cmd(bm):
         if bm in ['tcp', 'pep']:

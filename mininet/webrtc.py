@@ -116,9 +116,18 @@ if __name__ == '__main__':
     net = SidekickNetwork(args.delay1, args.delay2, args.loss1, args.loss2,
         args.bw1, args.bw2, args.qdisc)
     if args.sidekick:
-        net.start_quack_sender(args.frequency, args.threshold, args.style)
+        net.start_quack_sender(args.frequency, args.threshold, args.style,
+                               quack_sender_host=self.r1,
+                               quack_sender_iface='r1-eth1',
+                               quack_sender_ipaddr='10.0.2.1',
+                               quack_receiver_sockaddr='10.0.2.10:5103')
     if args.buffering:
         net.start_buffering_proxy()
+        net.start_quack_sender(args.frequency, args.threshold, args.style,
+                               quack_sender_host=net.h1,
+                               quack_sender_iface='h1-eth0',
+                               quack_sender_ipaddr='10.0.1.10',
+                               quack_receiver_sockaddr='10.0.1.1:5103')
     clean_logs()
 
     if args.cli:

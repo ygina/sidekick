@@ -35,13 +35,15 @@ struct Cli {
     my_addr: Ipv4Addr,
 }
 
+const QUACK_SEND_PORT: u16 = 5104;
+
 async fn send_quacks(
     sc: Arc<Mutex<Sidekick>>,
     rx: oneshot::Receiver<()>,
     addr: SocketAddr,
     frequency_ms: u64,
 ) {
-    let socket = UdpSocket::bind("0.0.0.0:0")
+    let socket = UdpSocket::bind(format!("0.0.0.0:{}", QUACK_SEND_PORT))
         .await
         .expect("error binding to UDP socket");
     if frequency_ms > 0 {
@@ -98,7 +100,7 @@ async fn main() -> Result<(), String> {
     if let Some(frequency_ms) = args.frequency_ms {
         info!("my ipv4 address is {:?}", args.my_addr);
         let sc = Arc::new(Mutex::new(sc));
-        let rx = Sidekick::start(sc.clone(), args.my_addr.octets())?;
+        let rx = Sidekick::start(sc.clone(), args.my_addr.octets(), QUACK_SEND_PORT)?;
         if let Some(addr) = args.target_addr {
             info!("quACKing to {:?}", addr);
             send_quacks(sc, rx, addr, frequency_ms).await;
@@ -108,7 +110,7 @@ async fn main() -> Result<(), String> {
         }
     } else if let Some(frequency_pkts) = args.frequency_pkts {
         let addr = args.target_addr.expect("Address must be set");
-        sc.start_frequency_pkts(args.my_addr.octets(), frequency_pkts, addr)
+        sc.start_frequency_pkts(args.my_addr.octets(), QUACK_SEND_PORT, frequency_pkts, addr)
             .await
             .unwrap();
     }

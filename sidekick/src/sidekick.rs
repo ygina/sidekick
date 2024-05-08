@@ -58,6 +58,7 @@ impl Sidekick {
     pub fn start(
         sc: Arc<Mutex<Sidekick>>,
         my_ipv4_addr: [u8; 4],
+        my_send_port: u16,
     ) -> Result<oneshot::Receiver<()>, String> {
         let interface = sc.lock().unwrap().interface.clone();
         let sock = Socket::new(interface.clone())?;
@@ -89,7 +90,8 @@ impl Sidekick {
 
                 // Reset the quack if the dst IP is our own (and not for
                 // another e2e quic connection).
-                if UdpParser::parse_dst_ip(&buf) == my_ipv4_addr {
+                if UdpParser::parse_dst_ip(&buf) == my_ipv4_addr &&
+                        UdpParser::parse_dst_port(&buf) == my_send_port {
                     // TODO: check if dst port corresponds to this connection
                     sc.lock().unwrap().reset();
                     continue;
@@ -135,11 +137,12 @@ impl Sidekick {
     pub async fn start_frequency_pkts(
         &mut self,
         my_ipv4_addr: [u8; 4],
+        my_send_port: u16,
         frequency_pkts: usize,
         sendaddr: std::net::SocketAddr,
     ) -> Result<(), String> {
         let recvsock = Socket::new(self.interface.clone())?;
-        let sendsock = UdpSocket::bind("0.0.0.0:0").await.unwrap();
+        let sendsock = UdpSocket::bind(format!("0.0.0.0:{}", my_send_port)).await.unwrap();
         recvsock.set_promiscuous()?;
 
         // Loop over received packets
@@ -167,7 +170,8 @@ impl Sidekick {
 
             // Reset the quack if the dst IP is our own (and not for
             // another e2e quic connection).
-            if UdpParser::parse_dst_ip(&buf) == my_ipv4_addr {
+            if UdpParser::parse_dst_ip(&buf) == my_ipv4_addr &&
+                    UdpParser::parse_dst_port(&buf) == my_send_port {
                 // TODO: check if dst port corresponds to this connection
                 self.reset();
                 continue;

@@ -87,6 +87,11 @@ impl UdpParser {
         &x[30..34]
     }
 
+    /// Returns the dst_port assuming the buffer represents a UDP packet.
+    pub fn parse_dst_port(x: &[u8; BUFFER_SIZE]) -> u16 {
+        u16::from_be_bytes([x[36], x[37]])
+    }
+
     /// src_ip, src_port, dst_ip, dst_port
     pub fn parse_addr_key(x: &[u8; BUFFER_SIZE]) -> [u8; 12] {
         [

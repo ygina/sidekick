@@ -72,7 +72,11 @@ def benchmark_quack(net, args):
 
     net.h2.cmdPrint(h2_cmd)
     for _ in range(loops):
-        net.start_quack_sender(args.frequency, args.threshold, args.style)
+        net.start_quack_sender(args.frequency, args.threshold, args.style,
+                               quack_sender_host=self.r1,
+                               quack_sender_iface='r1-eth1',
+                               quack_sender_ipaddr='10.0.2.1',
+                               quack_receiver_sockaddr='10.0.2.10:5103')
         time.sleep(0.1)  # wait for the quack sender to start
         net.h2.cmdPrint(h2_cmd)
 
@@ -226,7 +230,11 @@ if __name__ == '__main__':
     if args.pep:
         net.start_tcp_pep()
     if args.sidekick:
-        net.start_quack_sender(args.frequency, args.threshold, args.style)
+        net.start_quack_sender(args.frequency, args.threshold, args.style,
+                               quack_sender_host=self.r1,
+                               quack_sender_iface='r1-eth1',
+                               quack_sender_ipaddr='10.0.2.1',
+                               quack_receiver_sockaddr='10.0.2.10:5103')
     net.set_segmentation_offloading(args.tso)
     clean_logs()
 
