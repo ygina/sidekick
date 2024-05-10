@@ -217,10 +217,10 @@ class SidekickNetwork():
         sclog(cmd)
         quack_sender_host.popen(cmd.split(' '), stdout=sys.stdout, stderr=sys.stderr, env=env)
 
-    def start_buffering_proxy(self):
+    def start_buffering_proxy(self, threshold):
         print('', file=sys.stderr)
         sclog('Starting buffering proxy on r1...')
-        cmd = './target/release/buffer_proxy -i r1-eth1'
+        cmd = f'./target/release/buffer_proxy -i r1-eth1 -t {threshold}'
         env = os.environ.copy()
         env['RUST_BACKTRACE'] = '1'
         env['RUST_LOG'] = 'info'

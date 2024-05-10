@@ -39,7 +39,7 @@ pub struct UdpParser {
 }
 
 impl UdpParser {
-    pub fn _parse(x: &[u8; BUFFER_SIZE]) -> Option<Self> {
+    pub fn _parse(x: &[u8]) -> Option<Self> {
         let ip_protocol = x[23];
         if i32::from(ip_protocol) != libc::IPPROTO_UDP {
             return None;
@@ -77,23 +77,23 @@ impl UdpParser {
     }
 
     /// Returns True if and only if the buffer represents a UDP packet.
-    pub fn is_udp(x: &[u8; BUFFER_SIZE]) -> bool {
+    pub fn is_udp(x: &[u8]) -> bool {
         let ip_protocol = x[23];
         i32::from(ip_protocol) == libc::IPPROTO_UDP
     }
 
     /// Returns the dst_ip assuming the buffer represents a UDP packet.
-    pub fn parse_dst_ip(x: &[u8; BUFFER_SIZE]) -> &[u8] {
+    pub fn parse_dst_ip(x: &[u8]) -> &[u8] {
         &x[30..34]
     }
 
     /// Returns the dst_port assuming the buffer represents a UDP packet.
-    pub fn parse_dst_port(x: &[u8; BUFFER_SIZE]) -> u16 {
+    pub fn parse_dst_port(x: &[u8]) -> u16 {
         u16::from_be_bytes([x[36], x[37]])
     }
 
     /// src_ip, src_port, dst_ip, dst_port
-    pub fn parse_addr_key(x: &[u8; BUFFER_SIZE]) -> [u8; 12] {
+    pub fn parse_addr_key(x: &[u8]) -> [u8; 12] {
         [
             x[26], x[27], x[28], x[29], x[34], x[35], x[30], x[31], x[32], x[33], x[36], x[37],
         ]
@@ -101,7 +101,7 @@ impl UdpParser {
 
     /// Returns the sidekick identifier assuming the buffer represents
     /// a QUIC UDP packet.
-    pub fn parse_identifier(x: &[u8; BUFFER_SIZE]) -> u32 {
+    pub fn parse_identifier(x: &[u8]) -> u32 {
         u32::from_be_bytes([
             x[ID_OFFSET],
             x[ID_OFFSET + 1],

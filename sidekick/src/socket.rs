@@ -118,7 +118,7 @@ impl Socket {
     pub fn recvfrom(
         &self,
         addr: &mut sockaddr_ll,
-        buf: &mut [u8; BUFFER_SIZE],
+        buf: &mut [u8],
     ) -> Result<isize, String> {
         let mut socklen = std::mem::size_of::<sockaddr_ll>() as u32;
         // wrapping our own libc functions because nix-rust is buggy:
