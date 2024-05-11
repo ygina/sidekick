@@ -60,7 +60,7 @@ impl Sidekick {
             last_quack_reset: Instant::now(),
             sidekick_log: Default::default(),
             sidekick_bytes: Default::default(),
-            sendsock: Socket::new_ip(String::from("r1-eth0")).unwrap(),
+            sendsock: Socket::new(String::from("r1-eth0")).unwrap(),
         }
     }
 
@@ -160,13 +160,14 @@ impl Sidekick {
             // we just retransmitted a packet in that connection
             self.sidekick_bytes.push(vec![]);
             let mut bytes = self.sidekick_bytes.swap_remove(index);
-            self.sendsock.send(&bytes[14..]).expect(
+
+            self.sendsock.send(&bytes).expect(
                 "failed to retransmit missing packets on send socket");
             println!("retransmit {} id={} bytes={}",
                 u32::from_be_bytes([bytes[42], bytes[43], bytes[44], bytes[45]]),
                 self.sidekick_log[index], bytes.len());
-            // self.sidekick_log.push(self.sidekick_log[index]);
-            // self.sidekick_bytes.push(bytes.clone());
+            self.sidekick_log.push(self.sidekick_log[index]);
+            self.sidekick_bytes.push(bytes.clone());
         }
         self.sidekick_log.drain(..next_log_index);
         self.sidekick_bytes.drain(..next_log_index);

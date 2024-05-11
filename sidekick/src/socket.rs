@@ -28,30 +28,7 @@ impl SockAddr {
 impl Socket {
     /// Create a raw socket and bind it to a specific interface.
     pub fn new(interface: String) -> Result<Self, String> {
-        Self::_new(interface, ETH_P_ALL)
-    }
-
-    /// Create a raw socket for Ethernet frames containing an IP packet and
-    /// bind it to a specific interface.
-    pub fn new_ip(interface: String) -> Result<Self, String> {
-        let protocol = (IPPROTO_IP as i16).to_be() as c_int;
-        let fd = unsafe { socket(AF_PACKET, SOCK_RAW, protocol) };
-        if fd < 0 {
-            Err(format!("socket: {}", fd))
-        } else {
-            debug!("opened socket with fd={}", fd);
-            let sock = Self {
-                fd,
-                interface: interface.clone(),
-                interface_c: CString::new(interface).unwrap(),
-            };
-            sock.bind(ETH_P_IP)?;
-            Ok(sock)
-        }
-    }
-
-    fn _new(interface: String, protocol: c_int) -> Result<Self, String> {
-        let protocol = (protocol as i16).to_be() as c_int;
+        let protocol = (ETH_P_ALL as i16).to_be() as c_int;
         let fd = unsafe { socket(AF_PACKET, SOCK_RAW, protocol) };
         if fd < 0 {
             Err(format!("socket: {}", fd))
