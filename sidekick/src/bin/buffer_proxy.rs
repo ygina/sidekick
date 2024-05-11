@@ -9,7 +9,7 @@ use quack::{
     PowerSumQuack, PowerSumQuackU32,
     arithmetic::{self, ModularArithmetic, ModularInteger},
 };
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use tokio::net::UdpSocket;
@@ -43,7 +43,11 @@ struct Sidekick {
     last_quack_reset: Instant,
 
     sidekick_log: Vec<u32>,
-    sidekick_bytes: HashMap<u32, Vec<u8>>,
+    // Same length as `sidekick_log`
+    sidekick_bytes: Vec<Vec<u8>>,
+
+    // Raw socket for retransmitting packets to the data receiver
+    sendsock: Socket,
 }
 
 impl Sidekick {
@@ -56,6 +60,7 @@ impl Sidekick {
             last_quack_reset: Instant::now(),
             sidekick_log: Default::default(),
             sidekick_bytes: Default::default(),
+            sendsock: Socket::new_ip(String::from("r1-eth0")).unwrap(),
         }
     }
 
@@ -80,7 +85,7 @@ impl Sidekick {
 
     fn process_outgoing_packet(&mut self, id: u32, bytes: Vec<u8>) {
         self.sidekick_log.push(id);
-        self.sidekick_bytes.insert(id, bytes);
+        self.sidekick_bytes.push(bytes);
     }
 
     fn decode_incoming_quack(&self, diff_quack: PowerSumQuackU32, log: &[u32]) -> Option<DecodedQuack> {
@@ -141,6 +146,32 @@ impl Sidekick {
         Some(decoded)
     }
 
+    /// Garbage collect and retransmit any missing packets.
+    fn handle_decoded_quack(&mut self, decoded: DecodedQuack, next_log_index: usize) {
+        // Everything we drain from the log has already been determined to
+        // be quacked or lost. Remove the lost packets from the quack. Remove
+        // any potentially in-flight packets from the quack.
+        println!("quack threshold={} acked={} missing={:?} suffix={}",
+            self.quack.threshold(), decoded.acked_ids.len(),
+            decoded.missing_ids, self.sidekick_log.len() - next_log_index);
+        for index in decoded.missing_indexes {
+            self.quack.remove(self.sidekick_log[index]);
+            // Retransmit missing bytes and add it to the end of the log since
+            // we just retransmitted a packet in that connection
+            self.sidekick_bytes.push(vec![]);
+            let mut bytes = self.sidekick_bytes.swap_remove(index);
+            self.sendsock.send(&bytes[14..]).expect(
+                "failed to retransmit missing packets on send socket");
+            println!("retransmit {} id={} bytes={}",
+                u32::from_be_bytes([bytes[42], bytes[43], bytes[44], bytes[45]]),
+                self.sidekick_log[index], bytes.len());
+            // self.sidekick_log.push(self.sidekick_log[index]);
+            // self.sidekick_bytes.push(bytes.clone());
+        }
+        self.sidekick_log.drain(..next_log_index);
+        self.sidekick_bytes.drain(..next_log_index);
+    }
+
     /// Return false if quack needs to be reset
     fn process_incoming_quack(&mut self, quack: PowerSumQuackU32) -> bool {
         // Immediately return if we've already processed this quack.
@@ -198,16 +229,7 @@ impl Sidekick {
             return false;
         };
 
-        // Everything we drain from the log has already been determined to
-        // be quacked or lost. Remove the lost packets from the quack. Remove
-        // any potentially in-flight packets from the quack.
-        println!("quack threshold={} count={} acked={}/{} log.len()={}",
-            self.quack.threshold(), count, decoded.acked_ids.len(), next_log_index, self.sidekick_log.len());
-        for index in decoded.missing_indexes {
-            self.quack.remove(self.sidekick_log[index]);
-        }
-        self.sidekick_log.drain(..next_log_index);
-
+        self.handle_decoded_quack(decoded, next_log_index);
         true
     }
 }
