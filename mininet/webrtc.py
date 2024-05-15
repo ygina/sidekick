@@ -122,6 +122,7 @@ if __name__ == '__main__':
                                quack_sender_ipaddr='10.0.2.1',
                                quack_receiver_sockaddr='10.0.2.10:5103')
     if args.buffering:
+        net.disable_checksum_offloading()
         net.start_buffering_proxy(args.threshold)
         net.start_quack_sender(args.frequency, args.threshold, args.style,
                                quack_sender_host=net.h1,

@@ -155,10 +155,20 @@ class SidekickNetwork():
         """
         sclog('tso and gso are {}'.format('ON' if on else 'OFF'))
         x = 'on' if on else 'off'
-        popen(self.h1, f'ethtool -K h1-eth0 gso {x} tso {x}')
-        popen(self.h2, f'ethtool -K h2-eth0 gso {x} tso {x}')
-        popen(self.r1, f'ethtool -K r1-eth0 gso {x} tso {x}')
-        popen(self.r1, f'ethtool -K r1-eth1 gso {x} tso {x}')
+        host_ifaces = [
+            (self.h1, 'h1-eth0'),
+            (self.h2, 'h2-eth0'),
+            (self.r1, 'r1-eth0'),
+            (self.r1, 'r1-eth1')
+        ]
+
+        for iface, host in self.statistics.iface_to_host.items():
+            popen(host, f'ethtool -K {iface} gso {x} tso {x}')
+
+    def disable_checksum_offloading(self):
+        sclog('disable checksum offloading')
+        for iface, host in self.statistics.iface_to_host.items():
+            popen(host, f'ethtool --offload {iface} rx off tx off')
 
     def start_tcp_pep(self):
         sclog('Starting the TCP PEP on r1...')

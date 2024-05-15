@@ -245,6 +245,7 @@ if __name__ == '__main__':
                                quack_sender_ipaddr='10.0.1.10',
                                quack_receiver_sockaddr='10.0.1.1:5103')
     net.set_segmentation_offloading(args.tso)
+    net.disable_checksum_offloading()
     clean_logs()
 
     if args.ty == 'monitor':
