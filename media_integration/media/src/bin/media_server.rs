@@ -163,6 +163,7 @@ impl BufferedPackets {
     /// in the sequence is available. Removes that packet from the buffer.
     fn pop_seqno(&mut self) -> Option<Instant> {
         if !self.buffer.is_empty() && self.buffer.front().unwrap().time_recv.is_some() {
+            trace!("play {}", self.next_seqno);
             self.next_seqno += 1;
             Some(self.buffer.pop_front().unwrap().time_recv.unwrap())
         } else {

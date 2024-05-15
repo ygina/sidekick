@@ -151,9 +151,6 @@ impl Sidekick {
         // Everything we drain from the log has already been determined to
         // be quacked or lost. Remove the lost packets from the quack. Remove
         // any potentially in-flight packets from the quack.
-        println!("quack threshold={} acked={} missing={:?} suffix={}",
-            self.quack.threshold(), decoded.acked_ids.len(),
-            decoded.missing_ids, self.sidekick_log.len() - next_log_index);
         for index in decoded.missing_indexes {
             self.quack.remove(self.sidekick_log[index]);
             // Retransmit missing bytes and add it to the end of the log since
@@ -190,7 +187,7 @@ impl Sidekick {
 
             self.sendsock.send(&bytes).expect(
                 "failed to retransmit missing packets on send socket");
-            println!("retransmit {} id={} bytes={}",
+            debug!("retransmit {} id={} bytes={}",
                 u32::from_be_bytes([bytes[42], bytes[43], bytes[44], bytes[45]]),
                 self.sidekick_log[index], bytes.len());
             self.sidekick_log.push(self.sidekick_log[index]);
