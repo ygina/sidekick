@@ -123,7 +123,10 @@ if __name__ == '__main__':
              'enabled [0|1] (default: 1)')
     proto_config.add_argument('-s', '--sidekick', action='store_true',
         help='Enables the sidekick and sends the quack with the specified '
-             'frequency.')
+             'frequency. Sends quacks from r1 to h2.')
+    proto_config.add_argument('-b', '--buffer', action='store_true',
+        help='Enables the buffering sidekick and sends the quack with the'
+             'specified frequency. Sends quacks from h1 to r1.')
     proto_config.add_argument('--frequency', default='30ms',
         help='Quack frequency, in terms of ms or packets e.g., 2ms or 2p '
              '(default: 30ms)')
@@ -131,6 +134,8 @@ if __name__ == '__main__':
         metavar='PACKETS',
         help='Initializes the quACK sender and receiver with this threshold '
              '(default: 10).')
+    proto_config.add_argument('--style', default='power_sum',
+        choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
     proto_config.add_argument('--print-statistics', action='store_true',
         help='Print statistics on number of packets sent at each host')
 
@@ -184,8 +189,6 @@ if __name__ == '__main__':
     quack.add_argument('--quack-reset', type=bool, default=True,
         metavar='ENABLED',
         help='Whether to send quack reset messages [0|1] (default: 1)')
-    quack.add_argument('--style', default='power_sum',
-        choices=['power_sum', 'strawman_a', 'strawman_b', 'strawman_c'])
     quack.add_argument('--mark-acked', type=bool)
     quack.add_argument('--mark-lost-and-retx', type=bool)
     quack.add_argument('--update-cwnd', type=bool)
@@ -235,6 +238,12 @@ if __name__ == '__main__':
                                quack_sender_iface='r1-eth1',
                                quack_sender_ipaddr='10.0.2.1',
                                quack_receiver_sockaddr='10.0.2.10:5103')
+    if args.buffer:
+        net.start_quack_sender(args.frequency, args.threshold, args.style,
+                               quack_sender_host=net.h1,
+                               quack_sender_iface='h1-eth0',
+                               quack_sender_ipaddr='10.0.1.10',
+                               quack_receiver_sockaddr='10.0.1.1:5103')
     net.set_segmentation_offloading(args.tso)
     clean_logs()
 
