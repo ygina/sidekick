@@ -161,6 +161,27 @@ impl Sidekick {
             self.sidekick_bytes.push(vec![]);
             let mut bytes = self.sidekick_bytes.swap_remove(index);
 
+            // decrease ip ttl
+            bytes[22] -= 1;
+
+            // ip checksum
+            bytes[24] = 0;
+            bytes[25] = 0;
+            let mut checksum: u32 = 0;
+            for i in 0..10 {
+                checksum += u32::from_be_bytes([
+                    0,
+                    0,
+                    bytes[14+2*i],
+                    bytes[14+2*i+1],
+                ]);
+            }
+            checksum += checksum >> 16; // carry over the upper 2 bytes
+            checksum ^= 0xFFFF;         // one's complement of lower 2 bytes
+            let checksum = (checksum as u16).to_be_bytes();
+            bytes[24] = checksum[0];
+            bytes[25] = checksum[1];
+
             self.sendsock.send(&bytes).expect(
                 "failed to retransmit missing packets on send socket");
             println!("retransmit {} id={} bytes={}",
