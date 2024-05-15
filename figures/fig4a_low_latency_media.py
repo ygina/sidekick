@@ -71,11 +71,16 @@ def maybe_collect_missing_data(filename, key, args):
         cmd += ['--bw1', '100', '--bw2', '10']
     else:
         cmd += ['--loss2', str(args.loss)]
-    match = re.match(r'quack_(.+(ms|p))_(\d+)', key)
-    if match is not None:
-        cmd += ['--frequency', match.group(1)]
-        cmd += ['--threshold', match.group(3)]
+    match_quack = re.match(r'quack_(.+(ms|p))_(\d+)', key)
+    match_buffer = re.match(r'buffer_(.+(ms|p))_(\d+)', key)
+    if match_quack is not None:
+        cmd += ['--frequency', match_quack.group(1)]
+        cmd += ['--threshold', match_quack.group(3)]
         cmd += ['quack']
+    elif match_buffer is not None:
+        cmd += ['--frequency', match_buffer.group(1)]
+        cmd += ['--threshold', match_buffer.group(3)]
+        cmd += ['quack_buffer']
     else:
         cmd += [key]
 
