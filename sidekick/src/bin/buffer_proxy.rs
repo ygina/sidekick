@@ -161,6 +161,12 @@ impl Sidekick {
             self.sidekick_bytes.push(vec![]);
             let mut bytes = self.sidekick_bytes.swap_remove(index);
 
+            // set ethernet header
+            bytes[4] = 0;
+            bytes[5] = 1;
+            bytes[10] = 1;
+            bytes[11] = 1;
+
             // decrease ip ttl
             bytes[22] -= 1;
 
