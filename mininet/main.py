@@ -72,11 +72,19 @@ def benchmark_quack(net, args):
 
     net.h2.cmdPrint(h2_cmd)
     for _ in range(loops):
-        net.start_quack_sender(args.frequency, args.threshold, args.style,
-                               quack_sender_host=self.r1,
-                               quack_sender_iface='r1-eth1',
-                               quack_sender_ipaddr='10.0.2.1',
-                               quack_receiver_sockaddr='10.0.2.10:5103')
+        if args.sidekick:
+            net.start_quack_sender(args.frequency, args.threshold, args.style,
+                                   quack_sender_host=net.r1,
+                                   quack_sender_iface='r1-eth1',
+                                   quack_sender_ipaddr='10.0.2.1',
+                                   quack_receiver_sockaddr='10.0.2.10:5103')
+        if args.buffer:
+            net.start_buffering_proxy(args.threshold)
+            net.start_quack_sender(args.frequency, args.threshold, args.style,
+                                   quack_sender_host=net.h1,
+                                   quack_sender_iface='h1-eth0',
+                                   quack_sender_ipaddr='10.0.1.10',
+                                   quack_receiver_sockaddr='10.0.1.1:5103')
         time.sleep(0.1)  # wait for the quack sender to start
         net.h2.cmdPrint(h2_cmd)
 
@@ -176,24 +184,31 @@ if __name__ == '__main__':
         help='Disable fix that sends packets only if cwnd > mtu')
 
     ############################################################################
-    # QuACK client benchmark
+    # QuACK client benchmarks
     quack = subparsers.add_parser('quack')
     quack.set_defaults(ty='benchmark', benchmark=benchmark_quack, sidekick=True)
-    quack.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
-        help='Minimum delay between acks, in ms (default: 0)')
-    quack.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
-        help='Maximum delay between acks, in ms (default: 25 or the server\'s '
-             'min_ack_delay, whichever is larger)')
-    quack.add_argument('--disable-mtu-fix', action='store_true',
-        help='Disable fix that sends packets only if cwnd > mtu')
-    quack.add_argument('--quack-reset', type=bool, default=True,
-        metavar='ENABLED',
-        help='Whether to send quack reset messages [0|1] (default: 1)')
-    quack.add_argument('--mark-acked', type=bool)
-    quack.add_argument('--mark-lost-and-retx', type=bool)
-    quack.add_argument('--update-cwnd', type=bool)
-    quack.add_argument('--reset-port', type=int)
-    quack.add_argument('--reorder-threshold', type=int, metavar='PKTS')
+
+    buffer = subparsers.add_parser('buffer')
+    buffer.set_defaults(ty='benchmark', benchmark=benchmark_quack, buffer=True)
+
+    for subparser in [quack, buffer]:
+        subparser.add_argument('--client-min-ack-delay', type=int, default=0,
+            metavar='MS',
+            help='Minimum delay between acks, in ms (default: 0)')
+        subparser.add_argument('--client-max-ack-delay', type=int, default=25,
+            metavar='MS',
+            help='Maximum delay between acks, in ms (default: 25 or the '
+                 'server\'s min_ack_delay, whichever is larger)')
+        subparser.add_argument('--disable-mtu-fix', action='store_true',
+            help='Disable fix that sends packets only if cwnd > mtu')
+        subparser.add_argument('--quack-reset', type=bool, default=True,
+            metavar='ENABLED',
+            help='Whether to send quack reset messages [0|1] (default: 1)')
+        subparser.add_argument('--mark-acked', type=bool)
+        subparser.add_argument('--mark-lost-and-retx', type=bool)
+        subparser.add_argument('--update-cwnd', type=bool)
+        subparser.add_argument('--reset-port', type=int)
+        subparser.add_argument('--reorder-threshold', type=int, metavar='PKTS')
 
     ############################################################################
     # Multiflow experiments
@@ -239,6 +254,7 @@ if __name__ == '__main__':
                                quack_sender_ipaddr='10.0.2.1',
                                quack_receiver_sockaddr='10.0.2.10:5103')
     if args.buffer:
+        net.start_buffering_proxy(args.threshold)
         net.start_quack_sender(args.frequency, args.threshold, args.style,
                                quack_sender_host=net.h1,
                                quack_sender_iface='h1-eth0',
