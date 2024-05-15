@@ -231,7 +231,7 @@ if __name__ == '__main__':
         net.start_tcp_pep()
     if args.sidekick:
         net.start_quack_sender(args.frequency, args.threshold, args.style,
-                               quack_sender_host=self.r1,
+                               quack_sender_host=net.r1,
                                quack_sender_iface='r1-eth1',
                                quack_sender_ipaddr='10.0.2.1',
                                quack_receiver_sockaddr='10.0.2.10:5103')
