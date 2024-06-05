@@ -34,7 +34,7 @@ plt.style.use('seaborn-v0_8-white')
 
 prop_cycle = plt.rcParams['axes.prop_cycle']
 colors = prop_cycle.by_key()['color']
-COLOR_MAP = {}
+COLOR_MAP = defaultdict(lambda: None)
 COLOR_MAP['quack'] = COLOR_MAP['quack_30ms_10'] = colors[0]
 COLOR_MAP['pep'] = colors[2]
 COLOR_MAP['quic'] = colors[1]

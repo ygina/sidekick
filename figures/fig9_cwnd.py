@@ -4,7 +4,8 @@ import statistics
 from os import path
 from common import *
 
-KEYS = ['cwnd', 'bytes_in_flight']
+# KEYS = ['cwnd', 'bytes_in_flight']
+KEYS = ['cwnd']
 
 def parse_quic_data(filename):
     with open(filename) as f:
@@ -34,7 +35,7 @@ def parse_quic_data(filename):
 
     if len(xs['cwnd']) == 0:
         return (xs, ys)
-    min_x = min([min(xs[key]) for key in KEYS])
+    min_x = min([min(xs[key]) for key in xs])
     for key in KEYS:
         xs[key] = [x - min_x for x in xs[key]]  # Normalize by initial time
 
@@ -148,6 +149,8 @@ def execute_and_parse_data(args, bm, loss, key='cwnd'):
         cmd += ['--timeout', str(args.time)]
         cmd += ['--min-ack-delay', args.min_ack_delay]
         cmd += ['quic']
+        if 'bbr' in bm:
+            cmd += ['--congestion-control', 'bbr']
     elif 'quack' in bm:
         cmd += ['-n', f'{args.time}M', '-t', '1']
         cmd += ['--timeout', str(args.time)]
@@ -210,6 +213,7 @@ def run(args, https, loss):
 
     label_map = {
         'quic': 'CUBIC',
+        'quic_bbr': 'BBR',
         'quack': 'PACUBIC',
         'pep_r1': 'Split CUBIC (Proxy)',
         'pep_h2': 'Split CUBIC',
@@ -232,8 +236,12 @@ def run(args, https, loss):
             label = LABEL_MAP[bm]
         else:
             label = bm
+        if bm in linestyle_map:
+            linestyle = linestyle_map[bm]
+        else:
+            linestyle = LINESTYLES[0]
         plt.plot(xs, ys, label=label, color=COLOR_MAP[bm], linewidth=LINEWIDTH,
-                 linestyle=linestyle_map[bm])
+                 linestyle=linestyle)
         print_average_cwnd(bm, xs, ys)
 
     plt.xlabel('Time Since Start (s)')
