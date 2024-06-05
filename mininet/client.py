@@ -51,6 +51,8 @@ def run_quic_client(args):
         cmd += f'--quack-style {args.quack_style} '
     if args.disable_mtu_fix:
         cmd += '--disable-mtu-fix '
+    if args.congestion_control is not None:
+        cmd += f'--congestion-control {args.congestion_control} '
     if args.min_ack_delay is not None:
         cmd += f'--min-ack-delay {args.min_ack_delay} '
     if args.max_ack_delay is not None:
@@ -101,6 +103,7 @@ if __name__ == '__main__':
     quic = subparsers.add_parser('quic')
     quic.add_argument('--threshold', type=int, default=0,
                       help='The quACK threshold. (default: 0)')
+    quic.add_argument('--congestion-control', type=str, help='cubic or bbr (default: cubic)')
     quic.add_argument('--min-ack-delay', type=int, default=0, metavar='MS',
                       help='Min delay between acks. (default: 0)')
     quic.add_argument('--max-ack-delay', type=int, default=25, metavar='MS',

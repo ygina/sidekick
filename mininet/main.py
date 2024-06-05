@@ -18,6 +18,8 @@ def benchmark(net, args, proxy, quic, client):
     if args.trials: h2_cmd += f'-t {args.trials} '
     h2_cmd += f'{client}'
     if quic:
+        if args.congestion_control is not None:
+            h2_cmd += f' --congestion-control {args.congestion_control}'
         h2_cmd += f' --min-ack-delay {args.client_min_ack_delay} '
         h2_cmd += f' --max-ack-delay {max(args.client_max_ack_delay, args.min_ack_delay)} '
         if args.disable_mtu_fix:
@@ -175,6 +177,7 @@ if __name__ == '__main__':
     # QUIC client benchmark
     quic = subparsers.add_parser('quic')
     quic.set_defaults(ty='benchmark', benchmark=benchmark_quic, sidekick=False)
+    quic.add_argument('--congestion-control', type=str, help='cubic or bbr (default: cubic)')
     quic.add_argument('--client-min-ack-delay', type=int, default=0, metavar='MS',
         help='Minimum delay between acks, in ms (default: 0)')
     quic.add_argument('--client-max-ack-delay', type=int, default=25, metavar='MS',
