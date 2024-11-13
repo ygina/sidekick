@@ -45,7 +45,7 @@ git checkout sidekick
 cd $SIDEKICK_HOME/deps
 curl -O https://nginx.org/download/nginx-1.16.1.tar.gz
 tar xvzf nginx-1.16.1.tar.gz
-wget https://pari.math.u-bordeaux.fr/pub/pari/unix/pari-2.15.2.tar.gz
+wget https://pari.math.u-bordeaux.fr/pub/pari/OLD/2.15/pari-2.15.2.tar.gz
 tar xvzf pari-2.15.2.tar.gz
 git clone git@github.com:viveris/pepsal.git
 rm nginx-1.16.1.tar.gz pari-2.15.2.tar.gz
